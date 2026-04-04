@@ -31,7 +31,7 @@ const SignIn = () => {
             <Image
               style={styles.layer11Icon}
               contentFit="cover"
-              source={require("../assets/Layer-1-1.png")}
+              source={require("../../assets/images/Layer-1-1.png")}
             />
           </View>
           <LinearGradient

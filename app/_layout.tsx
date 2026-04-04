@@ -7,29 +7,25 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Ngăn Splash Screen tự động ẩn trước khi font chữ tải xong
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
+  
+  // Tải các font chữ cần thiết cho dự án
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'LexendDeca-Regular': require('../assets/fonts/LexendDeca-Regular.ttf'),
+    'LexendDeca-Medium': require('../assets/fonts/LexendDeca-Medium.ttf'),
+    'LexendDeca-SemiBold': require('../assets/fonts/LexendDeca-SemiBold.ttf'),
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  // Xử lý lỗi tải font
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
+  // Ẩn Splash Screen khi font đã sẵn sàng
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -40,17 +36,20 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Màn hình chính là nhóm Tabs */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        
+        {/* Nhóm Auth (Sign-in, Register, etc.) */}
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        
+        {/* Màn hình Modal (nếu có) */}
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        
+        {/* Màn hình 404 */}
+        <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
       </Stack>
     </ThemeProvider>
   );

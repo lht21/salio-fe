@@ -6,9 +6,11 @@ export const FontFamily = {
 };
 /* Font sizes */
 export const FontSize = {
+  fs_10: 10,
   fs_12: 12,
   fs_14: 14,
   fs_16: 16,
+  fs_20: 20,
   fs_24: 24,
 };
 /* Colors */

@@ -28,8 +28,8 @@ export default function TabLayout() {
           marginBottom: 5,
         },
         tabBarStyle: {
-          height: 60,
-          paddingTop: 8,
+          height: 100,
+          paddingTop: 10,
           backgroundColor: Color.bg || '#FFFFFF',
         }
       }}>
@@ -40,7 +40,7 @@ export default function TabLayout() {
         options={{
           title: 'Học',
           tabBarIcon: ({ color, focused }) => (
-            <HouseIcon size={24} color={color} weight={focused ? "fill" : "regular"} />
+            <HouseIcon size={24} color={color} weight={focused ? "fill" : "fill"} />
           ),
         }}
       />
@@ -51,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: 'Thi',
           tabBarIcon: ({ color, focused }) => (
-            <PenNibStraightIcon size={24} color={color} weight={focused ? "fill" : "regular"} />
+            <PenNibStraightIcon size={24} color={color} weight={focused ? "fill" : "fill"} />
           ),
         }}
       />
@@ -62,7 +62,7 @@ export default function TabLayout() {
         options={{
           title: 'Từ vựng',
           tabBarIcon: ({ color, focused }) => (
-            <CardsIcon size={24} color={color} weight={focused ? "fill" : "regular"} />
+            <CardsIcon size={24} color={color} weight={focused ? "fill" : "fill"} />
           ),
         }}
       />
@@ -73,7 +73,7 @@ export default function TabLayout() {
         options={{
           title: 'Cộng đồng',
           tabBarIcon: ({ color, focused }) => (
-            <UsersThreeIcon size={24} color={color} weight={focused ? "fill" : "regular"} />
+            <UsersThreeIcon size={24} color={color} weight={focused ? "fill" : "fill"} />
           ),
         }}
       />
@@ -84,7 +84,7 @@ export default function TabLayout() {
         options={{
           title: 'Tôi',
           tabBarIcon: ({ color, focused }) => (
-            <IdentificationBadgeIcon size={24} color={color} weight={focused ? "fill" : "regular"} />
+            <IdentificationBadgeIcon size={24} color={color} weight={focused ? "fill" : "fill"} />
           ),
         }}
       />

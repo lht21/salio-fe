@@ -13,13 +13,13 @@ const WindingPath = () => {
           d="M 280 50 Q 80 180 120 300 T 260 480 T 120 680 T 250 850" 
           fill="none" 
           stroke={Color.main || '#1877F2'} 
-          strokeWidth={4} 
+          strokeWidth={7} 
         />
         <Path 
           d="M 280 50 Q 80 180 120 300 T 260 480 T 120 680 T 250 850" 
           fill="none" 
           stroke={Color.bg || '#FFFFFF'} 
-          strokeWidth={2} 
+          strokeWidth={9} 
           strokeDasharray="10, 10"
         />
       </Svg>

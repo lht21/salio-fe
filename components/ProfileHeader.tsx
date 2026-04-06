@@ -5,20 +5,23 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GearSixIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 import StatusBadge from './StatusBadge';
+import { useRouter } from 'expo-router';
 
 const ProfileHeader = () => {
+  const router = useRouter();
   return (
     <View style={styles.container}>
       {/* Background Gradient */}
-      <LinearGradient
-        colors={['#CEF9B4', '#E6FEE6', Color.bg]}
+      <View
+        
         style={styles.gradientBg}
       />
       
       {/* Settings Icon */}
-      <TouchableOpacity style={styles.settingsBtn}>
+      <TouchableOpacity style={styles.settingsBtn}
+      onPress={() => router.push('/settings')}>
         <View style={styles.settingsIconBg}>
-          <GearSixIcon size={24} color={Color.gray} weight="fill" />
+          <GearSixIcon size={24} color={Color.bg} weight="fill" />
         </View>
       </TouchableOpacity>
 
@@ -50,8 +53,9 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 150,
+    height: 120,
     zIndex: 0,
+    backgroundColor: Color.main || '#98F291',
   },
   settingsBtn: {
     position: 'absolute',
@@ -60,7 +64,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   settingsIconBg: {
-    backgroundColor: Color.stroke,
+    backgroundColor: Color.gray,
     padding: 8,
     borderRadius: 20,
   },
@@ -72,9 +76,9 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    backgroundColor: Color.xanh || '#1877F2',
-    borderWidth: 4,
-    borderColor: Color.bg,
+    backgroundColor: Color.bg || '#1877F2',
+    borderWidth: 3,
+    borderColor: Color.main,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Gap.gap_15,
@@ -86,8 +90,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   avatar: {
-    width: 102,
-    height: 102,
+    width: 100,
+    height: 100,
     borderRadius: 51,
   },
   username: {

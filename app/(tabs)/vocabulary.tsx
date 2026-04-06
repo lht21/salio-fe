@@ -17,7 +17,7 @@ export default function VocabularyScreen() {
   const [searchText, setSearchText] = useState('');
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -68,14 +68,15 @@ export default function VocabularyScreen() {
           <Text style={styles.footerText}>Lưu thêm từ vựng</Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { 
     flex: 1, 
-    backgroundColor: Color.bg || '#FFFFFF' 
+    backgroundColor: Color.bg || '#FFFFFF',
+    paddingTop: 50,
   },
   scrollContent: { 
     padding: Padding.padding_15 || 15 

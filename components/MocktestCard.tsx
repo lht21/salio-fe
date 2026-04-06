@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
 
   },
   iconContainer: {
-    backgroundColor: '#8B5CF6', // Màu tím
     width: 44,
     height: 44,
     borderRadius: Border.br_10 || 10,

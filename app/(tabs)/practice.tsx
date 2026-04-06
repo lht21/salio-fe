@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PracticeScreen() {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -50,7 +50,7 @@ export default function PracticeScreen() {
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Color.bg || '#FFFFFF',
+    paddingTop: 50,
   },
   scrollContent: {
     paddingHorizontal: Padding.padding_15 || 15,
@@ -71,9 +72,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 26,
-    color: Color.text,
+    fontFamily: FontFamily.lexendDecaSemiBold, 
+    fontSize: FontSize.fs_20 || 20, 
+    color: Color.text || '#1E1E1E' 
   },
   filterContainer: {
     flexDirection: 'row',

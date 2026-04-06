@@ -24,11 +24,12 @@ export const Color = {
   green: "#4A9F00",          // Thêm mới
   gray: "#64748B",
   stroke: "#C9D0DB",
-  cam: "#FFA054",         // Chữ cái đầu viết thường cho chuẩn camelCase
+  cam: "#FF6B00",         // Chữ cái đầu viết thường cho chuẩn camelCase
   vang: "#F9F871",        // Cập nhật từ "vng"
   textInVang: "#FFFFFF",  // Thêm mới từ "text in vang"
   color: "#0C5F35",
   bgTest: "#FFFFFF",
+  red: "#A10202",
 
   // --- CÁC MÀU KHÁC TỪ MÃ CŨ (Giữ lại để không bị lỗi undefined) ---
   colorBlack: "#000000",

@@ -26,7 +26,7 @@ const CurrentLessonCard = () => {
 const styles = StyleSheet.create({
   currentLessonWrapper: {
     paddingHorizontal: Padding.padding_15 || 15,
-    marginTop: 10,
+   
   },
   currentLessonCard: {
     backgroundColor: Color.bg || '#FFFFFF',
@@ -34,11 +34,17 @@ const styles = StyleSheet.create({
     padding: Padding.padding_15 || 15,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    
+    // Tinh chỉnh đổ bóng (Blur viền mềm)
+    shadowColor: '#000000', // Dùng màu đen chuẩn để bóng mờ tự nhiên
+    shadowOffset: { width: 0, height: 6 }, // Kéo bóng xuống một chút
+    shadowOpacity: 0.08, // Độ đậm rất nhẹ (8%)
+    shadowRadius: 15, // TĂNG CHỈ SỐ NÀY ĐỂ TẠO ĐỘ BLUR MỀM MẠI
+    elevation: 8, // Dành cho Android (Android không nhận shadowRadius nên phải dùng elevation cao lên để bóng tỏa rộng hơn)
+
+    // (Tùy chọn) Một viền cực mỏng và nhạt để card nét hơn nhưng vẫn giữ được độ mềm
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.03)', 
   },
   currentLessonTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,

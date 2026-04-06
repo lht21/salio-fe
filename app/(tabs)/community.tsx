@@ -57,7 +57,7 @@ export default function CommunityScreen() {
       <View style={styles.topBar}>
         <Text style={styles.pageTitle}>Cộng đồng trao đổi</Text>
         <TouchableOpacity>
-          <PlusIcon size={28} color={Color.text} weight="bold" />
+          <PlusIcon size={24} color={Color.text} weight="bold" />
         </TouchableOpacity>
       </View>
 
@@ -87,7 +87,7 @@ export default function CommunityScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       {/* Absolute Background Gradient ở phía trên */}
       <LinearGradient
         colors={[Color.main || '#98F291', '#D4F5C9', Color.bg]}
@@ -102,7 +102,7 @@ export default function CommunityScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Color.bg,
+    paddingTop: 50,
   },
   backgroundGradient: {
     position: 'absolute',
@@ -135,9 +136,9 @@ const styles = StyleSheet.create({
     marginBottom: Gap.gap_20 || 20,
   },
   pageTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24 || 24,
-    color: Color.text,
+    fontFamily: FontFamily.lexendDecaSemiBold, 
+    fontSize: FontSize.fs_20 || 20, 
+    color: Color.text || '#1E1E1E' 
   },
   chipRow: {
     marginBottom: 24,

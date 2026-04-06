@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
+    fontSize: FontSize.fs_20,
     color: Color.text,
   },
   actionRow: {

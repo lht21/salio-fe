@@ -7,7 +7,7 @@ const { width } = Dimensions.get('window');
 
 const WindingPath = () => {
   return (
-    <View style={styles.svgContainer}>
+    <View style={styles.svgContainer} pointerEvents="none">
       <Svg width={width} height={900}>
         <Path 
           d="M 280 50 Q 80 180 120 300 T 260 480 T 120 680 T 250 850" 

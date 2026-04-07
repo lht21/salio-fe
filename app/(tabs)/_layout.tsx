@@ -2,14 +2,13 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 
 import { Color, FontFamily } from '@/constants/GlobalStyles';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+
 
 // Import bộ icon từ phosphor-react-native tương ứng với thiết kế
 import { HouseIcon, PenNibStraightIcon, CardsIcon, UsersThreeIcon, IdentificationBadgeIcon } from 'phosphor-react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+
 
   return (
     <Tabs
@@ -18,7 +17,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: Color.main2 || '#02B0A0',
         // Màu xám cho tab không chọn
         tabBarInactiveTintColor: Color.gray || '#64748B',
-        headerShown: useClientOnlyValue(false, false),
+        headerShown: false,
         
         // Chỉnh lại style chữ của Tab Bar cho giống thiết kế
         tabBarLabelStyle: {

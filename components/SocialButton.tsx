@@ -23,7 +23,7 @@ const SOCIAL_ICONS = {
 const SocialButton = ({
   social,
   onPress,
-  size = 28,
+  size = 35,
   iconColor = Color.stroke,
 }: SocialButtonType) => {
 

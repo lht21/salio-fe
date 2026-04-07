@@ -17,18 +17,23 @@ import {
   InfoIcon,
   UsersIcon,
   SignOutIcon,
+  PasswordIcon,
 
 } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { SettingsRow } from '../../components/SettingsRow';
 import { UpgradeBanner } from '../../components/UpgradeBanner';
+import { useRouter } from 'expo-router';
+
 
 export default function SettingsScreen() {
+
+  const router = useRouter();
   return (
     <View style={styles.container}>
       {/* 1. Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Cài đặt</Text>
@@ -37,7 +42,7 @@ export default function SettingsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* 2. Khối Đổi Avatar */}
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.section}>
           <View style={styles.avatarRow}>
             {/* Giả lập Avatar với hình ảnh, thay source bằng ảnh thật của bạn */}
             <Image 
@@ -46,7 +51,7 @@ export default function SettingsScreen() {
             />
             <View style={styles.avatarAction}>
               <Text style={styles.avatarText}>Thay đổi</Text>
-              <CaretRightIcon size={16} color={Color.text} weight="bold" />
+              <CaretRightIcon size={16} color={Color.gray} weight="bold" />
             </View>
           </View>
         </TouchableOpacity>
@@ -56,17 +61,17 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Thông tin cá nhân</Text>
           <View style={styles.card}>
             <SettingsRow 
-              icon={<UserIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<UserIcon size={24} color={Color.main2} weight="regular" />} 
               label="Tên người dùng" 
               value="tranlehuy" 
             />
             <SettingsRow 
-              icon={<EnvelopeSimpleIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<EnvelopeSimpleIcon size={24} color={Color.main2} weight="regular" />} 
               label="Email" 
               value="huyt61933@gmail.com" 
             />
             <SettingsRow 
-              icon={<StarIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<PasswordIcon size={24} color={Color.main2} weight="regular" />} 
               label="Mật khẩu" 
               value="Đổi mật khẩu" 
               isLast={true}
@@ -78,8 +83,13 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Gói học tập</Text>
           {/* Box của UpgradeBanner đã có margin, bọc trong View có margin âm để cân đối nếu cần, hoặc chỉnh trực tiếp trong file của bạn */}
-          <View style={{ marginHorizontal: -Padding.padding_15 }}>
-            <UpgradeBanner />
+          <View style={styles.card}>
+            <SettingsRow 
+              icon={<StarIcon size={24} color={Color.main2} weight="fill" />} 
+              label="Salio Master TOPIK" 
+              isLast={true}
+              onPress={() => router.push('/subscription/manage')}
+            />
           </View>
         </View>
 
@@ -111,7 +121,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Nền tảng</Text>
           <View style={styles.card}>
             <SettingsRow 
-              icon={<GlobeIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<GlobeIcon size={24} color={Color.main2} weight="regular" />} 
               label="Website" 
               isLast={true}
             />
@@ -123,19 +133,19 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Giới thiệu</Text>
           <View style={styles.card}>
             <SettingsRow 
-              icon={<LockKeyIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<LockKeyIcon size={24} color={Color.main2} weight="regular" />} 
               label="Quyền riêng tư" 
             />
             <SettingsRow 
-              icon={<CookieIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<CookieIcon size={24} color={Color.main2} weight="regular" />} 
               label="Điều khoản dịch vụ" 
             />
             <SettingsRow 
-              icon={<HeadsetIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<HeadsetIcon size={24} color={Color.main2} weight="regular" />} 
               label="Trung tâm hỗ trợ" 
             />
             <SettingsRow 
-              icon={<InfoIcon size={20} color={Color.main2} weight="regular" />} 
+              icon={<InfoIcon size={24} color={Color.main2} weight="regular" />} 
               label="Về chúng tôi" 
               isLast={true}
             />
@@ -146,13 +156,13 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <View style={styles.card}>
             <SettingsRow 
-              icon={<UsersIcon size={20} color={Color.xanh} weight="regular" />} 
+              icon={<UsersIcon size={24} color={Color.xanh} weight="regular" />} 
               label="Đăng nhập bằng tài khoản khác"
               labelColor={Color.gray}
               showArrow={false}
             />
             <SettingsRow 
-              icon={<SignOutIcon size={20} color={Color.red} weight="regular" />} 
+              icon={<SignOutIcon size={24} color={Color.red} weight="regular" />} 
               label="Đăng xuất"
               labelColor={Color.red}
               showArrow={false}
@@ -199,6 +209,11 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+    borderColor: Color.stroke,
+    borderWidth: 1,
+    borderRadius: Border.br_15,
+    padding: Padding.padding_15,
+    backgroundColor: Color.bg, // Nền trắng cho từng section để nổi bật trên nền tổng thể
   },
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaMedium,
@@ -209,11 +224,6 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: Color.bg,
-    borderRadius: Border.br_15,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-    paddingHorizontal: Padding.padding_15,
-    paddingVertical: Padding.padding_5,
   },
   // Style riêng cho khối đổi Avatar
   avatarRow: {
@@ -236,7 +246,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.text,
+    color: Color.gray,
   },
   // Style riêng cho khối Grid (Tương tác)
   gridCard: {

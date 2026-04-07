@@ -21,7 +21,7 @@ export const Color = {
   main: "#98F291",
   main2: "#02B0A0",       // Thêm mới từ "main 2"
   xanh: "#1877F2",        // Thêm mới
-  green: "#4A9F00",          // Thêm mới
+  green: "#059669",          // Thêm mới
   gray: "#64748B",
   stroke: "#C9D0DB",
   cam: "#FF6B00",         // Chữ cái đầu viết thường cho chuẩn camelCase
@@ -30,6 +30,8 @@ export const Color = {
   color: "#0C5F35",
   bgTest: "#FFFFFF",
   red: "#A10202",
+  blueFb: "#1877F2",
+  greenLight: "#ECFFEB",
 
   // --- CÁC MÀU KHÁC TỪ MÃ CŨ (Giữ lại để không bị lỗi undefined) ---
   colorBlack: "#000000",

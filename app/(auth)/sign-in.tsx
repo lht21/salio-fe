@@ -1,126 +1,189 @@
-import * as React from "react";
-import { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import RadialGradient from "../../components/RadialGradient";
-import SocialButton from "../../components/SocialButton";
-import LoginForm from "../../components/LoginForm";
-import { Gap, Color } from "../../constants/GlobalStyles";
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const SignIn = () => {
-  
+// --- Components ---
+import Button from '../../components/Button';
+import SocialButton from '../../components/SocialButton';
+import { CustomInput } from '../../components/CustomInput';
+
+// --- Constants ---
+import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../constants/GlobalStyles';
+
+export default function SignInScreen() {
+  const router = useRouter();
 
   return (
-    <RadialGradient
-      style={[styles.signIn, styles.signInLayout]}
-      locations={[0, 0.6]}
-      colors={["#d7ffb4", Color.main]}
-      cx={"92.44%"}
-      cy={"-2.43%"}
-      rx={"77.68%"}
-      ry={"101.37%"}
+    <LinearGradient
+      colors={[Color.main, Color.bg]}
+      locations={[0, 0.5]}
+      style={styles.gradientBackground}
     >
-      <KeyboardAwareScrollView
-        style={[styles.keyboardawarescrollview, styles.signInLayout]}
-        contentContainerStyle={styles.signInScrollViewContent}
-      >
-        <View style={[styles.headerParent, styles.logoFlexBox]}>
-          <View style={[styles.header, styles.headerFlexBox]}>
-            <Image
-              style={styles.layer11Icon}
-              contentFit="cover"
-              source={require("../../assets/images/Layer-1-1.png")}
-            />
-          </View>
-          <LinearGradient
-            style={[styles.logo, styles.logoFlexBox]}
-            locations={[0, 1]}
-            colors={["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.95)"]}
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoiding}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
           >
-            <View style={[styles.socialMediaIcons, styles.headerFlexBox]}>
-                <SocialButton
-                    social="google"
-                />
-                <SocialButton
-                    social="apple"
-                    
-                />
-                <SocialButton
-                    social="facebook"
-                   
-                />
+            {/* --- PHẦN TRÊN: Logo & Nút đăng nhập MXH --- */}
+            <View style={styles.topSection}>
+              <Image
+                source={require('../../assets/images/Layer-1-1.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              
             </View>
-            <View style={styles.divider} />
-            <LoginForm />
-          </LinearGradient>
-        </View>
-      </KeyboardAwareScrollView>
-    </RadialGradient>
+
+            {/* --- PHẦN DƯỚI CÙNG: Form Đăng Nhập --- */}
+            <View style={styles.bottomSection}>
+              <View style={styles.socialContainer}>
+                {/* Truyền props tương ứng vào SocialButton của bạn */}
+                <SocialButton social="google" iconColor={Color.red} />
+                <SocialButton social="facebook" iconColor={Color.blueFb} />
+                <SocialButton social="apple" iconColor={Color.text} />
+              </View>
+
+              <View style={styles.divider} />
+
+              <Text style={styles.heading}>Đăng nhập</Text>
+
+              <View style={styles.formContainer}>
+                <CustomInput
+                  placeholder="Email"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <CustomInput
+                  placeholder="Mật khẩu"
+                  secureTextEntry
+                />
+              </View>
+
+
+              <View style={styles.actionRow}>
+                <Button
+                  title="Đăng ký"
+                  variant="TextOnly"
+                  onPress={() => router.push('/(auth)/register/email')}
+                />
+                <Button
+                  title="Đăng nhập"
+                  variant="Green"
+                  onPress={() => router.push('/(tabs)')}
+                  style={styles.loginButton}
+                />
+              </View>
+              <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => router.push('/(auth)/forgot-password/email')}>
+                <Text style={{ 
+                  fontFamily: FontFamily.lexendDecaRegular,
+                  fontSize: FontSize.fs_12,
+                  color: Color.color,
+                }}>
+                  Quên mật khẩu?
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  signInScrollViewContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 844,
+  gradientBackground: {
     flex: 1,
   },
-  signInLayout: {
-    maxWidth: "100%",
-    width: "100%",
-    backgroundColor: "transparent",
+  safeArea: {
     flex: 1,
   },
-  logoFlexBox: {
-    alignItems: "center",
-    alignSelf: "stretch",
+  keyboardAvoiding: {
+    flex: 1,
   },
-  headerFlexBox: {
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "stretch",
+  scrollContent: {
+    flexGrow: 1,
+    // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
+    justifyContent: 'space-between',
+    padding: Padding.padding_15,
   },
-  signIn: {
-    backgroundColor: "transparent",
-  },
-  keyboardawarescrollview: {
-    backgroundColor: "transparent",
-  },
-  headerParent: {
-    justifyContent: "space-between",
+  
+  // --- TOP SECTION ---
+  topSection: {
+    alignItems: 'center',
+    paddingTop: Padding.padding_30,
     gap: Gap.gap_20,
-    flex: 1,
-  },
-  header: {
-    flex: 1,
-  },
-  layer11Icon: {
-    width: 163,
-    height: 74,
   },
   logo: {
-    height: 527,
-    justifyContent: "flex-end",
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-    gap: 31,
-    backgroundColor: "transparent",
+    height: Height.height_113, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
+    aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
+    marginBottom: Padding.padding_10,
   },
-  socialMediaIcons: {
-    flexDirection: "row",
-    gap: 29,
+  socialContainer: {
+    width: '100%',
+    gap: Gap.gap_20,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
+
+  // --- BOTTOM SECTION ---
+  bottomSection: {
+    width: '100%',
+    gap: Gap.gap_15,
+    paddingTop: Padding.padding_30,
+
+  },
+  heading: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_24,
+    color: Color.color,
+    textAlign: 'left',
+    marginBottom: Padding.padding_5,
+  },
+  formContainer: {
+    width: '100%',
+    gap: Gap.gap_15,
+  },
+  loginButton: {
+    marginTop: Padding.padding_5,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  forgotPasswordButton: {
+    marginTop: Padding.padding_10,
+    backgroundColor: Color.greenLight,
+    paddingVertical: Padding.padding_10,
+    borderRadius: Border.br_10,
+    alignItems: 'center',
+  },
+
   divider: {
     width: 76,
     height: 3,
     borderStyle: "solid",
     borderColor: Color.colorSlategray,
     borderTopWidth: 3,
+    alignSelf: 'center',
+    margin: Gap.gap_20,
   },
 });
-
-export default SignIn;

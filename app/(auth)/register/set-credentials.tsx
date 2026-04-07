@@ -82,7 +82,7 @@ export default function SetCredentialScreen() {
                 <Button
                   title="Tiếp theo"
                   variant="Green"
-                  onPress={() => router.push('/(auth)/register/verify-otp')}
+                  onPress={() => router.push('/(tabs)')}
                   style={styles.loginButton}
                 />
               </View>

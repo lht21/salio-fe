@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { 
   ArrowLeftIcon,
@@ -24,11 +24,23 @@ import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constan
 import { SettingsRow } from '../../components/SettingsRow';
 import { UpgradeBanner } from '../../components/UpgradeBanner';
 import { useRouter } from 'expo-router';
+import { ConfirmModal } from '@/components/ModalConfirm/ConfirmModal';
 
 
 export default function SettingsScreen() {
 
   const router = useRouter();
+
+  // State quản lý việc hiển thị Modal đăng xuất
+  const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+
+  // Hàm xử lý khi người dùng nhấn "Có"
+  const handleConfirmLogout = () => {
+    setLogoutModalVisible(false);
+    // TODO: Xóa token, clear store state...
+    // Sau khi xử lý xong, điều hướng về màn hình Đăng nhập
+    router.replace('/(auth)/sign-in'); 
+  };
   return (
     <View style={styles.container}>
       {/* 1. Header */}
@@ -167,6 +179,7 @@ export default function SettingsScreen() {
               labelColor={Color.red}
               showArrow={false}
               isLast={true}
+              onPress={() => setLogoutModalVisible(true)} // Mở modal khi bấm
             />
           </View>
         </View>
@@ -178,6 +191,13 @@ export default function SettingsScreen() {
         </View>
 
       </ScrollView>
+
+      <ConfirmModal 
+        isVisible={isLogoutModalVisible}
+        title="Bạn chắc chắn muốn đăng xuất chứ?"
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setLogoutModalVisible(false)}
+      />
     </View>
   );
 }

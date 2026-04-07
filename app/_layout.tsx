@@ -40,9 +40,8 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }} initialRouteName='auth'>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName='(auth)'>
         {/* Màn hình chính là nhóm Tabs */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         
         {/* Nhóm Auth (Sign-in, Register, etc.) */}
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />

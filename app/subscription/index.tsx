@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Padding.padding_15,
     paddingBottom: Padding.padding_30, // Đẩy lên một chút cho các dòng máy có thanh Home ảo
     paddingTop: Padding.padding_15,
-    backgroundColor: Color.bg,
+    backgroundColor: "transparent", // Trong suốt để lộ nền
     borderTopLeftRadius: Border.br_20,
     borderTopRightRadius: Border.br_20,
   },

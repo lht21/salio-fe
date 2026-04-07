@@ -3,6 +3,7 @@ export const FontFamily = {
   lexendDecaMedium: "LexendDeca-Medium",
   lexendDecaRegular: "LexendDeca-Regular",
   lexendDecaSemiBold: "LexendDeca-SemiBold",
+  lexendDecaBold: "LexendDeca-Bold",
 };
 /* Font sizes */
 export const FontSize = {

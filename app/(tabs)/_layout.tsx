@@ -36,7 +36,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Home',
+            title: 'Học',
             tabBarIcon: ({ color, focused }) => (
               <HouseIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
             ),
@@ -54,7 +54,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="vocabulary"
           options={{
-            title: 'Tu vung',
+            title: 'Từ vựng',
             tabBarIcon: ({ color, focused }) => (
               <CardsIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
             ),
@@ -63,7 +63,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="community"
           options={{
-            title: 'Cong dong',
+            title: 'Cộng đồng',
             tabBarIcon: ({ color, focused }) => (
               <UsersThreeIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
             ),
@@ -72,7 +72,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'Toi',
+            title: 'Tôi',
             tabBarIcon: ({ color, focused }) => (
               <IdentificationBadgeIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
             ),

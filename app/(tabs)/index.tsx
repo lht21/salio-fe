@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text} from 'react-native';
 
 import HeaderSection from '../../components/HeaderSection';
 import WindingPath from '../../components/WindingPath';
 import LessonNode, { LessonItem } from '../../components/LessonNode';
 import { openLessonBottomSheet } from '../../components/Modals/lessonBottomSheetBus';
 import { Color } from '@/constants/GlobalStyles';
+import { useRouter } from 'expo-router';
+
 
 const LESSONS: LessonItem[] = [
   {
@@ -52,6 +54,9 @@ const LESSONS: LessonItem[] = [
 ];
 
 export default function HomeScreen() {
+
+
+  const router = useRouter();
   const currentLesson = React.useMemo(
     () => LESSONS.find((item) => item.status === 'current') ?? LESSONS[0],
     []
@@ -59,6 +64,24 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+
+      {/* Nút bấm để test màn hình Kết quả Writing. Khi nhấn vào sẽ chuyển đến màn hình /lessons/1/writing/result */}
+      <TouchableOpacity 
+        style={{ 
+          backgroundColor: '#02B0A0', 
+          padding: 15, 
+          borderRadius: 10, 
+          marginTop: 50 
+        }}
+        // Điền một số bất kỳ (ví dụ số 1) vào vị trí của [lessonId]
+        onPress={() => router.push('/lessons/1/writing/result')}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>
+          Test màn hình Kết quả Writing
+        </Text>
+      </TouchableOpacity>
+
+      
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <HeaderSection currentLesson={currentLesson} onCurrentLessonPress={openLessonBottomSheet} />
 

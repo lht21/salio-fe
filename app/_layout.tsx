@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 
@@ -37,14 +38,19 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={DefaultTheme}>
-      {/* Thêm initialRouteName="(auth)" để app chạy thẳng vào nhóm màn hình xác thực */}
-      <Stack screenOptions={{ headerShown: false }} initialRouteName="(auth)">
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName='auth'>
+        {/* Màn hình chính là nhóm Tabs */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        
+        {/* Nhóm Auth (Sign-in, Register, etc.) */}
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-      </Stack>
-    </ThemeProvider>
+        </Stack>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

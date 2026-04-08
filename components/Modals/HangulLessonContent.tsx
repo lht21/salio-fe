@@ -1,10 +1,13 @@
 import React from 'react';
+import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { CardsIcon, CaretLeftIcon, PenNibStraightIcon } from 'phosphor-react-native';
 
 import CategoryChip from '../CategoryChip';
 import HangulCharacterAccordion from './HangulCharacterAccordion';
+import { closeLessonBottomSheet } from './lessonBottomSheetBus';
+import { getHangulWritingIndex } from './hangulWritingSequence';
 import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 
 type HangulTabKey = 'basic_consonants' | 'basic_vowels' | 'double_consonants' | 'compound_vowels';
@@ -76,6 +79,7 @@ const HANGUL_CONTENT: Record<HangulTabKey, HangulItem[]> = {
 };
 
 const HangulLessonContent = () => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<HangulTabKey>('basic_consonants');
   const items = HANGUL_CONTENT[activeTab];
 
@@ -119,7 +123,27 @@ const HangulLessonContent = () => {
       </View>
 
       <View style={styles.actionBar}>
-        <Pressable style={styles.actionItem}>
+        <Pressable
+          style={styles.actionItem}
+          onPress={() => {
+            const firstItem = items[0];
+            if (!firstItem) {
+              return;
+            }
+
+            closeLessonBottomSheet();
+            router.push({
+              pathname: '/lessons/[lessonId]/writing/practiceHangul',
+              params: {
+                lessonId: '0',
+                glyph: firstItem.glyph,
+                label: firstItem.label,
+                mode: 'sequence',
+                sequenceIndex: String(getHangulWritingIndex(firstItem.glyph, firstItem.label)),
+              },
+            });
+          }}
+        >
           <View style={styles.actionIconWrap}>
             <PenNibStraightIcon size={18} color={Color.bg} weight="fill" />
           </View>

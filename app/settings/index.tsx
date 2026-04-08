@@ -24,7 +24,7 @@ import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constan
 import { SettingsRow } from '../../components/SettingsRow';
 import { UpgradeBanner } from '../../components/UpgradeBanner';
 import { useRouter } from 'expo-router';
-import { ConfirmModal } from '@/components/ModalConfirm/ConfirmModal';
+import { ConfirmModal } from '@/components/ModalResult/ResultHangulModal';
 
 
 export default function SettingsScreen() {

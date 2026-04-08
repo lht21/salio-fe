@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import LessonBottomSheet from './LessonBottomSheet';
 import { LessonItem } from '../LessonNode';
-import { registerOpenLessonSheetHandler } from './lessonBottomSheetBus';
+import { registerCloseLessonSheetHandler, registerOpenLessonSheetHandler } from './lessonBottomSheetBus';
 
 const LessonBottomSheetHost = () => {
   const [selectedLesson, setSelectedLesson] = React.useState<LessonItem | null>(null);
@@ -18,9 +18,13 @@ const LessonBottomSheetHost = () => {
     };
 
     registerOpenLessonSheetHandler(handleOpen);
+    registerCloseLessonSheetHandler(() => {
+      setSelectedLesson(null);
+    });
 
     return () => {
       registerOpenLessonSheetHandler(null);
+      registerCloseLessonSheetHandler(null);
     };
   }, []);
 

@@ -1,10 +1,13 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
+import { useRouter } from 'expo-router';
 import { CaretDownIcon, CaretUpIcon, SpeakerHighIcon } from 'phosphor-react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { closeLessonBottomSheet } from './lessonBottomSheetBus';
 import HangulTracingGlyph from './HangulTracingGlyph';
+import { getHangulWritingIndex } from './hangulWritingSequence';
 
 type HangulCharacterAccordionProps = {
   label: string;
@@ -20,6 +23,20 @@ const HangulCharacterAccordion = ({
   initiallyExpanded = false,
 }: HangulCharacterAccordionProps) => {
   const [expanded, setExpanded] = React.useState(initiallyExpanded);
+  const router = useRouter();
+
+  const handleOpenWritingScreen = React.useCallback(() => {
+    closeLessonBottomSheet();
+    router.push({
+      pathname: '/lessons/[lessonId]/writing/practiceHangul',
+      params: {
+        lessonId: '0',
+        glyph,
+        label,
+        sequenceIndex: String(getHangulWritingIndex(glyph, label)),
+      },
+    });
+  }, [glyph, label, router]);
 
   return (
     <MotiView
@@ -28,21 +45,25 @@ const HangulCharacterAccordion = ({
       transition={{ type: 'timing', duration: 260 }}
       style={[styles.card, expanded && styles.cardExpanded]}
     >
-      <View style={styles.headerRow}>
-        <Text style={styles.label}>{label}</Text>
-
-        <View style={styles.headerActions}>
-          <Pressable style={styles.iconButton} hitSlop={8}>
-            <SpeakerHighIcon size={20} color={Color.text} weight="regular" />
+      <View style={styles.cardContent}>
+        <View style={styles.headerRow}>
+          <Pressable onPress={handleOpenWritingScreen} style={styles.headerMain}>
+            <Text style={styles.label}>{label}</Text>
           </Pressable>
 
-          <Pressable style={styles.iconButton} onPress={() => setExpanded((value) => !value)} hitSlop={8}>
-            {expanded ? (
-              <CaretUpIcon size={18} color={Color.gray} weight="bold" />
-            ) : (
-              <CaretDownIcon size={18} color={Color.gray} weight="bold" />
-            )}
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable style={styles.iconButton} hitSlop={8} onPress={handleOpenWritingScreen}>
+              <SpeakerHighIcon size={20} color={Color.text} weight="regular" />
+            </Pressable>
+
+            <Pressable style={styles.iconButton} onPress={() => setExpanded((value) => !value)} hitSlop={8}>
+              {expanded ? (
+                <CaretUpIcon size={18} color={Color.gray} weight="bold" />
+              ) : (
+                <CaretDownIcon size={18} color={Color.gray} weight="bold" />
+              )}
+            </Pressable>
+          </View>
         </View>
       </View>
 
@@ -56,10 +77,10 @@ const HangulCharacterAccordion = ({
             transition={{ type: 'timing', duration: 260 }}
             style={styles.bodyWrap}
           >
-            <View style={styles.body}>
+            <Pressable onPress={handleOpenWritingScreen} style={styles.body}>
               <HangulTracingGlyph glyph={glyph} />
               <Text style={styles.example}>{example}</Text>
-            </View>
+            </Pressable>
           </MotiView>
         ) : null}
       </AnimatePresence>
@@ -79,6 +100,12 @@ const styles = StyleSheet.create({
   },
   cardExpanded: {
     paddingBottom: 18,
+  },
+  cardContent: {
+    gap: Gap.gap_10,
+  },
+  headerMain: {
+    flex: 1,
   },
   headerRow: {
     flexDirection: 'row',

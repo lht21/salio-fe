@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { BookOpenTextIcon, CaretRightIcon, HeadphonesIcon, MicrophoneStageIcon, SpeakerHighIcon } from 'phosphor-react-native';
 
 import Button from '../Button';
+import HangulLessonContent from './HangulLessonContent';
 import LessonSectionAccordion, { LessonSectionDetailItem } from './LessonSectionAccordion';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 
@@ -34,48 +35,23 @@ type LessonSectionConfig = {
 };
 
 const VOCAB_DETAILS: LessonSectionDetailItem[] = [
-  { id: 'voc-1', left: '학생', right: 'Học sinh', status: 'learning' },
-  { id: 'voc-2', left: '학생', right: 'Học sinh', status: 'done' },
-  { id: 'voc-3', left: '학생', right: 'Học sinh', status: 'todo' },
+  { id: 'voc-1', left: '�л�', right: 'Hoc sinh', status: 'learning' },
+  { id: 'voc-2', left: '�б�', right: 'Truong hoc', status: 'done' },
+  { id: 'voc-3', left: 'ģ��', right: 'Ban be', status: 'todo' },
 ];
 
 const GRAMMAR_DETAILS: LessonSectionDetailItem[] = [
-  { id: 'gr-1', left: '입니다', right: 'là', status: 'done' },
-  { id: 'gr-2', left: '이건', right: 'Cái này', status: 'done' },
+  { id: 'gr-1', left: '�Դϴ�', right: 'la', status: 'done' },
+  { id: 'gr-2', left: '�̰�', right: 'cai nay', status: 'done' },
 ];
 
 const LESSON_SECTION_MAP: Record<string, LessonSectionConfig[]> = {
-  '0': [
-    {
-      id: 'hangul-vocab',
-      title: '12 từ vựng',
-      subtitle: 'Chữ cái Hangul',
-      progressText: 'Đã hoàn thành 100%',
-      progressValue: 100,
-      progressColor: Color.green,
-      progressTrackColor: '#DDF7D8',
-      icon: <BookOpenTextIcon size={20} color={Color.main} weight="fill" />,
-      expandable: true,
-      details: VOCAB_DETAILS,
-      footerBadges: ['Chưa học', 'Đang học', 'Chỉ ôn'],
-    },
-    {
-      id: 'hangul-speaking',
-      title: '3 bài nói',
-      subtitle: 'Phát âm cơ bản',
-      progressText: 'Đã hoàn thành 100%',
-      progressValue: 100,
-      progressColor: Color.green,
-      progressTrackColor: '#DDF7D8',
-      icon: <MicrophoneStageIcon size={20} color={Color.main} weight="fill" />,
-    },
-  ],
   '1': [
     {
       id: 'intro-vocab',
-      title: '15 từ vựng',
-      subtitle: 'Từ vựng giới thiệu',
-      progressText: 'Đã hoàn thành 100%',
+      title: '15 tu vung',
+      subtitle: 'Tu vung gioi thieu',
+      progressText: 'Da hoan thanh 100%',
       progressValue: 100,
       progressColor: Color.green,
       progressTrackColor: '#DDF7D8',
@@ -83,13 +59,13 @@ const LESSON_SECTION_MAP: Record<string, LessonSectionConfig[]> = {
       expandable: true,
       initiallyExpanded: true,
       details: VOCAB_DETAILS,
-      footerBadges: ['Chưa học', 'Đang học', 'Chỉ ôn'],
+      footerBadges: ['Chi on Chua hoc', 'Chi on Dang hoc', 'Chi on'],
     },
     {
       id: 'intro-grammar',
-      title: '2 ngữ pháp',
-      subtitle: 'Từ vựng giới thiệu',
-      progressText: 'Đã hoàn thành 100%',
+      title: '2 ngu phap',
+      subtitle: 'Tu vung gioi thieu',
+      progressText: 'Da hoan thanh 100%',
       progressValue: 100,
       progressColor: Color.green,
       progressTrackColor: '#DDF7D8',
@@ -100,9 +76,9 @@ const LESSON_SECTION_MAP: Record<string, LessonSectionConfig[]> = {
     },
     {
       id: 'intro-speaking',
-      title: '5 bài nói',
-      subtitle: 'Từ vựng giới thiệu',
-      progressText: 'Đã khóa 0%',
+      title: '5 bai noi',
+      subtitle: 'Tu vung gioi thieu',
+      progressText: 'Bi khoa 0%',
       progressValue: 0,
       progressColor: Color.gray,
       backgroundColor: '#F3F4F6',
@@ -110,9 +86,9 @@ const LESSON_SECTION_MAP: Record<string, LessonSectionConfig[]> = {
     },
     {
       id: 'intro-listening',
-      title: '6 bài nghe',
-      subtitle: 'Liên quan đến hội thoại địa điểm',
-      progressText: 'Đã khóa 0%',
+      title: '6 bai nghe',
+      subtitle: 'Lien quan den hoi thoai dia diem',
+      progressText: 'Bi khoa 0%',
       progressValue: 0,
       progressColor: Color.gray,
       backgroundColor: '#F3F4F6',
@@ -124,9 +100,9 @@ const LESSON_SECTION_MAP: Record<string, LessonSectionConfig[]> = {
 const DEFAULT_SECTIONS: LessonSectionConfig[] = [
   {
     id: 'default-vocab',
-    title: '10 từ vựng',
-    subtitle: 'ội dung bài học',
-    progressText: 'Đang học 25%',
+    title: '10 tu vung',
+    subtitle: 'Noi dung bai hoc',
+    progressText: 'Dang hoc 25%',
     progressValue: 25,
     progressColor: Color.xanh,
     progressTrackColor: '#DBEAFE',
@@ -134,9 +110,9 @@ const DEFAULT_SECTIONS: LessonSectionConfig[] = [
   },
   {
     id: 'default-grammar',
-    title: '2 ngữ pháp',
-    subtitle: 'Nội dung bài học',
-    progressText: 'Chưa mở khóa',
+    title: '2 ngu phap',
+    subtitle: 'Noi dung bai hoc',
+    progressText: 'Chua mo khoa',
     progressValue: 0,
     progressColor: Color.gray,
     backgroundColor: '#F3F4F6',
@@ -145,13 +121,8 @@ const DEFAULT_SECTIONS: LessonSectionConfig[] = [
 ];
 
 const LESSON_META_MAP: Record<string, { progressText: string; progressSegments: string[]; mascot: any }> = {
-  '0': {
-    progressText: '100% hoàn thành',
-    progressSegments: [Color.green, Color.green, Color.green, Color.green],
-    mascot: require('../../assets/images/tubo/sc1_b0.png'),
-  },
   '1': {
-    progressText: '25% hoàn thành',
+    progressText: '25% hoan thanh',
     progressSegments: [Color.green, Color.xanh, '#E5E7EB', '#E5E7EB'],
     mascot: require('../../assets/images/tubo/sc1_b1.png'),
   },
@@ -159,84 +130,92 @@ const LESSON_META_MAP: Record<string, { progressText: string; progressSegments: 
 
 const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
   ({ lessonId, unit, title, onClose, initialIndex = -1 }, ref) => {
-  const router = useRouter();
-  const snapPoints = useMemo(() => ['80%'], []);
-  const sections = LESSON_SECTION_MAP[lessonId] ?? DEFAULT_SECTIONS;
-  const meta = LESSON_META_MAP[lessonId] ?? {
-    progressText: '25% hoàn thành',
-    progressSegments: [Color.xanh, '#E5E7EB', '#E5E7EB', '#E5E7EB'],
-    mascot: require('../../assets/images/tubo/sc1_b1.png'),
-  };
+    const router = useRouter();
+    const isHangulLesson = lessonId === '0';
+    const snapPoints = useMemo(() => [isHangulLesson ? '92%' : '80%'], [isHangulLesson]);
+    const sections = LESSON_SECTION_MAP[lessonId] ?? DEFAULT_SECTIONS;
+    const meta = LESSON_META_MAP[lessonId] ?? {
+      progressText: '25% hoan thanh',
+      progressSegments: [Color.xanh, '#E5E7EB', '#E5E7EB', '#E5E7EB'],
+      mascot: require('../../assets/images/tubo/sc1_b0.png'),
+    };
 
-  return (
-    <BottomSheet
-      ref={ref}
-      index={initialIndex}
-      snapPoints={snapPoints}
-      enablePanDownToClose
-      onClose={onClose}
-      backgroundStyle={styles.sheetBackground}
-      handleIndicatorStyle={styles.sheetHandle}
-      backdropComponent={(props) => (
-        <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} opacity={0.28} />
-      )}
-    >
-      <BottomSheetScrollView contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.lessonHeader}>
-          <View style={styles.lessonHeaderText}>
-            <Text style={styles.lessonUnit}>{unit}</Text>
-            <Text style={styles.lessonTitle}>{title}</Text>
-          </View>
+    return (
+      <BottomSheet
+        ref={ref}
+        index={initialIndex}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        onClose={onClose}
+        backgroundStyle={styles.sheetBackground}
+        handleIndicatorStyle={styles.sheetHandle}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} opacity={0.28} />
+        )}
+      >
+        <BottomSheetScrollView contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+          {isHangulLesson ? (
+            <HangulLessonContent />
+          ) : (
+            <>
+              <View style={styles.lessonHeader}>
+                <View style={styles.lessonHeaderText}>
+                  <Text style={styles.lessonUnit}>{unit}</Text>
+                  <Text style={styles.lessonTitle}>{title}</Text>
+                </View>
 
-          <Image source={meta.mascot} style={styles.lessonMascot} contentFit="contain" />
-        </View>
+                <Image source={meta.mascot} style={styles.lessonMascot} contentFit="contain" />
+              </View>
 
-        <View style={styles.lessonSummaryRow}>
-          <View style={styles.lessonSummaryBar}>
-            {meta.progressSegments.map((segment, index) => (
-              <View key={`${lessonId}-${index}`} style={[styles.lessonSummarySegment, { backgroundColor: segment }]} />
-            ))}
-          </View>
+              <View style={styles.lessonSummaryRow}>
+                <View style={styles.lessonSummaryBar}>
+                  {meta.progressSegments.map((segment, index) => (
+                    <View key={`${lessonId}-${index}`} style={[styles.lessonSummarySegment, { backgroundColor: segment }]} />
+                  ))}
+                </View>
 
-          <Text style={styles.lessonSummaryText}>{meta.progressText}</Text>
-        </View>
+                <Text style={styles.lessonSummaryText}>{meta.progressText}</Text>
+              </View>
 
-        <View style={styles.sections}>
-          {sections.map((section, index) => (
-            <LessonSectionAccordion
-              key={section.id}
-              delay={50 + index * 50}
-              icon={section.icon}
-              title={section.title}
-              subtitle={section.subtitle}
-              progressText={section.progressText}
-              progressValue={section.progressValue}
-              progressColor={section.progressColor}
-              progressTrackColor={section.progressTrackColor}
-              backgroundColor={section.backgroundColor}
-              expandable={section.expandable}
-              initiallyExpanded={section.initiallyExpanded}
-              details={section.details}
-              footerBadges={section.footerBadges}
-            />
-          ))}
-        </View>
+              <View style={styles.sections}>
+                {sections.map((section, index) => (
+                  <LessonSectionAccordion
+                    key={section.id}
+                    delay={50 + index * 50}
+                    icon={section.icon}
+                    title={section.title}
+                    subtitle={section.subtitle}
+                    progressText={section.progressText}
+                    progressValue={section.progressValue}
+                    progressColor={section.progressColor}
+                    progressTrackColor={section.progressTrackColor}
+                    backgroundColor={section.backgroundColor}
+                    expandable={section.expandable}
+                    initiallyExpanded={section.initiallyExpanded}
+                    details={section.details}
+                    footerBadges={section.footerBadges}
+                  />
+                ))}
+              </View>
 
-        <View style={styles.ctaWrapper}>
-          <Button
-            title={`Tiep tuc: ${title}`}
-            style={styles.ctaButton}
-            onPress={() => router.push(`/lessons/${lessonId}/grammar/intro`)}
-          />
+              <View style={styles.ctaWrapper}>
+                <Button
+                  title={`Tiep tuc: ${title}`}
+                  style={styles.ctaButton}
+                  onPress={() => router.push(`/lessons/${lessonId}/grammar/intro`)}
+                />
 
-          <View style={styles.ctaIcon}>
-            <CaretRightIcon size={18} color={Color.text} weight="bold" />
-          </View>
-        </View>
-      </BottomSheetScrollView>
-    </BottomSheet>
-  );
-});
+                <View style={styles.ctaIcon}>
+                  <CaretRightIcon size={18} color={Color.text} weight="bold" />
+                </View>
+              </View>
+            </>
+          )}
+        </BottomSheetScrollView>
+      </BottomSheet>
+    );
+  }
+);
 
 LessonBottomSheet.displayName = 'LessonBottomSheet';
 

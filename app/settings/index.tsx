@@ -25,11 +25,17 @@ import { SettingsRow } from '../../components/SettingsRow';
 import { UpgradeBanner } from '../../components/UpgradeBanner';
 import { useRouter } from 'expo-router';
 import { ConfirmModal } from '@/components/ModalResult/ResultHangulModal';
+import ChangeAvatarModal from '@/components/Modals/ChangeAvatarModal';
+import { AvatarPreset, AVATAR_PRESETS } from '@/constants/avatarPresets';
 
 
 export default function SettingsScreen() {
 
   const router = useRouter();
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarPreset>(
+    AVATAR_PRESETS[1] ?? AVATAR_PRESETS[0]
+  );
+  const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
 
   // State quản lý việc hiển thị Modal đăng xuất
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
@@ -41,6 +47,15 @@ export default function SettingsScreen() {
     // Sau khi xử lý xong, điều hướng về màn hình Đăng nhập
     router.replace('/(auth)/sign-in'); 
   };
+  const handleSelectAvatar = (avatar: AvatarPreset) => {
+    setSelectedAvatar(avatar);
+    setAvatarModalVisible(false);
+  };
+
+  const handleUploadAvatar = () => {
+    console.log('Avatar upload from device is not implemented yet.');
+  };
+
   return (
     <View style={styles.container}>
       {/* 1. Header */}
@@ -54,11 +69,15 @@ export default function SettingsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* 2. Khối Đổi Avatar */}
-        <TouchableOpacity style={styles.section}>
+        <TouchableOpacity
+          style={styles.section}
+          activeOpacity={0.8}
+          onPress={() => setAvatarModalVisible(true)}
+        >
           <View style={styles.avatarRow}>
             {/* Giả lập Avatar với hình ảnh, thay source bằng ảnh thật của bạn */}
             <Image 
-              source={{ uri: 'https://i.pravatar.cc/100' }} 
+              source={selectedAvatar.imageSource} 
               style={styles.avatarImage} 
             />
             <View style={styles.avatarAction}>
@@ -191,6 +210,15 @@ export default function SettingsScreen() {
         </View>
 
       </ScrollView>
+
+      <ChangeAvatarModal
+        visible={isAvatarModalVisible}
+        selectedAvatarId={selectedAvatar.id}
+        avatarOptions={AVATAR_PRESETS}
+        onSelectAvatar={handleSelectAvatar}
+        onClose={() => setAvatarModalVisible(false)}
+        onUploadPress={handleUploadAvatar}
+      />
 
       <ConfirmModal 
         isVisible={isLogoutModalVisible}

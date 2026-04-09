@@ -12,6 +12,7 @@ export type SettingsSheetModalProps = {
   children: React.ReactNode;
   maxHeight?: number | `${number}%`;
   showCloseButton?: boolean;
+  edgeToBottom?: boolean;
 };
 
 const ENTER_DURATION = 220;
@@ -24,11 +25,12 @@ const SettingsSheetModal = ({
   children,
   maxHeight = '75%',
   showCloseButton = true,
+  edgeToBottom = false,
 }: SettingsSheetModalProps) => {
   const insets = useSafeAreaInsets();
   const [isMounted, setIsMounted] = React.useState(visible);
   const animation = React.useRef(new Animated.Value(visible ? 1 : 0)).current;
-  const bottomOffset = Platform.OS === 'android' ? 72 : Math.max(insets.bottom, 18);
+  const bottomOffset = edgeToBottom ? 0 : Platform.OS === 'android' ? 72 : Math.max(insets.bottom, 18);
 
   React.useEffect(() => {
     if (visible) {
@@ -87,15 +89,24 @@ const SettingsSheetModal = ({
         </Pressable>
 
         <View
-          style={[styles.sheetWrapper, { paddingBottom: bottomOffset }]}
+          style={[
+            styles.sheetWrapper,
+            edgeToBottom && styles.sheetWrapperEdgeToBottom,
+            { paddingBottom: bottomOffset },
+          ]}
           pointerEvents="box-none"
         >
           <Animated.View
             style={[
               styles.sheet,
+              edgeToBottom && styles.sheetEdgeToBottom,
               {
                 maxHeight,
-                paddingBottom: 16,
+                paddingBottom: edgeToBottom
+                  ? Platform.OS === 'android'
+                    ? 36
+                    : Math.max(insets.bottom, 24)
+                  : 16,
                 opacity: animation,
                 transform: [{ translateY }],
               },
@@ -134,6 +145,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingBottom: 0,
   },
+  sheetWrapperEdgeToBottom: {
+    paddingHorizontal: 0,
+  },
   sheet: {
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -148,6 +162,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 14,
     elevation: 8,
+  },
+  sheetEdgeToBottom: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
   header: {
     flexDirection: 'row',

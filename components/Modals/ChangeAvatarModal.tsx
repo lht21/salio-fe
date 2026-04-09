@@ -37,7 +37,13 @@ const ChangeAvatarModal = ({
   }
 
   return (
-    <SettingsSheetModal visible={visible} title="Thay đổi ảnh đại diện" onClose={onClose} maxHeight="92%">
+    <SettingsSheetModal
+      visible={visible}
+      title="Thay đổi ảnh đại diện"
+      onClose={onClose}
+      edgeToBottom
+      maxHeight="92%"
+    >
       <View style={styles.body}>
         <Button
           title="Tải lên từ thiết bị"

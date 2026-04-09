@@ -19,9 +19,10 @@ export interface LessonItem {
 interface LessonNodeProps {
   item: LessonItem;
   index: number;
+  onPress?: (item: LessonItem) => void;
 }
 
-const LessonNode = ({ item, index }: LessonNodeProps) => {
+const LessonNode = ({ item, index, onPress }: LessonNodeProps) => {
   const isLeft = item.mascotPos === 'left';
   
   let cardBg = Color.gray; 
@@ -53,7 +54,7 @@ const LessonNode = ({ item, index }: LessonNodeProps) => {
     >
       <Image source={item.mascotImg} style={styles.nodeMascot} contentFit="contain" />
       
-      <TouchableOpacity activeOpacity={0.8} style={styles.nodeCardWrapper}>
+      <TouchableOpacity activeOpacity={0.8} style={styles.nodeCardWrapper} onPress={() => onPress?.(item)}>
         
         {/* --- LỚP NỀN SVG (Background) --- */}
         {/* transform scaleX: -1 giúp lật ngược cái đuôi của thẻ nếu Mascot nằm bên phải */}

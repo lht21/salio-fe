@@ -1,22 +1,37 @@
 // components/UpgradeBanner.tsx
-import { LinearGradient } from 'expo-linear-gradient';
-import { Border, FontSize } from '../constants/GlobalStyles';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { CaretRightIcon } from 'phosphor-react-native';
-import { Color, FontFamily, Padding } from '../constants/GlobalStyles';
+import { useRouter } from 'expo-router';
 
-export  const UpgradeBanner = () => (
-  <TouchableOpacity style={bannerStyles.wrapper}>
-    <LinearGradient colors={[Color.color, Color.color]} start={{x:0, y:0}} end={{x:1, y:1}} style={bannerStyles.gradient}>
-      <Text style={bannerStyles.title}>Trải nghiệm không giới hạn</Text>
-      <View style={bannerStyles.row}>
-        <Text style={bannerStyles.sub}>Nâng cấp ngay</Text>
-        <CaretRightIcon size={14} color={Color.bg} weight="bold" />
-      </View>
-    </LinearGradient>
-  </TouchableOpacity>
-);
+import { Color, FontFamily, Padding, Border, FontSize } from '../constants/GlobalStyles';
+
+export const UpgradeBanner = () => {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity 
+      style={bannerStyles.wrapper}
+      activeOpacity={0.8}
+      // Điều hướng đến thư mục subscription
+      onPress={() => router.push('/subscription')} 
+    >
+      <LinearGradient 
+        colors={[Color.green, Color.main]} 
+        start={{x:0, y:0}} 
+        end={{x:1, y:1}} 
+        style={bannerStyles.gradient}
+      >
+        <Text style={bannerStyles.title}>Trải nghiệm không giới hạn</Text>
+        <View style={bannerStyles.row}>
+          <Text style={bannerStyles.sub}>Nâng cấp ngay</Text>
+          <CaretRightIcon size={14} color={Color.bg} weight="bold" />
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+};
 
 const bannerStyles = StyleSheet.create({
   wrapper: { marginHorizontal: Padding.padding_15 || 15, marginTop: 10, marginBottom: 40 },

@@ -69,7 +69,7 @@ export const Padding = {
   padding_10: 10,
   padding_11: 11,
   padding_15: 15,
-  padding_19: 19,
+  padding_20: 20,
   padding_3: 3,
   padding_30: 30,
   padding_4: 4,

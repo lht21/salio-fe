@@ -15,7 +15,8 @@ export type ButtonVariant =
   | "Outline"     // Viền cam, nền trắng, chữ cam
   | "Gray"        // Nền xám, chữ xám
   | "GreenBold"   // Nền xanh lá, chữ in đậm
-  | "TextOnly";   // Chỉ có chữ cam, không nền
+  | "TextOnly"    // Chỉ có chữ cam, không nền
+  | "Red";        // Nền đỏ, chữ trắng (Dùng cho cảnh báo/xóa)
 
 export type ButtonType = {
   variant?: ButtonVariant;
@@ -39,6 +40,7 @@ const Button = ({
       case "Gray": return styles.variantGray;
       case "GreenBold": return styles.variantGreenBold;
       case "TextOnly": return styles.variantTextOnly;
+      case "Red": return styles.variantRed;
       case "Green":
       default: return styles.variantGreen;
     }
@@ -52,6 +54,7 @@ const Button = ({
       case "Gray": return styles.textGray;
       case "GreenBold": return styles.textGreenBold;
       case "TextOnly": return styles.textTextOnly;
+      case "Red": return styles.textRed;
       case "Green":
       default: return styles.textGreen;
     }
@@ -111,10 +114,10 @@ const styles = StyleSheet.create({
   variantOutline: {
     backgroundColor: Color.bg,
     borderWidth: 1.5,
-    borderColor: Color.cam,
+    borderColor: Color.color,
   },
   textOutline: {
-    color: Color.cam,
+    color: Color.color,
     fontWeight: "500",
   },
 
@@ -142,6 +145,15 @@ const styles = StyleSheet.create({
   },
   textTextOnly: {
     color: Color.cam,
+    fontWeight: "500",
+  },
+
+  // 7. Red (Cảnh báo / Thoát / Xóa)
+  variantRed: {
+    backgroundColor: Color.red || "#E53E3E", // Sử dụng Color.red từ GlobalStyles, dự phòng bằng mã màu hex
+  },
+  textRed: {
+    color: Color.bg || "#FFFFFF", // Chữ màu trắng/nền để nổi bật trên nền đỏ
     fontWeight: "500",
   },
 });

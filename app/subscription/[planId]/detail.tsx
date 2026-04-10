@@ -114,7 +114,7 @@ export default function OrderDetailsScreen() {
             title="Xác nhận thanh toán"
             variant="Green"
             onPress={() => {
-              router.push('/subscription/failed'); // Điều hướng đến trang thất bại sau khi xác nhận
+              router.push('/subscription/success'); // Điều hướng đến trang thành công sau khi xác nhận
             }}
           />
         </View>

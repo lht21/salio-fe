@@ -192,9 +192,13 @@ export default function SettingsScreen() {
 
       </ScrollView>
 
-      <ConfirmModal 
+      <ConfirmModal
         isVisible={isLogoutModalVisible}
-        title="Bạn chắc chắn muốn đăng xuất chứ?"
+        title="Rời đi rồi à?"
+        subtitle="Bạn sẽ cần đăng nhập lại để tiếp tục học nhé."
+        confirmText="Đăng xuất"
+        cancelText="Tiếp tục học"
+        isDestructive={true} // Nút Đăng xuất sẽ màu Đỏ
         onConfirm={handleConfirmLogout}
         onCancel={() => setLogoutModalVisible(false)}
       />

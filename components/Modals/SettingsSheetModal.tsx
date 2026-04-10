@@ -1,9 +1,20 @@
 import React from 'react';
-import { Animated, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import CloseButton from '../CloseButton';
-import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
 
 export type SettingsSheetModalProps = {
   visible: boolean;
@@ -13,10 +24,19 @@ export type SettingsSheetModalProps = {
   maxHeight?: number | `${number}%`;
   showCloseButton?: boolean;
   edgeToBottom?: boolean;
+  keyboardAware?: boolean;
+  expandOnKeyboard?: boolean;
+  contentScrollable?: boolean;
+  keyboardVerticalOffset?: number;
 };
 
 const ENTER_DURATION = 220;
 const EXIT_DURATION = 180;
+const DEFAULT_WRAPPER_BOTTOM_PADDING = 18;
+const DEFAULT_SHEET_BOTTOM_PADDING = 16;
+const EDGE_TO_BOTTOM_SHEET_PADDING = 24;
+const EXPANDED_MAX_HEIGHT = '96%';
+const EXPANDED_MAX_HEIGHT_PERCENT = Number(EXPANDED_MAX_HEIGHT.replace('%', ''));
 
 const SettingsSheetModal = ({
   visible,
@@ -26,11 +46,20 @@ const SettingsSheetModal = ({
   maxHeight = '75%',
   showCloseButton = true,
   edgeToBottom = false,
+  keyboardAware = false,
+  expandOnKeyboard = false,
+  contentScrollable = false,
+  keyboardVerticalOffset = 0,
 }: SettingsSheetModalProps) => {
   const insets = useSafeAreaInsets();
   const [isMounted, setIsMounted] = React.useState(visible);
+  const [isKeyboardVisible, setIsKeyboardVisible] = React.useState(false);
   const animation = React.useRef(new Animated.Value(visible ? 1 : 0)).current;
-  const bottomOffset = edgeToBottom ? 0 : Platform.OS === 'android' ? 72 : Math.max(insets.bottom, 18);
+
+  const wrapperBottomPadding = edgeToBottom ? 0 : Math.max(insets.bottom, DEFAULT_WRAPPER_BOTTOM_PADDING);
+  const sheetBottomPadding = edgeToBottom
+    ? Math.max(insets.bottom, EDGE_TO_BOTTOM_SHEET_PADDING)
+    : Math.max(insets.bottom, DEFAULT_SHEET_BOTTOM_PADDING);
 
   React.useEffect(() => {
     if (visible) {
@@ -44,6 +73,8 @@ const SettingsSheetModal = ({
 
       return;
     }
+
+    setIsKeyboardVisible(false);
 
     if (!isMounted) {
       return;
@@ -60,6 +91,28 @@ const SettingsSheetModal = ({
     });
   }, [animation, isMounted, visible]);
 
+  React.useEffect(() => {
+    if (!keyboardAware || !visible) {
+      setIsKeyboardVisible(false);
+      return;
+    }
+
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [keyboardAware, visible]);
+
   if (!isMounted) {
     return null;
   }
@@ -73,6 +126,70 @@ const SettingsSheetModal = ({
     inputRange: [0, 1],
     outputRange: [56, 0],
   });
+
+  let effectiveMaxHeight = maxHeight;
+
+  if (keyboardAware && expandOnKeyboard && isKeyboardVisible) {
+    if (typeof maxHeight === 'string' && maxHeight.endsWith('%')) {
+      const configuredPercent = Number(maxHeight.replace('%', ''));
+      effectiveMaxHeight =
+        configuredPercent >= EXPANDED_MAX_HEIGHT_PERCENT ? maxHeight : EXPANDED_MAX_HEIGHT;
+    }
+  }
+
+  const shouldRenderScrollableContent = contentScrollable;
+  const isScrollEnabled = !keyboardAware || isKeyboardVisible;
+
+  const sheetNode = (
+    <View
+      style={[
+        styles.sheetWrapper,
+        edgeToBottom && styles.sheetWrapperEdgeToBottom,
+        { paddingBottom: wrapperBottomPadding },
+      ]}
+      pointerEvents="box-none"
+    >
+      <Animated.View
+        style={[
+          styles.sheet,
+          edgeToBottom && styles.sheetEdgeToBottom,
+          {
+            maxHeight: effectiveMaxHeight,
+            paddingBottom: sheetBottomPadding,
+            opacity: animation,
+            transform: [{ translateY }],
+          },
+        ]}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>{title}</Text>
+          {showCloseButton ? (
+            <CloseButton
+              variant="Stroke"
+              onPress={onClose}
+              style={styles.closeButton}
+            />
+          ) : null}
+        </View>
+
+        {shouldRenderScrollableContent ? (
+          <ScrollView
+            contentContainerStyle={styles.contentScrollContainer}
+            keyboardShouldPersistTaps="handled"
+            scrollEnabled={isScrollEnabled}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            overScrollMode="never"
+            nestedScrollEnabled
+          >
+            <View style={styles.content}>{children}</View>
+          </ScrollView>
+        ) : (
+          <View style={styles.content}>{children}</View>
+        )}
+      </Animated.View>
+    </View>
+  );
 
   return (
     <Modal
@@ -88,44 +205,15 @@ const SettingsSheetModal = ({
           <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
         </Pressable>
 
-        <View
-          style={[
-            styles.sheetWrapper,
-            edgeToBottom && styles.sheetWrapperEdgeToBottom,
-            { paddingBottom: bottomOffset },
-          ]}
+        <KeyboardAvoidingView
+          enabled={keyboardAware}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={keyboardVerticalOffset}
+          style={styles.bottomAligned}
           pointerEvents="box-none"
         >
-          <Animated.View
-            style={[
-              styles.sheet,
-              edgeToBottom && styles.sheetEdgeToBottom,
-              {
-                maxHeight,
-                paddingBottom: edgeToBottom
-                  ? Platform.OS === 'android'
-                    ? 36
-                    : Math.max(insets.bottom, 24)
-                  : 16,
-                opacity: animation,
-                transform: [{ translateY }],
-              },
-            ]}
-          >
-            <View style={styles.header}>
-              <Text style={styles.title}>{title}</Text>
-              {showCloseButton ? (
-                <CloseButton
-                  variant="Stroke"
-                  onPress={onClose}
-                  style={styles.closeButton}
-                />
-              ) : null}
-            </View>
-
-            <View style={styles.content}>{children}</View>
-          </Animated.View>
-        </View>
+          {sheetNode}
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );
@@ -134,14 +222,16 @@ const SettingsSheetModal = ({
 const styles = StyleSheet.create({
   modalRoot: {
     flex: 1,
-    justifyContent: 'flex-end',
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(15, 23, 42, 0.26)',
   },
-  sheetWrapper: {
+  bottomAligned: {
+    flex: 1,
     justifyContent: 'flex-end',
+  },
+  sheetWrapper: {
     paddingHorizontal: 10,
     paddingBottom: 0,
   },
@@ -186,9 +276,11 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: 17,
   },
+  contentScrollContainer: {
+    paddingBottom: 4,
+  },
   content: {
     borderRadius: 20,
-    flexShrink: 1,
   },
 });
 

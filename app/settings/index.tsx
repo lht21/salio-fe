@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ArrowLeftIcon,
   BellIcon,
@@ -20,7 +19,8 @@ import {
   UserIcon,
   UsersIcon,
 } from 'phosphor-react-native';
-import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { ConfirmModal } from '@/components/ModalResult/ResultHangulModal';
 import ChangeAvatarModal from '@/components/Modals/ChangeAvatarModal';
@@ -30,8 +30,10 @@ import ChangeDisplayModeModal, {
 import ChangeLanguageModal, {
   LanguageMode,
 } from '@/components/Modals/ChangeLanguageModal';
+import ChangePasswordModal from '@/components/Modals/ChangePasswordModal';
+import ChangeUserNameModal from '@/components/Modals/ChangeUserNameModal';
 import { SettingsRow } from '@/components/SettingsRow';
-import { AvatarPreset, AVATAR_PRESETS } from '@/constants/avatarPresets';
+import { AVATAR_PRESETS, AvatarPreset } from '@/constants/avatarPresets';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '@/constants/GlobalStyles';
 
 const LANGUAGE_LABELS: Record<LanguageMode, string> = {
@@ -47,9 +49,12 @@ export default function SettingsScreen() {
   );
   const [displayMode, setDisplayMode] = useState<DisplayMode>('light');
   const [language, setLanguage] = useState<LanguageMode>('vi');
+  const [userName, setUserName] = useState('tranlehuy');
   const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
   const [isDisplayModeModalVisible, setDisplayModeModalVisible] = useState(false);
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
+  const [isUserNameModalVisible, setUserNameModalVisible] = useState(false);
+  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
 
   const handleConfirmLogout = () => {
@@ -74,6 +79,16 @@ export default function SettingsScreen() {
   const handleSelectLanguage = (value: LanguageMode) => {
     setLanguage(value);
     setLanguageModalVisible(false);
+  };
+
+  const handleChangeUserName = (newUserName: string) => {
+    setUserName(newUserName);
+    setUserNameModalVisible(false);
+  };
+
+  const handleChangePassword = (currentPassword: string, newPassword: string) => {
+    console.log('Password changed:', { currentPassword, newPassword });
+    setPasswordModalVisible(false);
   };
 
   const displayModeLabel = displayMode === 'light' ? 'Sáng' : 'Tối';
@@ -109,7 +124,8 @@ export default function SettingsScreen() {
             <SettingsRow
               icon={<UserIcon size={24} color={Color.main2} weight="regular" />}
               label="Tên người dùng"
-              value="tranlehuy"
+              value={userName}
+              onPress={() => setUserNameModalVisible(true)}
             />
             <SettingsRow
               icon={<EnvelopeSimpleIcon size={24} color={Color.main2} weight="regular" />}
@@ -121,6 +137,7 @@ export default function SettingsScreen() {
               label="Mật khẩu"
               value="Đổi mật khẩu"
               isLast
+              onPress={() => setPasswordModalVisible(true)}
             />
           </View>
         </View>
@@ -253,6 +270,19 @@ export default function SettingsScreen() {
         language={language}
         onSelectLanguage={handleSelectLanguage}
         onClose={() => setLanguageModalVisible(false)}
+      />
+
+      <ChangeUserNameModal
+        visible={isUserNameModalVisible}
+        currentUserName={userName}
+        onChangeUserName={handleChangeUserName}
+        onClose={() => setUserNameModalVisible(false)}
+      />
+
+      <ChangePasswordModal
+        visible={isPasswordModalVisible}
+        onChangePassword={handleChangePassword}
+        onClose={() => setPasswordModalVisible(false)}
       />
 
       <ConfirmModal

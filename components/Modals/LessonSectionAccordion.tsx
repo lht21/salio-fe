@@ -26,6 +26,7 @@ export type LessonSectionAccordionProps = {
   initiallyExpanded?: boolean;
   details?: LessonSectionDetailItem[];
   footerBadges?: string[];
+  onPress?: () => void;
 };
 
 const STATUS_STYLES = {
@@ -62,6 +63,7 @@ const LessonSectionAccordion = ({
   initiallyExpanded = false,
   details = [],
   footerBadges = [],
+  onPress,
 }: LessonSectionAccordionProps) => {
   const [expanded, setExpanded] = React.useState(initiallyExpanded);
   const canExpand = expandable && details.length > 0;
@@ -74,15 +76,16 @@ const LessonSectionAccordion = ({
       style={[styles.card, { backgroundColor }]}
     >
       <View style={styles.header}>
-        <View style={styles.headerInfo}>
-          <View style={styles.iconWrap}>{icon}</View>
+        <Pressable style={styles.contentPressable} onPress={onPress} disabled={!onPress}>
+          <View style={styles.headerInfo}>
+            <View style={styles.iconWrap}>{icon}</View>
 
-          <View style={styles.textWrap}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
+            <View style={styles.textWrap}>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.subtitle}>{subtitle}</Text>
+            </View>
           </View>
-        </View>
-
+        </Pressable>
         <Pressable
           style={styles.expandButton}
           onPress={canExpand ? () => setExpanded((value) => !value) : undefined}
@@ -111,7 +114,7 @@ const LessonSectionAccordion = ({
             transition={{ type: 'timing', duration: 280 }}
             style={styles.bodyWrap}
           >
-            <View style={styles.body}>
+            <Pressable style={styles.body} onPress={onPress} disabled={!onPress}>
               {details.map((item, index) => {
                 const statusTone = STATUS_STYLES[item.status];
 
@@ -153,12 +156,12 @@ const LessonSectionAccordion = ({
                   ))}
                 </MotiView>
               ) : null}
-            </View>
+            </Pressable>
           </MotiView>
         ) : null}
       </AnimatePresence>
 
-      <View style={styles.footer}>
+      <Pressable style={styles.footer} onPress={onPress} disabled={!onPress}>
         <View style={styles.progressTrack}>
           <View
             style={[
@@ -176,7 +179,7 @@ const LessonSectionAccordion = ({
           <CheckCircleIcon size={15} color={progressColor} weight="fill" />
           <Text style={[styles.progressText, { color: progressColor }]}>{progressText}</Text>
         </View>
-      </View>
+      </Pressable>
     </MotiView>
   );
 };
@@ -188,6 +191,9 @@ const styles = StyleSheet.create({
     borderColor: '#E8E8E8',
     padding: 16,
     gap: Gap.gap_10,
+  },
+  contentPressable: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',

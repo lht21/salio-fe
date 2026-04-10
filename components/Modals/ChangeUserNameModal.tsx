@@ -3,6 +3,8 @@ import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 
 import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
 import SettingsSheetModal from './SettingsSheetModal';
+import Button from '../Button';
+import { CustomInput } from '../CustomInput';
 
 export type ChangeUserNameModalProps = {
   visible: boolean;
@@ -49,7 +51,7 @@ const ChangeUserNameModal = ({
       contentScrollable
     >
       <View style={styles.body}>
-        <TextInput
+        {/* <TextInput
           style={styles.input}
           placeholder="Tên mới"
           placeholderTextColor="#9CA3AF"
@@ -59,20 +61,20 @@ const ChangeUserNameModal = ({
           returnKeyType="done"
           onSubmitEditing={Keyboard.dismiss}
           accessibilityLabel="Tên người dùng mới"
+        /> */}
+        <CustomInput
+          placeholder="Tên mới"
+          value={newUserName}
+          onChangeText={setNewUserName}
+          maxLength={50}
         />
-
-        <Pressable
-          style={[
-            styles.confirmButton,
-            !newUserName.trim() && styles.confirmButtonDisabled,
-          ]}
+        <Button
+          title="Lưu"
+          variant="Green"
           onPress={handleConfirm}
-          disabled={!newUserName.trim()}
-          accessibilityRole="button"
-          accessibilityLabel="Thay đổi"
-        >
-          <Text style={styles.confirmButtonText}>Thay đổi</Text>
-        </Pressable>
+          style={styles.confirmButton}
+          disabled={!newUserName.trim() || newUserName.trim() === currentUserName}
+        />  
       </View>
     </SettingsSheetModal>
   );

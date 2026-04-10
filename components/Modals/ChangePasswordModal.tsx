@@ -3,6 +3,8 @@ import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 
 import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
 import SettingsSheetModal from './SettingsSheetModal';
+import { CustomInput } from '../CustomInput';
+import Button from '../Button';
 
 export type ChangePasswordModalProps = {
   visible: boolean;
@@ -67,7 +69,7 @@ const ChangePasswordModal = ({
       contentScrollable
     >
       <View style={styles.body}>
-        <TextInput
+        {/* <TextInput
           style={styles.input}
           placeholder="Nhập mật khẩu hiện tại"
           placeholderTextColor="#9CA3AF"
@@ -78,27 +80,29 @@ const ChangePasswordModal = ({
           blurOnSubmit={false}
           onSubmitEditing={() => newPasswordInputRef.current?.focus()}
           accessibilityLabel="Mật khẩu hiện tại"
+        /> */}
+
+        <CustomInput
+          placeholder="Nhập mật khẩu hiện tại"
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          secureTextEntry
         />
 
-        <TextInput
+        <CustomInput
           ref={newPasswordInputRef}
-          style={styles.input}
-          placeholder="Đặt mật khẩu mới"
-          placeholderTextColor="#9CA3AF"
+          placeholder="Nhập mật khẩu mới"
           value={newPassword}
           onChangeText={setNewPassword}
           secureTextEntry
           returnKeyType="next"
           blurOnSubmit={false}
           onSubmitEditing={() => confirmPasswordInputRef.current?.focus()}
-          accessibilityLabel="Mật khẩu mới"
         />
 
-        <TextInput
+        <CustomInput
           ref={confirmPasswordInputRef}
-          style={styles.input}
           placeholder="Nhập lại mật khẩu mới"
-          placeholderTextColor="#9CA3AF"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
@@ -107,18 +111,13 @@ const ChangePasswordModal = ({
           accessibilityLabel="Xác nhận mật khẩu mới"
         />
 
-        <Pressable
-          style={[
-            styles.confirmButton,
-            !isFormValid && styles.confirmButtonDisabled,
-          ]}
+        <Button
+          title="Lưu" 
+          variant="Green"
           onPress={handleConfirm}
+          style={styles.confirmButton}
           disabled={!isFormValid}
-          accessibilityRole="button"
-          accessibilityLabel="Thay đổi"
-        >
-          <Text style={styles.confirmButtonText}>Thay đổi</Text>
-        </Pressable>
+        />
       </View>
     </SettingsSheetModal>
   );

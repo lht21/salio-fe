@@ -22,13 +22,15 @@ export type ButtonType = {
   title?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
 };
 
 const Button = ({ 
   variant = "Green", 
   title = "Tiếp tục: Ngữ pháp (-입니다)", 
   onPress,
-  style 
+  style,
+  disabled = false
 }: ButtonType) => {
 
   // Hàm mapping style cho background/border của Button
@@ -59,10 +61,20 @@ const Button = ({
 
   return (
     <Pressable 
-      style={[styles.baseButton, getButtonVariantStyle(), style]} 
+      style={[
+        styles.baseButton, 
+        getButtonVariantStyle(), 
+        disabled && styles.buttonDisabled,
+        style
+      ]} 
       onPress={onPress}
+      disabled={disabled}
     >
-      <Text style={[styles.baseText, getTextVariantStyle()]}>
+      <Text style={[
+        styles.baseText, 
+        getTextVariantStyle(),
+        disabled && styles.textDisabled
+      ]}>
         {title}
       </Text>
     </Pressable>
@@ -85,6 +97,13 @@ const styles = StyleSheet.create({
     fontSize: FontSize.fs_14,
     fontFamily: FontFamily.lexendDecaMedium,
     textAlign: "center",
+  },
+  buttonDisabled: {
+    backgroundColor: Color.stroke,
+    borderColor: Color.stroke,
+  },
+  textDisabled: {
+    color: Color.gray,
   },
 
   // --- STYLES TỪNG VARIANT ---

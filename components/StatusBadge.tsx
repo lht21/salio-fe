@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Color, FontFamily, Border } from '../constants/GlobalStyles';
+import { Color, FontFamily, Border, FontSize } from '../constants/GlobalStyles';
 
 interface StatusBadgeProps {
   icon?: React.ReactNode;
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 12,
+    fontSize: FontSize.fs_14,
     color: Color.text || '#1E1E1E',
   },
 });

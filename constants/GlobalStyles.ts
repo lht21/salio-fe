@@ -20,7 +20,7 @@ export const Color = {
   bg: "#FFFFFF",
   text: "#1E1E1E",        // Thay thế cho text1
   main: "#98F291",
-  main2: "#02B0A0",       // Thêm mới từ "main 2"
+  main2: "#508D4E",       // Thêm mới từ "main 2"
   xanh: "#1877F2",        // Thêm mới
   green: "#059669",          // Thêm mới
   gray: "#64748B",

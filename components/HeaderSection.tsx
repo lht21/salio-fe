@@ -26,13 +26,13 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress }: HeaderSectionPro
         <View style={styles.badgesRow}>
           <StatusBadge text="Sơ cấp 1" bgColor={Color.vang || '#F9F871'} />
           <StatusBadge
-            icon={<FireIcon size={16} color="#DC2626" weight="fill" />}
-            text="15đ"
+            icon={<FireIcon size={24} color="#9F0000" weight="fill" />}
+            text="15"
             bgColor={Color.vang || '#F9F871'}
           />
           <StatusBadge
-            icon={<CloudIcon size={16} color="#2563EB" weight="fill" />}
-            text="103 đám mây"
+            icon={<CloudIcon size={24} color="#D37B07" weight="fill" />}
+            text="103"
             bgColor={Color.vang || '#F9F871'}
           />
         </View>

@@ -34,7 +34,7 @@ const ChangeLanguageModal = ({
       title="Ngôn ngữ"
       onClose={onClose}
       edgeToBottom
-      maxHeight="90%"
+      maxHeight="100%"
     >
       <View style={styles.body}>
         {LANGUAGE_OPTIONS.map((option, index) => {

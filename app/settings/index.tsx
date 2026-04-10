@@ -22,7 +22,6 @@ import {
 import { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { ConfirmModal } from '@/components/ModalResult/ResultHangulModal';
 import ChangeAvatarModal from '@/components/Modals/ChangeAvatarModal';
 import ChangeDisplayModeModal, {
   DisplayMode,
@@ -30,6 +29,7 @@ import ChangeDisplayModeModal, {
 import ChangeLanguageModal, {
   LanguageMode,
 } from '@/components/Modals/ChangeLanguageModal';
+import LogoutConfirmModal from '@/components/Modals/LogoutConfirmModal';
 import ChangePasswordModal from '@/components/Modals/ChangePasswordModal';
 import ChangeUserNameModal from '@/components/Modals/ChangeUserNameModal';
 import { SettingsRow } from '@/components/SettingsRow';
@@ -285,9 +285,8 @@ export default function SettingsScreen() {
         onClose={() => setPasswordModalVisible(false)}
       />
 
-      <ConfirmModal
-        isVisible={isLogoutModalVisible}
-        title="Bạn chắc chắn muốn đăng xuất chứ?"
+      <LogoutConfirmModal
+        visible={isLogoutModalVisible}
         onConfirm={handleConfirmLogout}
         onCancel={() => setLogoutModalVisible(false)}
       />

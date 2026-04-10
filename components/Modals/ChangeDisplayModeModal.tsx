@@ -17,9 +17,9 @@ const DISPLAY_MODE_OPTIONS: Array<{
   value: DisplayMode;
   label: string;
 }> = [
-  { value: 'light', label: 'Sáng' },
-  { value: 'dark', label: 'Tối' },
-];
+    { value: 'light', label: 'Sáng' },
+    { value: 'dark', label: 'Tối' },
+  ];
 
 const ChangeDisplayModeModal = ({
   visible,
@@ -33,7 +33,7 @@ const ChangeDisplayModeModal = ({
       title="Hiển thị"
       onClose={onClose}
       edgeToBottom
-      maxHeight="72%"
+      maxHeight="100%"
     >
       <View style={styles.body}>
         {DISPLAY_MODE_OPTIONS.map((option, index) => {

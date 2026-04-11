@@ -52,7 +52,7 @@ export default function SubscriptionCard({
 const styles = StyleSheet.create({
   card: {
     borderRadius: Border.br_30, // Bo góc lớn theo yêu cầu
-    padding: Padding.padding_19,
+    padding: Padding.padding_20,
     position: 'relative',
     marginTop: 15, // Tạo khoảng trống cho tag "Đề xuất" lồi lên
     flex: 1,

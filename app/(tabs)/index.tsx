@@ -75,7 +75,7 @@ export default function HomeScreen() {
           marginTop: 50 
         }}
         // Điền một số bất kỳ (ví dụ số 1) vào vị trí của [lessonId]
-        onPress={() => router.push('/lessons/1/writing/result')}
+        onPress={() => router.push('/lessons/1/writing/practice')}
       >
         <Text style={{ color: 'white', fontWeight: 'bold' }}>
           Test màn hình Kết quả Writing

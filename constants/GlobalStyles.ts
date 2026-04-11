@@ -20,7 +20,7 @@ export const Color = {
   bg: "#FFFFFF",
   text: "#1E1E1E",        // Thay thế cho text1
   main: "#98F291",
-  main2: "#02B0A0",       // Thêm mới từ "main 2"
+  main2: "#508D4E",       // Thêm mới từ "main 2"
   xanh: "#1877F2",        // Thêm mới
   green: "#059669",          // Thêm mới
   gray: "#64748B",
@@ -69,7 +69,7 @@ export const Padding = {
   padding_10: 10,
   padding_11: 11,
   padding_15: 15,
-  padding_19: 19,
+  padding_20: 20,
   padding_3: 3,
   padding_30: 30,
   padding_4: 4,

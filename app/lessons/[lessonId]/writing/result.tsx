@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,6 +25,8 @@ import Button from '../../../../components/Button';
 import StatCircle from '../../../../components/StatCircle';
 import FeedbackCard from '../../../../components/FeedbackCard';
 import DetailedCorrectionView from '../../../../components/DetailedCorrectionView';
+import ActionMenuModal from '@/components/ActionMenuModal';
+import ShareModal from '@/components/Modals/ShareModal';
 
 // --- MOCK DATA ---
 const FEEDBACK_DATA = [
@@ -59,8 +61,46 @@ export default function WritingResultScreen() {
   const { lessonId } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState<'overview' | 'detailed'>('overview');
 
+ 
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  // --- HANDLERS DÀNH CHO ĐIỀU HƯỚNG ---
   const handleClose = () => {
     router.replace('/(tabs)');
+  };
+
+  const handleRetry = () => {
+    setShowActionMenu(false); // Đóng modal trước khi chuyển trang
+    router.replace(`/lessons/${lessonId}/writing/practice`);
+  };
+
+  // --- HANDLERS DÀNH CHO MODAL MENU ---
+  const handleReport = () => {
+    setShowActionMenu(false);
+    Alert.alert("Báo cáo lỗi sai", "Ghi nhận phản hồi của bạn. Cảm ơn bạn đã giúp hệ thống tốt hơn!");
+  };
+
+  const handleShare = () => {
+    setShowActionMenu(false); // Đóng menu tùy chọn
+    setTimeout(() => {
+      setShowShareModal(true); // Đợi 300ms rồi mở menu Chia sẻ
+    }, 300); 
+  };
+
+  const handleViewSample = () => {
+    setShowActionMenu(false);
+    Alert.alert("Xem bài mẫu", "Đang hiển thị bài mẫu tham khảo...");
+  };
+
+  const handleViewHistory = () => {
+    setShowActionMenu(false);
+    Alert.alert("Lịch sử bài viết", "Đang hiển thị lịch sử các bài viết của bạn...");
+  };
+
+  const handleDownloadPDF = () => {
+    setShowActionMenu(false);
+    Alert.alert("Tải xuống PDF", "Đang tải xuống bài viết dưới dạng PDF...");
   };
 
   return (
@@ -71,7 +111,7 @@ export default function WritingResultScreen() {
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>Kết quả bài viết</Text>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.helpButton}>
+            <TouchableOpacity style={styles.helpButton} onPress={() => setShowActionMenu(true)}>
               <SealQuestionIcon size={20} color={Color.bg} weight="bold" />
             </TouchableOpacity>
             <CloseButton variant="Stroke" onPress={handleClose} />
@@ -165,6 +205,23 @@ export default function WritingResultScreen() {
           style={styles.continueButton}
         />
       </View>
+
+      <ActionMenuModal 
+        isVisible={showActionMenu}
+        onClose={() => setShowActionMenu(false)}
+        onRetry={handleRetry}
+        onReport={handleReport}
+        onShare={handleShare}
+        onViewSample={handleViewSample}
+        onViewHistory={handleViewHistory}
+        onDownloadPDF={handleDownloadPDF}
+
+      />
+
+      <ShareModal 
+        isVisible={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
 
     </SafeAreaView>
   );

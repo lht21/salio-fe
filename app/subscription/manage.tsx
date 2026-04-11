@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { ArrowLeftIcon, ClockCounterClockwiseIcon, CheckCircleIcon, CrownIcon, C
 // Constants & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import Button from '../../components/Button';
+import CancelAutoRenewModal from '../../components/Modals/CancelAutoRenewModal';
 
 // Mock Data: Danh sách quyền lợi
 const BENEFITS = [
@@ -23,27 +24,17 @@ export default function ManageSubscriptionScreen() {
   // Biến state quản lý trạng thái có gói học tập hay chưa
   // (Đổi thành true để xem giao diện quản lý gói, false để xem giao diện chưa có gói)
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean>(true);
+  const [isCancelModalVisible, setCancelModalVisible] = useState(false);
 
   // Logic xử lý khi bấm nút "Hủy tự động gia hạn"
   const handleCancelSubscription = () => {
-    Alert.alert(
-      "Hủy tự động gia hạn",
-      "Bạn có chắc chắn muốn hủy tự động gia hạn gói Salio Master TOPIK không? Bạn vẫn có thể sử dụng các quyền lợi cho đến hết chu kỳ hiện tại.",
-      [
-        {
-          text: "Không",
-          style: "cancel"
-        },
-        {
-          text: "Có, Hủy gia hạn",
-          style: "destructive",
-          onPress: () => {
-            // TODO: Gọi API hủy gia hạn tại đây
-            console.log("Đã xác nhận hủy tự động gia hạn");
-          }
-        }
-      ]
-    );
+    setCancelModalVisible(true);
+  };
+
+  const handleConfirmCancelAutoRenew = () => {
+    setCancelModalVisible(false);
+    // TODO: Gọi API hủy gia hạn tại đây
+    console.log('Đã xác nhận hủy tự động gia hạn');
   };
 
   return (
@@ -180,6 +171,12 @@ export default function ManageSubscriptionScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      <CancelAutoRenewModal
+        visible={isCancelModalVisible}
+        onClose={() => setCancelModalVisible(false)}
+        onConfirmCancel={handleConfirmCancelAutoRenew}
+      />
 
     </SafeAreaView>
   );

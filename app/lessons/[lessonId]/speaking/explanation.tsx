@@ -59,8 +59,8 @@ export default function SpeakingExplanationScreen() {
           </ScrollView>
 
           <Button
-            title="Làm lại bài nói"
-            onPress={() => router.replace(`/lessons/${resolvedLessonId}/speaking/practice` as any)}
+            title="Chuyển tới bài nghe"
+            onPress={() => router.replace(`/lessons/${resolvedLessonId}/listening/intro` as any)}
             style={styles.primaryButton}
           />
         </View>

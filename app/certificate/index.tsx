@@ -35,7 +35,7 @@ export default function CertificateScreen() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/profile')}>
                     <ArrowLeftIcon size={24} color={Color.gray} weight="bold" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Huy hiệu</Text>

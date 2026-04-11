@@ -3,7 +3,7 @@ import { Keyboard, StyleSheet, View } from 'react-native';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
-import SettingsSheetModal from './SettingsSheetModal';
+import SettingsSheetModal from './SettingsClassicSheetModal';
 
 export type ChangeUserNameModalProps = {
   visible: boolean;

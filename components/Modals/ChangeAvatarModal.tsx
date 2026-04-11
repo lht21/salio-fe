@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AvatarPreset } from '../../constants/avatarPresets';
 import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
 import Button from '../Button';
-import SettingsSheetModal from './SettingsSheetModal';
+import SettingsSheetModal from './SettingsClassicSheetModal';
 
 export type ChangeAvatarModalProps = {
   visible: boolean;

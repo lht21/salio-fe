@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
 import CloseButton from '../CloseButton';
 
-export type SettingsSheetModalProps = {
+export type VocabularySheetModalProps = {
     visible: boolean;
     title: string;
     onClose: () => void;
@@ -28,17 +28,17 @@ export type SettingsSheetModalProps = {
     expandOnKeyboard?: boolean;
     contentScrollable?: boolean;
     keyboardVerticalOffset?: number;
+    headerHorizontalInset?: number;
 };
 
 const ENTER_DURATION = 220;
 const EXIT_DURATION = 180;
 const DEFAULT_WRAPPER_BOTTOM_PADDING = 18;
 const DEFAULT_SHEET_BOTTOM_PADDING = 16;
-const EDGE_TO_BOTTOM_SHEET_PADDING = 24;
 const EXPANDED_MAX_HEIGHT = '96%';
 const EXPANDED_MAX_HEIGHT_PERCENT = Number(EXPANDED_MAX_HEIGHT.replace('%', ''));
 
-const SettingsSheetModal = ({
+const VocabularySheetModal = ({
     visible,
     title,
     onClose,
@@ -50,7 +50,8 @@ const SettingsSheetModal = ({
     expandOnKeyboard = false,
     contentScrollable = false,
     keyboardVerticalOffset = 0,
-}: SettingsSheetModalProps) => {
+    headerHorizontalInset = 2,
+}: VocabularySheetModalProps) => {
     const insets = useSafeAreaInsets();
     const [isMounted, setIsMounted] = React.useState(visible);
     const [isKeyboardVisible, setIsKeyboardVisible] = React.useState(false);
@@ -58,7 +59,7 @@ const SettingsSheetModal = ({
 
     const wrapperBottomPadding = edgeToBottom ? 0 : Math.max(insets.bottom, DEFAULT_WRAPPER_BOTTOM_PADDING);
     const sheetBottomPadding = edgeToBottom
-        ? Math.max(insets.bottom, EDGE_TO_BOTTOM_SHEET_PADDING)
+        ? insets.bottom
         : Math.max(insets.bottom, DEFAULT_SHEET_BOTTOM_PADDING);
 
     React.useEffect(() => {
@@ -139,13 +140,21 @@ const SettingsSheetModal = ({
 
     const shouldRenderScrollableContent = contentScrollable;
     const isScrollEnabled = !keyboardAware || isKeyboardVisible;
+    const shouldUseKeyboardAvoidingView = keyboardAware && !(edgeToBottom && Platform.OS === 'android');
+    const shouldRenderHeader = showCloseButton || title.trim().length > 0;
+    const bottomCompensation = edgeToBottom && Platform.OS === 'android'
+        ? -Math.max(insets.bottom, 20)
+        : 0;
+    const sheetSizeStyle = edgeToBottom
+        ? { height: effectiveMaxHeight }
+        : { maxHeight: effectiveMaxHeight };
 
     const sheetNode = (
         <View
             style={[
                 styles.sheetWrapper,
                 edgeToBottom && styles.sheetWrapperEdgeToBottom,
-                { paddingBottom: wrapperBottomPadding },
+                { paddingBottom: wrapperBottomPadding, marginBottom: bottomCompensation },
             ]}
             pointerEvents="box-none"
         >
@@ -153,24 +162,26 @@ const SettingsSheetModal = ({
                 style={[
                     styles.sheet,
                     edgeToBottom && styles.sheetEdgeToBottom,
+                    sheetSizeStyle,
                     {
-                        maxHeight: effectiveMaxHeight,
-                        paddingBottom: sheetBottomPadding,
+                        paddingBottom: edgeToBottom ? 0 : sheetBottomPadding,
                         opacity: animation,
                         transform: [{ translateY }],
                     },
                 ]}
             >
-                <View style={styles.header}>
-                    <Text style={styles.title}>{title}</Text>
-                    {showCloseButton ? (
-                        <CloseButton
-                            variant="Stroke"
-                            onPress={onClose}
-                            style={styles.closeButton}
-                        />
-                    ) : null}
-                </View>
+                {shouldRenderHeader ? (
+                    <View style={[styles.header, { paddingHorizontal: headerHorizontalInset }]}>
+                        <Text style={styles.title}>{title}</Text>
+                        {showCloseButton ? (
+                            <CloseButton
+                                variant="Stroke"
+                                onPress={onClose}
+                                style={styles.closeButton}
+                            />
+                        ) : null}
+                    </View>
+                ) : null}
 
                 {shouldRenderScrollableContent ? (
                     <ScrollView
@@ -205,15 +216,21 @@ const SettingsSheetModal = ({
                     <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
                 </Pressable>
 
-                <KeyboardAvoidingView
-                    enabled={keyboardAware}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    keyboardVerticalOffset={keyboardVerticalOffset}
-                    style={styles.bottomAligned}
-                    pointerEvents="box-none"
-                >
-                    {sheetNode}
-                </KeyboardAvoidingView>
+                {shouldUseKeyboardAvoidingView ? (
+                    <KeyboardAvoidingView
+                        enabled
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
+                        keyboardVerticalOffset={keyboardVerticalOffset}
+                        style={styles.bottomAligned}
+                        pointerEvents="box-none"
+                    >
+                        {sheetNode}
+                    </KeyboardAvoidingView>
+                ) : (
+                    <View style={styles.bottomAligned} pointerEvents="box-none">
+                        {sheetNode}
+                    </View>
+                )}
             </View>
         </Modal>
     );
@@ -237,6 +254,7 @@ const styles = StyleSheet.create({
     },
     sheetWrapperEdgeToBottom: {
         paddingHorizontal: 0,
+        paddingBottom: 0,
     },
     sheet: {
         borderTopLeftRadius: 30,
@@ -256,13 +274,17 @@ const styles = StyleSheet.create({
     sheetEdgeToBottom: {
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
+        paddingHorizontal: 0,
+        shadowOpacity: 0,
+        shadowRadius: 0,
+        shadowOffset: { width: 0, height: 0 },
+        elevation: 0,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: Gap.gap_10,
-        paddingHorizontal: 2,
         marginBottom: 14,
     },
     title: {
@@ -284,4 +306,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SettingsSheetModal;
+export default VocabularySheetModal;

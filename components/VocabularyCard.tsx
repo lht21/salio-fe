@@ -1,18 +1,20 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { SpeakerSimpleHighIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { BookmarkSimpleIcon, SpeakerSimpleHighIcon } from 'phosphor-react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 
 interface Props {
   item: {
+    id: string;
     word: string;
     pos: string;
     phonetic: string;
     meaning: string;
+    isFavorite?: boolean;
   };
+  onToggleFavorite?: () => void;
 }
 
-const VocabularyCard = ({ item }: Props) => {
+const VocabularyCard = ({ item, onToggleFavorite }: Props) => {
   const getBadgeColor = (pos: string) => {
     if (pos === 'Danh từ') return { bg: '#DCFCE7', text: '#15803D' };
     if (pos === 'Động từ') return { bg: '#F3E8FF', text: '#7E22CE' };
@@ -38,8 +40,16 @@ const VocabularyCard = ({ item }: Props) => {
         <TouchableOpacity>
           <SpeakerSimpleHighIcon size={24} color={Color.text} weight="regular" />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <BookmarkSimpleIcon size={24} color={Color.colorLimegreen || '#22C55E'} weight="fill" />
+        <TouchableOpacity
+          onPress={onToggleFavorite}
+          style={styles.favoriteButton}
+          activeOpacity={0.85}
+        >
+          <BookmarkSimpleIcon
+            size={24}
+            color={item.isFavorite ? (Color.colorLimegreen || '#22C55E') : Color.text}
+            weight={item.isFavorite ? 'fill' : 'regular'}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -65,6 +75,11 @@ const styles = StyleSheet.create({
   phonetic: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.colorDarkgray, marginBottom: 2 },
   meaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.color },
   actions: { flexDirection: 'row', gap: Gap.gap_15 || 15 },
+  favoriteButton: {
+    padding: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default VocabularyCard;

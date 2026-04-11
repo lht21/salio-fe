@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ArrowLeftIcon, FireIcon } from 'phosphor-react-native';
+import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,10 +24,13 @@ type CalendarDay = {
 type MonthSection = {
     id: string;
     title: string;
+    month: number;
+    year: number;
     days: CalendarDay[];
 };
 
-const WEEKDAYS = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
+const MONTH_GRID_COLUMNS = 7;
+const MONTH_GRID_CELLS = 35;
 
 const SUMMARY_CARDS: SummaryCard[] = [
     { id: 'current', value: '2', label: 'Chuỗi 7' },
@@ -84,36 +88,58 @@ const MARCH_DAYS: CalendarDay[] = [
     { id: 'mar-22', day: '22', state: 'inactive' },
 ];
 
-const APR_DAYS: CalendarDay[] = [
-    { id: 'apr-1', day: '1', state: 'inactive' },
-    { id: 'apr-2', day: '2', state: 'inactive' },
-    { id: 'apr-3', day: '3', state: 'inactive' },
-    { id: 'apr-4', day: '4', state: 'inactive' },
-    { id: 'apr-5', day: '5', state: 'inactive' },
-    { id: 'apr-6', day: '6', state: 'inactive' },
-    { id: 'apr-7', day: '7', state: 'inactive' },
-    { id: 'apr-8', day: '8', state: 'inactive' },
-    { id: 'apr-9', day: '9', state: 'inactive' },
-    { id: 'apr-10', day: '10', state: 'inactive' },
-    { id: 'apr-11', day: '11', state: 'inactive' },
-    { id: 'apr-12', day: '12', state: 'inactive' },
-    { id: 'apr-13', day: '13', state: 'inactive' },
-    { id: 'apr-14', day: '14', state: 'inactive' },
-    { id: 'apr-15', day: '15', state: 'inactive' },
-    { id: 'apr-16', day: '16', state: 'inactive' },
-    { id: 'apr-17', day: '17', state: 'inactive' },
-    { id: 'apr-18', day: '18', state: 'inactive' },
-    { id: 'apr-19', day: '19', state: 'inactive' },
-    { id: 'apr-20', day: '20', state: 'inactive' },
-    { id: 'apr-21', day: '21', state: 'inactive' },
-    { id: 'apr-22', day: '22', state: 'inactive' },
+const APR_DAYS: CalendarDay[] = FEB_DAYS.map((day) => ({
+    ...day,
+    id: day.id.replace('feb-', 'apr-'),
+}));
+
+const ALL_MONTH_SECTIONS: MonthSection[] = [
+    { id: 'feb-2026', title: 'Tháng 2 2026', month: 2, year: 2026, days: FEB_DAYS },
+    { id: 'mar-2026', title: 'Tháng 3 2026', month: 3, year: 2026, days: MARCH_DAYS },
+    { id: 'apr-2026', title: 'Tháng 4 2026', month: 4, year: 2026, days: APR_DAYS },
 ];
 
-const MONTH_SECTIONS: MonthSection[] = [
-    { id: 'feb-2026', title: 'Tháng 2 2026', days: FEB_DAYS },
-    { id: 'mar-2026', title: 'Tháng 3 2026', days: MARCH_DAYS },
-    { id: 'apr-2026', title: 'Tháng 3 2026', days: APR_DAYS },
-];
+const DISPLAY_END_MONTH = 4;
+const DISPLAY_END_YEAR = 2026;
+
+const MONTH_SECTIONS: MonthSection[] = ALL_MONTH_SECTIONS.filter((section) => {
+    if (section.year < DISPLAY_END_YEAR) {
+        return true;
+    }
+
+    if (section.year > DISPLAY_END_YEAR) {
+        return false;
+    }
+
+    return section.month <= DISPLAY_END_MONTH;
+});
+
+type MonthCell = {
+    id: string;
+    type: 'placeholder' | 'day';
+    day?: CalendarDay;
+};
+
+const buildMonthCells = (section: MonthSection): MonthCell[] => {
+    const leadingPlaceholders = Array.from({ length: 6 }, (_, index) => ({
+        id: section.id + '-lead-' + index,
+        type: 'placeholder' as const,
+    }));
+
+    const dayCells = section.days.map((day) => ({
+        id: day.id,
+        type: 'day' as const,
+        day,
+    }));
+
+    const remaining = Math.max(0, MONTH_GRID_CELLS - leadingPlaceholders.length - dayCells.length);
+    const trailingPlaceholders = Array.from({ length: remaining }, (_, index) => ({
+        id: section.id + '-trail-' + index,
+        type: 'placeholder' as const,
+    }));
+
+    return [...leadingPlaceholders, ...dayCells, ...trailingPlaceholders];
+};
 
 const DayDot = ({ item }: { item: CalendarDay }) => {
     let circleStyle = styles.circleInactive;
@@ -144,57 +170,86 @@ const DayDot = ({ item }: { item: CalendarDay }) => {
     );
 };
 
+const PlaceholderDot = () => {
+    return (
+        <View style={styles.dayCell}>
+            <View style={styles.placeholderDot} />
+        </View>
+    );
+};
+
 const MonthBlock = ({ section }: { section: MonthSection }) => {
-    const fillerCells = [
-        { id: section.id + '-empty-1' },
-        { id: section.id + '-empty-2' },
-        { id: section.id + '-empty-3' },
-        { id: section.id + '-empty-4' },
-        { id: section.id + '-empty-5' },
-        { id: section.id + '-empty-6' },
-    ];
+    const monthCells = buildMonthCells(section);
 
     return (
         <View style={styles.monthBlock}>
-            <Text style={styles.monthTitle}>{section.title}</Text>
-
-            <View style={styles.weekRow}>
-                {WEEKDAYS.map((day) => (
-                    <View key={section.id + '-' + day} style={styles.dayCell}>
-                        <Text style={styles.weekdayText}>{day}</Text>
-                    </View>
-                ))}
+            <View style={styles.monthHeader}>
+                <Text style={styles.monthTitle}>{section.title}</Text>
             </View>
 
             <View style={styles.daysWrap}>
-                {fillerCells.map((item) => (
-                    <View key={item.id} style={styles.dayCell} />
-                ))}
-                {section.days.map((item) => (
-                    <DayDot key={item.id} item={item} />
-                ))}
+                {monthCells.map((cell) => {
+                    if (cell.type === 'placeholder') {
+                        return <PlaceholderDot key={cell.id} />;
+                    }
+
+                    return cell.day ? <DayDot key={cell.id} item={cell.day} /> : null;
+                })}
             </View>
+        </View>
+    );
+};
+
+const MonthConnector = () => {
+    return (
+        <View style={styles.connectorWrap}>
+            <View style={styles.connectorDot} />
+            <View style={styles.connectorLine} />
+            <View style={styles.connectorDot} />
         </View>
     );
 };
 
 export default function StreakScreen() {
     const router = useRouter();
+    const scrollRef = React.useRef<ScrollView>(null);
+    const [monthOffsets, setMonthOffsets] = React.useState<Record<string, number>>({});
+    const [viewportHeight, setViewportHeight] = React.useState(0);
+    const [hasScrolledToCurrentMonth, setHasScrolledToCurrentMonth] = React.useState(false);
+
+    const now = new Date();
+    const currentMonthIndex = MONTH_SECTIONS.findIndex(
+        (section) => section.month === now.getMonth() + 1 && section.year === now.getFullYear()
+    );
+    const fallbackIndex = MONTH_SECTIONS.length > 0 ? MONTH_SECTIONS.length - 1 : 0;
+    const targetSectionIndex = currentMonthIndex >= 0 ? currentMonthIndex : fallbackIndex;
+    const targetSectionId = MONTH_SECTIONS[targetSectionIndex]?.id;
+
+    React.useEffect(() => {
+        if (!targetSectionId || viewportHeight <= 0 || hasScrolledToCurrentMonth) {
+            return;
+        }
+
+        const targetY = monthOffsets[targetSectionId];
+        if (typeof targetY !== 'number') {
+            return;
+        }
+
+        const centeredY = Math.max(0, targetY - viewportHeight * 0.32);
+        scrollRef.current?.scrollTo({ y: centeredY, animated: false });
+        setHasScrolledToCurrentMonth(true);
+    }, [hasScrolledToCurrentMonth, monthOffsets, targetSectionId, viewportHeight]);
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/profile')}>
                     <ArrowLeftIcon size={24} color={Color.gray} weight="bold" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Chuỗi học tập</Text>
             </View>
 
-            <ScrollView
-                style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
+            <View style={styles.summaryRowWrap}>
                 <View style={styles.summaryRow}>
                     {SUMMARY_CARDS.map((card) => (
                         <View key={card.id} style={styles.summaryCard}>
@@ -203,9 +258,35 @@ export default function StreakScreen() {
                         </View>
                     ))}
                 </View>
+            </View>
 
-                {MONTH_SECTIONS.map((section) => (
-                    <MonthBlock key={section.id} section={section} />
+            <ScrollView
+                ref={scrollRef}
+                style={styles.scroll}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
+            >
+                {MONTH_SECTIONS.map((section, index) => (
+                    <View
+                        key={section.id}
+                        onLayout={(event) => {
+                            const y = event.nativeEvent.layout.y;
+                            setMonthOffsets((prev) => {
+                                if (prev[section.id] === y) {
+                                    return prev;
+                                }
+
+                                return {
+                                    ...prev,
+                                    [section.id]: y,
+                                };
+                            });
+                        }}
+                    >
+                        <MonthBlock section={section} />
+                        {index < MONTH_SECTIONS.length - 1 ? <MonthConnector /> : null}
+                    </View>
                 ))}
             </ScrollView>
         </SafeAreaView>
@@ -237,13 +318,18 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: Padding.padding_15,
-        paddingTop: 14,
+        paddingTop: 6,
         paddingBottom: 24,
+    },
+    summaryRowWrap: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: 14,
+        paddingBottom: 12,
+        backgroundColor: Color.bg,
     },
     summaryRow: {
         flexDirection: 'row',
         gap: 14,
-        marginBottom: 22,
     },
     summaryCard: {
         flex: 1,
@@ -270,39 +356,48 @@ const styles = StyleSheet.create({
         color: Color.gray,
     },
     monthBlock: {
-        marginBottom: 28,
+        backgroundColor: Color.bg,
+        borderWidth: 1.5,
+        borderColor: 'rgba(80, 141, 78, 0.22)',
+        borderRadius: 26,
+        overflow: 'hidden',
+    },
+    monthHeader: {
+        backgroundColor: Color.main2,
+        paddingHorizontal: Padding.padding_20,
+        paddingVertical: 14,
     },
     monthTitle: {
         fontFamily: FontFamily.lexendDecaSemiBold,
         fontSize: FontSize.fs_16,
-        color: Color.text,
-        marginBottom: 12,
-    },
-    weekRow: {
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
-    weekdayText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_12,
-        color: Color.gray,
+        color: Color.bg,
     },
     daysWrap: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_15,
+        paddingBottom: Padding.padding_20,
+        backgroundColor: Color.bg,
     },
     dayCell: {
-        width: '14.28%',
+        width: `${100 / MONTH_GRID_COLUMNS}%`,
         aspectRatio: 1,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        marginBottom: 8,
+        padding: 2,
+    },
+    placeholderDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'rgba(80, 141, 78, 0.18)',
     },
     dayCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -311,13 +406,13 @@ const styles = StyleSheet.create({
         fontSize: FontSize.fs_12,
     },
     circleInactive: {
-        backgroundColor: '#CBD5E1',
+        backgroundColor: '#E2E8F0',
     },
     dayTextInactive: {
-        color: '#667085',
+        color: '#64748B',
     },
     circleCompleted: {
-        backgroundColor: '#4A9F00',
+        backgroundColor: Color.colorLimegreen,
     },
     dayTextWhite: {
         color: '#FFFFFF',
@@ -336,9 +431,25 @@ const styles = StyleSheet.create({
     fireWrap: {
         position: 'absolute',
         bottom: -1,
-        right: 4,
+        right: 2,
         backgroundColor: Color.bg,
         borderRadius: 9,
         padding: 1,
+    },
+    connectorWrap: {
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    connectorLine: {
+        height: 20,
+        borderLeftWidth: 2,
+        borderStyle: 'dashed',
+        borderLeftColor: 'rgba(80, 141, 78, 0.3)',
+    },
+    connectorDot: {
+        width: 7,
+        height: 7,
+        borderRadius: 3.5,
+        backgroundColor: 'rgba(80, 141, 78, 0.55)',
     },
 });

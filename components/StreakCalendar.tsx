@@ -1,7 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { CaretLeftIcon, CaretRightIcon, FireIcon } from 'phosphor-react-native';
-import { Color, FontFamily, Border, Padding, FontSize, Gap } from '../constants/GlobalStyles';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 
 // Mock data tháng 2/2026 theo ảnh
 const CALENDAR_DATA = [
@@ -12,7 +11,7 @@ const CALENDAR_DATA = [
   { id: 'e5', day: '', status: 'empty' },
   { id: 'e6', day: '', status: 'empty' },
   { id: '1', day: '1', status: 'inactive' },
-  
+
   { id: '2', day: '2', status: 'completed' },
   { id: '3', day: '3', status: 'completed' },
   { id: '4', day: '4', status: 'completed', fire: true },
@@ -40,7 +39,11 @@ const CALENDAR_DATA = [
 
 const WEEKDAYS = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
 
-const StreakCalendar = () => {
+type StreakCalendarProps = {
+  onHeaderPress?: () => void;
+};
+
+const StreakCalendar = ({ onHeaderPress }: StreakCalendarProps) => {
   const renderDay = (item: any) => {
     if (item.status === 'empty') return <View key={item.id} style={styles.dayCell} />;
 
@@ -76,13 +79,18 @@ const StreakCalendar = () => {
     <View style={styles.wrapper}>
       <Text style={styles.sectionTitle}>Chuỗi của bạn</Text>
       <View style={styles.container}>
-        
+
         {/* Header Calendar */}
-        <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.header}
+          activeOpacity={0.85}
+          onPress={onHeaderPress}
+          disabled={!onHeaderPress}
+        >
           <CaretLeftIcon size={24} color={Color.bg} weight="bold" />
           <Text style={styles.headerText}>Tháng 2 2026</Text>
           <CaretRightIcon size={24} color={Color.bg} weight="bold" />
-        </View>
+        </TouchableOpacity>
 
         {/* Lưới ngày */}
         <View style={styles.grid}>

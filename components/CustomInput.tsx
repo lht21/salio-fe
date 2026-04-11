@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, TextInputProps, StyleSheet, View } from 'react-native';
 import { Color, FontFamily, FontSize, Padding, Border } from '../constants/GlobalStyles';
 
-interface CustomInputProps extends TextInputProps {}
+interface CustomInputProps extends TextInputProps { }
 
 export const CustomInput = ({ style, onFocus, onBlur, ...props }: CustomInputProps) => {
   // State theo dõi trạng thái focus của input

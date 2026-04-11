@@ -1,12 +1,9 @@
-import * as React from "react";
-import { Pressable, StyleSheet, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
+import { Pressable, StyleProp, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
 import {
   Color,
-  Padding,
-  Height,
-  Width,
-  FontSize,
   FontFamily,
+  FontSize,
+  Padding
 } from "../constants/GlobalStyles";
 
 export type ButtonVariant =
@@ -23,13 +20,17 @@ export type ButtonType = {
   title?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  disabled?: boolean;
 };
 
-const Button = ({ 
-  variant = "Green", 
-  title = "Tiếp tục: Ngữ pháp (-입니다)", 
+const Button = ({
+  variant = "Green",
+  title = "Tiếp tục: Ngữ pháp (-입니다)",
   onPress,
-  style 
+  style,
+  textStyle,
+  disabled = false
 }: ButtonType) => {
 
   // Hàm mapping style cho background/border của Button
@@ -61,11 +62,22 @@ const Button = ({
   };
 
   return (
-    <Pressable 
-      style={[styles.baseButton, getButtonVariantStyle(), style]} 
+    <Pressable
+      style={[
+        styles.baseButton,
+        getButtonVariantStyle(),
+        disabled && styles.buttonDisabled,
+        style
+      ]}
       onPress={onPress}
+      disabled={disabled}
     >
-      <Text style={[styles.baseText, getTextVariantStyle()]}>
+      <Text style={[
+        styles.baseText,
+        getTextVariantStyle(),
+        disabled && styles.textDisabled,
+        textStyle,
+      ]}>
         {title}
       </Text>
     </Pressable>
@@ -89,15 +101,22 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaMedium,
     textAlign: "center",
   },
+  buttonDisabled: {
+    backgroundColor: Color.stroke,
+    borderColor: Color.stroke,
+  },
+  textDisabled: {
+    color: Color.gray,
+  },
 
   // --- STYLES TỪNG VARIANT ---
-  
+
   // 1. Green (Mặc định)
   variantGreen: {
     backgroundColor: Color.main, // Bạn có thể đổi sang Color.main nếu khớp màu
   },
   textGreen: {
-    color: Color.color, 
+    color: Color.color,
     fontWeight: "500",
   },
 

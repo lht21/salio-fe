@@ -114,8 +114,8 @@ export default function NewFlashCardSetModal({
             visible={isVisible}
             title="Bộ từ vựng mới"
             onClose={onClose}
-            maxHeight="90%"
-            edgeToBottom={true}
+            maxHeight="95%"
+            edgeToBottom
             showCloseButton={true}
             keyboardAware={true}
             headerHorizontalInset={20}

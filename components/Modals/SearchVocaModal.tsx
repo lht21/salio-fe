@@ -96,8 +96,8 @@ export default function SearchVocaModal({ isVisible, onClose }: SearchVocaModalP
             visible={isVisible}
             title=""
             onClose={onClose}
-            maxHeight="90%"
-            edgeToBottom
+            maxHeight="95%"
+            edgeToBottom={true}
             showCloseButton={false}
             keyboardAware
             contentScrollable={false}
@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
     content: {
         height: '100%',
         paddingHorizontal: Padding.padding_2,
+        paddingBottom: 60,
         justifyContent: 'space-between',
     },
     searchWrap: {
@@ -201,7 +202,8 @@ const styles = StyleSheet.create({
     closeButton: {
         width: 160,
         alignSelf: 'center',
-        marginBottom: Gap.gap_8,
+        marginBottom: Gap.gap_30,
+        marginTop: Gap.gap_20,
     },
     closeButtonText: {
         fontFamily: FontFamily.lexendDecaSemiBold,

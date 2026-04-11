@@ -78,6 +78,18 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="streak"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="certificate"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
       <LessonBottomSheetHost />
     </View>

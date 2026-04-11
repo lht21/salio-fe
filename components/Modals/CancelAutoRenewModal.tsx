@@ -47,17 +47,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_24,
+    lineHeight: 34,
     color: Color.text,
   },
   description: {
-    marginTop: Gap.gap_10,
+    marginTop: 10,
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_16,
     lineHeight: 24,
     color: Color.text,
   },
   actionRow: {
-    marginTop: Gap.gap_20,
+    marginTop: 16,
     flexDirection: 'row',
     gap: 12,
   },
@@ -67,6 +68,7 @@ const styles = StyleSheet.create({
     marginVertical: 0,
     borderRadius: 37,
     borderColor: Color.green,
+    paddingHorizontal: 10,
   },
   cancelButton: {
     flex: 1,
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
     marginVertical: 0,
     borderRadius: 37,
     backgroundColor: '#B40000',
+    paddingHorizontal: 10,
   },
   keepText: {
     fontFamily: FontFamily.lexendDecaSemiBold,

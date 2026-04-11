@@ -1,10 +1,9 @@
 import React from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
-import SettingsSheetModal from './SettingsSheetModal';
-import { CustomInput } from '../CustomInput';
 import Button from '../Button';
+import { CustomInput } from '../CustomInput';
+import SettingsSheetModal from './SettingsSheetModal';
 
 export type ChangePasswordModalProps = {
   visible: boolean;
@@ -17,8 +16,6 @@ const ChangePasswordModal = ({
   onChangePassword,
   onClose,
 }: ChangePasswordModalProps) => {
-  const newPasswordInputRef = React.useRef<TextInput>(null);
-  const confirmPasswordInputRef = React.useRef<TextInput>(null);
   const [currentPassword, setCurrentPassword] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
@@ -51,9 +48,9 @@ const ChangePasswordModal = ({
 
   const isFormValid = Boolean(
     currentPassword.trim() &&
-      newPassword.trim() &&
-      confirmPassword.trim() &&
-      newPassword === confirmPassword
+    newPassword.trim() &&
+    confirmPassword.trim() &&
+    newPassword === confirmPassword
   );
 
   return (
@@ -69,39 +66,25 @@ const ChangePasswordModal = ({
       contentScrollable
     >
       <View style={styles.body}>
-        {/* <TextInput
-          style={styles.input}
+        <CustomInput
           placeholder="Nhập mật khẩu hiện tại"
-          placeholderTextColor="#9CA3AF"
           value={currentPassword}
           onChangeText={setCurrentPassword}
           secureTextEntry
           returnKeyType="next"
-          blurOnSubmit={false}
-          onSubmitEditing={() => newPasswordInputRef.current?.focus()}
           accessibilityLabel="Mật khẩu hiện tại"
-        /> */}
-
-        <CustomInput
-          placeholder="Nhập mật khẩu hiện tại"
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          secureTextEntry
         />
 
         <CustomInput
-          ref={newPasswordInputRef}
           placeholder="Nhập mật khẩu mới"
           value={newPassword}
           onChangeText={setNewPassword}
           secureTextEntry
-          returnKeyType="next"
-          blurOnSubmit={false}
-          onSubmitEditing={() => confirmPasswordInputRef.current?.focus()}
+          returnKeyType="done"
+          accessibilityLabel="Mật khẩu mới"
         />
 
         <CustomInput
-          ref={confirmPasswordInputRef}
           placeholder="Nhập lại mật khẩu mới"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -112,7 +95,7 @@ const ChangePasswordModal = ({
         />
 
         <Button
-          title="Lưu" 
+          title="Lưu"
           variant="Green"
           onPress={handleConfirm}
           style={styles.confirmButton}
@@ -128,31 +111,10 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 16,
   },
-  input: {
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#E5EBF5',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
   confirmButton: {
     height: 48,
-    borderRadius: 12,
-    backgroundColor: '#4ADE80',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  confirmButtonDisabled: {
-    backgroundColor: '#D1D5DB',
-    opacity: 0.6,
-  },
-  confirmButtonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: '#FFFFFF',
+    borderRadius: 37,
+    marginVertical: 0,
   },
 });
 

@@ -1,10 +1,9 @@
 import React from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
-import SettingsSheetModal from './SettingsSheetModal';
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
+import SettingsSheetModal from './SettingsSheetModal';
 
 export type ChangeUserNameModalProps = {
   visible: boolean;
@@ -74,7 +73,7 @@ const ChangeUserNameModal = ({
           onPress={handleConfirm}
           style={styles.confirmButton}
           disabled={!newUserName.trim() || newUserName.trim() === currentUserName}
-        />  
+        />
       </View>
     </SettingsSheetModal>
   );
@@ -85,31 +84,10 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 16,
   },
-  input: {
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#E5EBF5',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
   confirmButton: {
     height: 48,
-    borderRadius: 12,
-    backgroundColor: '#4ADE80',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  confirmButtonDisabled: {
-    backgroundColor: '#D1D5DB',
-    opacity: 0.6,
-  },
-  confirmButtonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: '#FFFFFF',
+    borderRadius: 37,
+    marginVertical: 0,
   },
 });
 

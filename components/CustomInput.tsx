@@ -1,8 +1,7 @@
-import React from 'react';
-import { TextInput, TextInputProps, StyleSheet, View } from 'react-native';
-import { Color, FontFamily, FontSize, Padding, Border } from '../constants/GlobalStyles';
+import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Padding } from '../constants/GlobalStyles';
 
-interface CustomInputProps extends TextInputProps {}
+interface CustomInputProps extends TextInputProps { }
 
 export const CustomInput = ({ style, ...props }: CustomInputProps) => {
   return (

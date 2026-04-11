@@ -1,7 +1,8 @@
-import React from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
+import Button from '../Button';
+import CenteredModalCard from './CenteredModalCard';
 
 export type CancelAutoRenewModalProps = {
   visible: boolean;
@@ -15,68 +16,34 @@ const CancelAutoRenewModal = ({
   onClose,
 }: CancelAutoRenewModalProps) => {
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent
-    >
-      <View style={styles.overlay}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+    <CenteredModalCard visible={visible} onRequestClose={onClose}>
+      <Text style={styles.title}>Sắp chia tay rồi sao?</Text>
+      <Text style={styles.description}>
+        Nếu hủy gia hạn, hành trình học tiếng Hàn của bạn có thể bị gián đoạn đó 😢
+      </Text>
 
-        <View style={styles.dialog}>
-          <Text style={styles.title}>Sắp chia tay rồi sao?</Text>
-          <Text style={styles.description}>
-            Nếu hủy gia hạn, hành trình học tiếng Hàn của bạn có thể bị gián đoạn đó 😢
-          </Text>
+      <View style={styles.actionRow}>
+        <Button
+          title="Tiếp tục học"
+          variant="Outline"
+          onPress={onClose}
+          style={styles.keepButton}
+          textStyle={styles.keepText}
+        />
 
-          <View style={styles.actionRow}>
-            <Pressable
-              style={[styles.actionButton, styles.keepButton]}
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel="Tiếp tục học"
-            >
-              <Text style={[styles.actionText, styles.keepText]}>Tiếp tục học</Text>
-            </Pressable>
-
-            <Pressable
-              style={[styles.actionButton, styles.cancelButton]}
-              onPress={onConfirmCancel}
-              accessibilityRole="button"
-              accessibilityLabel="Vẫn hủy"
-            >
-              <Text style={[styles.actionText, styles.cancelText]}>Vẫn hủy</Text>
-            </Pressable>
-          </View>
-        </View>
+        <Button
+          title="Vẫn hủy"
+          variant="Orange"
+          onPress={onConfirmCancel}
+          style={styles.cancelButton}
+          textStyle={styles.cancelText}
+        />
       </View>
-    </Modal>
+    </CenteredModalCard>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(15, 23, 42, 0.36)',
-    paddingHorizontal: 16,
-  },
-  dialog: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: Border.br_20,
-    backgroundColor: Color.bg,
-    paddingHorizontal: Padding.padding_19,
-    paddingVertical: 22,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 18,
-    elevation: 10,
-  },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_24,
@@ -94,29 +61,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
-  actionButton: {
+  keepButton: {
     flex: 1,
     height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  keepButton: {
-    borderWidth: 1.5,
+    marginVertical: 0,
+    borderRadius: 37,
     borderColor: Color.green,
-    backgroundColor: Color.bg,
   },
   cancelButton: {
+    flex: 1,
+    height: 44,
+    marginVertical: 0,
+    borderRadius: 37,
     backgroundColor: '#B40000',
   },
-  actionText: {
+  keepText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 15,
-  },
-  keepText: {
     color: Color.green,
   },
   cancelText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 15,
     color: '#FFFFFF',
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { Border, Color, Padding } from '../../constants/GlobalStyles';
+import { Border, Color } from '../../constants/GlobalStyles';
 
 type CenteredModalCardProps = {
     visible: boolean;

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
+import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
 import Button from '../Button';
 import CenteredModalCard from './CenteredModalCard';
 

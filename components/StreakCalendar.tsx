@@ -1,7 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CaretLeftIcon, CaretRightIcon, FireIcon } from 'phosphor-react-native';
-import { Color, FontFamily, Border, Padding, FontSize, Gap } from '../constants/GlobalStyles';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 
 // Mock data tháng 2/2026 theo ảnh
 const CALENDAR_DATA = [
@@ -12,7 +11,7 @@ const CALENDAR_DATA = [
   { id: 'e5', day: '', status: 'empty' },
   { id: 'e6', day: '', status: 'empty' },
   { id: '1', day: '1', status: 'inactive' },
-  
+
   { id: '2', day: '2', status: 'completed' },
   { id: '3', day: '3', status: 'completed' },
   { id: '4', day: '4', status: 'completed', fire: true },
@@ -80,7 +79,7 @@ const StreakCalendar = ({ onHeaderPress }: StreakCalendarProps) => {
     <View style={styles.wrapper}>
       <Text style={styles.sectionTitle}>Chuỗi của bạn</Text>
       <View style={styles.container}>
-        
+
         {/* Header Calendar */}
         <TouchableOpacity
           style={styles.header}

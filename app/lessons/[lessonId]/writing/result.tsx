@@ -193,7 +193,7 @@ export default function WritingResultScreen() {
         <TouchableOpacity 
           style={styles.retryButton} 
           activeOpacity={0.8}
-          onPress={() => router.replace(`/lessons/${lessonId}/writing/practiceHangul` as any)}
+          onPress={() => router.replace(`/(tabs)`)}
         >
           <HouseIcon size={20} color={Color.color} weight="duotone" />
         </TouchableOpacity>

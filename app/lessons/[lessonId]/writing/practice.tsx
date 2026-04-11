@@ -21,7 +21,7 @@ import InstructionCard from '../../../../components/InstructionCard';
 import WonGoJiGrid from '../../../../components/WonGoJiGrid';
 import CloseButton from '@/components/CloseButton';
 // Kéo ConfirmModal vào
-import { ConfirmModal } from '../../../../components/ModalResult/ResultHangulModal'; 
+import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
 
 const MAX_CHARS = 700;
 

@@ -19,6 +19,7 @@ export default function RootLayout() {
     'LexendDeca-Regular': require('../assets/fonts/LexendDeca-Regular.ttf'),
     'LexendDeca-Medium': require('../assets/fonts/LexendDeca-Medium.ttf'),
     'LexendDeca-SemiBold': require('../assets/fonts/LexendDeca-SemiBold.ttf'),
+    'LexendDeca-Bold': require('../assets/fonts/LexendDeca-Bold.ttf'),
   });
 
   // Xử lý lỗi tải font

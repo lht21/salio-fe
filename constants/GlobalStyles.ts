@@ -20,6 +20,7 @@ export const Color = {
   bg: "#FFFFFF",
   text: "#1E1E1E",        // Thay thế cho text1
   main: "#98F291",
+  mainLighter: "rgba(152, 242, 145, 0.10)",
   main2: "#508D4E",       // Thêm mới từ "main 2"
   xanh: "#1877F2",        // Thêm mới
   green: "#059669",          // Thêm mới
@@ -33,6 +34,7 @@ export const Color = {
   red: "#A10202",
   blueFb: "#1877F2",
   greenLight: "#ECFFEB",
+
 
   // --- CÁC MÀU KHÁC TỪ MÃ CŨ (Giữ lại để không bị lỗi undefined) ---
   colorBlack: "#000000",

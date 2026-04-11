@@ -46,6 +46,7 @@ export default function RootLayout() {
         {/* Nhóm Auth (Sign-in, Register, etc.) */}
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="placement-test" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
         </Stack>

@@ -26,7 +26,7 @@ export default function GrammarIntroScreen() {
   const handleStart = () => {
     // Điều hướng tới màn hình thực hành ngữ pháp
     // Giả định màn hình thực hành ngữ pháp là 'practice.tsx'
-    router.push(`/lessons/${lessonId}/grammar/exercise`);
+    router.push(`/lessons/${lessonId}/grammar/detail` as any);
   };
 
   return (

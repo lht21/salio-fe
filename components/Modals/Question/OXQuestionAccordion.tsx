@@ -20,6 +20,7 @@ type OXQuestionAccordionProps = {
   onToggleExpand: () => void;
   onPressExpand?: () => void;
   onSelect: (value: OXChoice) => void;
+  footer?: React.ReactNode;
 };
 
 export default function OXQuestionAccordion({
@@ -35,6 +36,7 @@ export default function OXQuestionAccordion({
   onToggleExpand,
   onPressExpand,
   onSelect,
+  footer,
 }: OXQuestionAccordionProps) {
   return (
     <View style={styles.container}>
@@ -91,6 +93,8 @@ export default function OXQuestionAccordion({
             state={answerState?.X ?? 'default'}
             onPress={() => onSelect('X')}
           />
+
+          {footer}
         </View>
       ) : null}
     </View>

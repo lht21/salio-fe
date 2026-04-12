@@ -351,9 +351,9 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
 
               <View style={styles.ctaWrapper}>
                 <Button
-                  title={`Tiep tuc: ${title}`}
+                  title={`Mini test: ${title}`}
                   style={styles.ctaButton}
-                  onPress={() => router.push(`/lessons/${lessonId}/grammar/intro`)}
+                  onPress={() => router.push(`/lessons/${lessonId}/final-test/exam` as any)}
                 />
 
                 <View style={styles.ctaIcon}>

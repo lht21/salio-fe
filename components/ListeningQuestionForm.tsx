@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 9,
+    fontSize: 12,
     color: Color.text || "#1E1E1E"
   },
   audioProgressBg: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   speedText: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 12,
+    fontSize: 9,
     color: Color.gray || "#64748B"
   },
   speedTextActive: {

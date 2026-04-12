@@ -1,7 +1,10 @@
 export { default as ListeningPromptCard } from './ListeningPromptCard';
 export { default as OXQuestionAccordion } from './OXQuestionAccordion';
 export { default as ReadingPassageCard } from './ReadingPassageCard';
+export { default as AnswerOption } from './AnswerOption';
+export { default as QuizHeader } from './QuizHeader';
 export { default as MultipleChoiceQuestionCard } from './MultipleChoiceQuestionCard';
 export { default as MultipleChoiceOption } from './MultipleChoiceOption';
 export { default as ShortAnswerQuestionCard } from './ShortAnswerQuestionCard';
+export type { OptionStatus } from './AnswerOption';
 export type { MultipleChoiceOptionState } from './MultipleChoiceOption';

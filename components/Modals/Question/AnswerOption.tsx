@@ -1,22 +1,23 @@
 import React from 'react';
-import { Text, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CheckCircleIcon, XCircleIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
+import type { ViewStyle, TextStyle } from 'react-native';
+
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../constants/GlobalStyles';
 
 export type OptionStatus = 'default' | 'correct' | 'incorrect' | 'missed-correct' | 'disabled';
 
-interface AnswerOptionProps {
+type AnswerOptionProps = {
   index: number;
   text: string;
   status: OptionStatus;
   onPress: () => void;
-}
+};
 
 export default function AnswerOption({ index, text, status, onPress }: AnswerOptionProps) {
-  // Xác định style tùy theo trạng thái
-  let containerStyle = styles.containerDefault;
-  let textStyle = styles.textDefault;
-  let numberBg = styles.numberBgDefault;
+  let containerStyle: ViewStyle = styles.containerDefault;
+  let textStyle: TextStyle = styles.textDefault;
+  let numberBg: ViewStyle = styles.numberBgDefault;
 
   if (status === 'correct') {
     containerStyle = styles.containerCorrect;
@@ -26,7 +27,7 @@ export default function AnswerOption({ index, text, status, onPress }: AnswerOpt
     textStyle = styles.textIncorrect;
   } else if (status === 'missed-correct') {
     containerStyle = styles.containerMissedCorrect;
-    textStyle = styles.textCorrect; // Highlight chữ màu xanh
+    textStyle = styles.textCorrect;
   } else if (status === 'disabled') {
     containerStyle = styles.containerDisabled;
   }
@@ -39,7 +40,6 @@ export default function AnswerOption({ index, text, status, onPress }: AnswerOpt
       activeOpacity={0.7}
     >
       <View style={styles.leftContent}>
-        {/* Render Icon hoặc Số thứ tự */}
         {status === 'correct' ? (
           <CheckCircleIcon size={28} color={Color.color} weight="fill" />
         ) : status === 'incorrect' ? (
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     padding: Padding.padding_15,
     borderRadius: Border.br_20,
     borderWidth: 2,
+    borderStyle: 'solid',
     marginVertical: Gap.gap_8,
     backgroundColor: Color.bg,
   },
@@ -92,41 +93,39 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
   },
-  
-  // --- STATES ---
   containerDefault: {
     borderColor: Color.stroke,
+    borderStyle: 'solid',
   },
   textDefault: {
     color: Color.text,
   },
-  
   containerCorrect: {
     borderColor: Color.green,
+    borderStyle: 'solid',
     backgroundColor: Color.greenLight,
   },
   textCorrect: {
     color: Color.green,
     fontFamily: FontFamily.lexendDecaBold,
   },
-
   containerIncorrect: {
     borderColor: Color.red,
-    backgroundColor: Color.bg, // Đỏ siêu nhạt
+    borderStyle: 'solid',
+    backgroundColor: Color.bg,
   },
   textIncorrect: {
     color: Color.red,
     fontFamily: FontFamily.lexendDecaBold,
   },
-
   containerMissedCorrect: {
     borderColor: Color.green,
-    borderStyle: 'dashed', // Gợi ý đáp án đúng bằng viền đứt
+    borderStyle: 'dashed',
     backgroundColor: Color.bg,
   },
-
   containerDisabled: {
     borderColor: Color.stroke,
+    borderStyle: 'solid',
     opacity: 0.5,
   },
 });

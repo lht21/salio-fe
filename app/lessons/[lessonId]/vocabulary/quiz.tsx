@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+﻿import React, { useState } from 'react';
+import { Animated, Easing, View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { Color, FontFamily, FontSize, Padding, Gap } from '../../../../constants/GlobalStyles';
-import QuizHeader from '../../../../components/QuizComponent/QuizHeader';
-import AnswerOption, { OptionStatus } from '../../../../components/QuizComponent/AnswerOption';
-import FeedbackSheet from '../../../../components/QuizComponent/FeedbackSheet';
+import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
+import { AnswerOption, QuizHeader, type OptionStatus } from '../../../../components/Modals/Question';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
 
 // --- MOCK DATA ---
@@ -44,12 +43,45 @@ export default function VocabularyQuizScreen() {
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [incorrectCount, setIncorrectCount] = useState(0);
+  const [feedbackState, setFeedbackState] = useState<'hidden' | 'success' | 'failure'>('hidden');
 
   // STATE HIỂN THỊ MODAL THOÁT
   const [showExitModal, setShowExitModal] = useState(false);
+  const feedbackOpacity = React.useRef(new Animated.Value(0)).current;
+  const feedbackTranslateY = React.useRef(new Animated.Value(150)).current;
 
   const currentQuestion = QUIZ_DATA[currentIndex];
   const isCorrect = selectedAnswerId === currentQuestion.correctOptionId;
+
+  const showFeedback = (type: 'success' | 'failure') => {
+    setFeedbackState(type);
+    feedbackOpacity.setValue(0);
+    feedbackTranslateY.setValue(type === 'success' ? 150 : 40);
+
+    Animated.parallel([
+      Animated.timing(feedbackOpacity, { toValue: 1, duration: 240, useNativeDriver: true }),
+      Animated.timing(feedbackTranslateY, {
+        toValue: 0,
+        duration: 320,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const hideFeedback = (onDone?: () => void) => {
+    Animated.parallel([
+      Animated.timing(feedbackOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(feedbackTranslateY, {
+        toValue: feedbackState === 'success' ? 150 : 40,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setFeedbackState('hidden');
+      onDone?.();
+    });
+  };
 
   // --- HANDLERS ---
   const handleSelectOption = (optionId: string) => {
@@ -61,25 +93,31 @@ export default function VocabularyQuizScreen() {
     const isAnswerCorrect = optionId === currentQuestion.correctOptionId;
 
     if (isAnswerCorrect) {
-      // Nếu ĐÚNG: Tự động chuyển câu sau 1.5s
-      setTimeout(() => {
-        handleNextQuestion();
-      }, 1500);
+      showFeedback('success');
     } else {
       // Nếu SAI: Tăng biến đếm, đợi người dùng tự bấm nút
       setIncorrectCount(prev => prev + 1);
+      showFeedback('failure');
     }
   };
 
   const handleNextQuestion = () => {
-    if (currentIndex < QUIZ_DATA.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      setSelectedAnswerId(null);
-      setIsAnswered(false);
-    } else {
-      // Chuyển sang màn hình hoàn thành hoặc kết quả
-      router.replace(`/lessons/${lessonId}/vocabulary/result`);
+    const moveNext = () => {
+      if (currentIndex < QUIZ_DATA.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+        setSelectedAnswerId(null);
+        setIsAnswered(false);
+      } else {
+        router.replace(`/lessons/${lessonId}/vocabulary/result`);
+      }
+    };
+
+    if (feedbackState !== 'hidden') {
+      hideFeedback(moveNext);
+      return;
     }
+
+    moveNext();
   };
 
   // Hàm xác định trạng thái UI cho từng Option
@@ -109,6 +147,7 @@ export default function VocabularyQuizScreen() {
 
       {/* BODY CONTENT (Scrollable để bị đẩy lên khi có BottomSheet) */}
       <ScrollView 
+        key={currentQuestion.id}
         style={styles.scrollArea} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -120,7 +159,7 @@ export default function VocabularyQuizScreen() {
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((opt, idx) => (
             <AnswerOption
-              key={opt.id}
+              key={`${currentQuestion.id}-${opt.id}`}
               index={idx}
               text={opt.text}
               status={getOptionStatus(opt.id)}
@@ -129,13 +168,19 @@ export default function VocabularyQuizScreen() {
           ))}
         </View>
       </ScrollView>
-      {/* BOTTOM SHEET FEEDBACK */}
-      {isAnswered && (
-        <FeedbackSheet 
-          isCorrect={isCorrect} 
-          onNext={handleNextQuestion} 
-        />
-      )}
+      <FeedbackPopup
+        visible={feedbackState !== 'hidden'}
+        type={feedbackState === 'failure' ? 'failure' : 'success'}
+        onNext={handleNextQuestion}
+        onOutsidePress={feedbackState === 'failure' ? () => hideFeedback() : undefined}
+        translateY={feedbackTranslateY}
+        opacity={feedbackOpacity}
+        imageSource={
+          feedbackState === 'failure'
+            ? require('../../../../assets/images/tubo/failure.png')
+            : require('../../../../assets/images/tubo/success.png')
+        }
+      />
 
       <ConfirmModal 
         isVisible={showExitModal}

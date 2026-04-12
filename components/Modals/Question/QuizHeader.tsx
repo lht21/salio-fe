@@ -1,15 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-interface QuizHeaderProps {
+import CloseButton from '../../CloseButton';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../constants/GlobalStyles';
+
+type QuizHeaderProps = {
   current: number;
   total: number;
   incorrectCount: number;
   onClose?: () => void;
-}
+};
 
 export default function QuizHeader({ current, total, incorrectCount, onClose }: QuizHeaderProps) {
   const router = useRouter();
@@ -18,23 +19,21 @@ export default function QuizHeader({ current, total, incorrectCount, onClose }: 
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        {/* Pill Tiến độ */}
         <View style={styles.progressPill}>
           <Text style={styles.progressText}>{current}/{total}</Text>
         </View>
 
-        {/* Pill Số câu sai (Chỉ hiện khi > 0) */}
         {incorrectCount > 0 ? (
           <View style={styles.incorrectPill}>
             <Text style={styles.incorrectText}>Sai {incorrectCount} câu</Text>
           </View>
-        ) : <View style={{ flex: 1 }} />}
+        ) : (
+          <View style={styles.spacer} />
+        )}
 
-        {/* Nút Đóng */}
         <CloseButton variant="Stroke" onPress={onClose || (() => router.back())} />
       </View>
 
-      {/* Thanh Progress Bar ngang */}
       <View style={styles.progressBarBg}>
         <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
       </View>
@@ -75,6 +74,9 @@ const styles = StyleSheet.create({
     color: Color.bg,
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
+  },
+  spacer: {
+    flex: 1,
   },
   progressBarBg: {
     height: 8,

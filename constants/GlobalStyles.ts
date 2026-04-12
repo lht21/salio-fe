@@ -57,25 +57,28 @@ export const Color = {
 /* Gaps */
 export const Gap = {
   gap_1: 1,
+  gap_5: 5,
+  gap_8: 8,
   gap_10: 10,
+  gap_12: 12,
   gap_14: 14,
   gap_15: 15,
   gap_18: 18,
   gap_20: 20,
   gap_22: 22,
-  gap_5: 5,
-  gap_8: 8,
 };
 /* Paddings */
 export const Padding = {
+  padding_2: 2,
+  padding_3: 3,
+  padding_4: 4,
+  padding_5: 5,
+  padding_8: 8,
   padding_10: 10,
   padding_11: 11,
   padding_15: 15,
   padding_20: 20,
-  padding_3: 3,
   padding_30: 30,
-  padding_4: 4,
-  padding_5: 5,
 };
 /* border radiuses */
 export const Border = {

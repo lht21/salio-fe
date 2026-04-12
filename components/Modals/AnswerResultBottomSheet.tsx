@@ -1,9 +1,4 @@
-import {
-  Modal,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/Button";
 
@@ -24,7 +19,7 @@ export default function AnswerResultBottomSheet({
   variant,
   onNext,
   buttonText = "Chốt, câu tiếp theo",
-  title
+  title = ""
 }: AnswerResultBottomSheetProps) {
   const insets = useSafeAreaInsets();
   const isGreen = variant === "green";
@@ -48,18 +43,17 @@ export default function AnswerResultBottomSheet({
         >
           {title && (
             <Text
-              style={[styles.title, { color: isGreen ? "#0C5F35" : Color.cam }]}
+              style={[
+                styles.title,
+                { color: isGreen ? Color.main2 : Color.cam }
+              ]}
             >
               {title}
             </Text>
           )}
 
           {isGreen ? (
-            <Button
-              title={buttonText}
-              variant="Green"
-              onPress={onNext} 
-            />
+            <Button title={buttonText} variant="Green" onPress={onNext} />
           ) : (
             <Button title={buttonText} variant="Orange" onPress={onNext} />
           )}
@@ -96,7 +90,6 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 16
+    fontFamily: FontFamily.lexendDecaSemiBold
   }
 });

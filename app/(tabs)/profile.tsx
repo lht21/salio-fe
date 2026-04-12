@@ -1,46 +1,50 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View} from 'react-native';
+import { useRouter } from 'expo-router';
 import { CertificateIcon, CloudIcon } from 'phosphor-react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Color } from '../../constants/GlobalStyles';
 
 // Import sub-components
+import AlertBanner from '../../components/AlertBanner';
+import { MenuItem } from '../../components/MenuItem';
 import ProfileHeader from '../../components/ProfileHeader';
 import StatsRow from '../../components/StatsRow';
-import AlertBanner from '../../components/AlertBanner';
 import StreakCalendar from '../../components/StreakCalendar';
-import {MenuItem} from '../../components/MenuItem'; 
 import { UpgradeBanner } from '../../components/UpgradeBanner';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.safeArea}>
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
+      <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         bounces={false} // Để tắt hiệu ứng nảy làm lộ background trắng trên iOS
       >
-        
+
         {/* Header (Background xanh + Avatar + Info) */}
         <ProfileHeader />
 
         {/* Khối 3 thông số */}
-        <StatsRow />
+        <StatsRow
+          onStreakPress={() => router.push({ pathname: '/(tabs)/streak' })}
+          onScorePress={() => router.push({ pathname: '/(tabs)/certificate' })}
+        />
 
         {/* Banner Vàng Thông báo */}
         <AlertBanner />
 
         {/* Lịch chuỗi hoạt động */}
-        <StreakCalendar />
+        <StreakCalendar onHeaderPress={() => router.push({ pathname: '/(tabs)/streak' })} />
 
         {/* Menu Items */}
-        <MenuItem 
+        <MenuItem
           icon={<CertificateIcon size={24} color={Color.main2} weight="fill" />}
           title="Chứng chỉ"
           subtitle="2 chứng chỉ đã ghi nhận"
         />
-        
-        <MenuItem 
+
+        <MenuItem
           icon={<CloudIcon size={24} color={Color.main2} weight="fill" />}
           title="103 đám mây"
           subtitle="Quy đổi phần thưởng"

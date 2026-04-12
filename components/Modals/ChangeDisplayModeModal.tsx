@@ -2,7 +2,7 @@ import { MoonIcon, SunIcon } from 'phosphor-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
-import SettingsSheetModal from './SettingsSheetModal';
+import SettingsSheetModal from './SettingsClassicSheetModal';
 
 export type DisplayMode = 'light' | 'dark';
 

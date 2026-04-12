@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
-import SettingsSheetModal from './SettingsSheetModal';
+import SettingsSheetModal from './SettingsClassicSheetModal';
 
 export type LanguageMode = 'vi' | 'en' | 'ko';
 

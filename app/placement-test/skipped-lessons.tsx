@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   lessonTitle: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 32,
-    color: Color.main2 || "#3C8137" // Intermediate green
+    color: Color.main2 || "#3C8137" 
   },
   rankCapsule: {
     backgroundColor: Color.mainLighter || "rgba(236, 255, 235, 0.8)",

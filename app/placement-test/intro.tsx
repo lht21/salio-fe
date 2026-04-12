@@ -2,13 +2,11 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Clock, Headphones, ShootingStar } from "phosphor-react-native";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native"; // Thêm ScrollView
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "../../components/Button";
 import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
-
-const { width } = Dimensions.get("window");
 
 export default function PlacementTestIntro() {
   const router = useRouter();
@@ -19,80 +17,84 @@ export default function PlacementTestIntro() {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.content}>
-          {/* Mascot Container */}
-          <View style={styles.mascotContainer}>
-            <View style={styles.mascotHalo}>
-              <Image
-                source={require("../../assets/images/tubo/sc1_b2.png")}
-                style={styles.mascotImage}
-                contentFit="contain"
-              />
+        {/* Bọc toàn bộ nội dung trong ScrollView để không bị tràn trên máy nhỏ */}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            {/* Mascot Container */}
+            <View style={styles.mascotContainer}>
+              <View style={styles.mascotHalo}>
+                <Image
+                  source={require("../../assets/images/tubo/sc1_b2.png")}
+                  style={styles.mascotImage}
+                  contentFit="contain"
+                />
+              </View>
             </View>
-          </View>
 
-          {/* Greeting Text */}
-          <View style={styles.greetingWrapper}>
-            <Text style={styles.greetingText}>
-              Xin chào Sứ giả <Text style={styles.highlightText}>Huy</Text>!
-              Chào mừng đến vương quốc Salio.
-            </Text>
-          </View>
-
-          {/* Spacer */}
-          <View style={{ flex: 1 }} />
-
-          {/* Instruction Section */}
-          <View style={styles.instructionRow}>
-            <ShootingStar
-              size={32}
-              color={Color.cam || "#FF6B00"}
-              weight="fill"
-            />
-            <Text style={styles.instructionText}>
-              Để nhận vũ khí phù hợp, hãy vượt qua thử thách đầu tiên để kiểm
-              tra năng lực nhé!
-            </Text>
-          </View>
-
-          {/* Info Capsules */}
-          <View style={styles.infoContainer}>
-            <View style={styles.infoCapsule}>
-              <Clock size={20} color={Color.cam || "#FF6B00"} weight="bold" />
-              <Text style={styles.infoText}>
-                Thời gian: <Text style={styles.boldInfoText}>Chỉ 3 phút.</Text>
+            {/* Greeting Text */}
+            <View style={styles.greetingWrapper}>
+              <Text style={styles.greetingText}>
+                Xin chào Sứ giả <Text style={styles.highlightText}>Huy</Text>!
+                {"\n"}Chào mừng đến vương quốc Salio.
               </Text>
             </View>
 
-            <View style={styles.infoCapsule}>
-              <Headphones
-                size={20}
+            {/* Instruction Section */}
+            <View style={styles.instructionRow}>
+              <ShootingStar
+                size={32}
                 color={Color.cam || "#FF6B00"}
-                weight="bold"
+                weight="fill"
               />
-              <Text style={styles.infoText}>
-                Hình thức: <Text style={styles.boldInfoText}>Nghe & Đọc</Text>
+              <Text style={styles.instructionText}>
+                Để nhận vũ khí phù hợp, hãy vượt qua thử thách đầu tiên để kiểm
+                tra năng lực nhé!
               </Text>
             </View>
-          </View>
 
-          {/* Buttons Group */}
-          <View style={styles.buttonGroup}>
-            <Button
-              variant="Orange"
-              title="Nhận Thử Thách Ngay"
-              onPress={() => router.push("/placement-test/audio-check")}
-              style={styles.primaryButton}
-            />
-            <Button
-              variant="Outline"
-              title="Bỏ qua, tôi mới học từ con số 0"
-              onPress={() => router.push("/(tabs)")}
-              style={styles.secondaryButton}
-              textStyle={styles.secondaryButtonText}
-            />
+            {/* Info Capsules */}
+            <View style={styles.infoContainer}>
+              <View style={styles.infoCapsule}>
+                <Clock size={20} color={Color.cam || "#FF6B00"} weight="bold" />
+                <Text style={styles.infoText}>
+                  Thời gian:{" "}
+                  <Text style={styles.boldInfoText}>Chỉ 3 phút.</Text>
+                </Text>
+              </View>
+
+              <View style={styles.infoCapsule}>
+                <Headphones
+                  size={20}
+                  color={Color.cam || "#FF6B00"}
+                  weight="bold"
+                />
+                <Text style={styles.infoText}>
+                  Hình thức: <Text style={styles.boldInfoText}>Nghe & Đọc</Text>
+                </Text>
+              </View>
+            </View>
+
+            {/* Buttons Group */}
+            <View style={styles.buttonGroup}>
+              <Button
+                variant="Orange"
+                title="Nhận Thử Thách Ngay"
+                onPress={() => router.push("/placement-test/audio-check")}
+                style={styles.primaryButton}
+              />
+              <Button
+                variant="Outline"
+                title="Bỏ qua, tôi mới học từ con số 0"
+                onPress={() => router.push("/(tabs)")}
+                style={styles.secondaryButton}
+                textStyle={styles.secondaryButtonText}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -105,30 +107,31 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1
   },
+  scrollContent: {
+    flexGrow: 1, // Giúp nội dung giãn đều và hỗ trợ justifyContent
+    justifyContent: "center" // Căn giữa nội dung nếu màn hình còn dư chỗ
+  },
   content: {
-    flex: 1,
     paddingHorizontal: 25,
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 30,
     alignItems: "center"
   },
   mascotContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 40,
-    marginTop: 20
+    marginBottom: 30
   },
   mascotHalo: {
     width: 180,
     height: 180,
-    backgroundColor: "#E6F4FF", // Light blue background for the mascot card
+    backgroundColor: "#E6F4FF",
     borderRadius: 60,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 4,
     borderColor: "#FFFFFF",
     overflow: "hidden",
-    // Shadow for the mascot card
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -142,29 +145,29 @@ const styles = StyleSheet.create({
   greetingWrapper: {
     width: "100%",
     paddingHorizontal: 10,
-    marginBottom: 20
+    marginBottom: 25
   },
   greetingText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20 || 20,
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_16 || 16,
     color: Color.text || "#1E1E1E",
     textAlign: "center",
     lineHeight: 28
   },
   highlightText: {
     color: Color.red || "#A10202",
-    fontFamily: FontFamily.lexendDecaBold
+    fontFamily: FontFamily.lexendDecaRegular
   },
   instructionRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    marginBottom: 30,
+    marginBottom: 25,
     width: "100%",
     paddingHorizontal: 5
   },
   instructionText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 14,
     color: Color.text || "#1E1E1E",
     flex: 1,
@@ -172,8 +175,8 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     width: "100%",
-    gap: 15,
-    marginBottom: 40
+    gap: 12,
+    marginBottom: 30
   },
   infoCapsule: {
     backgroundColor: "#FFFFFF",
@@ -183,12 +186,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 30,
     gap: 12,
-    width: "90%",
+    width: "100%", // Đổi từ 90% sang 100% để tận dụng không gian
     alignSelf: "center"
   },
   infoText: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 14,
+    fontSize: 12,
     color: Color.text || "#1E1E1E"
   },
   boldInfoText: {
@@ -196,13 +199,12 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     width: "100%",
-    gap: 10
+    gap: 12
   },
   primaryButton: {
     width: "100%",
     height: 56,
-    borderRadius: 30,
-    marginVertical: 0
+    borderRadius: 30
   },
   secondaryButton: {
     width: "100%",
@@ -210,10 +212,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: "#FFFFFF",
     borderColor: Color.cam || "#FF6B00",
-    borderWidth: 2,
-    marginVertical: 0
+    borderWidth: 2
   },
   secondaryButtonText: {
-    color: Color.cam || "#FF6B00",
+    color: Color.cam || "#FF6B00"
   }
 });

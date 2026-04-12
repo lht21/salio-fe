@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Color.stroke || '#E2E8F0',
     borderRadius: Border.br_15 || 15,
-    padding: Padding.padding_19 || 19,
+    padding: 19,
     justifyContent: 'center',
     gap: Gap.gap_10 || 10,
   },

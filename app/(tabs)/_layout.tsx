@@ -1,16 +1,15 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import {
-  HouseIcon,
-  PenNibStraightIcon,
   CardsIcon,
-  UsersThreeIcon,
+  HouseIcon,
   IdentificationBadgeIcon,
+  PenNibStraightIcon,
+  UsersThreeIcon,
 } from 'phosphor-react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { Color, FontFamily } from '@/constants/GlobalStyles';
 import LessonBottomSheetHost from '@/components/Modals/LessonBottomSheetHost';
+import { Color, FontFamily } from '@/constants/GlobalStyles';
 
 export default function TabLayout() {
   return (
@@ -76,6 +75,18 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <IdentificationBadgeIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="streak"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="certificate"
+          options={{
+            href: null,
           }}
         />
       </Tabs>

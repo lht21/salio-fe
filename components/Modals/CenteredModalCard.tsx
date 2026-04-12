@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { Border, Color, Padding } from '../../constants/GlobalStyles';
+import { Border, Color } from '../../constants/GlobalStyles';
 
 type CenteredModalCardProps = {
     visible: boolean;
@@ -37,15 +37,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(15, 23, 42, 0.36)',
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
     },
     dialog: {
         width: '100%',
         maxWidth: 360,
         borderRadius: Border.br_20,
         backgroundColor: Color.bg,
-        paddingHorizontal: Padding.padding_19,
-        paddingVertical: 22,
+        paddingHorizontal: 22,
+        paddingTop: 20,
+        paddingBottom: 22,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.16,

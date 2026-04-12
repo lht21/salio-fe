@@ -1,19 +1,28 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { FireIcon, BookmarkSimpleIcon, TrophyIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Border, Padding } from '../constants/GlobalStyles';
+import { BookmarkSimpleIcon, FireIcon, TrophyIcon } from 'phosphor-react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Padding } from '../constants/GlobalStyles';
 
-const StatsRow = () => {
+type StatsRowProps = {
+  onScorePress?: () => void;
+  onStreakPress?: () => void;
+};
+
+const StatsRow = ({ onScorePress, onStreakPress }: StatsRowProps) => {
   return (
     <View style={styles.container}>
       {/* Thẻ 1: Chuỗi ngày */}
-      <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.82}
+        onPress={onStreakPress}
+        disabled={!onStreakPress}
+      >
         <View style={styles.textWrap}>
           <Text style={styles.number}>15</Text>
           <Text style={styles.label}>ngày</Text>
         </View>
         <FireIcon size={24} color="#991B1B" weight="fill" />
-      </View>
+      </TouchableOpacity>
 
       {/* Thẻ 2: Từ vựng */}
       <View style={styles.card}>
@@ -25,13 +34,18 @@ const StatsRow = () => {
       </View>
 
       {/* Thẻ 3: Điểm */}
-      <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.82}
+        onPress={onScorePress}
+        disabled={!onScorePress}
+      >
         <View style={styles.textWrap}>
           <Text style={styles.number}>215</Text>
           <Text style={styles.label}>điểm</Text>
         </View>
         <TrophyIcon size={24} color="#D97706" weight="fill" />
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };

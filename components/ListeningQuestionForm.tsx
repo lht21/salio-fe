@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Play, Pause } from 'phosphor-react-native';
+import { Audio, AVPlaybackStatus } from "expo-av";
+import { Pause, Play } from "phosphor-react-native";
+import { useEffect, useRef, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Color, FontFamily } from '../constants/GlobalStyles';
+import { Color, FontFamily } from "../constants/GlobalStyles";
 
+// Giữ nguyên các Interface cũ của bạn
 export interface ListeningOption {
   id: string;
   label: string;
@@ -15,6 +17,7 @@ export interface ListeningQuestion {
   audioDuration: string;
   question: string;
   options: ListeningOption[];
+  audioUrl?: string;
 }
 
 interface ListeningQuestionFormProps {
@@ -28,34 +31,111 @@ export default function ListeningQuestionForm({
   question,
   selectedOptionId,
   onSelectOption,
-  showResultSheet,
+  showResultSheet
 }: ListeningQuestionFormProps) {
-  // Audio Player State
+  // --- Giữ nguyên State cũ ---
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState("x1.0");
-  const [progress, setAudioProgress] = useState(0.2); // Simulated progress
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [position, setPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
 
-  // Reset audio state when question changes
-  useEffect(() => {
-    setIsPlaying(false);
-    setAudioProgress(0.1);
-  }, [question.id]);
+  // --- Logic chống lag và dọn dẹp bộ nhớ ---
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const isMounted = useRef(true);
 
-  // Stop playing when user answers
+  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded && isMounted.current) {
+      setPosition(status.positionMillis);
+      setDuration(status.durationMillis || 0);
+      setIsPlaying(status.isPlaying);
+
+      if (status.didJustFinish) {
+        setIsPlaying(false);
+        soundRef.current?.setPositionAsync(0).catch(() => {});
+      }
+    }
+  };
+
+  async function loadSound() {
+    try {
+      // Dọn dẹp triệt để trước khi load mới
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
+
+      if (!question.audioUrl) return;
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: question.audioUrl },
+        {
+          shouldPlay: false,
+          rate: playbackSpeed,
+          shouldCorrectPitch: true,
+          progressUpdateIntervalMillis: 100 // Giới hạn tần suất để UI mượt hơn
+        },
+        onPlaybackStatusUpdate
+      );
+
+      if (isMounted.current) {
+        setSound(newSound);
+        soundRef.current = newSound;
+      } else {
+        await newSound.unloadAsync().catch(() => {});
+      }
+    } catch (error) {
+      console.log("Error loading sound", error);
+    }
+  }
+
   useEffect(() => {
-    if (showResultSheet) {
-      setIsPlaying(false);
+    isMounted.current = true;
+    loadSound();
+
+    return () => {
+      isMounted.current = false;
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+      }
+    };
+  }, [question.id]); // Chỉ load lại khi ID câu hỏi thay đổi thực sự
+
+  useEffect(() => {
+    if (showResultSheet && soundRef.current) {
+      soundRef.current.pauseAsync().catch(() => {});
     }
   }, [showResultSheet]);
 
+  const handlePlayPause = async () => {
+    if (!soundRef.current) return;
+    if (isPlaying) {
+      await soundRef.current.pauseAsync();
+    } else {
+      await soundRef.current.playAsync();
+    }
+  };
+
+  const handleChangeSpeed = async (speed: number) => {
+    setPlaybackSpeed(speed);
+    if (soundRef.current) {
+      await soundRef.current.setRateAsync(speed, true).catch(() => {});
+    }
+  };
+
+  const formatTime = (millis: number) => {
+    const totalSeconds = millis / 1000;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  const progress = duration > 0 ? position / duration : 0;
+
   return (
     <View style={styles.container}>
-      {/* Audio Player Card */}
       <View style={styles.audioCard}>
-        <TouchableOpacity
-          style={styles.playButton}
-          onPress={() => setIsPlaying(!isPlaying)}
-        >
+        <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
           {isPlaying ? (
             <Pause size={32} color="#FFFFFF" weight="fill" />
           ) : (
@@ -64,32 +144,29 @@ export default function ListeningQuestionForm({
         </TouchableOpacity>
 
         <View style={styles.timerRow}>
-          <Text style={styles.timeText}>00:00</Text>
-          <Text style={styles.timeText}>{question.audioDuration}</Text>
+          <Text style={styles.timeText}>{formatTime(position)}</Text>
+          <Text style={styles.timeText}>
+            {duration > 0 ? formatTime(duration) : question.audioDuration}
+          </Text>
         </View>
 
-        {/* Audio Progress Bar */}
         <View style={styles.audioProgressBg}>
           <View
-            style={[
-              styles.audioProgressFill,
-              { width: `${progress * 100}%` }
-            ]}
+            style={[styles.audioProgressFill, { width: `${progress * 100}%` }]}
           >
             <View style={styles.progressDot} />
           </View>
         </View>
 
-        {/* Speed Controls */}
         <View style={styles.speedRow}>
-          {["x0.75", "x1.0", "x1.25"].map((speed) => (
+          {[0.75, 1.0, 1.25].map((speed) => (
             <TouchableOpacity
               key={speed}
               style={[
                 styles.speedBtn,
                 playbackSpeed === speed && styles.speedBtnActive
               ]}
-              onPress={() => setPlaybackSpeed(speed)}
+              onPress={() => handleChangeSpeed(speed)}
             >
               <Text
                 style={[
@@ -97,27 +174,24 @@ export default function ListeningQuestionForm({
                   playbackSpeed === speed && styles.speedTextActive
                 ]}
               >
-                {speed}
+                x{speed.toFixed(2).replace(/\.00$/, ".0").replace(/0$/, "")}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
-      {/* Question Text */}
       <Text style={styles.questionText}>{question.question}</Text>
 
-      {/* Options List */}
       <View style={styles.optionsContainer}>
         {question.options.map((option) => {
           const isSelected = selectedOptionId === option.id;
-
           return (
             <TouchableOpacity
               key={option.id}
               style={[
                 styles.optionButton,
-                isSelected && styles.optionButtonSelected,
+                isSelected && styles.optionButtonSelected
               ]}
               onPress={() => onSelectOption(option.id)}
               disabled={showResultSheet}
@@ -132,9 +206,10 @@ export default function ListeningQuestionForm({
   );
 }
 
+// --- Giữ nguyên toàn bộ Style cũ của bạn ---
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   audioCard: {
     backgroundColor: "#FFFFFF",
@@ -142,7 +217,6 @@ const styles = StyleSheet.create({
     padding: 25,
     alignItems: "center",
     marginBottom: 40,
-    // Shadow for elevation
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
@@ -168,8 +242,8 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 12,
-    color: "#1E1E1E"
+    fontSize: 9,
+    color: Color.text || "#1E1E1E"
   },
   audioProgressBg: {
     height: 4,
@@ -207,15 +281,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#000000"
   },
   speedText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 12,
-    color: "#64748B"
+    color: Color.gray || "#64748B"
   },
   speedTextActive: {
     color: "#98F291"
   },
   questionText: {
-    fontFamily: FontFamily.lexendDecaBold,
+    fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 24,
     color: "#1E1E1E",
     marginBottom: 40
@@ -226,26 +300,26 @@ const styles = StyleSheet.create({
   optionButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Color.bg || "#FFFFFF",
     borderWidth: 1.5,
     borderColor: "#E6E9F0",
-    borderRadius: 25,
-    paddingVertical: 18,
-    paddingHorizontal: 25,
-    gap: 15
+    borderRadius: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    gap: 11
   },
   optionButtonSelected: {
-    borderColor: "#98F291",
-    backgroundColor: "#F0FFF0"
+    borderColor: Color.main2 || "#98F291",
+    backgroundColor: Color.mainLighter || "#F0FFF0"
   },
   optionLabel: {
-    fontFamily: FontFamily.lexendDecaBold,
+    fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 16,
-    color: "#1E1E1E"
+    color: Color.text || "#1E1E1E"
   },
   optionText: {
-    fontFamily: FontFamily.lexendDecaMedium,
+    fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 16,
-    color: "#1E1E1E"
+    color: Color.text || "#1E1E1E"
   }
 });

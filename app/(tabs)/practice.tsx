@@ -2,20 +2,20 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { CaretDownIcon, HeadphonesIcon, BookOpenTextIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { useRouter } from 'expo-router';
 
 // Import Components
 import WritingFeaturedCard from '../../components/WritingFeaturedCard';
 import SkillCard from '../../components/SkillCard';
 import MocktestCard from '../../components/MocktestCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import HistoryCardSlider from '../../components/HistoryCardSlider';
 
 export default function PracticeScreen() {
+  const router = useRouter();
+
   return (
-    <View style={styles.safeArea}>
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header Section */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Luyện thi</Text>
@@ -29,18 +29,24 @@ export default function PracticeScreen() {
           </View>
         </View>
 
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Featured Card (Luyện viết) */}
-        <WritingFeaturedCard />
+        <WritingFeaturedCard onPress={() => router.push('/practice/writing')} />
 
         {/* Secondary Cards (Luyện nghe & Luyện đọc) */}
         <View style={styles.skillsRow}>
           <SkillCard 
             title="Luyện nghe" 
             icon={<HeadphonesIcon size={24} color="#4A9F00" weight="fill" />} 
+            onPress={() => router.push('/practice/listening')}
           />
           <SkillCard 
             title="Luyện đọc" 
             icon={<BookOpenTextIcon size={24} color="#1877F2" weight="fill" />} 
+            onPress={() => router.push('/practice/reading')}
           />
         </View>
 
@@ -49,26 +55,33 @@ export default function PracticeScreen() {
           <MocktestCard />
         </View>
 
+        {/* Lịch sử làm bài (History Slider) */}
+        <View style={styles.historyContainer}>
+          <HistoryCardSlider />
+        </View>
+
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Color.bg || '#FFFFFF',
-    paddingTop: 50,
+    backgroundColor: Color.bg
+    
   },
   scrollContent: {
     paddingHorizontal: Padding.padding_15 || 15,
-    paddingTop: 20,
+    paddingTop: 0,
     paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: Padding.padding_15 || 15,
+    paddingTop: 20,
     marginBottom: 24,
   },
   headerTitle: {
@@ -107,5 +120,8 @@ const styles = StyleSheet.create({
   },
   mocktestContainer: {
     width: '100%',
+  },
+  historyContainer: {
+    marginTop: Gap.gap_20 || 20,
   },
 });

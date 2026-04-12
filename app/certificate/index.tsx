@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
-import { ArrowLeftIcon } from 'phosphor-react-native';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MotiView } from 'moti';
 
 import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import ScreenHeader from '../../components/ScreenHeader';
 
 type BadgeItem = {
     id: string;
@@ -34,21 +35,30 @@ export default function CertificateScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/profile')}>
-                    <ArrowLeftIcon size={24} color={Color.gray} weight="bold" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Huy hiệu</Text>
-            </View>
+            <ScreenHeader 
+                title="Huy hiệu" 
+                onBackPress={() => router.replace('/(tabs)/profile')} 
+            />
 
             <View style={styles.badgesRow}>
-                {BADGES.map((badge) => (
-                    <View key={badge.id} style={styles.badgeItem}>
+                {BADGES.map((badge, index) => (
+                    <MotiView 
+                        key={badge.id} 
+                        style={styles.badgeItem}
+                        from={{ opacity: 0, translateY: 30, scale: 0.8 }}
+                        animate={{ opacity: 1, translateY: 0, scale: 1 }}
+                        transition={{
+                            type: 'spring',
+                            delay: index * 150, // Tạo độ trễ lần lượt cho từng huy hiệu
+                            damping: 12,        // Độ cản lực (càng nhỏ càng nảy nhiều)
+                            stiffness: 90,      // Độ cứng của lò xo
+                        }}
+                    >
                         <View style={styles.badgeImageWrap}>
                             <Image source={badge.image} style={styles.badgeImage} resizeMode="cover" />
                         </View>
                         <Text style={styles.badgeTitle}>{badge.title}</Text>
-                    </View>
+                    </MotiView>
                 ))}
             </View>
         </SafeAreaView>
@@ -59,21 +69,6 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: Color.bg,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_15,
-        paddingBottom: Padding.padding_15,
-    },
-    backButton: {
-        marginRight: Gap.gap_10,
-    },
-    headerTitle: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_24,
-        color: Color.text,
     },
     badgesRow: {
         flexDirection: 'row',

@@ -4,12 +4,13 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Sử dụng các Icon với hậu tố *Icon cho đồng bộ với dự án của bạn
-import { ArrowLeftIcon, ClockCounterClockwiseIcon, CheckCircleIcon, CrownIcon, CaretRightIcon, BookOpenIcon, QuestionIcon, InfoIcon } from 'phosphor-react-native';
+import { ClockCounterClockwiseIcon, CheckCircleIcon, CrownIcon, CaretRightIcon, BookOpenIcon, QuestionIcon, InfoIcon } from 'phosphor-react-native';
 
 // Constants & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import Button from '../../components/Button';
 import CancelAutoRenewModal from '../../components/Modals/CancelAutoRenewModal';
+import ScreenHeader from '../../components/ScreenHeader';
 
 // Mock Data: Danh sách quyền lợi
 const BENEFITS = [
@@ -41,12 +42,7 @@ export default function ManageSubscriptionScreen() {
     <SafeAreaView style={styles.safeArea}>
       
       {/* --- HEADER --- */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quản lý Gói học tập</Text>
-      </View>
+      <ScreenHeader title="Quản lý Gói học tập" />
 
       {/* --- BODY --- */}
       <ScrollView 
@@ -188,24 +184,6 @@ const styles = StyleSheet.create({
     backgroundColor: Color.bg,
   },
   
-  // --- HEADER ---
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-    paddingBottom: Padding.padding_15,
-    backgroundColor: Color.bg,
-  },
-  backButton: {
-    marginRight: Gap.gap_15,
-  },
-  headerTitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-  },
-
   // --- SCROLL CONTENT ---
   scrollContent: {
     paddingHorizontal: Padding.padding_15,

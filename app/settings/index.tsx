@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 import {
-  ArrowLeftIcon,
   BellIcon,
   CaretRightIcon,
   CookieIcon,
@@ -21,6 +20,7 @@ import {
 } from 'phosphor-react-native';
 import { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ChangeAvatarModal from '@/components/Modals/ChangeAvatarModal';
 import ChangeDisplayModeModal, {
@@ -33,6 +33,7 @@ import LogoutConfirmModal from '@/components/Modals/LogoutConfirmModal';
 import ChangePasswordModal from '@/components/Modals/ChangePasswordModal';
 import ChangeUserNameModal from '@/components/Modals/ChangeUserNameModal';
 import { SettingsRow } from '@/components/SettingsRow';
+import ScreenHeader from '@/components/ScreenHeader';
 import { AVATAR_PRESETS, AvatarPreset } from '@/constants/avatarPresets';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '@/constants/GlobalStyles';
 
@@ -95,13 +96,8 @@ export default function SettingsScreen() {
   const languageLabel = LANGUAGE_LABELS[language];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Cài đặt</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Cài đặt" />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity
@@ -290,7 +286,7 @@ export default function SettingsScreen() {
         onConfirm={handleConfirmLogout}
         onCancel={() => setLogoutModalVisible(false)}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -298,22 +294,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Color.bg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: 50,
-    paddingBottom: 20,
-    backgroundColor: Color.bg,
-  },
-  backButton: {
-    marginRight: Gap.gap_15,
-  },
-  headerTitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
   },
   scrollContent: {
     padding: Padding.padding_15,

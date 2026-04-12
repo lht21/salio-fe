@@ -16,8 +16,8 @@ export default function TabLayout() {
     <View style={styles.container}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Color.main2 || '#02B0A0',
-          tabBarInactiveTintColor: Color.gray || '#64748B',
+          tabBarActiveTintColor: '#02B0A0',
+          tabBarInactiveTintColor: '#64748B',
           headerShown: false,
           tabBarLabelStyle: {
             fontFamily: FontFamily.lexendDecaMedium,

@@ -1,19 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Color, FontFamily, Border, FontSize } from '../constants/GlobalStyles';
 
 interface StatusBadgeProps {
   icon?: React.ReactNode;
   text: string;
   bgColor: string;
+  onPress?: () => void;
 }
 
-const StatusBadge = ({ icon, text, bgColor }: StatusBadgeProps) => {
+const StatusBadge = ({ icon, text, bgColor, onPress }: StatusBadgeProps) => {
   return (
-    <View style={[styles.badge, { backgroundColor: bgColor }]}>
+    <TouchableOpacity 
+      style={[styles.badge, { backgroundColor: bgColor }]}
+      onPress={onPress}
+      disabled={!onPress}
+      activeOpacity={0.7}
+    >
       {icon}
       <Text style={styles.badgeText}>{text}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

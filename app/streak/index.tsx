@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
-import { ArrowLeftIcon, FireIcon } from 'phosphor-react-native';
+import { FireIcon } from 'phosphor-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import ScreenHeader from '../../components/ScreenHeader';
 
 type SummaryCard = {
     id: string;
@@ -242,12 +243,10 @@ export default function StreakScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/profile')}>
-                    <ArrowLeftIcon size={24} color={Color.gray} weight="bold" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Chuỗi học tập</Text>
-            </View>
+            <ScreenHeader 
+                title="Chuỗi học tập" 
+                onBackPress={() => router.replace('/(tabs)/profile')} 
+            />
 
             <View style={styles.summaryRowWrap}>
                 <View style={styles.summaryRow}>
@@ -297,21 +296,6 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: Color.bg,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_15,
-        paddingBottom: 12,
-    },
-    backButton: {
-        marginRight: Gap.gap_10,
-    },
-    headerTitle: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_24,
-        color: Color.text,
     },
     scroll: {
         flex: 1,

@@ -35,7 +35,7 @@ const ProfileHeader = () => {
           />
         </View>
         <Text style={styles.username}>tranlehuy</Text>
-        <StatusBadge text="Trình độ học Sơ cấp 2" bgColor={Color.vang || '#F9F871'} />
+        <StatusBadge text="Trình độ học Sơ cấp 1" bgColor={Color.vang || '#F9F871'} />
       </View>
     </View>
   );

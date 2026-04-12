@@ -3,9 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 
-const WritingFeaturedCard = () => {
+interface WritingFeaturedCardProps {
+  onPress?: () => void;
+}
+
+const WritingFeaturedCard = ({ onPress }: WritingFeaturedCardProps) => {
   return (
-    <TouchableOpacity activeOpacity={0.9} style={styles.card}>
+    <TouchableOpacity activeOpacity={0.9} style={styles.card} onPress={onPress}>
       {/* Hình ảnh minh họa đặt nghiêng */}
       <View style={styles.imageContainer}>
         <Image 

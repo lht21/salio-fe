@@ -4,12 +4,23 @@ import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+export interface WhiteboardQuestion {
+  id: number;
+  instruction: string;
+  sentenceLeft?: string;
+  sentenceRight?: string;
+  vietnameseMeaning?: string;
+  maxLength?: number;
+  placeholder?: string;
+}
+
 export interface WhiteboardAreaProps {
+  question: WhiteboardQuestion;
   answer: string;
   setAnswer: (text: string) => void;
 }
 
-const WhiteboardArea = ({ answer, setAnswer }: WhiteboardAreaProps) => {
+const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) => {
   return (
     <View style={styles.whiteboardContainer}>
       {/* Ảnh nhân vật cầm bảng */}
@@ -22,7 +33,7 @@ const WhiteboardArea = ({ answer, setAnswer }: WhiteboardAreaProps) => {
       {/* Lớp Overlay để đặt chữ và Input lên trên vùng bảng trắng */}
       <View style={styles.whiteboardOverlay}>
         <View style={styles.sentenceRow}>
-          <Text style={styles.sentenceText}>저는 학생</Text>
+          <Text style={styles.sentenceText}>{question.sentenceLeft}</Text>
           
           <TextInput
             style={[
@@ -31,16 +42,18 @@ const WhiteboardArea = ({ answer, setAnswer }: WhiteboardAreaProps) => {
             ]}
             value={answer}
             onChangeText={setAnswer}
-            placeholder="_____"
+            placeholder={question.placeholder || "_____"}
             placeholderTextColor={Color.stroke}
             autoCapitalize="none"
             autoCorrect={false}
-            maxLength={10}
+            maxLength={question.maxLength || 10}
           />
           
-          <Text style={styles.sentenceText}>.</Text>
+          <Text style={styles.sentenceText}>{question.sentenceRight}</Text>
         </View>
-        <Text style={styles.vietnameseMeaning}>(Tôi là học sinh.)</Text>
+        {question.vietnameseMeaning ? (
+          <Text style={styles.vietnameseMeaning}>{question.vietnameseMeaning}</Text>
+        ) : null}
       </View>
     </View>
   );

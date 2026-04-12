@@ -6,6 +6,8 @@ import { FireIcon, CloudIcon } from 'phosphor-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
+  useAnimatedProps,
+  interpolateColor,
   withRepeat, 
   withSequence, 
   withTiming, 
@@ -21,11 +23,17 @@ import { LessonItem } from './LessonNode';
 type HeaderSectionProps = {
   currentLesson: LessonItem;
   onCurrentLessonPress?: (item: LessonItem) => void;
+  onFirePress?: () => void;
+  onCloudPress?: () => void;
 };
 
-const HeaderSection = ({ currentLesson, onCurrentLessonPress }: HeaderSectionProps) => {
+// Bọc LinearGradient để có thể nhận các giá trị Animation từ Reanimated
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+
+const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onCloudPress }: HeaderSectionProps) => {
   // --- ANIMATION CHUYỂN ĐỘNG LƠ LỬNG ---
   const translateY = useSharedValue(0);
+  const colorProgress = useSharedValue(0);
 
   useEffect(() => {
     translateY.value = withRepeat(
@@ -36,14 +44,37 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress }: HeaderSectionPro
       -1, // Lặp vô hạn
       true // Đảo ngược (lên rồi xuống)
     );
+
+    // --- ANIMATION CHUYỂN MÀU GRADIENT ---
+    colorProgress.value = withRepeat(
+      withTiming(1, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
+      -1, // Lặp vô hạn
+      true // Đảo ngược từ 1 về 0
+    );
   }, []);
 
   const floatingStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
+  // Tính toán nội suy màu sắc theo thời gian thực
+  const animatedGradientProps = useAnimatedProps(() => {
+    return {
+      colors: [
+        // Đổi màu đỉnh từ xanh nhạt (#CEF9B4) sang hơi ngả vàng sáng (#E6FFD1)
+        interpolateColor(colorProgress.value, [0, 1], ['#CEF9B4', '#E6FFD1']),
+        // Đổi màu đáy từ xanh gốc sang xanh neon tươi hơn (#5DE367)
+        interpolateColor(colorProgress.value, [0, 1], [Color.main || '#98F291', '#5DE367']),
+      ]
+    } as any; // Dùng `as any` để bỏ qua cảnh báo type strict của React Native cho mảng màu động
+  });
+
   return (
-    <LinearGradient colors={['#CEF9B4', Color.main || '#98F291']} style={styles.headerGradient}>
+    <AnimatedLinearGradient 
+      colors={['#CEF9B4', Color.main || '#98F291']} // Thêm màu mặc định để fix lỗi TypeScript
+      animatedProps={animatedGradientProps} 
+      style={styles.headerGradient}
+    >
       <View style={styles.headerContent}>
 
         {/* Khu vực linh vật có hiệu ứng và nền */}
@@ -60,22 +91,24 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress }: HeaderSectionPro
 
         {/* Các Badge Trạng thái */}
         <View style={styles.badgesRow}>
-          <StatusBadge text="Sơ cấp 1" bgColor={Color.vang || '#F9F871'} />
+          <StatusBadge text="Sơ cấp 1" bgColor="#FFFFFF" />
           <StatusBadge
-            icon={<FireIcon size={20} color="#9F0000" weight="fill" />}
+            icon={<FireIcon size={20} color="#EA580C" weight="fill" />}
             text="15"
-            bgColor={Color.vang || '#F9F871'}
+            bgColor="#FFFFFF"
+          onPress={onFirePress}
           />
           <StatusBadge
-            icon={<CloudIcon size={20} color="#D37B07" weight="fill" />}
+            icon={<CloudIcon size={20} color="#0284C7" weight="fill" />}
             text="103"
-            bgColor={Color.vang || '#F9F871'}
+            bgColor="#FFFFFF"
+          onPress={onCloudPress}
           />
         </View>
       </View>
 
       <CurrentLessonCard lesson={currentLesson} onPress={onCurrentLessonPress} />
-    </LinearGradient>
+    </AnimatedLinearGradient>
   );
 };
 
@@ -128,6 +161,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginBottom: 35,
+    // Có thể thêm bóng đổ nhẹ để Badge nổi khối 3D tách biệt khỏi nền
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
 });
 

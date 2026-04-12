@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
+    fontSize: FontSize.fs_14,
     color: Color.text,
     lineHeight: 22,
     textAlign: 'center',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
+    fontSize: FontSize.fs_16,
     color: Color.text,
     lineHeight: 22,
     textAlign: 'center',

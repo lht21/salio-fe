@@ -85,7 +85,7 @@ export default function SignInScreen() {
                 <Button
                   title="Đăng nhập"
                   variant="Green"
-                  onPress={() => router.push('/(tabs)')}
+                  onPress={() => router.push('/placement-test/intro')}
                   style={styles.loginButton}
                 />
               </View>

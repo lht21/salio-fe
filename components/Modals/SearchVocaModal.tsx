@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { ALL_NOTEBOOKS } from '../../constants/mockVocabularyNotebook';
 import Button from '../Button';
 import SearchBar from '../SearchBar';
 import VocabularyCard from '../VocabularyCard';
@@ -13,7 +14,7 @@ type SearchVocaModalProps = {
     onClose: () => void;
 };
 
-const RECENT_KEYWORDS = ['식당', '학교'];
+const RECENT_KEYWORDS = ['호텔', '선생님'];
 
 type SearchVocaItem = {
     id: string;
@@ -24,7 +25,20 @@ type SearchVocaItem = {
     isFavorite?: boolean;
 };
 
-const SEARCH_SOURCE: SearchVocaItem[] = [
+// Flatten all words from all notebooks
+const SEARCH_SOURCE: SearchVocaItem[] = ALL_NOTEBOOKS.flatMap((notebook) =>
+    notebook.words.map((word) => ({
+        id: word.id,
+        word: word.word,
+        pos: word.pos,
+        phonetic: word.phonetic,
+        meaning: word.meaning,
+        isFavorite: word.isFavorite,
+    }))
+);
+
+// Keep old data for reference:
+const OLD_SEARCH_SOURCE: SearchVocaItem[] = [
     {
         id: 'kr-1',
         word: '한국',

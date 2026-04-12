@@ -8,6 +8,7 @@ import {
     View
 } from 'react-native';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { ALL_NOTEBOOKS } from '../../constants/mockVocabularyNotebook';
 import { CustomInput } from '../CustomInput';
 import SearchBar from '../SearchBar';
 import VocabularySheetModal from './VocabularySheetModal';
@@ -26,8 +27,18 @@ interface NewFlashCardSetModalProps {
     onCreateSet?: (setName: string, selectedWords: VocabularyItem[]) => void;
 }
 
-// Mock data - thay thế bằng dữ liệu thực từ API
-const VOCABULARY_SUGGESTIONS: VocabularyItem[] = [
+// Mock data - Flatten all words from all notebooks
+const VOCABULARY_SUGGESTIONS: VocabularyItem[] = ALL_NOTEBOOKS.flatMap((notebook) =>
+    notebook.words.map((word) => ({
+        id: word.id,
+        word: word.word,
+        pos: word.pos,
+        phonetic: word.phonetic,
+        meaning: word.meaning,
+    }))
+);
+
+const OLD_VOCABULARY_SUGGESTIONS: VocabularyItem[] = [
     {
         id: '1',
         word: 'Đáp án',

@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { PlusIcon } from 'phosphor-react-native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -49,6 +50,7 @@ const INITIAL_VOCABULARY_ITEMS = [
 ];
 
 export default function VocabularyScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('Tất cả');
   const [searchText, setSearchText] = useState('');
   const [isNewSetModalVisible, setIsNewSetModalVisible] = useState(false);
@@ -71,9 +73,17 @@ export default function VocabularyScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Sổ tay từ vựng</Text>
-          <TouchableOpacity onPress={() => setIsNewSetModalVisible(true)}>
-            <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              onPress={() => router.push('/vocabulary-test')}
+              style={styles.testButton}
+            >
+              <Text style={styles.testButtonText}>🧪</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setIsNewSetModalVisible(true)}>
+              <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Banner */}
@@ -159,6 +169,17 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_20 || 20,
     color: Color.text || '#1E1E1E'
+  },
+  testButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#FEF08A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  testButtonText: {
+    fontSize: 18,
   },
   chipRow: {
     marginBottom: 20

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { PauseIcon, PlayIcon, SpeakerHighIcon, XIcon } from 'phosphor-react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
@@ -24,6 +25,8 @@ type ListeningPromptCardProps = {
   transcript?: string;
   transcriptButtonLabel?: string;
   shadowingButtonLabel?: string;
+  showTranscriptButton?: boolean;
+  showShadowingButton?: boolean;
   onToggleTranscript: () => void;
   onPressShadowing?: () => void;
   onClose?: () => void;
@@ -44,6 +47,8 @@ export default function ListeningPromptCard({
   transcript,
   transcriptButtonLabel = 'Hiển thị transcript',
   shadowingButtonLabel = 'Luyện shadowing với bài này',
+  showTranscriptButton = true,
+  showShadowingButton = true,
   onToggleTranscript,
   onPressShadowing,
   onClose,
@@ -51,7 +56,7 @@ export default function ListeningPromptCard({
   footer,
 }: ListeningPromptCardProps) {
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#C8FF84', '#E9FFD1', '#FFFFFF']} style={styles.container}>
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.contentInner}
@@ -109,13 +114,17 @@ export default function ListeningPromptCard({
         </View>
       </View>
 
-      <Pressable style={styles.secondaryButton} onPress={onToggleTranscript}>
-        <Text style={styles.secondaryButtonText}>{transcriptButtonLabel}</Text>
-      </Pressable>
+      {showTranscriptButton ? (
+        <Pressable style={styles.secondaryButton} onPress={onToggleTranscript}>
+          <Text style={styles.secondaryButtonText}>{transcriptButtonLabel}</Text>
+        </Pressable>
+      ) : null}
 
-      <Pressable style={styles.secondaryButton} onPress={onPressShadowing}>
-        <Text style={styles.secondaryButtonText}>{shadowingButtonLabel}</Text>
-      </Pressable>
+      {showShadowingButton ? (
+        <Pressable style={styles.secondaryButton} onPress={onPressShadowing}>
+          <Text style={styles.secondaryButtonText}>{shadowingButtonLabel}</Text>
+        </Pressable>
+      ) : null}
 
       {showTranscript && transcript ? (
         <View style={styles.transcriptWrap}>
@@ -125,7 +134,7 @@ export default function ListeningPromptCard({
       </ScrollView>
 
       {footer ? <View style={styles.footerSlot}>{footer}</View> : null}
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -135,7 +144,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 14,
-    backgroundColor: '#C8FF84',
+    overflow: 'hidden',
     gap: 12,
   },
   content: {

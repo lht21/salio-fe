@@ -1,38 +1,33 @@
-﻿import React, { useState } from 'react';
-import { Animated, Easing, View, Text, StyleSheet, ScrollView } from 'react-native';
+﻿import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Animated, Easing, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 
-import { Color, FontFamily, FontSize, Padding, Gap } from '../../../../constants/GlobalStyles';
+import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
 import { AnswerOption, QuizHeader, type OptionStatus } from '../../../../components/Modals/Question';
-import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
+import { Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
+import { NOTEBOOK_TRAVEL } from '../../../../constants/mockVocabularyNotebook';
 
-// --- MOCK DATA ---
-const QUIZ_DATA = [
-  {
-    id: 'q1',
-    question: 'Trường học',
-    options: [
-      { id: 'opt1', text: '학생' },
-      { id: 'opt2', text: '학교' },
-      { id: 'opt3', text: '선생님' },
-      { id: 'opt4', text: '의사' },
-    ],
-    correctOptionId: 'opt2',
-  },
-  {
-    id: 'q2',
-    question: 'Học sinh',
-    options: [
-      { id: 'opt1', text: '학생' },
-      { id: 'opt2', text: '학교' },
-      { id: 'opt3', text: '선생님' },
-      { id: 'opt4', text: '의사' },
-    ],
-    correctOptionId: 'opt1',
-  }
-];
+// --- MOCK DATA - Generate from NOTEBOOK_TRAVEL ---
+const generateQuizData = () => {
+  const words = NOTEBOOK_TRAVEL.words;
+  return words.map((word, index) => {
+    const incorrectWords = words.filter((w) => w.id !== word.id).slice(0, 3);
+    const options = [
+      { id: 'opt1', text: word.word },
+      ...incorrectWords.map((w, idx) => ({ id: `opt${idx + 2}`, text: w.word })),
+    ];
+    return {
+      id: `q${index}`,
+      question: word.meaning,
+      options: options.sort(() => Math.random() - 0.5),
+      correctOptionId: 'opt1',
+    };
+  });
+};
+
+const QUIZ_DATA = generateQuizData();
 
 export default function VocabularyQuizScreen() {
   const router = useRouter();
@@ -86,7 +81,7 @@ export default function VocabularyQuizScreen() {
   // --- HANDLERS ---
   const handleSelectOption = (optionId: string) => {
     if (isAnswered) return; // Khóa không cho chọn lại
-    
+
     setSelectedAnswerId(optionId);
     setIsAnswered(true);
 
@@ -130,25 +125,25 @@ export default function VocabularyQuizScreen() {
     if (isThisOptionSelected && isThisOptionCorrect) return 'correct';
     if (isThisOptionSelected && !isThisOptionCorrect) return 'incorrect';
     if (!isThisOptionSelected && isThisOptionCorrect) return 'missed-correct'; // Gợi ý đáp án đúng
-    
+
     return 'disabled'; // Làm mờ các đáp án sai không được chọn
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* HEADER */}
-      <QuizHeader 
-        current={currentIndex + 1} 
-        total={QUIZ_DATA.length} 
-        incorrectCount={incorrectCount} 
-        onClose={() => setShowExitModal(true)} 
+      <QuizHeader
+        current={currentIndex + 1}
+        total={QUIZ_DATA.length}
+        incorrectCount={incorrectCount}
+        onClose={() => setShowExitModal(true)}
       />
 
       {/* BODY CONTENT (Scrollable để bị đẩy lên khi có BottomSheet) */}
-      <ScrollView 
+      <ScrollView
         key={currentQuestion.id}
-        style={styles.scrollArea} 
+        style={styles.scrollArea}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -182,7 +177,7 @@ export default function VocabularyQuizScreen() {
         }
       />
 
-      <ConfirmModal 
+      <ConfirmModal
         isVisible={showExitModal}
         title="Đang học dở mà"
         subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"

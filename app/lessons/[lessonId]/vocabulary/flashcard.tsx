@@ -1,58 +1,35 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ArrowBendUpLeftIcon, ArrowBendUpRightIcon } from 'phosphor-react-native';
+import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { XIcon, ArrowBendUpLeftIcon, ArrowBendUpRightIcon } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Border, Gap, Padding } from '../../../../constants/GlobalStyles';
-import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
+import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
 
 // Import Component Thẻ đã tách
-import SwipableFlashcard, { FlashcardData } from '../../../../components/SwipableFlashcard';
 import CloseButton from '@/components/CloseButton';
+import SwipableFlashcard, { FlashcardData } from '../../../../components/SwipableFlashcard';
+import { NOTEBOOK_SCHOOL } from '../../../../constants/mockVocabularyNotebook';
 
-// --- MOCK DATA ---
-const FLASHCARDS: FlashcardData[] = [
-  {
-    id: 1,
-    word: '학생',
-    phonetic: 'hak sen',
-    meaning: 'Học sinh',
-    type: 'Danh từ',
-    hanja: ['Học', 'Sinh'],
-    example: '저는 학생입니다',
-    highlight: '학생',
-    image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 2,
-    word: '학교',
-    phonetic: 'hak kyo',
-    meaning: 'Trường học',
-    type: 'Danh từ',
-    hanja: ['Học', 'Hiệu'],
-    example: '학교에 갑니다',
-    highlight: '학교',
-    image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 3,
-    word: '책',
-    phonetic: 'chaek',
-    meaning: 'Sách',
-    type: 'Danh từ',
-    hanja: ['Học', 'Hiệu'],
-    example: '학교에 갑니다',
-    highlight: '학교',
-    image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=400'
-  }
-];
+// --- MOCK DATA - Convert from NOTEBOOK_SCHOOL ---
+const FLASHCARDS: FlashcardData[] = NOTEBOOK_SCHOOL.words.map((word, index) => ({
+  id: index,
+  word: word.word,
+  phonetic: word.phonetic,
+  meaning: word.meaning,
+  type: word.pos,
+  hanja: word.hanja || [],
+  example: word.example || '',
+  highlight: word.word,
+  image: word.image || 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=400'
+}));
 
 export default function FlashcardScreen() {
   const router = useRouter();
   // Lấy lessonId từ params để truyền đi tiếp
   const { lessonId } = useLocalSearchParams();
-  
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [knownCount, setKnownCount] = useState(0);
   const [learnCount, setLearnCount] = useState(0);
@@ -96,7 +73,7 @@ export default function FlashcardScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* HEADER SECTION */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
@@ -105,7 +82,7 @@ export default function FlashcardScreen() {
           </View>
           <CloseButton onPress={handleClose} />
         </View>
-        
+
         {/* Progress Bar */}
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBarFill, { width: `${((currentIndex + 1) / totalCards) * 100}%` }]} />
@@ -122,9 +99,9 @@ export default function FlashcardScreen() {
       <View style={styles.flashcardArea}>
         {currentCard ? (
           // Dùng ID làm key để Reanimated reset hoàn toàn khi chuyển sang thẻ mới
-          <SwipableFlashcard 
-            key={currentCard.id} 
-            card={currentCard} 
+          <SwipableFlashcard
+            key={currentCard.id}
+            card={currentCard}
             onSwipedLeft={onSwipedLeft}
             onSwipedRight={onSwipedRight}
           />
@@ -145,7 +122,7 @@ export default function FlashcardScreen() {
         </View>
       </View>
 
-      <ConfirmModal 
+      <ConfirmModal
         isVisible={showExitModal}
         title="Đang học dở mà"
         subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"

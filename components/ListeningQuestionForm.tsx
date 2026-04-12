@@ -137,9 +137,9 @@ export default function ListeningQuestionForm({
       <View style={styles.audioCard}>
         <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
           {isPlaying ? (
-            <Pause size={32} color="#FFFFFF" weight="fill" />
+            <Pause size={24} color="#FFFFFF" weight="fill" />
           ) : (
-            <Play size={32} color="#FFFFFF" weight="fill" />
+            <Play size={24} color="#FFFFFF" weight="fill" />
           )}
         </TouchableOpacity>
 
@@ -217,14 +217,15 @@ const styles = StyleSheet.create({
     padding: 25,
     alignItems: "center",
     marginBottom: 40,
-    shadowColor: "#000",
+    shadowColor:  "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 20,
     elevation: 10,
-    borderWidth: 1,
-    borderColor: "#F0F0F0"
+    borderWidth: 0.5,
+    borderColor: Color.stroke || "#F0F0F0"
   },
+
   playButton: {
     width: 60,
     height: 60,

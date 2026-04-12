@@ -23,7 +23,7 @@ export default function PlacementTestResult() {
           {/* Mascot Section */}
           <View style={styles.mascotContainer}>
             <Image
-              source={require("../../assets/images/tubo/result-levelup.png")}
+              source={require("../../assets/images/horani/result-levelup.png")}
               style={styles.mascotImage}
               contentFit="contain"
             />

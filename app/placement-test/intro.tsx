@@ -27,7 +27,7 @@ export default function PlacementTestIntro() {
             <View style={styles.mascotContainer}>
               <View style={styles.mascotHalo}>
                 <Image
-                  source={require("../../assets/images/tubo/sc1_b2.png")}
+                  source={require("../../assets/images/horani/sc1_b2.png")}
                   style={styles.mascotImage}
                   contentFit="contain"
                 />
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginBottom: 25
   },
   greetingText: {
-    fontFamily: FontFamily.lexendDecaRegular,
+    fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
     color: Color.text || "#1E1E1E",
     textAlign: "center",
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 30,
     gap: 12,
-    width: "100%", // Đổi từ 90% sang 100% để tận dụng không gian
+    width: "100%", 
     alignSelf: "center"
   },
   infoText: {

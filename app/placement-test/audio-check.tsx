@@ -6,7 +6,7 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native"; /
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/Button";
-import { Color, FontFamily } from "../../constants/GlobalStyles";
+import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
 
 const { width } = Dimensions.get("window");
 
@@ -37,7 +37,7 @@ export default function AudioCheckScreen() {
 
               <View style={styles.middleCard}>
                 <Image
-                  source={require("../../assets/images/tubo/sc1_b2.png")}
+                  source={require("../../assets/images/horani/sc1_b2.png")}
                   style={styles.mascotImage}
                   contentFit="contain"
                 />
@@ -183,8 +183,8 @@ const styles = StyleSheet.create({
     color: "#000000"
   },
   questionText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 16,
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14 || 14,
     color: Color.text || "#1E1E1E",
     textAlign: "center",
     marginBottom: 30

@@ -14,6 +14,27 @@ import VocabularyCard from '../../components/VocabularyCard';
 
 const CATEGORIES = ['Tất cả', 'Thành thạo', 'Đang học'];
 
+const FLASHCARD_SETS = [
+  {
+    id: '1',
+    title: 'Từ vựng Topik 1',
+    totalWords: 120,
+    color: '#F9F871', // Màu vàng chanh (hoặc Color.vang)
+  },
+  {
+    id: '2',
+    title: 'Giao tiếp cơ bản',
+    totalWords: 50,
+    color: '#CEF9B4', // Màu xanh lá nhạt
+  },
+  {
+    id: '3',
+    title: 'Từ vựng du lịch',
+    totalWords: 85,
+    color: '#E9D5FF', // Màu tím nhạt
+  },
+];
+
 const INITIAL_VOCABULARY_ITEMS = [
   {
     id: '1',
@@ -87,7 +108,24 @@ export default function VocabularyScreen() {
         </View>
 
         {/* Banner */}
-        <FlashcardSetCard />
+        <View style={styles.bannerContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bannerScroll}>
+            {FLASHCARD_SETS.map((set) => (
+              <FlashcardSetCard 
+                key={set.id} 
+                title={set.title} 
+                totalWords={set.totalWords} 
+                backgroundColor={set.color} 
+                onPress={() => {
+                  router.push({
+                    pathname: '/vocabulary/flashcardset-detail',
+                    params: { id: set.id, title: set.title }
+                  });
+                }}
+              />
+            ))}
+          </ScrollView>
+        </View>
 
         {/* Filter Chips */}
         <View style={styles.chipRow}>
@@ -180,6 +218,14 @@ const styles = StyleSheet.create({
   },
   testButtonText: {
     fontSize: 18,
+  },
+  bannerContainer: {
+    marginHorizontal: -(Padding.padding_15 || 15),
+    marginBottom: Gap.gap_20 || 20,
+  },
+  bannerScroll: {
+    paddingHorizontal: Padding.padding_15 || 15,
+    gap: Gap.gap_15 || 15,
   },
   chipRow: {
     marginBottom: 20

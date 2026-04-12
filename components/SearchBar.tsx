@@ -9,7 +9,7 @@ interface SearchBarProps {
   onChangeText?: (text: string) => void;
 }
 
-const SearchBar = ({ placeholder = "Tìm kiếm", value, onChangeText }: SearchBarProps) => {
+const SearchBar = ({ placeholder = "Tìm trong Từ vựng yêu thích", value, onChangeText }: SearchBarProps) => {
   return (
     <View style={styles.searchContainer}>
       <MagnifyingGlassIcon size={20} color={Color.gray || '#64748B'} />

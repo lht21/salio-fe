@@ -10,7 +10,7 @@ import {
   Keyboard,
   Modal
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookOpenIcon, CaretDownIcon, XIcon } from 'phosphor-react-native';
 
@@ -37,6 +37,7 @@ const WRITING_RULES = [
 
 export default function WritingPracticeScreen() {
   const router = useRouter();
+  const { lessonId } = useLocalSearchParams();
   
   const [isStarted, setIsStarted] = useState(false);
   const [text, setText] = useState('');
@@ -81,10 +82,20 @@ export default function WritingPracticeScreen() {
     router.replace('/(tabs)');
   };
 
-  const confirmSubmit = () => {
+  const confirmSubmit = async () => {
     setShowSubmitConfirm(false);
-    // TODO: Gửi API lưu bài viết ở đây
-    router.replace('/lessons/1/writing/result'); 
+
+    const timeUsed = (45 * 60) - timeLeft; 
+        
+    // Điều hướng NGAY LẬP TỨC sang trang Kết quả và truyền bài viết sang đó
+    router.replace({
+      pathname: `/lessons/${lessonId}/writing/result`,
+      params: { 
+        userText: text,
+        charCount: text.length,
+        timeUsed: timeUsed
+      }
+    });
   };
 
   return (

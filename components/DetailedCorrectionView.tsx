@@ -11,7 +11,17 @@ type Message = {
   text: string;
 };
 
-export default function DetailedCorrectionView() {
+// Định nghĩa kiểu dữ liệu cho mảnh ghép sửa lỗi
+export type CorrectionSegment = {
+  type: 'text' | 'error' | 'correct';
+  content: string;
+};
+
+interface DetailedCorrectionViewProps {
+  correctionData?: CorrectionSegment[];
+}
+
+export default function DetailedCorrectionView({ correctionData = [] }: DetailedCorrectionViewProps) {
   // State quản lý text đang nhập
   const [inputText, setInputText] = useState('');
   
@@ -51,73 +61,85 @@ export default function DetailedCorrectionView() {
   return (
     <View style={styles.detailedCard}>
       
-      {/* --- 1. PHẦN BÀI SỬA (GIỮ NGUYÊN) --- */}
+      {/* --- 1. PHẦN BÀI SỬA (DỮ LIỆU ĐỘNG TỪ AI) --- */}
       <Text style={styles.detailedTitle}>Chi tiết lỗi sai</Text>
       <Text style={styles.paragraphText}>
-        요즘 환경 문제가 점점 심각해지고 있습니다. 
-        우리는 환경을 <Text style={styles.errorText}>보호하다</Text> <Text style={styles.correctText}>보호하기 위해</Text> 
-        노력해야 합니다. 
-        예를 들어, 일회용품 사용을 <Text style={styles.errorText}>줄이다고</Text> <Text style={styles.correctText}>줄여야</Text> 합니다. 
-        또한, 대중교통을 <Text style={styles.errorText}>타는 것</Text> <Text style={styles.correctText}>이용하는 것이</Text> 좋습니다. 
-        이러한 작은 노력들이 모이면 큰 변화를 만들 수 <Text style={styles.errorText}>있어요</Text> <Text style={styles.correctText}>있습니다</Text>.
+        {correctionData.length > 0 ? (
+          correctionData.map((segment, index) => {
+            if (segment.type === 'error') {
+              return <Text key={index} style={styles.errorText}>{segment.content}</Text>;
+            } else if (segment.type === 'correct') {
+              return <Text key={index} style={styles.correctText}>{segment.content}</Text>;
+            }
+            // type === 'text'
+            return <Text key={index}>{segment.content}</Text>;
+          })
+        ) : (
+          <Text style={{ color: Color.gray }}>Không có dữ liệu phân tích chi tiết.</Text>
+        )}
       </Text>
 
-      {/* Đường phân cách */}
-      <View style={styles.divider} />
-
-      {/* --- 2. KHU VỰC HỎI ĐÁP VỚI AI --- */}
-      <View style={styles.aiHeader}>
-        <SparkleIcon size={20} color={Color.main} weight="fill" />
-        <Text style={styles.aiTitle}>Hỏi đáp cùng Salio AI</Text>
-      </View>
-
-      {/* Danh sách tin nhắn */}
-      <View style={styles.chatContainer}>
-        {messages.map((msg) => {
-          const isUser = msg.sender === 'user';
-          return (
-            <View 
-              key={msg.id} 
-              style={[
-                styles.messageBubble, 
-                isUser ? styles.userBubble : styles.aiBubble
-              ]}
+      {/* TẠM ẨN KHU VỰC HỎI ĐÁP VỚI AI */}
+      {false && (
+        <>
+          {/* Đường phân cách */}
+          <View style={styles.divider} />
+    
+          {/* --- 2. KHU VỰC HỎI ĐÁP VỚI AI --- */}
+          <View style={styles.aiHeader}>
+            <SparkleIcon size={20} color={Color.main} weight="fill" />
+            <Text style={styles.aiTitle}>Hỏi đáp cùng Salio AI</Text>
+          </View>
+    
+          {/* Danh sách tin nhắn */}
+          <View style={styles.chatContainer}>
+            {messages.map((msg) => {
+              const isUser = msg.sender === 'user';
+              return (
+                <View 
+                  key={msg.id} 
+                  style={[
+                    styles.messageBubble, 
+                    isUser ? styles.userBubble : styles.aiBubble
+                  ]}
+                >
+                  <Text style={[
+                    styles.messageText,
+                    isUser ? styles.userText : styles.aiText
+                  ]}>
+                    {msg.text}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+    
+          {/* Ô nhập liệu & Nút gửi */}
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Hỏi AI tại sao câu này sai..."
+              placeholderTextColor={Color.gray}
+              value={inputText}
+              onChangeText={setInputText}
+              multiline
+              maxLength={200}
+            />
+            <TouchableOpacity 
+              style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+              onPress={handleSendMessage}
+              disabled={!inputText.trim()}
+              activeOpacity={0.7}
             >
-              <Text style={[
-                styles.messageText,
-                isUser ? styles.userText : styles.aiText
-              ]}>
-                {msg.text}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-
-      {/* Ô nhập liệu & Nút gửi */}
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Hỏi AI tại sao câu này sai..."
-          placeholderTextColor={Color.gray}
-          value={inputText}
-          onChangeText={setInputText}
-          multiline
-          maxLength={200}
-        />
-        <TouchableOpacity 
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-          onPress={handleSendMessage}
-          disabled={!inputText.trim()}
-          activeOpacity={0.7}
-        >
-          <PaperPlaneRightIcon 
-            size={20} 
-            color={inputText.trim() ? Color.bg : Color.gray} 
-            weight="fill" 
-          />
-        </TouchableOpacity>
-      </View>
+              <PaperPlaneRightIcon 
+                size={20} 
+                color={inputText.trim() ? Color.bg : Color.gray} 
+                weight="fill" 
+              />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
 
     </View>
   );

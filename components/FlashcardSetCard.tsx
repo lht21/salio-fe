@@ -1,19 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { CardsIcon, ListChecksIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 
-const FlashcardSetCard = () => {
+interface FlashcardSetCardProps {
+  title: string;
+  totalWords: number;
+  backgroundColor?: string;
+  onPress?: () => void;
+}
+
+const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress }: FlashcardSetCardProps) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>BỘ DU LỊCH</Text>
+    <TouchableOpacity 
+      style={[styles.container, backgroundColor ? { backgroundColor } : null]}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <Text style={styles.title}>{title}</Text>
       <View style={styles.subtitleRow}>
         <Text style={styles.subtitle}>Bạn đã lưu </Text>
-        <Text style={styles.countText}>16</Text>
+        <Text style={styles.countText}>{totalWords}</Text>
         <Text style={styles.subtitle}> từ vựng</Text>
       </View>
 
-      <View style={styles.actionRow}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.actionRow}>
         <TouchableOpacity style={styles.button}>
           <CardsIcon size={20} color={Color.bg} weight="fill" />
           <Text style={styles.buttonText}>Chế độ Flashcard</Text>
@@ -23,8 +34,8 @@ const FlashcardSetCard = () => {
           <ListChecksIcon size={20} color={Color.bg} weight="bold" />
           <Text style={styles.buttonText}>Chế độ Trắc nghiệm</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </TouchableOpacity>
   );
 };
 
@@ -34,6 +45,7 @@ const styles = StyleSheet.create({
     borderRadius: Border.br_20,
     padding: Padding.padding_15 || 15,
     marginBottom: 24,
+    width: 300, // Thêm chiều rộng cố định để các thẻ hiển thị đẹp khi trượt ngang
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
@@ -61,10 +73,10 @@ const styles = StyleSheet.create({
     gap: Gap.gap_10 || 10,
   },
   button: {
-    flex: 1,
     flexDirection: 'row',
     backgroundColor: Color.colorDarkslategray300 || '#2D2D2D',
     borderRadius: Border.br_15,
+    paddingHorizontal: Padding.padding_15 || 15,
     paddingVertical: Padding.padding_11,
     alignItems: 'center',
     justifyContent: 'center',

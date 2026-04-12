@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { useSharedValue, withTiming, useAnimatedProps, Easing } from 'react-native-reanimated';
+import Svg, { Circle } from 'react-native-svg';
 import { 
   TextAUnderlineIcon, 
   TranslateIcon, 
@@ -14,6 +16,7 @@ import {
   SealQuestionIcon,
   HouseIcon
 } from 'phosphor-react-native';
+import { MotiView } from 'moti';
 
 // Constants & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
@@ -56,14 +59,120 @@ const FEEDBACK_DATA = [
   },
 ];
 
+// Khởi tạo Component Circle có khả năng nhận Animation
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 export default function WritingResultScreen() {
   const router = useRouter();
-  const { lessonId } = useLocalSearchParams();
+  // Lấy thêm các tham số được truyền từ màn hình Practice
+  const { lessonId, userText, charCount, timeUsed } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState<'overview' | 'detailed'>('overview');
 
  
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // State quản lý kết quả AI và trạng thái Loading Skeleton
+  const [aiData, setAiData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Gọi API lấy kết quả chấm điểm sau khi đã chuyển sang trang Result
+  useEffect(() => {
+    const fetchGrading = async () => {
+      try {
+        const BACKEND_URL = 'http://192.168.1.11:5000/api/grade/writing'; 
+        
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topicTitle: 'Mạng xã hội', 
+            topicDescription: 'Bày tỏ quan điểm của bạn về việc giới trẻ chạy theo xu hướng hiện nay.',
+            userText: userText
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          setAiData(result.data);
+        }
+      } catch (error) {
+        console.error('Lỗi khi gọi AI chấm bài:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (userText) {
+      fetchGrading();
+    } else {
+      // Nếu không có bài viết (vào xem lịch sử) thì tắt loading
+      setIsLoading(false);
+    }
+  }, [userText]);
+
+  const aiScore = aiData?.score || 0;
+  const aiFeedbacks = aiData?.feedback || [];
+  const aiDetailedCorrection = aiData?.detailedCorrection || [];
+
+  // --- ANIMATION ĐIỂM SỐ & VÒNG TRÒN ---
+  const CIRCLE_RADIUS = 60;
+  const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+  const progressValue = useSharedValue(0); // Giá trị từ 0 đến 1 cho Reanimated
+  const [displayScore, setDisplayScore] = useState(0); // Biến hiển thị số chạy
+
+  useEffect(() => {
+    if (aiScore > 0) {
+      // 1. Chạy animation vòng tròn SVG
+      progressValue.value = withTiming(aiScore / 50, {
+        duration: 1500,
+        easing: Easing.out(Easing.cubic),
+      });
+
+      // 2. Chạy animation đếm số bằng setInterval
+      let startValue = 0;
+      const duration = 1500;
+      const interval = duration / aiScore; // Tính toán tốc độ nhảy số cho khớp 1.5 giây
+
+      const counter = setInterval(() => {
+        startValue += 1;
+        setDisplayScore(startValue);
+        if (startValue >= aiScore) {
+          clearInterval(counter);
+          setDisplayScore(aiScore); // Chốt điểm số chính xác cuối cùng
+        }
+      }, interval);
+
+      return () => clearInterval(counter);
+    } else {
+      setDisplayScore(0);
+      progressValue.value = 0;
+    }
+  }, [aiScore]);
+
+  // Nội suy giá trị nét đứt cho SVG Circle
+  const animatedCircleProps = useAnimatedProps(() => {
+    return {
+      strokeDashoffset: CIRCUMFERENCE - CIRCUMFERENCE * progressValue.value,
+    };
+  });
+
+  // Format thời gian hiển thị (giây -> phút:giây)
+  const formatTime = (secondsStr: any) => {
+    const totalSeconds = parseInt(secondsStr) || 0;
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  // Hàm map Icon dựa vào tiêu đề mà AI trả về
+  const getIconForTitle = (title: string) => {
+    if (title.includes('Nội dung')) return <TextAUnderlineIcon size={35} color={Color.color} weight="fill" />;
+    if (title.includes('Từ vựng')) return <TranslateIcon size={35} color={Color.color} weight="fill" />;
+    if (title.includes('Ngữ pháp')) return <BookOpenIcon size={35} color={Color.color} weight="fill" />;
+    if (title.includes('mạch lạc')) return <LinkIcon size={35} color={Color.color} weight="fill" />;
+    return <TextTIcon size={35} color={Color.color} weight="fill" />;
+  };
 
   // --- HANDLERS DÀNH CHO ĐIỀU HƯỚNG ---
   const handleClose = () => {
@@ -103,6 +212,16 @@ export default function WritingResultScreen() {
     Alert.alert("Tải xuống PDF", "Đang tải xuống bài viết dưới dạng PDF...");
   };
 
+  // --- COMPONENT SKELETON ĐỂ TẠO KHỐI XÁM NHẤP NHÁY ---
+  const SkeletonBlock = ({ width, height, borderRadius = 8, style }: any) => (
+    <MotiView
+      from={{ opacity: 0.4 }}
+      animate={{ opacity: 1 }}
+      transition={{ loop: true, type: 'timing', duration: 800 }}
+      style={[{ width, height, backgroundColor: '#E2E8F0', borderRadius }, style]}
+    />
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       
@@ -138,7 +257,20 @@ export default function WritingResultScreen() {
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={styles.scrollContent}
       >
-        {activeTab === 'overview' ? (
+        {isLoading ? (
+          // --- HIỂN THỊ SKELETON TRONG LÚC ĐỢI AI ---
+          <View style={{ width: '100%' }}>
+            {/* Giả lập Banner Điểm số */}
+            <SkeletonBlock width="100%" height={220} borderRadius={Border.br_30} style={{ marginBottom: Gap.gap_20 }} />
+            
+            {/* Giả lập 4 thẻ Feedback */}
+            <View style={{ gap: Gap.gap_15 }}>
+              {[1, 2, 3, 4].map((i) => (
+                <SkeletonBlock key={i} width="100%" height={120} borderRadius={Border.br_20} />
+              ))}
+            </View>
+          </View>
+        ) : activeTab === 'overview' ? (
           <>
             {/* Phần 1: Score Banner */}
             <LinearGradient
@@ -146,45 +278,68 @@ export default function WritingResultScreen() {
               style={styles.scoreBanner}
             >
               {/* Điểm số trung tâm */}
-              <View style={styles.mainScoreCircle}>
-                <Text style={styles.mainScoreText}>38</Text>
-                <Text style={styles.maxScoreText}>/50</Text>
+              <View style={styles.scoreWrapper}>
+                {/* Vòng tròn SVG */}
+                <Svg width={136} height={136} style={styles.svgRing}>
+                  {/* Vòng tròn nền mờ đằng sau */}
+                  <Circle
+                    cx={68} cy={68} r={CIRCLE_RADIUS}
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth={8} fill="transparent"
+                  />
+                  {/* Vòng tròn màu vàng chạy tiến độ */}
+                  <AnimatedCircle
+                    cx={68} cy={68} r={CIRCLE_RADIUS}
+                    stroke={Color.vang || "#F9F871"}
+                    strokeWidth={8} fill="transparent"
+                    strokeDasharray={CIRCUMFERENCE}
+                    animatedProps={animatedCircleProps}
+                    strokeLinecap="round"
+                    transform="rotate(-90 68 68)" // Quay -90 độ để vòng tròn bắt đầu từ hướng 12 giờ
+                  />
+                </Svg>
+                
+                {/* Chữ số bên trong */}
+                <View style={styles.mainScoreCircle}>
+                  <Text style={styles.mainScoreText}>{displayScore}</Text>
+                  <Text style={styles.maxScoreText}>/50</Text>
+                </View>
               </View>
 
               {/* Chỉ số phụ sử dụng Component StatCircle */}
               <View style={styles.statsRow}>
                 <StatCircle 
                   icon={<TextTIcon size={20} color={Color.color} />} 
-                  value="646/700" 
+                  value={`${charCount || 0}/700`} 
                   label="ký tự" 
                 />
                 <StatCircle 
                   icon={<ClockIcon size={20} color={Color.color} />} 
-                  value="32:15" 
+                  value={formatTime(timeUsed)} 
                   label="phút" 
                 />
                 <StatCircle 
                   icon={<TargetIcon size={20} color={Color.color} />} 
-                  value="85%" 
-                  label="chính xác" 
+                  value={`${Math.round((aiScore / 50) * 100)}%`} 
+                  label="hoàn thành" 
                 />
               </View>
             </LinearGradient>
 
             {/* Phần 2: Feedback List sử dụng Component FeedbackCard */}
             <View style={styles.feedbackList}>
-              {FEEDBACK_DATA.map((item) => (
+              {aiFeedbacks.map((item: any, index: number) => (
                 <FeedbackCard 
-                  key={item.id}
+                  key={index.toString()}
                   title={item.title}
                   content={item.content}
-                  icon={item.icon}
+                  icon={getIconForTitle(item.title)}
                 />
               ))}
             </View>
           </>
         ) : (
-          <DetailedCorrectionView />
+          <DetailedCorrectionView correctionData={aiDetailedCorrection} />
         )}
       </ScrollView>
 
@@ -279,6 +434,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Gap.gap_20,
   },
+  scoreWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+    position: 'relative',
+    width: 136,
+    height: 136,
+  },
+  svgRing: {
+    position: 'absolute',
+  },
   mainScoreCircle: {
     width: 120,
     height: 120,
@@ -291,7 +457,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
-    marginBottom: Gap.gap_20,
   },
   mainScoreText: {
     fontFamily: FontFamily.lexendDecaSemiBold,

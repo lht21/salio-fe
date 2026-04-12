@@ -59,7 +59,7 @@ export default function VocabularyResultScreen() {
         {/* 2. CELEBRATION */}
         <View style={styles.celebrationSection}>
           <Image 
-            source={require('../../../../assets/images/tubo/result-levelup.png')} 
+            source={require('../../../../assets/images/horani/result-levelup.png')} 
             style={styles.illustration} 
             resizeMode="contain" 
           />

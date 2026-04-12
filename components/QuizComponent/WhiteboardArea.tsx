@@ -14,7 +14,7 @@ const WhiteboardArea = ({ answer, setAnswer }: WhiteboardAreaProps) => {
     <View style={styles.whiteboardContainer}>
       {/* Ảnh nhân vật cầm bảng */}
       <Image 
-        source={require('../../assets/images/tubo/whiteboard.png')} 
+        source={require('../../assets/images/horani/whiteboard.png')} 
         style={styles.illustration}
         resizeMode="contain"
       />

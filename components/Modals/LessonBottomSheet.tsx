@@ -246,12 +246,12 @@ const LESSON_META_MAP: Record<string, { progressText: string; progressSegments: 
   '1': {
     progressText: '100% hoàn thành',
     progressSegments: [Color.green, Color.green, Color.green, Color.green, Color.green, Color.green],
-    mascot: require('../../assets/images/tubo/sc1_b1.png'),
+    mascot: require('../../assets/images/horani/sc1_b1.png'),
   },
   '2': {
     progressText: '16% hoàn thành',
     progressSegments: [Color.green, Color.xanh, Color.gray, Color.gray, Color.gray, Color.gray],
-    mascot: require('../../assets/images/tubo/sc1_b1.png'),
+    mascot: require('../../assets/images/horani/sc1_b1.png'),
   },
 };
 
@@ -272,7 +272,7 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
     const meta = LESSON_META_MAP[lessonId] ?? {
       progressText: '25% hoan thanh',
       progressSegments: [Color.xanh, '#E5E7EB', '#E5E7EB', '#E5E7EB'],
-      mascot: require('../../assets/images/tubo/sc1_b0.png'),
+      mascot: require('../../assets/images/horani/sc1_b0.png'),
     };
 
     return (

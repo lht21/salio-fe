@@ -17,7 +17,7 @@ const LESSONS: LessonItem[] = [
     status: 'completed',
     points: 100,
     mascotPos: 'left',
-    mascotImg: require('../../assets/images/tubo/sc1_b0.png'),
+    mascotImg: require('../../assets/images/horani/sc1_b0.png'),
   },
   {
     id: '1',
@@ -26,7 +26,7 @@ const LESSONS: LessonItem[] = [
     status: 'completed',
     points: 100,
     mascotPos: 'right',
-    mascotImg: require('../../assets/images/tubo/sc1_b1.png'),
+    mascotImg: require('../../assets/images/horani/sc1_b1.png'),
   },
   {
     id: '2',
@@ -34,7 +34,7 @@ const LESSONS: LessonItem[] = [
     title: 'Trường học - 학교',
     status: 'current',
     mascotPos: 'left',
-    mascotImg: require('../../assets/images/tubo/sc1_b2.png'),
+    mascotImg: require('../../assets/images/horani/sc1_b2.png'),
   },
   {
     id: '3',
@@ -42,7 +42,7 @@ const LESSONS: LessonItem[] = [
     title: 'Sinh hoạt - 일상생활',
     status: 'locked',
     mascotPos: 'right',
-    mascotImg: require('../../assets/images/tubo/sc1_b3.png'),
+    mascotImg: require('../../assets/images/horani/sc1_b3.png'),
   },
   {
     id: '4',
@@ -50,7 +50,7 @@ const LESSONS: LessonItem[] = [
     title: 'Ngày và thứ - 날짜와 요일',
     status: 'locked',
     mascotPos: 'left',
-    mascotImg: require('../../assets/images/tubo/sc1_b3.png'),
+    mascotImg: require('../../assets/images/horani/sc1_b4.png'),
   },
 ];
 

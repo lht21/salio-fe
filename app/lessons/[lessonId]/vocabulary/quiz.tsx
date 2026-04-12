@@ -177,8 +177,8 @@ export default function VocabularyQuizScreen() {
         opacity={feedbackOpacity}
         imageSource={
           feedbackState === 'failure'
-            ? require('../../../../assets/images/tubo/failure.png')
-            : require('../../../../assets/images/tubo/success.png')
+            ? require('../../../../assets/images/horani/failure.png')
+            : require('../../../../assets/images/horani/success.png')
         }
       />
 

@@ -724,7 +724,7 @@ export default function FinalTestExamScreen() {
           title="Mini Test"
           description="Khi vào bài thi, bạn sẽ không thể thoát ra trừ khi nộp bài. Hãy chuẩn bị trước khi bắt đầu nhé!"
           buttonLabel="Bắt đầu thi"
-          mascotSources={[require('../../../../assets/images/tubo/sc1_b1.png')]}
+          mascotSources={[require('../../../../assets/images/horani/sc1_b1.png')]}
           onClose={() => {
             setShowIntroModal(false);
             setIsStarted(true);

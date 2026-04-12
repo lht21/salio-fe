@@ -165,17 +165,17 @@ const SPEAKING_ITEMS: SpeakingItem[] = [
 ];
 
 const avatarBySpeaker = {
-  woman: require('../../../../assets/images/tubo/woman.png'),
-  man: require('../../../../assets/images/tubo/man.png'),
+  woman: require('../../../../assets/images/horani/woman.png'),
+  man: require('../../../../assets/images/horani/man.png'),
 } as const;
 
 const introMascots = [
-  require('../../../../assets/images/tubo/popup.png'),
+  require('../../../../assets/images/horani/popup.png'),
 ];
 
 const feedbackImages = {
-  success: require('../../../../assets/images/tubo/success.png'),
-  failure: require('../../../../assets/images/tubo/failure.png'),
+  success: require('../../../../assets/images/horani/success.png'),
+  failure: require('../../../../assets/images/horani/failure.png'),
 } as const;
 
 const waveformBars = [18, 28, 40, 24, 34, 48, 30, 22, 38, 26, 20];

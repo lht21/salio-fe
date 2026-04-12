@@ -19,7 +19,7 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress }: HeaderSectionPro
     <LinearGradient colors={['#CEF9B4', Color.main || '#98F291']} style={styles.headerGradient}>
       <View style={styles.headerContent}>
         <Image
-          source={require('../assets/images/tubo/sc1_b0.png')}
+          source={require('../assets/images/horani/sc1_b0.png')}
           style={styles.topMascot}
           contentFit="contain"
         />

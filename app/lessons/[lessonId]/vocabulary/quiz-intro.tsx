@@ -46,7 +46,7 @@ export default function QuizIntroScreen() {
         
         {/* Phần 1: Hình ảnh minh họa */}
         <Image
-          source={require('../../../../assets/images/tubo/intro-vocab.jpeg')}
+          source={require('../../../../assets/images/horani/intro-vocab.jpeg')}
           style={styles.illustration}
           resizeMode="cover"
         />

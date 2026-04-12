@@ -42,7 +42,7 @@ export default function GrammarIntroScreen() {
         
         {/* Phần 1: Hình ảnh minh họa */}
         <Image
-          source={require('../../../../assets/images/tubo/intro-grammar.jpeg')} // Sử dụng hình ảnh ngữ pháp
+          source={require('../../../../assets/images/horani/intro-grammar.jpeg')} // Sử dụng hình ảnh ngữ pháp
           style={styles.illustration}
           resizeMode="cover"
         />

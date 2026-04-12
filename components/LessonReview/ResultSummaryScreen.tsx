@@ -83,7 +83,7 @@ export default function ResultSummaryScreen({
           </Pressable>
 
           <Image
-            source={require('../../assets/images/tubo/result.png')}
+            source={require('../../assets/images/horani/result.png')}
             style={styles.heroImage}
             contentFit="contain"
           />

@@ -13,8 +13,8 @@ import { useLocalSearchParams, router } from 'expo-router';
 // Import Design System & Components
 import { Color, FontFamily, FontSize, Padding, Gap } from '../../../../constants/GlobalStyles';
 import Button from '../../../../components/Button';
-import QuizHeader from '../../../../components/QuizComponent/QuizHeader';
-import FeedbackSheet from '../../../../components/QuizComponent/FeedbackSheet';
+import QuizHeader from '../../../../components/Modals/Question/QuizHeader';
+import FeedbackSheet from '../../../../components/Modals/Popup/FeedbackPopup';
 import WhiteboardArea from '../../../../components/QuizComponent/WhiteboardArea'; 
 
 export default function GrammarExerciseScreen() {

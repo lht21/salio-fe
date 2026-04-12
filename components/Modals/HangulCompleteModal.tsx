@@ -17,7 +17,7 @@ const HangulCompleteModal = ({ visible, onClose }: HangulCompleteModalProps) => 
         <View style={styles.sheet}>
           <View style={styles.hero}>
             <Image
-              source={require('../../assets/images/tubo/result-levelup.png')}
+              source={require('../../assets/images/horani/result-levelup.png')}
               style={styles.heroImage}
               contentFit="contain"
             />

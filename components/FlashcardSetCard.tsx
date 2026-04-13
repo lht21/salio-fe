@@ -1,7 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { CardsIcon, ListChecksIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 
 interface FlashcardSetCardProps {
   title: string;
@@ -12,7 +11,7 @@ interface FlashcardSetCardProps {
 
 const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress }: FlashcardSetCardProps) => {
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.container, backgroundColor ? { backgroundColor } : null]}
       onPress={onPress}
       activeOpacity={0.8}
@@ -24,17 +23,31 @@ const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress }: Flash
         <Text style={styles.subtitle}> từ vựng</Text>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.actionRow}>
+      <View style={styles.actionRow}>
         <TouchableOpacity style={styles.button}>
           <CardsIcon size={20} color={Color.bg} weight="fill" />
-          <Text style={styles.buttonText}>Chế độ Flashcard</Text>
+          <Text
+            style={styles.buttonText}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+          >
+            Chế độ Flashcard
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button}>
           <ListChecksIcon size={20} color={Color.bg} weight="bold" />
-          <Text style={styles.buttonText}>Chế độ Trắc nghiệm</Text>
+          <Text
+            style={styles.buttonText}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+          >
+            Chế độ Trắc nghiệm
+          </Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -73,19 +86,22 @@ const styles = StyleSheet.create({
     gap: Gap.gap_10 || 10,
   },
   button: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     backgroundColor: Color.colorDarkslategray300 || '#2D2D2D',
     borderRadius: Border.br_15,
-    paddingHorizontal: Padding.padding_15 || 15,
+    paddingHorizontal: Padding.padding_10 || 10,
     paddingVertical: Padding.padding_11,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Gap.gap_5,
   },
   buttonText: {
+    flexShrink: 1,
     color: Color.bg,
     fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 12,
+    fontSize: 14,
   },
 });
 

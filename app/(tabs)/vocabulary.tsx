@@ -38,35 +38,93 @@ const FLASHCARD_SETS = [
 const INITIAL_VOCABULARY_ITEMS = [
   {
     id: '1',
-    word: 'Đáp án',
+    word: '학교',
     pos: 'Danh từ',
-    phonetic: '/hak sen/',
-    meaning: 'Hàn Quốc',
+    phonetic: '/hak-gyo/',
+    meaning: 'Trường học',
     isFavorite: true,
+    status: 'Thành thạo',
   },
   {
     id: '2',
-    word: 'Đáp án',
+    word: '사랑하다',
     pos: 'Động từ',
-    phonetic: '/hak sen/',
-    meaning: 'Hàn Quốc',
+    phonetic: '/sa-rang-ha-da/',
+    meaning: 'Yêu',
     isFavorite: true,
+    status: 'Đang học',
   },
   {
     id: '3',
-    word: 'Đáp án',
+    word: '맛있다',
     pos: 'Tính từ',
-    phonetic: '/hak sen/',
-    meaning: 'Hàn Quốc',
-    isFavorite: false,
+    phonetic: '/ma-sit-da/',
+    meaning: 'Ngon',
+    isFavorite: true,
+    status: 'Thành thạo',
   },
   {
     id: '4',
-    word: 'Đáp án',
+    word: '사과',
+    pos: 'Danh từ',
+    phonetic: '/sa-gwa/',
+    meaning: 'Quả táo',
+    isFavorite: true,
+    status: 'Đang học',
+  },
+  {
+    id: '5',
+    word: '예쁘다',
     pos: 'Tính từ',
-    phonetic: '/hak sen/',
-    meaning: 'Hàn Quốc',
-    isFavorite: false,
+    phonetic: '/ye-ppeu-da/',
+    meaning: 'Đẹp',
+    isFavorite: true,
+    status: 'Đang học',
+  },
+  {
+    id: '6',
+    word: '가다',
+    pos: 'Động từ',
+    phonetic: '/ga-da/',
+    meaning: 'Đi',
+    isFavorite: true,
+    status: 'Thành thạo',
+  },
+  {
+    id: '7',
+    word: '책상',
+    pos: 'Danh từ',
+    phonetic: '/chaek-sang/',
+    meaning: 'Cái bàn',
+    isFavorite: true,
+    status: 'Đang học',
+  },
+  {
+    id: '8',
+    word: '친구',
+    pos: 'Danh từ',
+    phonetic: '/chin-gu/',
+    meaning: 'Bạn bè',
+    isFavorite: true,
+    status: 'Thành thạo',
+  },
+  {
+    id: '9',
+    word: '먹다',
+    pos: 'Động từ',
+    phonetic: '/meok-da/',
+    meaning: 'Ăn',
+    isFavorite: true,
+    status: 'Đang học',
+  },
+  {
+    id: '10',
+    word: '물',
+    pos: 'Danh từ',
+    phonetic: '/mul/',
+    meaning: 'Nước',
+    isFavorite: true,
+    status: 'Thành thạo',
   },
 ];
 
@@ -87,6 +145,12 @@ export default function VocabularyScreen() {
       )
     );
   };
+
+  const filteredItems = vocabularyItems.filter(item => {
+    const matchTab = activeTab === 'Tất cả' || item.status === activeTab;
+    const matchSearch = item.word.toLowerCase().includes(searchText.toLowerCase()) || item.meaning.toLowerCase().includes(searchText.toLowerCase());
+    return matchTab && matchSearch;
+  });
 
   return (
     <View style={styles.safeArea}>
@@ -148,13 +212,19 @@ export default function VocabularyScreen() {
         />
 
         {/* List */}
-        {vocabularyItems.map((item) => (
-          <VocabularyCard
-            key={item.id}
-            item={item}
-            onToggleFavorite={() => handleToggleFavorite(item.id)}
-          />
-        ))}
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item) => (
+            <VocabularyCard
+              key={item.id}
+              item={item}
+              onToggleFavorite={() => handleToggleFavorite(item.id)}
+            />
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Không tìm thấy kết quả</Text>
+          </View>
+        )}
 
         {/* Footer Add */}
         <View style={styles.footer}>
@@ -250,5 +320,15 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 14,
     color: Color.colorDarkgray || '#94A3B8'
+  },
+  emptyContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14 || 14,
+    color: Color.gray || '#64748B',
   }
 });

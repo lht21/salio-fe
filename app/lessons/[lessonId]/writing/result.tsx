@@ -80,7 +80,7 @@ export default function WritingResultScreen() {
   useEffect(() => {
     const fetchGrading = async () => {
       try {
-        const BACKEND_URL = 'http://192.168.1.11:5000/api/grade/writing'; 
+        const BACKEND_URL = 'http://172.26.39.88:5000/api/grade/writing'; 
         
         const response = await fetch(BACKEND_URL, {
           method: 'POST',

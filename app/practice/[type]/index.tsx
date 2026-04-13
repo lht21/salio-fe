@@ -29,8 +29,8 @@ interface WritingTopic {
 const writingTopics: WritingTopic[] = [
   {
     id: '1',
-    title: 'Bảo vệ môi trường & Rác thải nhựa',
-    description: 'Viết bài luận (600-700 chữ) nêu nguyên nhân của việc gia tăng rác thải nhựa và các biện pháp giải quyết thực tiễn.',
+    title: 'Chạy theo xu hướng',
+    description: 'Viết bài luận (500-700 từ) về việc con người có nên chạy theo các xu hướng mới nổi hay không, và tại sao.',
     image: require('../../../assets/images/imageExam/ie_1.png'),
     isFeatured: true,
     usersCount: '12k',

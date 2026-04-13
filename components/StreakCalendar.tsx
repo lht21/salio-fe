@@ -126,12 +126,12 @@ const styles = StyleSheet.create({
   },
   container: {
     borderWidth: 2,
-    borderColor: Color.color || '#0C5F35',
+    borderColor: Color.main2,
     borderRadius: Border.br_20 || 20,
     overflow: 'hidden',
   },
   header: {
-    backgroundColor: Color.color || '#0C5F35',
+    backgroundColor: Color.main2,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

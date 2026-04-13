@@ -10,7 +10,11 @@ import Animated, {
   interpolateColor,
   withRepeat,
   withTiming,
-  Easing
+  Easing,
+  withSequence,
+  withDelay,
+  withSpring,
+  runOnJS
 } from 'react-native-reanimated';
 import { FireIcon, CloudIcon } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -143,6 +147,47 @@ export default function HomeScreen() {
     setInfoModalVisible(true);
   };
 
+  // --- CUSTOM TOAST ANIMATION ---
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastOpacity = useSharedValue(0);
+  const toastTranslateY = useSharedValue(50);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    
+    // Đặt lại giá trị ban đầu để hiệu ứng luôn bắt đầu từ dưới lên
+    toastOpacity.value = 0;
+    toastTranslateY.value = 50;
+    
+    // Hiệu ứng Fade In -> Đợi 2.5s -> Fade Out
+    toastOpacity.value = withSequence(
+      withTiming(1, { duration: 300 }),
+      withDelay(2500, withTiming(0, { duration: 300 }, (finished) => {
+        if (finished) runOnJS(setToastMessage)(null); // Xóa component khỏi DOM khi ẩn xong
+      }))
+    );
+    
+    // Hiệu ứng Trượt nảy lên (Spring) -> Đợi 2.5s -> Trượt xuống lại
+    toastTranslateY.value = withSequence(
+      withSpring(0),
+      withDelay(2500, withTiming(50, { duration: 300 }))
+    );
+  };
+
+  const toastStyle = useAnimatedStyle(() => ({
+    opacity: toastOpacity.value,
+    transform: [{ translateY: toastTranslateY.value }],
+  }));
+
+  // --- XỬ LÝ KHI NHẤN VÀO BÀI HỌC ---
+  const handleLessonPress = (item: LessonItem) => {
+    if (item.status === 'locked') {
+      showToast('Vui lòng hoàn thành bài học trước đó để mở khóa!');
+    } else {
+      openLessonBottomSheet(item as any);
+    }
+  };
+
   return (
     <View style={styles.container}>
 
@@ -186,7 +231,12 @@ export default function HomeScreen() {
 
           <View style={styles.nodesWrapper}>
             {LESSONS.map((item, index) => (
-              <LessonNode key={item.id} item={item} index={index} onPress={openLessonBottomSheet} />
+              <LessonNode 
+                key={item.id} 
+                item={item} 
+                index={index} 
+                onPress={() => handleLessonPress(item)} 
+              />
             ))}
           </View>
         </View>
@@ -209,6 +259,13 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* --- CUSTOM TOAST --- */}
+      {toastMessage && (
+        <Animated.View style={[styles.toastContainer, toastStyle]}>
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </Animated.View>
+      )}
 
     </View>
   );
@@ -277,5 +334,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 16,
+  },
+
+  // --- STYLES CHO CUSTOM TOAST ---
+  toastContainer: {
+    position: 'absolute',
+    bottom: 120, // Hiển thị phía trên Bottom Tab bar
+    alignSelf: 'center',
+    backgroundColor: '#1E293B', // Màu xám đậm sang trọng
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30, // Dạng viên thuốc (pill)
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
+    zIndex: 9999, // Ưu tiên cao nhất
+  },
+  toastText: {
+    color: '#FFFFFF',
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    textAlign: 'center',
   }
 });

@@ -29,7 +29,7 @@ const ProfileHeader = () => {
       <View style={styles.infoWrapper}>
         <View style={styles.avatarContainer}>
           <Image 
-            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/4140/4140048.png' }} // Placeholder Avatar
+            source={require('../assets/images/avatar/Ellipse 2.png')} // Placeholder Avatar
             style={styles.avatar}
             contentFit="cover"
           />

@@ -8,13 +8,18 @@ import {
   Image 
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ClockCounterClockwiseIcon, UsersIcon } from 'phosphor-react-native';
+import { 
+  ClockCounterClockwiseIcon, 
+  UsersIcon
+} from 'phosphor-react-native';
 
 // Import Design System
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../constants/GlobalStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../components/ScreenHeader';
 import TopicItem from '../../../components/TopicItem';
+import ExamCard, { Exam } from '../../../components/ExamComponent/ExamCard';
+import SectionHeader from '../../../components/SectionHeader';
 
 // --- MOCK DATA ---
 interface WritingTopic {
@@ -58,11 +63,26 @@ const writingTopics: WritingTopic[] = [
   },
 ];
 
-// --- COMPONENTS CON ---
+// --- MOCK DATA FOR READING/LISTENING ---
+const mockReadingExams: Exam[] = [
+  { id: 'r96', title: '제96회 한국어능력시험', edition: 96, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 70 },
+  { id: 'r95', title: '제95회 한국어능력시험', edition: 95, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 70 },
+  { id: 'r94', title: '제94회 한국어능력시험', edition: 94, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
+  { id: 'r93', title: '제93회 한국어능력시험', edition: 93, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
+  { id: 'r92', title: '제92회 한국어능력시험', edition: 92, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
+  { id: 'r91', title: '제91회 한국어능력시험', edition: 91, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
+];
 
-const SectionHeader = ({ title }: { title: string }) => (
-  <Text style={styles.sectionHeader}>{title}</Text>
-);
+const mockListeningExams: Exam[] = [
+  { id: 'l96', title: '제96회 한국어능력시험', edition: 96, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 60 },
+  { id: 'l95', title: '제95회 한국어능력시험', edition: 95, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 60 },
+  { id: 'l94', title: '제94회 한국어능력시험', edition: 94, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
+  { id: 'l93', title: '제93회 한국어능력시험', edition: 93, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
+  { id: 'l92', title: '제92회 한국어능력시험', edition: 92, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
+  { id: 'l91', title: '제91회 한국어능력시험', edition: 91, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
+];
+
+// --- COMPONENTS CON ---
 
 const FeaturedCard = ({ topic, onPress }: { topic: WritingTopic; onPress: () => void }) => (
   <View style={styles.featuredContainer}>
@@ -84,22 +104,68 @@ const FeaturedCard = ({ topic, onPress }: { topic: WritingTopic; onPress: () => 
   </View>
 );
 
-
-// --- MÀN HÌNH CHÍNH ---
-
-export default function PracticeListScreen() {
+// --- VIEW CHO READING / LISTENING (Giống mock-exam nhưng không có Zenmode) ---
+const ReadingListeningView = ({ type }: { type: string }) => {
   const router = useRouter();
-  const { type } = useLocalSearchParams(); // Có thể dùng để xác định loại practice (writing, speaking...)
+  const isReading = type === 'reading';
+  const exams = isReading ? mockReadingExams : mockListeningExams;
+  const title = isReading ? 'Luyện đọc' : 'Luyện nghe';
+
+  const featuredExams = exams.filter(e => e.isFeatured);
+  const otherExams = exams.filter(e => !e.isFeatured);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader 
+        title={title} 
+        rightContent={
+          <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
+            <ClockCounterClockwiseIcon size={24} color={Color.text} weight="bold" />
+          </Pressable>
+        }
+      />
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Featured Exams Section */}
+        {featuredExams.length > 0 && (
+          <>
+            <SectionHeader title="Đề nổi bật" />
+            <View style={styles.listContainer}>
+              {featuredExams.map(exam => (
+                <ExamCard key={exam.id} exam={exam} onPress={() => router.push({ pathname: `/practice/${type}/${exam.id}/practice` as any })} />
+              ))}
+            </View>
+          </>
+        )}
+
+        {/* Other Exams Section */}
+        {otherExams.length > 0 && (
+          <>
+            <SectionHeader title="Các đề khác" />
+            <View style={styles.gridContainer}>
+              {otherExams.map(exam => (
+                <View key={exam.id} style={styles.gridItem}>
+                  <ExamCard exam={exam} onPress={() => router.push({ pathname: `/practice/${type}/${exam.id}/practice` as any })} />
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// --- VIEW CHO WRITING / SPEAKING (Giữ nguyên hiện tại) ---
+const WritingSpeakingView = ({ type }: { type: string }) => {
+  const router = useRouter();
 
   // Lọc dữ liệu
   const featuredTopic = writingTopics.find(t => t.isFeatured);
   const otherTopics = writingTopics.filter(t => !t.isFeatured);
 
   const handlePressTopic = (id: string) => {
-    // Điều hướng theo yêu cầu: /writing/practice (Hoặc đường dẫn tùy chỉnh của dự án)
-    router.push({ pathname: '/lessons/[lessonId]/writing/practice' as any, params: { lessonId: id } });
-    // Note: Nếu route của bạn chính xác là /writing/practice như mô tả, hãy sửa lại thành:
-    // router.push({ pathname: '/writing/practice' as any, params: { id } });
+    // Điều hướng sang màn hình làm bài tự do, không còn phụ thuộc vào 'lessons'
+    router.push({ pathname: `/practice/${type}/${id}/practice` as any });
   };
 
   return (
@@ -147,6 +213,20 @@ export default function PracticeListScreen() {
   );
 }
 
+// --- MÀN HÌNH CHÍNH (ĐIỀU HƯỚNG THEO TYPE) ---
+export default function PracticeListScreen() {
+  const { type } = useLocalSearchParams(); 
+  const typeString = (type as string) || 'writing';
+
+  const isReadingOrListening = typeString === 'reading' || typeString === 'listening';
+
+  if (isReadingOrListening) {
+    return <ReadingListeningView type={typeString} />;
+  }
+
+  return <WritingSpeakingView type={typeString} />;
+}
+
 // --- STYLES ---
 
 const styles = StyleSheet.create({
@@ -165,12 +245,6 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: Gap.gap_20,
   },
-  sectionHeader: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 || 16,
-    color: Color.gray,
-    marginBottom: Gap.gap_20,
-  },
 
   // --- Featured Card Styles ---
   featuredContainer: {
@@ -183,7 +257,7 @@ const styles = StyleSheet.create({
     padding: Padding.padding_15,
     alignItems: 'center',
     // Shadow nhẹ
-    shadowColor: Color.colorBlack,
+    shadowColor: Color.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
@@ -225,5 +299,14 @@ const styles = StyleSheet.create({
   // --- Topic Item Styles ---
   listContainer: {
     gap: Gap.gap_12,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -(Gap.gap_10 / 2),
+  },
+  gridItem: {
+    width: '50%',
+    padding: Gap.gap_10 / 2,
   },
 });

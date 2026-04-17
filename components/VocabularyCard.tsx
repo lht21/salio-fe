@@ -1,6 +1,7 @@
 import { BookmarkSimpleIcon, SpeakerSimpleHighIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+import { MotiView } from 'moti';
+import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '../constants/GlobalStyles';
 
 interface Props {
   item: {
@@ -12,9 +13,11 @@ interface Props {
     isFavorite?: boolean;
   };
   onToggleFavorite?: () => void;
+  rightAction?: React.ReactNode;
+  isSelected?: boolean;
 }
 
-const VocabularyCard = ({ item, onToggleFavorite }: Props) => {
+const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected }: Props) => {
   const getBadgeColor = (pos: string) => {
     if (pos === 'Danh từ') return { bg: '#DCFCE7', text: '#15803D' };
     if (pos === 'Động từ') return { bg: '#F3E8FF', text: '#7E22CE' };
@@ -24,7 +27,14 @@ const VocabularyCard = ({ item, onToggleFavorite }: Props) => {
   const badge = getBadgeColor(item.pos);
 
   return (
-    <View style={styles.card}>
+    <MotiView
+      style={styles.card}
+      animate={{
+        backgroundColor: isSelected ? '#F0FDF4' : (Color.bg || '#FFFFFF'),
+        borderColor: isSelected ? (Color.colorLimegreen || '#22C55E') : (Color.stroke || '#E2E8F0'),
+      }}
+      transition={{ type: 'timing', duration: 200 }}
+    >
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.word}>{item.word}</Text>
@@ -40,19 +50,21 @@ const VocabularyCard = ({ item, onToggleFavorite }: Props) => {
         <TouchableOpacity>
           <SpeakerSimpleHighIcon size={24} color={Color.text} weight="regular" />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onToggleFavorite}
-          style={styles.favoriteButton}
-          activeOpacity={0.85}
-        >
-          <BookmarkSimpleIcon
-            size={24}
-            color={item.isFavorite ? (Color.colorLimegreen || '#22C55E') : Color.text}
-            weight={item.isFavorite ? 'fill' : 'regular'}
-          />
-        </TouchableOpacity>
+        {rightAction ?? (
+          <TouchableOpacity
+            onPress={onToggleFavorite}
+            style={styles.favoriteButton}
+            activeOpacity={0.85}
+          >
+            <BookmarkSimpleIcon
+              size={24}
+              color={item.isFavorite ? (Color.colorLimegreen || '#22C55E') : Color.text}
+              weight={item.isFavorite ? 'fill' : 'regular'}
+            />
+          </TouchableOpacity>
+        )}
       </View>
-    </View>
+    </MotiView>
   );
 };
 
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     backgroundColor: Color.bg,
-    borderWidth: 1,
+    borderWidth: Stroke.stroke,
     borderColor: Color.stroke,
     borderRadius: Border.br_20,
     padding: Padding.padding_15,

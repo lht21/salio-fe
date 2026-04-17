@@ -1,4 +1,5 @@
-import { PlusIcon } from 'phosphor-react-native';
+import { AnimatePresence, MotiView } from 'moti';
+import { CheckIcon, PlusIcon } from 'phosphor-react-native';
 import { useState } from 'react';
 import {
     ScrollView,
@@ -10,6 +11,7 @@ import {
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import { ALL_NOTEBOOKS } from '../../constants/mockVocabularyNotebook';
 import { CustomInput } from '../CustomInput';
+import VocabularyCard from '../VocabularyCard';
 import SearchBar from '../SearchBar';
 import VocabularySheetModal from './VocabularySheetModal';
 
@@ -114,12 +116,6 @@ export default function NewFlashCardSetModal({
         }
     };
 
-    const getBadgeColor = (pos: string) => {
-        if (pos === 'Danh từ') return { bg: '#DCFCE7', text: '#15803D' };
-        if (pos === 'Động từ') return { bg: '#F3E8FF', text: '#7E22CE' };
-        return { bg: '#FFEDD5', text: '#C2410C' };
-    };
-
     return (
         <VocabularySheetModal
             visible={isVisible}
@@ -163,48 +159,40 @@ export default function NewFlashCardSetModal({
                 <View style={styles.section}>
                     {filteredVocabulary.length > 0 ? (
                         filteredVocabulary.map((item) => {
-                            const badge = getBadgeColor(item.pos);
                             const isSelected = selectedWords.has(item.id);
 
                             return (
-                                <View key={item.id} style={styles.vocabularyItem}>
-                                    <View style={styles.vocabularyContent}>
-                                        <View style={styles.vocabularyHeader}>
-                                            <Text style={styles.word}>{item.word}</Text>
-                                            <View
-                                                style={[
-                                                    styles.badge,
-                                                    { backgroundColor: badge.bg },
-                                                ]}
+                                <VocabularyCard
+                                    key={item.id}
+                                    item={item}
+                                    isSelected={isSelected}
+                                    rightAction={
+                                        <TouchableOpacity
+                                            onPress={() => toggleWordSelection(item.id)}
+                                        >
+                                            <MotiView
+                                                style={styles.addButton}
+                                                animate={{
+                                                    backgroundColor: isSelected ? '#F0FDF4' : (Color.bg || '#FFFFFF'),
+                                                    borderColor: isSelected ? (Color.colorLimegreen || '#22C55E') : (Color.stroke || '#E2E8F0'),
+                                                }}
+                                                transition={{ type: 'timing', duration: 200 }}
                                             >
-                                                <Text
-                                                    style={[
-                                                        styles.badgeText,
-                                                        { color: badge.text },
-                                                    ]}
-                                                >
-                                                    {item.pos}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                        <Text style={styles.phonetic}>{item.phonetic}</Text>
-                                        <Text style={styles.meaning}>{item.meaning}</Text>
-                                    </View>
-
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.addButton,
-                                            isSelected && styles.addButtonSelected,
-                                        ]}
-                                        onPress={() => toggleWordSelection(item.id)}
-                                    >
-                                        <PlusIcon
-                                            size={16}
-                                            color={isSelected ? Color.colorLimegreen : Color.text}
-                                            weight="bold"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
+                                                <AnimatePresence exitBeforeEnter>
+                                                    {isSelected ? (
+                                                        <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
+                                                            <CheckIcon size={16} color={Color.colorLimegreen} weight="bold" />
+                                                        </MotiView>
+                                                    ) : (
+                                                        <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
+                                                            <PlusIcon size={16} color={Color.text} weight="bold" />
+                                                        </MotiView>
+                                                    )}
+                                                </AnimatePresence>
+                                            </MotiView>
+                                        </TouchableOpacity>
+                                    }
+                                />
                             );
                         })
                     ) : (
@@ -246,51 +234,6 @@ const styles = StyleSheet.create({
         color: Color.colorDarkgray,
         marginBottom: Gap.gap_12 || 12,
     },
-    vocabularyItem: {
-        flexDirection: 'row',
-        backgroundColor: Color.bg,
-        borderWidth: 1,
-        borderColor: Color.stroke,
-        borderRadius: Border.br_20,
-        padding: Padding.padding_15,
-        marginBottom: Gap.gap_12 || 12,
-        alignItems: 'center',
-    },
-    vocabularyContent: {
-        flex: 1,
-        marginRight: Gap.gap_12 || 12,
-    },
-    vocabularyHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_10 || 10,
-        marginBottom: 4,
-    },
-    word: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16 || 16,
-        color: Color.text,
-    },
-    badge: {
-        paddingHorizontal: Padding.padding_8 || 8,
-        paddingVertical: Padding.padding_2 || 2,
-        borderRadius: Border.br_5,
-    },
-    badgeText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 10,
-    },
-    phonetic: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: Color.colorDarkgray,
-        marginBottom: 2,
-    },
-    meaning: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: Color.color,
-    },
     addButton: {
         width: 24,
         height: 24,
@@ -300,10 +243,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: Color.bg,
-    },
-    addButtonSelected: {
-        backgroundColor: '#F0FDF4',
-        borderColor: Color.colorLimegreen,
     },
     emptyText: {
         fontFamily: FontFamily.lexendDecaRegular,

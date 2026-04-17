@@ -1,64 +1,151 @@
+import React, { useEffect } from 'react';
 import { CardsIcon, ListChecksIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedProps,
+  interpolateColor,
+  withRepeat, 
+  withTiming, 
+  Easing 
+} from 'react-native-reanimated';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 interface FlashcardSetCardProps {
   title: string;
   totalWords: number;
   backgroundColor?: string;
   onPress?: () => void;
+  isSpecial?: boolean; // Tái sử dụng cho bộ Từ vựng yêu thích
 }
 
-const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress }: FlashcardSetCardProps) => {
-  return (
-    <TouchableOpacity
-      style={[styles.container, backgroundColor ? { backgroundColor } : null]}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.subtitleRow}>
-        <Text style={styles.subtitle}>Bạn đã lưu </Text>
-        <Text style={styles.countText}>{totalWords}</Text>
-        <Text style={styles.subtitle}> từ vựng</Text>
+const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpecial }: FlashcardSetCardProps) => {
+  const colorProgress = useSharedValue(0);
+
+  // Hiệu ứng lặp vô hạn cho gradient giống HeaderSection
+  useEffect(() => {
+    if (isSpecial) {
+      colorProgress.value = withRepeat(
+        withTiming(1, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
+        -1, // Lặp vô hạn
+        true // Đảo ngược từ 1 về 0
+      );
+    }
+  }, [isSpecial]);
+
+  const animatedGradientProps = useAnimatedProps(() => {
+    if (!isSpecial) return { colors: ['transparent', 'transparent'] } as any;
+    
+    return {
+      colors: [
+        interpolateColor(colorProgress.value, [0, 1], ['#CEF9B4', '#E6FFD1']),
+        interpolateColor(colorProgress.value, [0, 1], [Color.main || '#98F291', '#5DE367']),
+      ]
+    } as any;
+  }, [isSpecial]);
+
+  const content = (
+    <>
+      <View style={styles.topRow}>
+        {isSpecial && (
+          <Image 
+            source={require('../assets/images/horani/horani_vocab.png')} 
+            style={styles.mascotImage}
+            contentFit="contain"
+          />
+        )}
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>{title}</Text>
+          <View style={styles.subtitleRow}>
+            <Text style={styles.subtitle}>Bạn đã lưu </Text>
+            <Text style={styles.countText}>{totalWords}</Text>
+            <Text style={styles.subtitle}> từ vựng</Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]}>
           <CardsIcon size={20} color={Color.bg} weight="fill" />
-          <Text
-            style={styles.buttonText}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.85}
-          >
-            Chế độ Flashcard
-          </Text>
+          {isSpecial && (
+            <Text
+              style={styles.buttonText}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
+              Chế độ Flashcard
+            </Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]}>
           <ListChecksIcon size={20} color={Color.bg} weight="bold" />
-          <Text
-            style={styles.buttonText}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.85}
-          >
-            Chế độ Trắc nghiệm
-          </Text>
+          {isSpecial && (
+            <Text
+              style={styles.buttonText}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
+              Chế độ Trắc nghiệm
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
+    </>
+  );
+
+  return (
+    <TouchableOpacity
+      style={styles.cardWrapper}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      {isSpecial ? (
+        <AnimatedLinearGradient
+          colors={['#CEF9B4', Color.main || '#98F291']} // Thêm màu mặc định để fix lỗi TypeScript
+          animatedProps={animatedGradientProps}
+          style={styles.container}
+        >
+          {content}
+        </AnimatedLinearGradient>
+      ) : (
+        <View style={[styles.container, backgroundColor ? { backgroundColor } : null]}>
+          {content}
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Color.vang,
-    borderRadius: Border.br_20,
-    padding: Padding.padding_15 || 15,
+  cardWrapper: {
     marginBottom: 24,
-    width: 300, // Thêm chiều rộng cố định để các thẻ hiển thị đẹp khi trượt ngang
+    width: 300,
+  },
+  container: {
+    flex: 1,
+    borderRadius: Border.br_30,
+    padding: Padding.padding_15 || 15,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+  },
+  mascotImage: {
+    width: 80,
+    height: 80,
+    marginRight: Gap.gap_15,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
@@ -69,7 +156,6 @@ const styles = StyleSheet.create({
   subtitleRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: Gap.gap_20,
   },
   subtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
@@ -89,13 +175,20 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     flexDirection: 'row',
-    backgroundColor: Color.colorDarkslategray300 || '#2D2D2D',
+    backgroundColor: Color.text || '#2D2D2D',
     borderRadius: Border.br_15,
     paddingHorizontal: Padding.padding_10 || 10,
     paddingVertical: Padding.padding_11,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Gap.gap_5,
+  },
+  iconOnlyButton: {
+    flex: 0, // Bỏ flex giãn đều để nút thu nhỏ lại theo kích thước cố định
+    width: 44,
+    height: 44,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   buttonText: {
     flexShrink: 1,

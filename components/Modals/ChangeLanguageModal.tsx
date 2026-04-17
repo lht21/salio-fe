@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Modal } from 'react-native';
 
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
-import SettingsSheetModal from './SettingsClassicSheetModal';
+import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import CloseButton from '../CloseButton';
 
 export type LanguageMode = 'vi' | 'en' | 'ko';
 
@@ -29,47 +29,64 @@ const ChangeLanguageModal = ({
   onClose,
 }: ChangeLanguageModalProps) => {
   return (
-    <SettingsSheetModal
+    <Modal
       visible={visible}
-      title="Ngôn ngữ"
-      onClose={onClose}
-      edgeToBottom
-      maxHeight="100%"
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
     >
-      <View style={styles.body}>
-        {LANGUAGE_OPTIONS.map((option, index) => {
-          const isActive = option.value === language;
+      <View style={styles.overlay}>
+        <Pressable style={styles.backgroundTouchable} onPress={onClose} />
+        <View style={styles.sheetContent}>
+          <View style={styles.dragHandle} />
 
-          return (
-            <Pressable
-              key={option.value}
-              style={[
-                styles.optionCard,
-                isActive && styles.optionCardActive,
-                index === LANGUAGE_OPTIONS.length - 1 && styles.optionCardLast,
-              ]}
-              onPress={() => onSelectLanguage(option.value)}
-              accessibilityRole="button"
-              accessibilityLabel={option.label}
-            >
-              <View style={styles.optionContent}>
-                <View style={styles.flagBadge}>
-                  <Text style={styles.flagText}>{option.flag}</Text>
-                </View>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Ngôn ngữ</Text>
+            <CloseButton variant="Stroke" onPress={onClose} />
+          </View>
 
-                <Text style={styles.optionLabel}>{option.label}</Text>
-              </View>
+          <View style={styles.body}>
+            {LANGUAGE_OPTIONS.map((option, index) => {
+              const isActive = option.value === language;
 
-              {isActive ? <View style={styles.activeAccent} /> : null}
-            </Pressable>
-          );
-        })}
+              return (
+                <Pressable
+                  key={option.value}
+                  style={[
+                    styles.optionCard,
+                    isActive && styles.optionCardActive,
+                    index === LANGUAGE_OPTIONS.length - 1 && styles.optionCardLast,
+                  ]}
+                  onPress={() => onSelectLanguage(option.value)}
+                  accessibilityRole="button"
+                  accessibilityLabel={option.label}
+                >
+                  <View style={styles.optionContent}>
+                    <View style={styles.flagBadge}>
+                      <Text style={styles.flagText}>{option.flag}</Text>
+                    </View>
+
+                    <Text style={styles.optionLabel}>{option.label}</Text>
+                  </View>
+
+                  {isActive ? <View style={styles.activeAccent} /> : null}
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
       </View>
-    </SettingsSheetModal>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+  sheetContent: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
+  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
   body: {
     minHeight: 288,
     paddingBottom: 4,

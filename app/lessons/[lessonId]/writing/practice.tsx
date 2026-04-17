@@ -64,7 +64,7 @@ export default function WritingPracticeScreen() {
     Keyboard.dismiss();
     // Nếu chưa làm bài, có thể thoát thẳng không cần hỏi
     if (!isStarted || text.length === 0) {
-      router.replace('/(tabs)');
+      router.back();
     } else {
       // Đã làm bài thì hiện popup cảnh báo mất dữ liệu
       setShowExitConfirm(true); 
@@ -79,7 +79,7 @@ export default function WritingPracticeScreen() {
   // --- HANDLERS CHO HÀNH ĐỘNG THỰC SỰ (XÁC NHẬN) ---
   const confirmExit = () => {
     setShowExitConfirm(false);
-    router.replace('/(tabs)');
+    router.back();
   };
 
   const confirmSubmit = async () => {

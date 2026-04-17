@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { MagnifyingGlassIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border } from '../constants/GlobalStyles';
 
@@ -7,11 +7,12 @@ interface SearchBarProps {
   placeholder?: string;
   value?: string;
   onChangeText?: (text: string) => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const SearchBar = ({ placeholder = "Tìm trong Từ vựng yêu thích", value, onChangeText }: SearchBarProps) => {
+const SearchBar = ({ placeholder = "Tìm trong Từ vựng yêu thích", value, onChangeText, containerStyle }: SearchBarProps) => {
   return (
-    <View style={styles.searchContainer}>
+    <View style={[styles.searchContainer, containerStyle]}>
       <MagnifyingGlassIcon size={20} color={Color.gray || '#64748B'} />
       <TextInput
         style={styles.searchInput}

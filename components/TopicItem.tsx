@@ -14,10 +14,15 @@ export interface TopicItemData {
 interface TopicItemProps {
   topic: TopicItemData;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
-const TopicItem = ({ topic, onPress }: TopicItemProps) => (
-  <Pressable style={styles.topicItemCard} onPress={onPress}>
+const TopicItem = ({ topic, onPress, onLongPress }: TopicItemProps) => (
+  <Pressable 
+    style={styles.topicItemCard} 
+    onPress={onPress} 
+    onLongPress={onLongPress}
+  >
     <Image source={topic.image} style={styles.topicItemImage} resizeMode="cover" />
     <View style={styles.topicItemTextContent}>
       <Text style={styles.topicItemTitle} numberOfLines={1}>{topic.title}</Text>
@@ -46,7 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: Color.bg,
     borderRadius: Border.br_20,
     padding: Padding.padding_15,
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: Color.stroke,
     alignItems: 'center',
   },

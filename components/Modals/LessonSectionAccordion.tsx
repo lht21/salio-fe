@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
 import { BookmarkSimpleIcon, CaretDownIcon, CaretUpIcon, CheckCircleIcon } from 'phosphor-react-native';
 
-import { Border, Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
+import { Border, Color, FontFamily, FontSize, Gap, Stroke } from '../../constants/GlobalStyles';
 
 export type LessonSectionDetailItem = {
   id: string;
@@ -187,8 +187,8 @@ const LessonSectionAccordion = ({
 const styles = StyleSheet.create({
   card: {
     borderRadius: 22,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderWidth: Stroke.stroke,
+    borderColor: Color.stroke,
     padding: 16,
     gap: Gap.gap_10,
   },
@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: Color.text,
     alignItems: 'center',
     justifyContent: 'center',
   },

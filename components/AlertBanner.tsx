@@ -1,22 +1,51 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { Color, FontFamily, Border, Padding, FontSize } from '../constants/GlobalStyles';
 import Button from './Button'; // Component Button bạn đã có
 
-const AlertBanner = () => {
+interface AlertBannerProps {
+  text?: string;
+  buttonTitle?: string;
+  onPress?: () => void;
+}
+
+const AlertBanner = ({ 
+  text = "Bạn đã đạt 215 điểm Topik thi thử. Kiểm tra ngay để chuyển đổi Trình độ học tập hiện tại", 
+  buttonTitle = "Kiểm tra", 
+  onPress 
+}: AlertBannerProps) => {
+  const opacity = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+      transform: [{ scale: opacity.value }] // Thêm scale nhẹ cho hiệu ứng đẹp hơn
+    };
+  });
+
+  const handlePress = () => {
+    if (onPress) {
+      // Chạy animation mờ dần trong 300ms
+      opacity.value = withTiming(0, { duration: 300 }, (finished) => {
+        // Gọi hàm onPress của màn hình cha trên JS thread sau khi animation kết thúc
+        if (finished) runOnJS(onPress)();
+      });
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        Bạn đã đạt 215 điểm Topik thi thử. Kiểm tra ngay để chuyển đổi Trình độ học tập hiện tại
-      </Text>
+    <Animated.View style={[styles.container, animatedStyle]}>
+      <Text style={styles.text}>{text}</Text>
       <View style={styles.btnWrapper}>
         <Button 
-          variant="Orange" // Orange có chữ màu trắng (Color.bg)
-          title="Kiểm tra"
+          variant="Black"
+          title={buttonTitle}
           style={styles.customBtn}
+          onPress={onPress ? handlePress : undefined}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -43,7 +72,6 @@ const styles = StyleSheet.create({
     width: 90,
   },
   customBtn: {
-    backgroundColor: '#1E1E1E', // Ghi đè nền đen
     height: 36,
     paddingHorizontal: 10,
     marginVertical: 0,

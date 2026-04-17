@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { X } from "phosphor-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   Dimensions,
@@ -16,6 +15,7 @@ import AnswerResultBottomSheet, {
   BottomSheetVariant
 } from "../../components/Modals/AnswerResultBottomSheet";
 import SectionIntroDialog from "../../components/Modals/SectionIntroDialog";
+import QuizHeader from "../../components/Modals/Question/QuizHeader";
 import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
 
 const { width } = Dimensions.get("window");
@@ -266,29 +266,12 @@ export default function PlacementTestExam() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.progressBadge}>
-          <Text style={styles.progressBadgeText}>
-            {sectionData.num}/{sectionData.total}
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.closeButton}
-        >
-          <X size={24} color={Color.gray || "#64748B"} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.progressBarBackground}>
-        <View
-          style={[
-            styles.progressBarFill,
-            { width: `${sectionData.progress * 100}%` }
-          ]}
-        />
-      </View>
+      <QuizHeader
+        current={sectionData.num}
+        total={sectionData.total}
+        incorrectCount={0}
+        onClose={() => router.back()}
+      />
 
       <View style={styles.content}>{renderQuestionForm()}</View>
 
@@ -296,6 +279,7 @@ export default function PlacementTestExam() {
         visible={showResultSheet}
         variant={resultVariant}
         onNext={handleNextQuestion}
+        onCancel={() => setShowResultSheet(false)}
         buttonText={
           sectionData.isLast
             ? "Chốt, chuyển sang phần tiếp theo"
@@ -315,37 +299,5 @@ export default function PlacementTestExam() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15
-  },
-  progressBadge: {
-    backgroundColor: "#98F291",
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    borderRadius: 20
-  },
-  progressBadgeText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 || 16,
-    color: "#FFFFFF"
-  },
-  closeButton: { backgroundColor: "#E6E9F0", padding: 8, borderRadius: 25 },
-  progressBarBackground: {
-    height: 10,
-    backgroundColor: "#64748B40",
-    borderRadius: 5,
-    marginHorizontal: 20,
-    overflow: "hidden",
-    marginBottom: 40
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#98F291",
-    borderRadius: 5
-  },
-  content: { flex: 1, paddingHorizontal: 30 }
+  content: { flex: 1, paddingHorizontal: 30, paddingTop: 25 }
 });

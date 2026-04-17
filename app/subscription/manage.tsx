@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -56,7 +56,14 @@ export default function ManageSubscriptionScreen() {
              ========================================= */
           <>
             {/* 1. Active Plan Card */}
-            <View style={styles.activePlanCard}>
+            <ImageBackground 
+              source={require('../../assets/images/horani/smt_bg.png')} 
+              style={styles.activePlanCard}
+              imageStyle={{ borderRadius: Border.br_30 || 30 }}
+            >
+              {/* Lớp phủ mờ để tăng độ tương phản cho chữ */}
+              <View style={styles.cardOverlay} />
+
               <Text style={styles.planTitle}>Salio Master TOPIK</Text>
               
               <View style={styles.statusRow}>
@@ -67,7 +74,7 @@ export default function ManageSubscriptionScreen() {
               <Text style={styles.billingCycleText}>
                 Chu kỳ thanh toán tiếp theo: 20/12/2025
               </Text>
-            </View>
+            </ImageBackground>
 
             {/* 2. History Button */}
             <TouchableOpacity 
@@ -158,13 +165,12 @@ export default function ManageSubscriptionScreen() {
       {/* --- FOOTER: Action Button (Chỉ hiện khi có gói) --- */}
       {hasActiveSubscription && (
         <View style={styles.footer}>
-          <TouchableOpacity 
-            style={styles.cancelButton} 
-            activeOpacity={0.8}
+          <Button 
+            title="Hủy tự động gia hạn" 
+            variant="Red"
             onPress={handleCancelSubscription}
-          >
-            <Text style={styles.cancelButtonText}>Hủy tự động gia hạn</Text>
-          </TouchableOpacity>
+            style={styles.cancelButton} // Chỉ giữ lại style này để ghi đè chiều cao và bo góc
+          />
         </View>
       )}
 
@@ -193,16 +199,21 @@ const styles = StyleSheet.create({
 
   // --- ACTIVE PLAN CARD ---
   activePlanCard: {
-    backgroundColor: Color.vang, // Vàng chanh nhạt mô phỏng theo thiết kế
     borderRadius: Border.br_30, // Bo góc lớn
     padding: 24,
     marginBottom: Gap.gap_20,
     marginTop: Gap.gap_20,
+    overflow: 'hidden', // Đảm bảo lớp phủ không tràn ra ngoài viền bo góc
+  },
+  cardOverlay: {
+    ...StyleSheet.absoluteFillObject, // Trải đầy component cha
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Màu đen mờ 40%
+    borderRadius: Border.br_30, // Đảm bảo lớp phủ cũng được bo góc
   },
   planTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_24,
-    color: Color.color, // Xanh lá đậm
+    color: Color.bg, // Đổi thành màu trắng để nổi bật trên nền tối
   },
   statusRow: {
     flexDirection: 'row',
@@ -220,12 +231,13 @@ const styles = StyleSheet.create({
   statusText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.color,
+    color: Color.bg, // Đổi thành màu trắng
   },
   billingCycleText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: Color.gray, // Xám nhạt
+    color: Color.bg, // Đổi thành màu trắng
+    opacity: 0.8, // Giảm độ sáng một chút để phân cấp thông tin
   },
 
   // --- HISTORY BUTTON ---
@@ -286,16 +298,9 @@ const styles = StyleSheet.create({
     backgroundColor: Color.bg,
   },
   cancelButton: {
-    backgroundColor: Color.red, // Nút đỏ rực cảnh báo
-    paddingVertical: 16,
-    borderRadius: 100, // Bo tròn mạnh
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelButtonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.bg, // Text trắng trên nền đỏ
+    // Ghi đè lại style của baseButton để có chiều cao và bo góc mong muốn
+    height: 56,
+    borderRadius: 20, // Bo tròn mạnh
   },
 
   // --- EMPTY STATE STYLES ---

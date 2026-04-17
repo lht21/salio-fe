@@ -29,13 +29,16 @@ import ChangeDisplayModeModal, {
 import ChangeLanguageModal, {
   LanguageMode,
 } from '@/components/Modals/ChangeLanguageModal';
-import LogoutConfirmModal from '@/components/Modals/LogoutConfirmModal';
+import { ConfirmModal } from '@/components/ModalResult/ConfirmModal';
 import ChangePasswordModal from '@/components/Modals/ChangePasswordModal';
 import ChangeUserNameModal from '@/components/Modals/ChangeUserNameModal';
+import EmailSettingsModal from '@/components/Modals/EmailSettingsModal';
+import ChangeVoiceModal, { VoiceType } from '@/components/Modals/ChangeVoiceModal';
+import ChangeReminderModal, { ReminderType } from '@/components/Modals/ChangeReminderModal';
 import { SettingsRow } from '@/components/SettingsRow';
 import ScreenHeader from '@/components/ScreenHeader';
 import { AVATAR_PRESETS, AvatarPreset } from '@/constants/avatarPresets';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '@/constants/GlobalStyles';
+import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '@/constants/GlobalStyles';
 
 const LANGUAGE_LABELS: Record<LanguageMode, string> = {
   vi: 'Tiếng Việt',
@@ -51,12 +54,18 @@ export default function SettingsScreen() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('light');
   const [language, setLanguage] = useState<LanguageMode>('vi');
   const [userName, setUserName] = useState('tranlehuy');
+  const [voice, setVoice] = useState<VoiceType>('male');
+  const [reminder, setReminder] = useState<ReminderType>('none');
+
   const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
   const [isDisplayModeModalVisible, setDisplayModeModalVisible] = useState(false);
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
   const [isUserNameModalVisible, setUserNameModalVisible] = useState(false);
+  const [isEmailModalVisible, setEmailModalVisible] = useState(false);
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [isVoiceModalVisible, setVoiceModalVisible] = useState(false);
+  const [isReminderModalVisible, setReminderModalVisible] = useState(false);
 
   const handleConfirmLogout = () => {
     setLogoutModalVisible(false);
@@ -92,8 +101,22 @@ export default function SettingsScreen() {
     setPasswordModalVisible(false);
   };
 
+  const handleSelectVoice = (selectedVoice: VoiceType) => {
+    setVoice(selectedVoice);
+    setVoiceModalVisible(false);
+  };
+
+  const handleSelectReminder = (selectedReminder: ReminderType) => {
+    setReminder(selectedReminder);
+    setReminderModalVisible(false);
+  };
+
   const displayModeLabel = displayMode === 'light' ? 'Sáng' : 'Tối';
   const languageLabel = LANGUAGE_LABELS[language];
+  
+  const VOICE_LABELS: Record<VoiceType, string> = { male: 'Giọng Nam', female: 'Giọng Nữ' };
+  const voiceLabel = VOICE_LABELS[voice];
+  const reminderLabel = reminder === 'none' ? 'Nhắc nhở' : (reminder === 'morning' ? '08:00' : '20:00');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,6 +150,7 @@ export default function SettingsScreen() {
               icon={<EnvelopeSimpleIcon size={24} color={Color.main2} weight="regular" />}
               label="Email"
               value="huyt61933@gmail.com"
+              onPress={() => setEmailModalVisible(true)}
             />
             <SettingsRow
               icon={<PasswordIcon size={24} color={Color.main2} weight="regular" />}
@@ -175,15 +199,23 @@ export default function SettingsScreen() {
               <Text style={styles.gridText}>{languageLabel}</Text>
             </TouchableOpacity>
 
-            <View style={styles.gridItem}>
+            <TouchableOpacity 
+              style={[styles.gridItem, styles.gridItemButton]}
+              activeOpacity={0.8}
+              onPress={() => setReminderModalVisible(true)}
+            >
               <BellIcon size={28} color={Color.cam} weight="fill" />
-              <Text style={styles.gridText}>Nhắc nhở</Text>
-            </View>
+              <Text style={styles.gridText}>{reminderLabel}</Text>
+            </TouchableOpacity>
 
-            <View style={styles.gridItem}>
+            <TouchableOpacity 
+              style={[styles.gridItem, styles.gridItemButton]}
+              activeOpacity={0.8}
+              onPress={() => setVoiceModalVisible(true)}
+            >
               <SpeakerHighIcon size={28} color={Color.cam} weight="fill" />
-              <Text style={styles.gridText}>Giọng Nam</Text>
-            </View>
+              <Text style={styles.gridText}>{voiceLabel}</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -275,14 +307,43 @@ export default function SettingsScreen() {
         onClose={() => setUserNameModalVisible(false)}
       />
 
+      <EmailSettingsModal
+        visible={isEmailModalVisible}
+        email="huyt61933@gmail.com"
+        onClose={() => setEmailModalVisible(false)}
+        onDeleteAccount={() => {
+          console.log('Xóa tài khoản đã được yêu cầu');
+          setEmailModalVisible(false);
+        }}
+      />
+
       <ChangePasswordModal
         visible={isPasswordModalVisible}
         onChangePassword={handleChangePassword}
         onClose={() => setPasswordModalVisible(false)}
       />
 
-      <LogoutConfirmModal
-        visible={isLogoutModalVisible}
+      <ChangeVoiceModal
+        visible={isVoiceModalVisible}
+        voice={voice}
+        onSelectVoice={handleSelectVoice}
+        onClose={() => setVoiceModalVisible(false)}
+      />
+
+      <ChangeReminderModal
+        visible={isReminderModalVisible}
+        reminder={reminder}
+        onSelectReminder={handleSelectReminder}
+        onClose={() => setReminderModalVisible(false)}
+      />
+
+      <ConfirmModal
+        isVisible={isLogoutModalVisible}
+        title="Rời đi rồi à?"
+        subtitle="Bạn sẽ cần đăng nhập lại để tiếp tục học nhé."
+        confirmText="Đăng xuất"
+        cancelText="Tiếp tục học"
+        isDestructive={true}
         onConfirm={handleConfirmLogout}
         onCancel={() => setLogoutModalVisible(false)}
       />
@@ -302,7 +363,7 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 20,
     borderColor: Color.stroke,
-    borderWidth: 1,
+    borderWidth: Stroke.stroke,
     borderRadius: Border.br_15,
     padding: Padding.padding_15,
     backgroundColor: Color.bg,

@@ -6,6 +6,7 @@ import { ArrowLeftIcon, ReceiptIcon } from 'phosphor-react-native';
 
 // Constants
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import ScreenHeader from '@/components/ScreenHeader';
 
 // Định nghĩa kiểu dữ liệu cho giao dịch
 type Transaction = {
@@ -90,13 +91,9 @@ export default function PaymentHistoryScreen() {
     <SafeAreaView style={styles.safeArea}>
       
       {/* --- HEADER --- */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Lịch sử thanh toán</Text>
-      </View>
-
+      <ScreenHeader
+        title="Lịch sử thanh toán" />
+       
       {/* --- LIST CONTENT --- */}
       <FlatList
         data={HISTORY_DATA}

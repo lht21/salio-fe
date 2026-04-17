@@ -23,7 +23,7 @@ export default function FinalTestResultScreen() {
       metrics={finalTestMetrics}
       primaryLabel="Quay lại bài học"
       onClose={() => router.replace('/(tabs)' as any)}
-      onPrimaryPress={() => router.replace(`/lessons/${resolvedLessonId}/intro` as any)}
+      onPrimaryPress={() => router.replace(`/(tabs)` as any)}
     />
   );
 }

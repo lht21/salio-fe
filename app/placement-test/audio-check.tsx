@@ -2,16 +2,98 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { SpeakerHigh, Warning } from "phosphor-react-native";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native"; // Thêm ScrollView
+import { useEffect, useRef, useState } from "react";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Audio } from "expo-av";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/Button";
+import CloseButton from "@/components/CloseButton";
 import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
 
 const { width } = Dimensions.get("window");
 
 export default function AudioCheckScreen() {
   const router = useRouter();
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const shakeAnim = useSharedValue(0);
+
+  // Hàm phát âm thanh test
+  const playTestSound = async () => {
+    if (isPlaying) return;
+    try {
+      setIsPlaying(true);
+      // Dọn dẹp âm thanh cũ nếu có
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+      }
+
+      // Phát âm thanh mẫu (URL giả lập, bạn có thể thay bằng link thực tế hoặc file local require('...'))
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { shouldPlay: true }
+      );
+      soundRef.current = sound;
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlaying(false);
+        }
+      });
+    } catch (error) {
+      console.log("Lỗi phát âm thanh test:", error);
+      setIsPlaying(false);
+    }
+  };
+
+  // Hàm xử lý khi nhấn nút bắt đầu kiểm tra
+  const handleStartExam = async () => {
+    if (soundRef.current) {
+      await soundRef.current.stopAsync(); // Dừng âm thanh ngay lập tức
+      setIsPlaying(false); // Dừng animation
+    }
+    router.push("/placement-test/exam"); // Chuyển trang
+  };
+
+  useEffect(() => {
+    playTestSound(); // Tự động phát khi người dùng vừa vào màn hình
+    return () => {
+      if (soundRef.current) soundRef.current.unloadAsync(); // Dọn dẹp bộ nhớ khi thoát
+    };
+  }, []);
+
+  // Xử lý logic Animation rung lắc
+  useEffect(() => {
+    if (isPlaying) {
+      shakeAnim.value = withRepeat(
+        withSequence(
+          withTiming(-4, { duration: 60, easing: Easing.linear }),
+          withTiming(4, { duration: 60, easing: Easing.linear })
+        ),
+        -1, // Lặp vô hạn
+        true // Tự đảo chiều
+      );
+    } else {
+      shakeAnim.value = withTiming(0, { duration: 100 });
+    }
+  }, [isPlaying]);
+
+  const animatedLeftStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${-10 + shakeAnim.value}deg` }],
+  }));
+
+  const animatedRightStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${10 + shakeAnim.value}deg` }],
+  }));
 
   return (
     <LinearGradient
@@ -19,6 +101,11 @@ export default function AudioCheckScreen() {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
+        {/* Header với nút Back */}
+        <View style={styles.header}>
+          <CloseButton onPress={() => router.back()} style={styles.backButton} />
+        </View>
+
         {/* Bọc toàn bộ nội dung trong ScrollView */}
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -27,13 +114,13 @@ export default function AudioCheckScreen() {
           <View style={styles.content}>
             {/* Top Cards Section */}
             <View style={styles.cardsRow}>
-              <View style={[styles.sideCard, styles.cardLeft]}>
+              <Animated.View style={[styles.sideCard, animatedLeftStyle]}>
                 <SpeakerHigh
                   size={40}
-                  color={Color.text || "#1E1E1E"}
+                  color={isPlaying ? (Color.cam || "#FF6B00") : (Color.text || "#1E1E1E")}
                   weight="fill"
                 />
-              </View>
+              </Animated.View>
 
               <View style={styles.middleCard}>
                 <Image
@@ -43,13 +130,13 @@ export default function AudioCheckScreen() {
                 />
               </View>
 
-              <View style={[styles.sideCard, styles.cardRight]}>
+              <Animated.View style={[styles.sideCard, animatedRightStyle]}>
                 <SpeakerHigh
                   size={40}
-                  color={Color.text || "#1E1E1E"}
+                  color={isPlaying ? (Color.cam || "#FF6B00") : (Color.text || "#1E1E1E")}
                   weight="fill"
                 />
-              </View>
+              </Animated.View>
             </View>
 
             {/* Alert Banner */}
@@ -74,15 +161,16 @@ export default function AudioCheckScreen() {
               <Button
                 title="Tôi nghe rõ, Chiến thôi!"
                 variant="Green"
-                onPress={() => router.push("/placement-test/exam")}
+                onPress={handleStartExam}
                 style={styles.primaryButton}
                 textStyle={styles.primaryButtonText}
               />
 
               <Button
-                title="Nghe lại"
+                title={isPlaying ? "Đang phát âm thanh..." : "Nghe lại"}
                 variant="Outline"
-                onPress={() => {}}
+                onPress={playTestSound}
+                disabled={isPlaying}
                 style={styles.secondaryButton}
                 textStyle={styles.secondaryButtonText}
               />
@@ -107,11 +195,22 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 25,
-    paddingTop: 40, // Giảm bớt paddingTop nếu đã có ScrollView
+    paddingTop: 10, // Giảm paddingTop xuống vì đã có header chiếm chỗ
     paddingBottom: 40,
     alignItems: "center"
   },
-  // ... Giữ nguyên các styles còn lại của bạn ...
+  header: {
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    zIndex: 10
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.6)", // Nền trong suốt mờ ảo
+  },
   cardsRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -123,51 +222,49 @@ const styles = StyleSheet.create({
   sideCard: {
     width: 90,
     height: 120,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255, 255, 255, 0.9)", // Nền trong trẻo hòa vào background
     borderRadius: 35,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#E6F4FF",
-    zIndex: 1
-  },
-  cardLeft: {
-    transform: [{ rotate: "-10deg" }]
-  },
-  cardRight: {
-    transform: [{ rotate: "10deg" }]
-  },
-  middleCard: {
-    width: 130,
-    height: 160,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 3,
-    borderColor: "#E6F4FF",
+    borderColor: "rgba(255, 255, 255, 0.5)", // Viền mờ đồng bộ
+    zIndex: 1
+  },
+  middleCard: {
+    width: 150, // Nới rộng thành hình vuông để bo tròn
+    height: 150,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 75, // Bo góc thành hình tròn hoàn hảo (một nửa 150)
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 5,
+    borderColor: "rgba(255, 255, 255, 0.5)", // Viền hào quang
     zIndex: 2,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 15,
     elevation: 5
   },
   mascotImage: {
-    width: 100,
-    height: 100
+    width: 120, // Tăng size mascot tương ứng
+    height: 120
   },
   alertBanner: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 15,
+    paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 35,
-    borderWidth: 2.5,
-    borderColor: "#000000",
+    borderRadius: 25, // Bo góc mềm mại hơn
     width: "100%",
-    gap: 15
+    gap: 15,
+    // Đổi viền đen cứng thành shadow glow màu cam
+    shadowColor: Color.cam || "#FF6B00",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6
   },
   alertTextWrapper: {
     flex: 1
@@ -180,14 +277,15 @@ const styles = StyleSheet.create({
   alertSubtitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 14,
-    color: "#000000"
+    color: Color.text || "#1E1E1E"
   },
   questionText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14 || 14,
+    fontFamily: FontFamily.lexendDecaSemiBold, // In đậm câu hỏi
+    fontSize: FontSize.fs_18 || 18, // Tăng size để thu hút sự chú ý
     color: Color.text || "#1E1E1E",
     textAlign: "center",
-    marginBottom: 30
+    marginBottom: 35,
+    lineHeight: 28
   },
   buttonGroup: {
     width: "100%",

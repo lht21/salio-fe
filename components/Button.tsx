@@ -1,5 +1,6 @@
 import { Pressable, StyleProp, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
 import {
+  Border,
   Color,
   FontFamily,
   FontSize,
@@ -13,7 +14,8 @@ export type ButtonVariant =
   | "Gray"        // Nền xám, chữ xám
   | "GreenBold"   // Nền xanh lá, chữ in đậm
   | "TextOnly"    // Chỉ có chữ cam, không nền
-  | "Red";        // Nền đỏ, chữ trắng (Dùng cho cảnh báo/xóa)
+  | "Red"         // Nền đỏ, chữ trắng (Dùng cho cảnh báo/xóa)
+  | "Black";      // Nền đen, viền xanh lá đậm
 
 export type ButtonType = {
   variant?: ButtonVariant;
@@ -26,7 +28,7 @@ export type ButtonType = {
 
 const Button = ({
   variant = "Green",
-  title = "Tiếp tục: Ngữ pháp (-입니다)",
+  title = "Label",
   onPress,
   style,
   textStyle,
@@ -42,6 +44,7 @@ const Button = ({
       case "GreenBold": return styles.variantGreenBold;
       case "TextOnly": return styles.variantTextOnly;
       case "Red": return styles.variantRed;
+      case "Black": return styles.variantBlack;
       case "Green":
       default: return styles.variantGreen;
     }
@@ -56,6 +59,7 @@ const Button = ({
       case "GreenBold": return styles.textGreenBold;
       case "TextOnly": return styles.textTextOnly;
       case "Red": return styles.textRed;
+      case "Black": return styles.textBlack;
       case "Green":
       default: return styles.textGreen;
     }
@@ -88,7 +92,7 @@ const styles = StyleSheet.create({
   // --- STYLES DÙNG CHUNG ---
   baseButton: {
     height: 47, // Bạn có thể dùng Height.height_47 nếu có
-    borderRadius: 37,
+    borderRadius: Border.br_20 || 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -113,7 +117,10 @@ const styles = StyleSheet.create({
 
   // 1. Green (Mặc định)
   variantGreen: {
-    backgroundColor: Color.main, // Bạn có thể đổi sang Color.main nếu khớp màu
+    backgroundColor: Color.main,
+    borderColor: '#3AB878', // Màu xanh lá đậm hơn cho viền
+    borderBottomWidth: 5,
+    borderLeftWidth:2,// Bạn có thể đổi sang Color.main nếu khớp màu
   },
   textGreen: {
     color: Color.color,
@@ -123,6 +130,10 @@ const styles = StyleSheet.create({
   // 2. Orange
   variantOrange: {
     backgroundColor: Color.cam,
+    borderColor: '#BB5D11', // Màu xanh lá đậm hơn cho viền
+    borderBottomWidth: 5,
+    borderLeftWidth:2,
+
   },
   textOrange: {
     color: Color.bg,
@@ -134,6 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: Color.bg,
     borderWidth: 1.5,
     borderColor: Color.color,
+    borderBottomWidth: 5,
   },
   textOutline: {
     color: Color.color,
@@ -143,6 +155,9 @@ const styles = StyleSheet.create({
   // 4. Gray (Disabled / Phụ)
   variantGray: {
     backgroundColor: Color.stroke,
+    borderColor: Color.gray, // Màu xanh lá đậm hơn cho viền
+    borderBottomWidth: 5,
+    borderLeftWidth:2,
   },
   textGray: {
     color: Color.gray,
@@ -169,10 +184,26 @@ const styles = StyleSheet.create({
 
   // 7. Red (Cảnh báo / Thoát / Xóa)
   variantRed: {
-    backgroundColor: Color.red || "#E53E3E", // Sử dụng Color.red từ GlobalStyles, dự phòng bằng mã màu hex
+    backgroundColor: Color.red || "#E53E3E",
+     borderColor: Color.redDark || "#AB2424", // Màu xanh lá đậm hơn cho viền
+      borderBottomWidth: 5,
+    borderLeftWidth:2,
+
   },
   textRed: {
     color: Color.bg || "#FFFFFF", // Chữ màu trắng/nền để nổi bật trên nền đỏ
+    fontWeight: "500",
+  },
+
+  // 8. Black
+  variantBlack: {
+    backgroundColor: Color.text,
+    borderColor: Color.main || '#3AB878', // Màu xanh lá đậm hơn cho viền
+    borderBottomWidth: 5,
+    borderLeftWidth: 2,
+  },
+  textBlack: {
+    color: "#FFFFFF",
     fontWeight: "500",
   },
 });

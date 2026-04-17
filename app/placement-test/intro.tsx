@@ -125,22 +125,22 @@ const styles = StyleSheet.create({
   mascotHalo: {
     width: 180,
     height: 180,
-    backgroundColor: "#E6F4FF",
-    borderRadius: 60,
+    backgroundColor: "#FFFFFF", // Sửa thành nền trắng để hợp với gradient xanh
+    borderRadius: 90, // Tăng thành 90 (một nửa 180) để ra hình tròn hoàn hảo
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 4,
-    borderColor: "#FFFFFF",
+    borderWidth: 5, // Dày thêm chút cho phần hào quang
+    borderColor: "rgba(255, 255, 255, 0.5)", // Viền nửa trong suốt mượt mà hơn
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 15,
     elevation: 5
   },
   mascotImage: {
-    width: 140,
-    height: 140
+    width: 150,
+    height: 150
   },
   greetingWrapper: {
     width: "100%",
@@ -149,45 +149,46 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 || 16,
+    fontSize: FontSize.fs_20 || 20, // Tăng size cho câu chào mừng nổi bật
     color: Color.text || "#1E1E1E",
     textAlign: "center",
-    lineHeight: 28
+    lineHeight: 30
   },
   highlightText: {
-    color: Color.red || "#A10202",
-    fontFamily: FontFamily.lexendDecaRegular
+    color: Color.cam || "#FF6B00", // Đổi đỏ đậm thành cam cho cùng tone
+    fontFamily: FontFamily.lexendDecaBold
   },
   instructionRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start", // Đẩy icon lên ngang hàng với chữ dòng đầu
     gap: 12,
     marginBottom: 25,
     width: "100%",
-    paddingHorizontal: 5
+    paddingHorizontal: 10
   },
   instructionText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 14,
     color: Color.text || "#1E1E1E",
     flex: 1,
-    lineHeight: 22
+    lineHeight: 22,
+    paddingTop: 4 // Căn nhẹ cho chữ ngang tầm với icon
   },
   infoContainer: {
     width: "100%",
     gap: 12,
-    marginBottom: 30
+    marginBottom: 35
   },
   infoCapsule: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Nền trắng hơi mờ hòa vào nền gradient
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 30,
+    justifyContent: "flex-start", // Căn trái cho text 2 nang thẳng hàng
+    paddingVertical: 14,
+    paddingHorizontal: 25,
+    borderRadius: 20, // Bo góc cong mềm mại hơn thay vì hình thoi
     gap: 12,
-    width: "100%", 
-    alignSelf: "center"
+    width: "100%"
   },
   infoText: {
     fontFamily: FontFamily.lexendDecaRegular,

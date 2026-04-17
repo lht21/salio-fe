@@ -1,8 +1,8 @@
 import { MoonIcon, SunIcon } from 'phosphor-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Modal } from 'react-native';
 
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
-import SettingsSheetModal from './SettingsClassicSheetModal';
+import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import CloseButton from '../CloseButton';
 
 export type DisplayMode = 'light' | 'dark';
 
@@ -28,54 +28,71 @@ const ChangeDisplayModeModal = ({
   onClose,
 }: ChangeDisplayModeModalProps) => {
   return (
-    <SettingsSheetModal
+    <Modal
       visible={visible}
-      title="Hiển thị"
-      onClose={onClose}
-      edgeToBottom
-      maxHeight="100%"
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
     >
-      <View style={styles.body}>
-        {DISPLAY_MODE_OPTIONS.map((option, index) => {
-          const isActive = option.value === mode;
-          const Icon = option.value === 'light' ? SunIcon : MoonIcon;
-          const iconColor = option.value === 'light' ? '#8CED82' : '#202124';
+      <View style={styles.overlay}>
+        <Pressable style={styles.backgroundTouchable} onPress={onClose} />
+        <View style={styles.sheetContent}>
+          <View style={styles.dragHandle} />
 
-          return (
-            <Pressable
-              key={option.value}
-              style={[
-                styles.optionCard,
-                isActive && styles.optionCardActive,
-                index === DISPLAY_MODE_OPTIONS.length - 1 && styles.optionCardLast,
-              ]}
-              onPress={() => onSelectMode(option.value)}
-              accessibilityRole="button"
-              accessibilityLabel={`Chế độ ${option.label}`}
-            >
-              <View style={styles.optionInner}>
-                <View style={styles.optionLeft}>
-                  <Icon size={42} color={iconColor} weight="fill" />
-                  <Text style={styles.optionLabel}>{option.label}</Text>
-                </View>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Hiển thị</Text>
+            <CloseButton variant="Stroke" onPress={onClose} />
+          </View>
 
-                {isActive ? (
-                  <View style={styles.appliedBadge}>
-                    <Text style={styles.appliedBadgeText}>Đang áp dụng</Text>
+          <View style={styles.body}>
+            {DISPLAY_MODE_OPTIONS.map((option, index) => {
+              const isActive = option.value === mode;
+              const Icon = option.value === 'light' ? SunIcon : MoonIcon;
+              const iconColor = option.value === 'light' ? '#8CED82' : '#202124';
+
+              return (
+                <Pressable
+                  key={option.value}
+                  style={[
+                    styles.optionCard,
+                    isActive && styles.optionCardActive,
+                    index === DISPLAY_MODE_OPTIONS.length - 1 && styles.optionCardLast,
+                  ]}
+                  onPress={() => onSelectMode(option.value)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Chế độ ${option.label}`}
+                >
+                  <View style={styles.optionInner}>
+                    <View style={styles.optionLeft}>
+                      <Icon size={42} color={iconColor} weight="fill" />
+                      <Text style={styles.optionLabel}>{option.label}</Text>
+                    </View>
+
+                    {isActive ? (
+                      <View style={styles.appliedBadge}>
+                        <Text style={styles.appliedBadgeText}>Đang áp dụng</Text>
+                      </View>
+                    ) : null}
                   </View>
-                ) : null}
-              </View>
 
-              {isActive ? <View style={styles.activeAccent} /> : null}
-            </Pressable>
-          );
-        })}
+                  {isActive ? <View style={styles.activeAccent} /> : null}
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
       </View>
-    </SettingsSheetModal>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+  sheetContent: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
+  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
   body: {
     minHeight: 320,
     paddingBottom: 4,

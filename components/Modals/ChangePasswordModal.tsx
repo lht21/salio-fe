@@ -1,9 +1,10 @@
 import React from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View, Modal, Pressable, Text, KeyboardAvoidingView, Platform } from 'react-native';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
-import SettingsSheetModal from './SettingsClassicSheetModal';
+import CloseButton from '../CloseButton';
+import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 
 export type ChangePasswordModalProps = {
   visible: boolean;
@@ -54,59 +55,75 @@ const ChangePasswordModal = ({
   );
 
   return (
-    <SettingsSheetModal
+    <Modal
       visible={visible}
-      title="Đổi mật khẩu"
-      onClose={handleClose}
-      showCloseButton
-      maxHeight="100%"
-      edgeToBottom
-      keyboardAware
-      expandOnKeyboard
-      contentScrollable
+      animationType="slide"
+      transparent={true}
+      onRequestClose={handleClose}
     >
-      <View style={styles.body}>
-        <CustomInput
-          placeholder="Nhập mật khẩu hiện tại"
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          secureTextEntry
-          returnKeyType="next"
-          accessibilityLabel="Mật khẩu hiện tại"
-        />
+      <KeyboardAvoidingView 
+        style={styles.overlay} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable style={styles.backgroundTouchable} onPress={handleClose} />
+        <View style={styles.sheetContent}>
+          <View style={styles.dragHandle} />
 
-        <CustomInput
-          placeholder="Nhập mật khẩu mới"
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry
-          returnKeyType="done"
-          accessibilityLabel="Mật khẩu mới"
-        />
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Đổi mật khẩu</Text>
+            <CloseButton variant="Stroke" onPress={handleClose} />
+          </View>
 
-        <CustomInput
-          placeholder="Nhập lại mật khẩu mới"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-          returnKeyType="done"
-          onSubmitEditing={Keyboard.dismiss}
-          accessibilityLabel="Xác nhận mật khẩu mới"
-        />
+          <View style={styles.body}>
+            <CustomInput
+              placeholder="Nhập mật khẩu hiện tại"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry
+              returnKeyType="next"
+              accessibilityLabel="Mật khẩu hiện tại"
+            />
 
-        <Button
-          title="Lưu"
-          variant="Green"
-          onPress={handleConfirm}
-          style={styles.confirmButton}
-          disabled={!isFormValid}
-        />
-      </View>
-    </SettingsSheetModal>
+            <CustomInput
+              placeholder="Nhập mật khẩu mới"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              returnKeyType="done"
+              accessibilityLabel="Mật khẩu mới"
+            />
+
+            <CustomInput
+              placeholder="Nhập lại mật khẩu mới"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
+              accessibilityLabel="Xác nhận mật khẩu mới"
+            />
+
+            <Button
+              title="Lưu"
+              variant="Green"
+              onPress={handleConfirm}
+              style={styles.confirmButton}
+              disabled={!isFormValid}
+            />
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+  sheetContent: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
+  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
   body: {
     gap: 16,
     paddingBottom: 16,

@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/Button";
 
@@ -10,6 +10,7 @@ interface AnswerResultBottomSheetProps {
   visible: boolean;
   variant: BottomSheetVariant;
   onNext: () => void;
+  onCancel?: () => void;
   buttonText?: string;
   title?: string;
 }
@@ -18,6 +19,7 @@ export default function AnswerResultBottomSheet({
   visible,
   variant,
   onNext,
+  onCancel,
   buttonText = "Chốt, câu tiếp theo",
   title = ""
 }: AnswerResultBottomSheetProps) {
@@ -32,14 +34,15 @@ export default function AnswerResultBottomSheet({
       visible={visible}
       transparent={true}
       animationType="slide"
-      onRequestClose={() => {}}
+      onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
-        <View
+      <Pressable style={styles.overlay} onPress={onCancel}>
+        <Pressable
           style={[
             styles.sheetContent,
             { paddingBottom: Math.max(insets.bottom, 20) }
           ]}
+          onPress={(e) => e.stopPropagation()}
         >
           {title && (
             <Text
@@ -57,8 +60,14 @@ export default function AnswerResultBottomSheet({
           ) : (
             <Button title={buttonText} variant="Orange" onPress={onNext} />
           )}
-        </View>
-      </View>
+
+          {onCancel && (
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <Text style={styles.cancelText}>Chọn lại đáp án</Text>
+            </TouchableOpacity>
+          )}
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
@@ -91,5 +100,15 @@ const styles = StyleSheet.create({
 
   buttonText: {
     fontFamily: FontFamily.lexendDecaSemiBold
-  }
+  },
+  cancelButton: {
+    marginTop: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+  },
+  cancelText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    color: Color.gray || "#64748B",
+  },
 });

@@ -16,43 +16,53 @@ export const FontSize = {
 };
 /* Colors */
 export const Color = {
-  // --- CÁC MÀU TỪ THIẾT KẾ (Figma/Ảnh đính kèm) ---
+  // --- BASE ---
   bg: "#FFFFFF",
-  text: "#1E1E1E",        // Thay thế cho text1
+  text: "#1E1E1E",
+  stroke: "#E2E8F0",
+  gray: "#64748B",
+
+  // --- GREEN (cũ của bạn - giữ lại) ---
   main: "#98F291",
   mainLighter: "rgba(152, 242, 145, 0.10)",
-  main2: "#508D4E",       // Thêm mới từ "main 2"
-  xanh: "#1877F2",        // Thêm mới
-  green: "#059669",          // Thêm mới
-  gray: "#64748B",
-  stroke: "#C9D0DB",
-  cam: "#FF6B00",         // Chữ cái đầu viết thường cho chuẩn camelCase
-  vang: "#F9F871",        // Cập nhật từ "vng"
-  textInVang: "#FFFFFF",  // Thêm mới từ "text in vang"
-  color: "#0C5F35",
-  bgTest: "#FFFFFF",
-  red: "#A10202",
-  blueFb: "#1877F2",
+  main2: "#508D4E",
+  green: "#059669",
   greenLight: "#ECFFEB",
 
+  // --- BLUE ---
+  bluePastel: "#BFD7FF",
+  blue: "#2F6DF6",
+  blueFb: "#1877F2",
+  xanh: "#1877F2",
 
-  // --- CÁC MÀU KHÁC TỪ MÃ CŨ (Giữ lại để không bị lỗi undefined) ---
-  colorBlack: "#000000",
-  colorChocolate: "#C87500",
-  colorDarkgray: "#AEAEAE",
-  colorDarkslategray100: "#373737",
-  colorDarkslategray200: "#094727",
-  colorDarkslategray300: "#2D2D2D",
-  colorGreenyellow: "#ADFF66",
-  colorHoneydew: "#ECFFEB",
-  colorLightgray: "#D6D6D6",
-  colorLightslategray: "rgba(148, 163, 184, 0.5)",
-  colorLimegreen: "#51AD00",
-  colorOrangered: "#FF6B00",
-  colorRed: "#DA0505",
-  colorRoyalblue: "#1877F2",
-  colorSeagreen: "#3C8137",
-  colorSlategray: "rgba(100, 116, 139, 0.4)",
+  // --- PURPLE (gốc + nâng cấp) ---
+  purplePastel: "#C9B6FF",
+  purple: "#6A3DF0",
+
+  // --- PINK / PURPLE SOFT ---
+  pinkPastel: "#F6C1FF",
+  pink: "#C13DF2",
+
+  // --- MINT ---
+  mintPastel: "#B8F2E6",
+  mint: "#00BFA6",
+
+  // --- ORANGE / YELLOW ---
+  orangePastel: "#FFE7B3",
+  orange: "#FF9F1C",
+  cam: "#F6993A",
+  vang: "#F9F871",
+  textInVang: "#FFFFFF",
+
+  // --- CORAL / RED ---
+  coralPastel: "#FFC1C1",
+  coral: "#FF4D6D",
+  red: "#FF6B6B",
+  redDark: "#AB2424",
+
+  // --- TEXT / BRAND EXTRA ---
+  color: "#0C5F35",
+  bgTest: "#FFFFFF"
 };
 /* Gaps */
 export const Gap = {
@@ -67,6 +77,10 @@ export const Gap = {
   gap_20: 20,
   gap_22: 22,
 };
+
+export const Stroke ={
+  stroke: 1.5,
+}
 /* Paddings */
 export const Padding = {
   padding_2: 2,

@@ -32,7 +32,7 @@ export default function ScreenHeader({
       <View style={styles.leftContent}>
         {showBackButton && (
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
+            <ArrowLeftIcon size={24} color={Color.main2} weight="bold" />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>{title}</Text>

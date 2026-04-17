@@ -1,6 +1,7 @@
 import { CaretLeftIcon, CaretRightIcon, FireIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+import SectionHeader from './SectionHeader';
 
 // Mock data tháng 2/2026 theo ảnh
 const CALENDAR_DATA = [
@@ -77,7 +78,7 @@ const StreakCalendar = ({ onHeaderPress }: StreakCalendarProps) => {
 
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.sectionTitle}>Chuỗi của bạn</Text>
+      <SectionHeader title="Chuỗi của bạn" />
       <View style={styles.container}>
 
         {/* Header Calendar */}

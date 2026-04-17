@@ -1,8 +1,16 @@
 import { useRouter } from 'expo-router';
-import { PlusIcon } from 'phosphor-react-native';
+import { PlusCircleIcon, PlusIcon } from 'phosphor-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedScrollHandler, 
+  useAnimatedStyle, 
+  interpolate, 
+  Extrapolation,
+  useAnimatedProps
+} from 'react-native-reanimated';
 
 // Import các components đã tách
 import CategoryChip from '../../components/CategoryChip';
@@ -11,6 +19,8 @@ import NewFlashCardSetModal from '../../components/Modals/NewFlashCardSetModal';
 import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import SearchBar from '../../components/SearchBar';
 import VocabularyCard from '../../components/VocabularyCard';
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const CATEGORIES = ['Tất cả', 'Thành thạo', 'Đang học'];
 
@@ -126,6 +136,24 @@ const INITIAL_VOCABULARY_ITEMS = [
     isFavorite: true,
     status: 'Thành thạo',
   },
+  {
+    id: '11',
+    word: '밥',
+    pos: 'Danh từ',
+    phonetic: '/bap/',
+    meaning: 'Cơm',
+    isFavorite: true,
+    status: 'Đang học',
+  },
+  {
+    id: '12',
+    word: '책',
+    pos: 'Danh từ',
+    phonetic: '/chaek/',
+    meaning: 'Sách',
+    isFavorite: true,
+    status: 'Thành thạo',
+  }
 ];
 
 export default function VocabularyScreen() {
@@ -152,93 +180,161 @@ export default function VocabularyScreen() {
     return matchTab && matchSearch;
   });
 
+  // Đếm số từ vựng đang được người dùng yêu thích (isFavorite === true)
+  const favoriteCount = vocabularyItems.filter(item => item.isFavorite).length;
+
+  // --- ANIMATION CHO STICKY SEARCHBAR ---
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const stickySearchBarStyle = useAnimatedStyle(() => {
+    // Vị trí xuất hiện của Sticky SearchBar (Ước tính Header + Banner + Chips ~ 200px)
+    const opacity = interpolate(scrollY.value, [200, 250], [0, 1], Extrapolation.CLAMP);
+    const translateY = interpolate(scrollY.value, [200, 250], [-20, 0], Extrapolation.CLAMP);
+    
+    // Ẩn zIndex khi chưa xuất hiện để không đè thao tác bấm của các nút bên dưới
+    const zIndex = scrollY.value > 220 ? 100 : -1;
+
+    return {
+      opacity,
+      transform: [{ translateY }],
+      zIndex,
+    };
+  });
+
+  const stickySearchBarProps = useAnimatedProps(() => {
+    return {
+      pointerEvents: scrollY.value > 220 ? 'auto' : 'none',
+    } as any;
+  });
+
+  // --- TÁCH CÁC PHẦN TỬ CHO FLATLIST ---
+
+  // Header của danh sách (gồm Header, Banner, Chips, SearchBar)
+  const renderListHeader = () => (
+    <View>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Sổ tay từ vựng</Text>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity onPress={() => setIsNewSetModalVisible(true)}>
+            <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Banner */}
+      <View style={styles.bannerContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bannerScroll}>
+          {/* Thẻ Từ vựng yêu thích - Tự động hiển thị khi số lượng > 0 */}
+          {favoriteCount > 0 && (
+            <FlashcardSetCard 
+              title="Từ vựng yêu thích" 
+              totalWords={favoriteCount} 
+              isSpecial={true}
+              onPress={() => {
+                router.push({
+                  pathname: '/vocabulary/flashcardset-detail',
+                  params: { id: 'favorite', title: 'Từ vựng yêu thích' }
+                });
+              }}
+            />
+          )}
+          
+          {FLASHCARD_SETS.map((set) => (
+            <FlashcardSetCard 
+              key={set.id} 
+              title={set.title} 
+              totalWords={set.totalWords} 
+              backgroundColor={set.color} 
+              onPress={() => {
+                router.push({
+                  pathname: '/vocabulary/flashcardset-detail',
+                  params: { id: set.id, title: set.title }
+                });
+              }}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Filter Chips */}
+      <View style={styles.chipRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+          {CATEGORIES.map(cat => (
+            <CategoryChip
+              key={cat}
+              label={cat}
+              isActive={activeTab === cat}
+              onPress={() => setActiveTab(cat)}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Search */}
+      <SearchBar
+        value={searchText}
+        onChangeText={setSearchText}
+      />
+      {/* Nút thêm từ vựng (đã di chuyển từ footer) */}
+      <TouchableOpacity
+        style={styles.emptyCardButton}
+        onPress={() => setIsSearchVocaModalVisible(true)}
+        activeOpacity={0.7}
+      >
+        <PlusCircleIcon size={20} color={Color.gray || '#64748B'} weight="fill" />
+        <Text style={styles.emptyCardText}>Lưu thêm từ vựng</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.safeArea}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Sổ tay từ vựng</Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity
-              onPress={() => router.push('/vocabulary-test')}
-              style={styles.testButton}
-            >
-              <Text style={styles.testButtonText}>🧪</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setIsNewSetModalVisible(true)}>
-              <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Banner */}
-        <View style={styles.bannerContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bannerScroll}>
-            {FLASHCARD_SETS.map((set) => (
-              <FlashcardSetCard 
-                key={set.id} 
-                title={set.title} 
-                totalWords={set.totalWords} 
-                backgroundColor={set.color} 
-                onPress={() => {
-                  router.push({
-                    pathname: '/vocabulary/flashcardset-detail',
-                    params: { id: set.id, title: set.title }
-                  });
-                }}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Filter Chips */}
-        <View style={styles.chipRow}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-            {CATEGORIES.map(cat => (
-              <CategoryChip
-                key={cat}
-                label={cat}
-                isActive={activeTab === cat}
-                onPress={() => setActiveTab(cat)}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Search */}
+      {/* Sticky SearchBar (Thanh dính trên cùng) */}
+      {/* Sticky Header (dính trên cùng) */}
+      <Animated.View 
+        style={[styles.stickySearchBar, stickySearchBarStyle]}
+        animatedProps={stickySearchBarProps}
+      >
         <SearchBar
           value={searchText}
           onChangeText={setSearchText}
+          containerStyle={{ flex: 1, marginBottom: 0 }}
         />
+        <TouchableOpacity
+          style={styles.stickyAddButton}
+          onPress={() => setIsSearchVocaModalVisible(true)}
+          activeOpacity={0.7}
+        >
+          <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+        </TouchableOpacity>
+      </Animated.View>
 
-        {/* List */}
-        {filteredItems.length > 0 ? (
-          filteredItems.map((item) => (
-            <VocabularyCard
-              key={item.id}
-              item={item}
-              onToggleFavorite={() => handleToggleFavorite(item.id)}
-            />
-          ))
-        ) : (
+      <AnimatedFlatList
+        style={{ flex: 1 }}
+        data={filteredItems}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <VocabularyCard
+            item={item}
+            onToggleFavorite={() => handleToggleFavorite(item.id)}
+          />
+        )}
+        ListHeaderComponent={renderListHeader}
+        ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Không tìm thấy kết quả</Text>
           </View>
-        )}
-
-        {/* Footer Add */}
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.addCircle}
-            onPress={() => setIsSearchVocaModalVisible(true)}
-          >
-            <PlusIcon size={24} color={Color.gray || '#64748B'} weight="bold" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setIsSearchVocaModalVisible(true)}>
-            <Text style={styles.footerText}>Lưu thêm từ vựng</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        }
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      />
 
       {/* New FlashCard Set Modal */}
       <NewFlashCardSetModal
@@ -264,7 +360,32 @@ const styles = StyleSheet.create({
     backgroundColor: Color.bg || '#FFFFFF',
     paddingTop: 50,
   },
-  scrollContent: {
+    stickySearchBar: {
+      position: 'absolute',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Gap.gap_10 || 10,
+      top: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: Color.bg || '#FFFFFF',
+      paddingTop: 50, // Đồng bộ padding với safeArea để che kín phần nền ở tai thỏ
+      paddingBottom: 15,
+      paddingHorizontal: Padding.padding_15 || 15,
+      shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
+    },
+    stickyAddButton: {
+      width: 48,
+      height: 48,
+      borderRadius: Border.br_30 || 30,
+      backgroundColor: Color.stroke,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: Color.stroke || '#E2E8F0',
+    },
+  scrollContent: { // Giữ lại tên này để không phải sửa nhiều, FlatList vẫn dùng được
+    flexGrow: 1, // Quan trọng để ListEmptyComponent có thể căn giữa
     padding: Padding.padding_15 || 15
   },
   header: {
@@ -303,26 +424,24 @@ const styles = StyleSheet.create({
   chipScroll: {
     gap: 10,
   },
-  footer: {
+  emptyCardButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20
+
+    backgroundColor: Color.stroke || '#E2E8F0',
+    borderRadius: Border.br_20,
+    padding: Padding.padding_15 || 15,
+    // Nút này giờ nằm dưới SearchBar, nên không cần margin top
+    marginBottom: Gap.gap_20 || 20, // Khoảng cách với danh sách từ vựng bên dưới
+    gap: Gap.gap_10 || 10,
   },
-  addCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: Color.colorLightgray || '#F1F5F9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8
-  },
-  footerText: {
+  emptyCardText: {
     fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 14,
-    color: Color.colorDarkgray || '#94A3B8'
+    fontSize: FontSize.fs_12,
+    color: Color.gray || '#64748B',
   },
   emptyContainer: {
-    paddingVertical: 40,
+    paddingVertical: 60,
     alignItems: 'center',
     justifyContent: 'center',
   },

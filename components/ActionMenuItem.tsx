@@ -9,7 +9,7 @@ import {
 
 import { Color, FontFamily, FontSize, Border, Gap, Padding } from '../constants/GlobalStyles';
 
-export type MenuItemVariant = 'default' | 'favorite' | 'flashcardSet' | 'createSet';
+export type MenuItemVariant = 'default' | 'favorite' | 'flashcardSet' | 'createSet' | 'danger';
 
 interface MenuItemProps {
   label: string;
@@ -52,6 +52,13 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
       iconBgStyle = { backgroundColor: '#F1F5F9' }; 
       textStyle = { ...styles.defaultText, color: iconColor };
       LeftIconComponent = <StackPlusIcon size={24} color={iconColor} weight="bold" />;
+      break;
+      
+    case 'danger':
+      // Nút Xóa / Cảnh báo
+      iconColor = Color.red || '#EF4444';
+      iconBgStyle = { backgroundColor: '#FEE2E2' }; // Đỏ nhạt
+      textStyle = { ...styles.defaultText, color: iconColor };
       break;
 
     default:

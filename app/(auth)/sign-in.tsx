@@ -43,7 +43,7 @@ export default function SignInScreen() {
             {/* --- PHẦN TRÊN: Logo & Nút đăng nhập MXH --- */}
             <View style={styles.topSection}>
               <Image
-                source={require('../../assets/images/Layer-1-1.png')}
+                source={require('../../assets/images/horani/state_0.png')}
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     gap: Gap.gap_20,
   },
   logo: {
-    height: Height.height_113, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
+    height: 270, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
     aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
     marginBottom: Padding.padding_10,
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     width: 76,
     height: 3,
     borderStyle: "solid",
-    borderColor: Color.colorSlategray,
+    borderColor: Color.gray,
     borderTopWidth: 3,
     alignSelf: 'center',
     margin: Gap.gap_20,

@@ -8,9 +8,9 @@
     "scheme": "saliofe",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/Layer-1-1.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#E6F4FE"
     },
     "ios": {
       "supportsTablet": true,

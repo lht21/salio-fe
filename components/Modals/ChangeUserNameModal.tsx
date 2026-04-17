@@ -1,9 +1,10 @@
 import React from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View, Modal, Pressable, Text, KeyboardAvoidingView, Platform } from 'react-native';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
-import SettingsSheetModal from './SettingsClassicSheetModal';
+import CloseButton from '../CloseButton';
+import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 
 export type ChangeUserNameModalProps = {
   visible: boolean;
@@ -26,6 +27,11 @@ const ChangeUserNameModal = ({
     }
   }, [currentUserName, visible]);
 
+  const handleClose = () => {
+    Keyboard.dismiss();
+    onClose();
+  };
+
   const handleConfirm = () => {
     const trimmedUserName = newUserName.trim();
 
@@ -38,48 +44,69 @@ const ChangeUserNameModal = ({
   };
 
   return (
-    <SettingsSheetModal
+    <Modal
       visible={visible}
-      title="Thay đổi Tên người dùng"
-      onClose={onClose}
-      showCloseButton
-      maxHeight="100%"
-      edgeToBottom
-      keyboardAware
-      expandOnKeyboard
-      contentScrollable
+      animationType="slide"
+      transparent={true}
+      onRequestClose={handleClose}
     >
-      <View style={styles.body}>
-        {/* <TextInput
-          style={styles.input}
-          placeholder="Tên mới"
-          placeholderTextColor="#9CA3AF"
-          value={newUserName}
-          onChangeText={setNewUserName}
-          maxLength={50}
-          returnKeyType="done"
-          onSubmitEditing={Keyboard.dismiss}
-          accessibilityLabel="Tên người dùng mới"
-        /> */}
-        <CustomInput
-          placeholder="Tên mới"
-          value={newUserName}
-          onChangeText={setNewUserName}
-          maxLength={50}
-        />
-        <Button
-          title="Lưu"
-          variant="Green"
-          onPress={handleConfirm}
-          style={styles.confirmButton}
-          disabled={!newUserName.trim() || newUserName.trim() === currentUserName}
-        />
-      </View>
-    </SettingsSheetModal>
+      <KeyboardAvoidingView
+        style={styles.overlay}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable style={styles.backgroundTouchable} onPress={handleClose} />
+        <View style={styles.sheetContent}>
+          <View style={styles.dragHandle} />
+
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Thay đổi Tên người dùng</Text>
+            <CloseButton variant="Stroke" onPress={handleClose} />
+          </View>
+
+          <View style={styles.body}>
+            <CustomInput
+              placeholder="Tên mới"
+              value={newUserName}
+              onChangeText={setNewUserName}
+              maxLength={50}
+              returnKeyType="done"
+              onSubmitEditing={handleConfirm}
+            />
+            <Button
+              title="Lưu"
+              variant="Green"
+              onPress={handleConfirm}
+              style={styles.confirmButton}
+              disabled={!newUserName.trim() || newUserName.trim() === currentUserName}
+            />
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+  sheetContent: {
+    backgroundColor: Color.bg,
+    borderTopLeftRadius: Border.br_30,
+    borderTopRightRadius: Border.br_30,
+    paddingHorizontal: Padding.padding_20,
+    paddingTop: Padding.padding_15,
+    paddingBottom: 40,
+  },
+  dragHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: Gap.gap_15,
+  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
   body: {
     gap: 16,
     paddingBottom: 16,

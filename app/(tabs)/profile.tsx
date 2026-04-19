@@ -76,15 +76,15 @@ export default function ProfileScreen() {
 
         {/* Khối 3 thông số */}
         <StatsRow
-          onStreakPress={() => router.push({ pathname: '/(tabs)/streak' })}
-          onScorePress={() => router.push({ pathname: '/(tabs)/certificate' })}
+          onStreakPress={() => router.push('/streak/streak' as any)}
+          onScorePress={() => router.push('/certificate/certificate' as any)}
         />
 
         {/* Banner Vàng Thông báo */}
         <AlertBanner />
 
         {/* Lịch chuỗi hoạt động */}
-        <StreakCalendar onHeaderPress={() => router.push({ pathname: '/(tabs)/streak' })} />
+        <StreakCalendar onHeaderPress={() => router.push('/streak/streak' as any)} />
 
         {/* Menu Items */}
         <MenuItem

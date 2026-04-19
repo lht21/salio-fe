@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 24,
+    fontSize: 18,
     color: '#1E1E1E',
     lineHeight: 34,
   },

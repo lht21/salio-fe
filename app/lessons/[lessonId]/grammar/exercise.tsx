@@ -53,7 +53,7 @@ const QUIZ_DATA: Question[] = [
     sentenceRight: '.',
     vietnameseMeaning: '(Tôi là học sinh.)',
     maxLength: 10,
-    placeholder: '_____',
+    placeholder: '___',
   },
   {
     id: 2,
@@ -64,7 +64,7 @@ const QUIZ_DATA: Question[] = [
     sentenceRight: '?',
     vietnameseMeaning: '(Người kia là bác sĩ phải không?)',
     maxLength: 10,
-    placeholder: '_____',
+    placeholder: '___',
   },
   {
     id: 3,
@@ -192,14 +192,15 @@ export default function GrammarExerciseScreen() {
 
           // Xong 5 câu -> Điều hướng sang màn Result
           router.push({
-            pathname: `/lessons/${lessonId}/grammar/result`,
+            pathname: '/lessons/[lessonId]/grammar/result',
             params: {
-              correctCount: correctAnswersCount,
-              totalCount: QUIZ_DATA.length,
-              score: finalScore,
-              timeTaken: timeTakenSeconds
+              lessonId: String(lessonId),
+              correctCount: String(correctAnswersCount),
+              totalCount: String(QUIZ_DATA.length),
+              score: String(finalScore),
+              timeTaken: String(timeTakenSeconds)
             }
-          });
+          } as any);
         }
       } else {
         // Nếu sai, reset đáp án để làm lại câu hiện tại

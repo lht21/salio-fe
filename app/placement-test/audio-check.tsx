@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { SpeakerHigh, Warning } from "phosphor-react-native";
 import { useEffect, useRef, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Audio } from "expo-av";
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -38,8 +38,18 @@ export default function AudioCheckScreen() {
       }
 
       // Phát âm thanh mẫu (URL giả lập, bạn có thể thay bằng link thực tế hoặc file local require('...'))
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false
+      });
+
       const { sound } = await Audio.Sound.createAsync(
-        { uri: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        require("../../assets/audio/audio-check.mp3"),
         { shouldPlay: true }
       );
       soundRef.current = sound;
@@ -58,8 +68,10 @@ export default function AudioCheckScreen() {
   // Hàm xử lý khi nhấn nút bắt đầu kiểm tra
   const handleStartExam = async () => {
     if (soundRef.current) {
-      await soundRef.current.stopAsync(); // Dừng âm thanh ngay lập tức
-      setIsPlaying(false); // Dừng animation
+      await soundRef.current.stopAsync().catch(() => {});
+      await soundRef.current.unloadAsync().catch(() => {});
+      soundRef.current = null;
+      setIsPlaying(false);
     }
     router.push("/placement-test/exam"); // Chuyển trang
   };
@@ -67,7 +79,10 @@ export default function AudioCheckScreen() {
   useEffect(() => {
     playTestSound(); // Tự động phát khi người dùng vừa vào màn hình
     return () => {
-      if (soundRef.current) soundRef.current.unloadAsync(); // Dọn dẹp bộ nhớ khi thoát
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
     };
   }, []);
 
@@ -159,7 +174,7 @@ export default function AudioCheckScreen() {
             {/* Buttons Group */}
             <View style={styles.buttonGroup}>
               <Button
-                title="Tôi nghe rõ, Chiến thôi!"
+                title="Tôi nghe rõ, chiến thôi!"
                 variant="Green"
                 onPress={handleStartExam}
                 style={styles.primaryButton}
@@ -256,10 +271,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 25, // Bo góc mềm mại hơn
+    borderRadius: 25, 
     width: "100%",
     gap: 15,
-    // Đổi viền đen cứng thành shadow glow màu cam
     shadowColor: Color.cam || "#FF6B00",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
@@ -267,7 +281,7 @@ const styles = StyleSheet.create({
     elevation: 6
   },
   alertTextWrapper: {
-    flex: 1
+    flex: 1,
   },
   alertTitle: {
     fontFamily: FontFamily.lexendDecaBold,
@@ -281,7 +295,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontFamily: FontFamily.lexendDecaSemiBold, // In đậm câu hỏi
-    fontSize: FontSize.fs_18 || 18, // Tăng size để thu hút sự chú ý
+    fontSize: 18, // Tăng size để thu hút sự chú ý
     color: Color.text || "#1E1E1E",
     textAlign: "center",
     marginBottom: 35,

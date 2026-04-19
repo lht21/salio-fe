@@ -1,4 +1,14 @@
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/Button";
 
@@ -25,24 +35,78 @@ export default function AnswerResultBottomSheet({
 }: AnswerResultBottomSheetProps) {
   const insets = useSafeAreaInsets();
   const isGreen = variant === "green";
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(220)).current;
+  const [isMounted, setIsMounted] = useState(visible);
 
-  const buttonBgColor = isGreen ? "green" : "orange";
-  const buttonTextColor = isGreen ? "#0C5F35" : "#FFFFFF";
+  useEffect(() => {
+    if (visible) {
+      setIsMounted(true);
+      overlayOpacity.setValue(0);
+      sheetTranslateY.setValue(220);
+
+      Animated.parallel([
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 180,
+          useNativeDriver: true
+        }),
+        Animated.timing(sheetTranslateY, {
+          toValue: 0,
+          duration: 280,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true
+        })
+      ]).start();
+      return;
+    }
+
+    if (!isMounted) {
+      return;
+    }
+
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 160,
+        useNativeDriver: true
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 220,
+        duration: 220,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true
+      })
+    ]).start(() => {
+      setIsMounted(false);
+    });
+  }, [isMounted, overlayOpacity, sheetTranslateY, visible]);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <Modal
-      visible={visible}
+      visible={isMounted}
       transparent={true}
-      animationType="slide"
+      animationType="none"
       onRequestClose={onCancel}
     >
-      <Pressable style={styles.overlay} onPress={onCancel}>
-        <Pressable
+      <View style={styles.overlay}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.backdrop, { opacity: overlayOpacity }]}
+        />
+        <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
+        <Animated.View
           style={[
             styles.sheetContent,
-            { paddingBottom: Math.max(insets.bottom, 20) }
+            {
+              paddingBottom: Math.max(insets.bottom, 20),
+              transform: [{ translateY: sheetTranslateY }]
+            }
           ]}
-          onPress={(e) => e.stopPropagation()}
         >
           {title && (
             <Text
@@ -66,8 +130,8 @@ export default function AnswerResultBottomSheet({
               <Text style={styles.cancelText}>Chọn lại đáp án</Text>
             </TouchableOpacity>
           )}
-        </Pressable>
-      </Pressable>
+        </Animated.View>
+      </View>
     </Modal>
   );
 }
@@ -75,15 +139,18 @@ export default function AnswerResultBottomSheet({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 0, 0, 0.4)" // Dim background
+    justifyContent: "flex-end"
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)"
   },
   sheetContent: {
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 25,
-    paddingTop: 30,
+    paddingTop: 10,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
@@ -94,7 +161,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 20,
-    marginBottom: 20,
     textAlign: "center"
   },
 
@@ -102,7 +168,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold
   },
   cancelButton: {
-    marginTop: 15,
     paddingVertical: 8,
     paddingHorizontal: 20,
   },

@@ -17,7 +17,7 @@ export interface ListeningQuestion {
   audioDuration: string;
   question: string;
   options: ListeningOption[];
-  audioUrl?: string;
+  audioUrl?: any;
 }
 
 interface ListeningQuestionFormProps {
@@ -68,7 +68,7 @@ export default function ListeningQuestionForm({
       if (!question.audioUrl) return;
 
       const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: question.audioUrl },
+        question.audioUrl,
         {
           shouldPlay: false,
           rate: playbackSpeed,
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 24,
+    fontSize: 18,
     color: "#1E1E1E",
     marginBottom: 40
   },

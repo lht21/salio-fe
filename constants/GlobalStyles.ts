@@ -62,7 +62,8 @@ export const Color = {
 
   // --- TEXT / BRAND EXTRA ---
   color: "#0C5F35",
-  bgTest: "#FFFFFF"
+  bgTest: "#FFFFFF",
+  colorBlack: "#000000",
 };
 /* Gaps */
 export const Gap = {

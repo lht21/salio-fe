@@ -14,107 +14,106 @@ import ListeningQuestionForm from "../../components/ListeningQuestionForm";
 import AnswerResultBottomSheet, {
   BottomSheetVariant
 } from "../../components/Modals/AnswerResultBottomSheet";
-import SectionIntroDialog from "../../components/Modals/SectionIntroDialog";
+import IntroPopup from "../../components/Modals/Popup/IntroPopup";
 import QuizHeader from "../../components/Modals/Question/QuizHeader";
 import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
 
 const { width } = Dimensions.get("window");
 
-// Mock Data đầy đủ (7 câu Section 1, 4 câu Section 2)
 const MOCK_QUESTIONS = [
   // SECTION 1: 7 câu
   {
-    id: 1,
-    type: "grammar",
-    section: 1,
-    sectionTitle: "Nhiệm vụ 1",
-    instruction: "Đọc hiểu và chọn",
-    question: "가: 만나서 반갑습니다.\n나: 네, ______________.",
-    options: [
-      { id: "1", label: "1.", text: "안녕히 가세요" },
-      { id: "2", label: "2.", text: "만나서 반갑습니다" },
-      { id: "3", label: "3.", text: "감사합니다" },
-      { id: "4", label: "4.", text: "죄송합니다" }
+    "id": 1,
+    "type": "grammar",
+    "section": 1,
+    "sectionTitle": "Nhiệm vụ 1",
+    "instruction": "Đọc hiểu và chọn đáp án đúng",
+    "question": "가: 저 사람이 누구입니까?\n나: 저 분은 우리 ______________ 선생님입니다.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "학교의" },
+      { "id": "2", "label": "2.", "text": "학교가" },
+      { "id": "3", "label": "3.", "text": "학교에" },
+      { "id": "4", "label": "4.", "text": "학교를" }
     ],
-    correctAnswerId: "2"
+    "correctAnswerId": "1"
   },
   {
-    id: 2,
-    type: "grammar",
-    section: 1,
-    question: "가: 이름이 무엇입니까?\n나: 제 ______________ 지민입니다.",
-    options: [
-      { id: "1", label: "1.", text: "이름은" },
-      { id: "2", label: "2.", text: "성함은" },
-      { id: "3", label: "3.", text: "나이는" },
-      { id: "4", label: "4.", text: "직업은" }
+    "id": 2,
+    "type": "grammar",
+    "section": 1,
+    "question": "가: 주말에 보통 뭐 해요?\n나: 친구를 ______________ 영화를 봐요.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "만나고" },
+      { "id": "2", "label": "2.", "text": "만나지만" },
+      { "id": "3", "label": "3.", "text": "만나서" },
+      { "id": "4", "label": "4.", "text": "만나러" }
     ],
-    correctAnswerId: "1"
+    "correctAnswerId": "1"
   },
   {
-    id: 3,
-    type: "grammar",
-    section: 1,
-    question: "가: 오늘 날씨가 어때요?\n나: ______________.",
-    options: [
-      { id: "1", label: "1.", text: "맛있어요" },
-      { id: "2", label: "2.", text: "추워요" },
-      { id: "3", label: "3.", text: "비싸요" },
-      { id: "4", label: "4.", text: "멀어요" }
+    "id": 3,
+    "type": "grammar",
+    "section": 1,
+    "question": "가: 한국 음식을 좋아해요?\n나: 비빔밥은 좋아해요. ______________ 김치찌개는 매워서 못 먹어요.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "그래서" },
+      { "id": "2", "label": "2.", "text": "하지만" },
+      { "id": "3", "label": "3.", "text": "그러니까" },
+      { "id": "4", "label": "4.", "text": "그러면" }
     ],
-    correctAnswerId: "2"
+    "correctAnswerId": "2"
   },
   {
-    id: 4,
-    type: "grammar",
-    section: 1,
-    question: "가: 사과가 얼마예요?\n나: 세 ______________ 5,000원이에요.",
-    options: [
-      { id: "1", label: "1.", text: "명" },
-      { id: "2", label: "2.", text: "병" },
-      { id: "3", label: "3.", text: "개" },
-      { id: "4", label: "4.", text: "권" }
+    "id": 4,
+    "type": "grammar",
+    "section": 1,
+    "question": "가: 수영을 할 줄 알아요?\n나: 아니요, 수영을 ______________ 테니스를 잘 쳐요.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "못하는 대신에" },
+      { "id": "2", "label": "2.", "text": "못하기 때문에" },
+      { "id": "3", "label": "3.", "text": "못하게 되어서" },
+      { "id": "4", "label": "4.", "text": "못할까 봐" }
     ],
-    correctAnswerId: "3"
+    "correctAnswerId": "1"
   },
   {
-    id: 5,
-    type: "grammar",
-    section: 1,
-    question: "가: bây giờ bạn làm gì?\n나: 식당에서 밥을 ______________.",
-    options: [
-      { id: "1", label: "1.", text: "마셔요" },
-      { id: "2", label: "2.", text: "읽어요" },
-      { id: "3", label: "3.", text: "먹어요" },
-      { id: "4", label: "4.", text: "봐요" }
+    "id": 5,
+    "type": "grammar",
+    "section": 1,
+    "question": "가: 민수 씨, 이 책 읽어 봤어요?\n나: 아니요, 아직 ______________ 적이 없어요.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "읽는" },
+      { "id": "2", "label": "2.", "text": "읽은" },
+      { "id": "3", "label": "3.", "text": "읽을" },
+      { "id": "4", "label": "4.", "text": "읽어서" }
     ],
-    correctAnswerId: "3"
+    "correctAnswerId": "2"
   },
   {
-    id: 6,
-    type: "grammar",
-    section: 1,
-    question: "가: 학교에 ______________ 가요?\n나: 버스로 가요.",
-    options: [
-      { id: "1", label: "1.", text: "어디" },
-      { id: "2", label: "2.", text: "어떻게" },
-      { id: "3", label: "3.", text: "언ze" },
-      { id: "4", label: "4.", text: "무엇" }
+    "id": 6,
+    "type": "grammar",
+    "section": 1,
+    "question": "가: 어제 왜 파티에 안 왔어요?\n나: 늦게까지 ______________ 못 갔어요. 미안해요.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "일하느라고" },
+      { "id": "2", "label": "2.", "text": "일하려고" },
+      { "id": "3", "label": "3.", "text": "일하더니" },
+      { "id": "4", "label": "4.", "text": "일하다가" }
     ],
-    correctAnswerId: "2"
+    "correctAnswerId": "1"
   },
   {
-    id: 7,
-    type: "grammar",
-    section: 1,
-    question: "가: Cuối tuần xem phim nhé?\n나: 미안해요. ______________.",
-    options: [
-      { id: "1", label: "1.", text: "바빠요" },
-      { id: "2", label: "2.", text: "재미있어요" },
-      { id: "3", label: "3.", text: "예뻐요" },
-      { id: "4", label: "4.", text: "좋아요" }
+    "id": 7,
+    "type": "grammar",
+    "section": 1,
+    "question": "가: 컴퓨터가 갑자기 안 돼요.\n나: 산 지 얼마 안 됐는데 벌써 ______________ 이상하네요.",
+    "options": [
+      { "id": "1", "label": "1.", "text": "고장이 날 리가 없어서" },
+      { "id": "2", "label": "2.", "text": "고장이 났을 리가 없는데" },
+      { "id": "3", "label": "3.", "text": "고장이 날 것 같아서" },
+      { "id": "4", "label": "4.", "text": "고장이 나면 안 되니까" }
     ],
-    correctAnswerId: "1"
+    "correctAnswerId": "2"
   },
 
   // SECTION 2: 4 câu
@@ -125,7 +124,7 @@ const MOCK_QUESTIONS = [
     sectionTitle: "Nhiệm vụ 2",
     instruction: "Nghe và chọn",
     audioDuration: "2:30",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    audioUrl: require("../../assets/audio/1.mp3"),
     question: "여기는 어디입니까?",
     options: [
       { id: "1", label: "1.", text: "병원" },
@@ -140,7 +139,7 @@ const MOCK_QUESTIONS = [
     type: "listening",
     section: 2,
     audioDuration: "1:45",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    audioUrl: require("../../assets/audio/1.mp3"),
     question: "남자는 무엇을 하고 있습니까?",
     options: [
       { id: "1", label: "1.", text: "잠을 잡니다" },
@@ -155,7 +154,7 @@ const MOCK_QUESTIONS = [
     type: "listening",
     section: 2,
     audioDuration: "1:20",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    audioUrl: require("../../assets/audio/1.mp3"),
     question: "여자는 내일 무엇을 할 것입니까?",
     options: [
       { id: "1", label: "1.", text: "등산을 합니다" },
@@ -165,21 +164,6 @@ const MOCK_QUESTIONS = [
     ],
     correctAnswerId: "2"
   },
-  {
-    id: 11,
-    type: "listening",
-    section: 2,
-    audioDuration: "2:00",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
-    question: "Hai người đang nói về cái gì?",
-    options: [
-      { id: "1", label: "1.", text: "가족" },
-      { id: "2", label: "2.", text: "취미" },
-      { id: "3", label: "3.", text: "고향" },
-      { id: "4", label: "4.", text: "날씨" }
-    ],
-    correctAnswerId: "4"
-  }
 ];
 
 export default function PlacementTestExam() {
@@ -287,10 +271,11 @@ export default function PlacementTestExam() {
         }
       />
 
-      <SectionIntroDialog
+      <IntroPopup
         visible={showSectionIntro}
-        sectionTitle={currentQuestion?.sectionTitle || ""}
-        instruction={currentQuestion?.instruction || ""}
+        title={currentQuestion?.sectionTitle || ""}
+        description={currentQuestion?.instruction || ""}
+        buttonLabel="Tiếp tục"
         onClose={() => setShowSectionIntro(false)}
       />
     </SafeAreaView>

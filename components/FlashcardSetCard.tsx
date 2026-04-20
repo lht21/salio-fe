@@ -3,13 +3,13 @@ import { CardsIcon, ListChecksIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { 
-  useSharedValue, 
+import Animated, {
+  useSharedValue,
   useAnimatedProps,
   interpolateColor,
-  withRepeat, 
-  withTiming, 
-  Easing 
+  withRepeat,
+  withTiming,
+  Easing
 } from 'react-native-reanimated';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 
@@ -20,26 +20,35 @@ interface FlashcardSetCardProps {
   totalWords: number;
   backgroundColor?: string;
   onPress?: () => void;
-  isSpecial?: boolean; // Tái sử dụng cho bộ Từ vựng yêu thích
+  isSpecial?: boolean;
+  imageSource?: any;
 }
 
-const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpecial }: FlashcardSetCardProps) => {
+const FlashcardSetCard = ({
+  title,
+  totalWords,
+  backgroundColor,
+  onPress,
+  isSpecial,
+  imageSource
+}: FlashcardSetCardProps) => {
   const colorProgress = useSharedValue(0);
 
-  // Hiệu ứng lặp vô hạn cho gradient giống HeaderSection
   useEffect(() => {
     if (isSpecial) {
       colorProgress.value = withRepeat(
         withTiming(1, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
-        -1, // Lặp vô hạn
-        true // Đảo ngược từ 1 về 0
+        -1,
+        true
       );
     }
-  }, [isSpecial]);
+  }, [colorProgress, isSpecial]);
 
   const animatedGradientProps = useAnimatedProps(() => {
-    if (!isSpecial) return { colors: ['transparent', 'transparent'] } as any;
-    
+    if (!isSpecial) {
+      return { colors: ['transparent', 'transparent'] } as any;
+    }
+
     return {
       colors: [
         interpolateColor(colorProgress.value, [0, 1], ['#CEF9B4', '#E6FFD1']),
@@ -48,16 +57,19 @@ const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpeci
     } as any;
   }, [isSpecial]);
 
+  const resolvedImage = imageSource || (isSpecial ? require('../assets/images/horani/horani_vocab.png') : null);
+
   const content = (
     <>
       <View style={styles.topRow}>
-        {isSpecial && (
-          <Image 
-            source={require('../assets/images/horani/horani_vocab.png')} 
+        {resolvedImage ? (
+          <Image
+            source={resolvedImage}
             style={styles.mascotImage}
             contentFit="contain"
           />
-        )}
+        ) : null}
+
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
           <View style={styles.subtitleRow}>
@@ -71,7 +83,7 @@ const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpeci
       <View style={styles.actionRow}>
         <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]}>
           <CardsIcon size={20} color={Color.bg} weight="fill" />
-          {isSpecial && (
+          {isSpecial ? (
             <Text
               style={styles.buttonText}
               numberOfLines={1}
@@ -80,12 +92,12 @@ const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpeci
             >
               Chế độ Flashcard
             </Text>
-          )}
+          ) : null}
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]}>
           <ListChecksIcon size={20} color={Color.bg} weight="bold" />
-          {isSpecial && (
+          {isSpecial ? (
             <Text
               style={styles.buttonText}
               numberOfLines={1}
@@ -94,7 +106,7 @@ const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpeci
             >
               Chế độ Trắc nghiệm
             </Text>
-          )}
+          ) : null}
         </TouchableOpacity>
       </View>
     </>
@@ -108,7 +120,7 @@ const FlashcardSetCard = ({ title, totalWords, backgroundColor, onPress, isSpeci
     >
       {isSpecial ? (
         <AnimatedLinearGradient
-          colors={['#CEF9B4', Color.main || '#98F291']} // Thêm màu mặc định để fix lỗi TypeScript
+          colors={['#CEF9B4', Color.main || '#98F291']}
           animatedProps={animatedGradientProps}
           style={styles.container}
         >
@@ -149,22 +161,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20 || 20,
+    fontSize: 16,
     color: Color.text,
     marginBottom: Gap.gap_8,
   },
   subtitleRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
+    flexWrap: 'wrap',
   },
   subtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
+    fontSize: 13,
     color: Color.gray,
   },
   countText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
+    fontSize: 18,
     color: Color.text,
   },
   actionRow: {
@@ -184,7 +197,7 @@ const styles = StyleSheet.create({
     gap: Gap.gap_5,
   },
   iconOnlyButton: {
-    flex: 0, // Bỏ flex giãn đều để nút thu nhỏ lại theo kích thước cố định
+    flex: 0,
     width: 44,
     height: 44,
     paddingHorizontal: 0,

@@ -155,7 +155,7 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
 const styles = StyleSheet.create({
   canvasWrap: {
     flex: 1,
-    margin: 14,
+    margin: 10,
     borderRadius: Border.br_20,
     backgroundColor: '#F8F8F8',
     overflow: 'hidden',

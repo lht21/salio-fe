@@ -20,7 +20,20 @@ import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import SearchBar from '../../components/SearchBar';
 import VocabularyCard from '../../components/VocabularyCard';
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+type VocabularyItem = {
+  id: string;
+  word: string;
+  pos: string;
+  phonetic: string;
+  meaning: string;
+  isFavorite: boolean;
+  status: string;
+};
+
+const AnimatedFlatList =
+  Animated.createAnimatedComponent(FlatList) as unknown as React.ComponentType<
+    React.ComponentProps<typeof FlatList<VocabularyItem>>
+  >;
 
 const CATEGORIES = ['Tất cả', 'Thành thạo', 'Đang học'];
 
@@ -29,23 +42,26 @@ const FLASHCARD_SETS = [
     id: '1',
     title: 'Từ vựng Topik 1',
     totalWords: 120,
-    color: '#F9F871', // Màu vàng chanh (hoặc Color.vang)
+    color: '#F9F871',
+    imageSource: require('../../assets/images/horani/sc1_b0.png'), // Màu vàng chanh (hoặc Color.vang)
   },
   {
     id: '2',
     title: 'Giao tiếp cơ bản',
     totalWords: 50,
-    color: '#CEF9B4', // Màu xanh lá nhạt
+    color: '#CEF9B4',
+    imageSource: require('../../assets/images/horani/sc1_b2.png'), // Màu xanh lá nhạt
   },
   {
     id: '3',
     title: 'Từ vựng du lịch',
     totalWords: 85,
-    color: '#E9D5FF', // Màu tím nhạt
+    color: '#E9D5FF',
+    imageSource: require('../../assets/images/horani/sc1_b3.png'), // Màu tím nhạt
   },
 ];
 
-const INITIAL_VOCABULARY_ITEMS = [
+const INITIAL_VOCABULARY_ITEMS: VocabularyItem[] = [
   {
     id: '1',
     word: '학교',
@@ -162,7 +178,7 @@ export default function VocabularyScreen() {
   const [searchText, setSearchText] = useState('');
   const [isNewSetModalVisible, setIsNewSetModalVisible] = useState(false);
   const [isSearchVocaModalVisible, setIsSearchVocaModalVisible] = useState(false);
-  const [vocabularyItems, setVocabularyItems] = useState(INITIAL_VOCABULARY_ITEMS);
+  const [vocabularyItems, setVocabularyItems] = useState<VocabularyItem[]>(INITIAL_VOCABULARY_ITEMS);
 
   const handleToggleFavorite = (id: string) => {
     setVocabularyItems((prev) =>
@@ -180,7 +196,6 @@ export default function VocabularyScreen() {
     return matchTab && matchSearch;
   });
 
-  // Đếm số từ vựng đang được người dùng yêu thích (isFavorite === true)
   const favoriteCount = vocabularyItems.filter(item => item.isFavorite).length;
 
   // --- ANIMATION CHO STICKY SEARCHBAR ---
@@ -191,11 +206,11 @@ export default function VocabularyScreen() {
   });
 
   const stickySearchBarStyle = useAnimatedStyle(() => {
-    // Vị trí xuất hiện của Sticky SearchBar (Ước tính Header + Banner + Chips ~ 200px)
+    // V�?trí xuất hiện của Sticky SearchBar (Ước tính Header + Banner + Chips ~ 200px)
     const opacity = interpolate(scrollY.value, [200, 250], [0, 1], Extrapolation.CLAMP);
     const translateY = interpolate(scrollY.value, [200, 250], [-20, 0], Extrapolation.CLAMP);
     
-    // Ẩn zIndex khi chưa xuất hiện để không đè thao tác bấm của các nút bên dưới
+    // Ẩn zIndex khi chưa xuất hiện đ�?không đè thao tác bấm của các nút bên dưới
     const zIndex = scrollY.value > 220 ? 100 : -1;
 
     return {
@@ -211,7 +226,7 @@ export default function VocabularyScreen() {
     } as any;
   });
 
-  // --- TÁCH CÁC PHẦN TỬ CHO FLATLIST ---
+  // --- TÁCH CÁC PHẦN T�?CHO FLATLIST ---
 
   // Header của danh sách (gồm Header, Banner, Chips, SearchBar)
   const renderListHeader = () => (
@@ -229,12 +244,12 @@ export default function VocabularyScreen() {
       {/* Banner */}
       <View style={styles.bannerContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bannerScroll}>
-          {/* Thẻ Từ vựng yêu thích - Tự động hiển thị khi số lượng > 0 */}
           {favoriteCount > 0 && (
             <FlashcardSetCard 
               title="Từ vựng yêu thích" 
               totalWords={favoriteCount} 
               isSpecial={true}
+              imageSource={require('../../assets/images/horani/horani_vocab.png')}
               onPress={() => {
                 router.push({
                   pathname: '/vocabulary/flashcardset-detail',
@@ -249,7 +264,8 @@ export default function VocabularyScreen() {
               key={set.id} 
               title={set.title} 
               totalWords={set.totalWords} 
-              backgroundColor={set.color} 
+              backgroundColor={set.color}
+              imageSource={set.imageSource} 
               onPress={() => {
                 router.push({
                   pathname: '/vocabulary/flashcardset-detail',
@@ -280,7 +296,6 @@ export default function VocabularyScreen() {
         value={searchText}
         onChangeText={setSearchText}
       />
-      {/* Nút thêm từ vựng (đã di chuyển từ footer) */}
       <TouchableOpacity
         style={styles.emptyCardButton}
         onPress={() => setIsSearchVocaModalVisible(true)}
@@ -369,7 +384,7 @@ const styles = StyleSheet.create({
       left: 0,
       right: 0,
       backgroundColor: Color.bg || '#FFFFFF',
-      paddingTop: 50, // Đồng bộ padding với safeArea để che kín phần nền ở tai thỏ
+      paddingTop: 50,
       paddingBottom: 15,
       paddingHorizontal: Padding.padding_15 || 15,
       shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
@@ -384,8 +399,8 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: Color.stroke || '#E2E8F0',
     },
-  scrollContent: { // Giữ lại tên này để không phải sửa nhiều, FlatList vẫn dùng được
-    flexGrow: 1, // Quan trọng để ListEmptyComponent có thể căn giữa
+  scrollContent: { // Gi�?lại tên này đ�?không phải sửa nhiều, FlatList vẫn dùng được
+    flexGrow: 1, // Quan trọng đ�?ListEmptyComponent có th�?căn giữa
     padding: Padding.padding_15 || 15
   },
   header: {
@@ -431,9 +446,7 @@ const styles = StyleSheet.create({
     backgroundColor: Color.stroke || '#E2E8F0',
     borderRadius: Border.br_20,
     padding: Padding.padding_15 || 15,
-    // Nút này giờ nằm dưới SearchBar, nên không cần margin top
-    marginBottom: Gap.gap_20 || 20, // Khoảng cách với danh sách từ vựng bên dưới
-    gap: Gap.gap_10 || 10,
+    marginBottom: Gap.gap_20 || 20,
   },
   emptyCardText: {
     fontFamily: FontFamily.lexendDecaMedium,
@@ -451,3 +464,4 @@ const styles = StyleSheet.create({
     color: Color.gray || '#64748B',
   }
 });
+

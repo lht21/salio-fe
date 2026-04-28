@@ -29,7 +29,7 @@ const ProfileHeader = () => {
       <View style={styles.infoWrapper}>
         <View style={styles.avatarContainer}>
           <Image 
-            source={require('../assets/images/avatar/Ellipse 2.png')} // Placeholder Avatar
+            source={require('../assets/images/avatar/Ellipse 20-1.png')} // Placeholder Avatar
             style={styles.avatar}
             contentFit="cover"
           />
@@ -77,22 +77,20 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 55,
     backgroundColor: Color.bg || '#1877F2',
-    borderWidth: 3,
     borderColor: Color.main,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Gap.gap_15,
-    // Outer green border effect
-    shadowColor: Color.main,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 5,
+    borderBottomWidth:5,
+    borderWidth: 5,
+    borderBottomColor: Color.color,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 51,
+    borderColor: Color.bg || '#1877F2',
+    borderWidth: 2,
   },
   username: {
     fontFamily: FontFamily.lexendDecaSemiBold,

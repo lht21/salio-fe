@@ -334,10 +334,15 @@ export default function VocabularyScreen() {
         data={filteredItems}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
+        <TouchableOpacity 
+          activeOpacity={0.8}
+          onPress={() => router.push({ pathname: '/vocabulary/vocabulary-detail', params: { wordId: item.id } })}
+        >
           <VocabularyCard
             item={item}
             onToggleFavorite={() => handleToggleFavorite(item.id)}
           />
+        </TouchableOpacity>
         )}
         ListHeaderComponent={renderListHeader}
         ListEmptyComponent={
@@ -464,4 +469,3 @@ const styles = StyleSheet.create({
     color: Color.gray || '#64748B',
   }
 });
-

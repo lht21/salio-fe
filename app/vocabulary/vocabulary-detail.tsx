@@ -15,12 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  CaretLeft,
-  SpeakerHigh,
-  BookmarkSimple,
-  MagicWand,
-  CheckCircle,
-  Warning,
+  CaretLeftIcon,
+  SpeakerHighIcon,
+  BookmarkSimpleIcon,
+  MagicWandIcon,
+  CheckCircleIcon,
+  WarningIcon,
 } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
@@ -79,7 +79,7 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
           <ActivityIndicator color="#FFFFFF" size="small" />
         ) : (
           <>
-            <MagicWand size={20} color="#FFFFFF" weight="fill" />
+            <MagicWandIcon size={20} color="#FFFFFF" weight="fill" />
             <Text style={styles.aiButtonText}>AI Chấm điểm</Text>
           </>
         )}
@@ -92,9 +92,9 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
           aiResult.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect
         ]}>
           {aiResult.isCorrect ? (
-            <CheckCircle size={20} color="#16A34A" weight="fill" />
+            <CheckCircleIcon size={20} color="#16A34A" weight="fill" />
           ) : (
-            <Warning size={20} color="#DC2626" weight="fill" />
+            <WarningIcon size={20} color="#DC2626" weight="fill" />
           )}
           <Text style={[
             styles.feedbackText,
@@ -166,10 +166,11 @@ export default function VocabularyDetailScreen() {
         {/* --- HEADER SECTION --- */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <CaretLeft size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+            <CaretLeftIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chi tiết từ vựng</Text>
-          <View style={{ width: 40 }} /> {/* Spacer để căn giữa title */}
+          {/* Spacer để căn giữa title */}
+          <View style={{ width: 40 }} />
         </View>
 
         {/* --- SCROLL CONTENT --- */}
@@ -185,10 +186,10 @@ export default function VocabularyDetailScreen() {
             {/* Nút thao tác góc phải */}
             <View style={styles.cardActions}>
               <TouchableOpacity style={styles.actionBtn}>
-                <SpeakerHigh size={24} color={Color.color || '#0C5F35'} weight="fill" />
+                <SpeakerHighIcon size={24} color={Color.color || '#0C5F35'} weight="fill" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.actionBtn} onPress={() => setIsBookmarked(!isBookmarked)}>
-                <BookmarkSimple 
+                <BookmarkSimpleIcon
                   size={24} 
                   color={Color.color || '#0C5F35'} 
                   weight={isBookmarked ? "fill" : "regular"} 
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_18 || 18,
+    fontSize: FontSize.fs_16 || 16,
     color: Color.text,
   },
   // --- BODY SCROLL ---
@@ -300,6 +301,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
+    borderBottomWidth: 5,
+    borderColor: Color.main,
+    borderLeftWidth: 2,
   },
   cardActions: {
     position: 'absolute',

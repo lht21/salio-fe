@@ -183,7 +183,7 @@ export default function PracticeScreen() {
             <Text style={styles.filterLabel}>Cấp độ đề</Text>
             <TouchableOpacity style={styles.filterDropdown} onPress={() => setLevelModalVisible(true)}>
               <Text style={styles.filterText}>{selectedLevel}</Text>
-              <CaretDownIcon size={14} color={Color.text} weight="bold" />
+              <CaretDownIcon size={14} color={Color.main} weight="bold" />
             </TouchableOpacity>
           </View>
         </View>
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   filterDropdown: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Color.main || '#98F291',
+    backgroundColor: Color.text || '#98F291',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: Border.br_10 || 10,
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   filterText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_12 || 12,
-    color: Color.text,
+    color: Color.bg,
   },
   skillsRow: {
     flexDirection: 'row',

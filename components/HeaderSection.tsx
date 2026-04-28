@@ -92,17 +92,17 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
         {/* Các Badge Trạng thái */}
         <View style={styles.badgesRow}>
           <StatusBadge text="Sơ cấp 1" bgColor="#FFFFFF" />
-          <StatusBadge
-            icon={<FireIcon size={20} color="#EA580C" weight="fill" />}
-            text="15"
-            bgColor="#FFFFFF"
-          onPress={onFirePress}
+          <StatusBadge 
+            icon={<Image source={require('../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
+            text="15" 
+            bgColor="#FFFFFF" 
+            onPress={onFirePress} // Giữ nguyên prop onPress có sẵn trong file của bạn
           />
-          <StatusBadge
-            icon={<CloudIcon size={20} color="#0284C7" weight="fill" />}
-            text="103"
-            bgColor="#FFFFFF"
-          onPress={onCloudPress}
+          <StatusBadge 
+            icon={<Image source={require('../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
+            text="103" 
+            bgColor="#FFFFFF" 
+            onPress={onCloudPress} // Giữ nguyên prop onPress có sẵn trong file của bạn
           />
         </View>
       </View>

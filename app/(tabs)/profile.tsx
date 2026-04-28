@@ -47,7 +47,7 @@ export default function ProfileScreen() {
       <Animated.View style={[styles.stickyHeader, stickyHeaderStyle]}>
         <View style={styles.stickyUserInfo}>
           <Image 
-            source={require('../../assets/images/avatar/Ellipse 2.png')} 
+            source={require('../../assets/images/avatar/Ellipse 20-1.png')} 
             style={styles.stickyAvatar}
             contentFit="cover"
           />

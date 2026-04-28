@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Modal, Image } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -133,7 +133,7 @@ export default function HomeScreen() {
     setInfoContent({
       title: 'Chuỗi ngày học (Streak)',
       desc: 'Mỗi ngày bạn hoàn thành ít nhất một bài học, ngọn lửa sẽ cháy thêm 1 ngày. Giữ lửa liên tục để nhận thưởng lớn nhé!',
-      icon: <FireIcon size={48} color="#EA580C" weight="fill" />
+      icon: <Image source={require('../../assets/images/streak/lv1.png')} style={{ width: 48, height: 48 }} resizeMode="contain" />
     });
     setInfoModalVisible(true);
   };
@@ -142,7 +142,7 @@ export default function HomeScreen() {
     setInfoContent({
       title: 'Đám mây (Điểm thưởng)',
       desc: 'Tích lũy đám mây sau mỗi bài học để đổi lấy các phần quà hấp dẫn hoặc mở khóa tính năng đặc biệt trong cửa hàng.',
-      icon: <CloudIcon size={48} color="#0284C7" weight="fill" />
+      icon: <Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 48, height: 48 }} resizeMode="contain" />
     });
     setInfoModalVisible(true);
   };
@@ -199,13 +199,13 @@ export default function HomeScreen() {
       >
         <StatusBadge text="Sơ cấp 1" bgColor="#FFFFFF" />
         <StatusBadge 
-          icon={<FireIcon size={20} color="#EA580C" weight="fill" />} 
+          icon={<Image source={require('../../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
           text="15" 
           bgColor="#FFFFFF" 
           onPress={handleShowFireInfo} 
         />
         <StatusBadge 
-          icon={<CloudIcon size={20} color="#0284C7" weight="fill" />} 
+          icon={<Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
           text="103" 
           bgColor="#FFFFFF" 
           onPress={handleShowCloudInfo} 

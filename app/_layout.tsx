@@ -15,7 +15,9 @@ export default function RootLayout() {
     "LexendDeca-Regular": require("../assets/fonts/LexendDeca-Regular.ttf"),
     "LexendDeca-Medium": require("../assets/fonts/LexendDeca-Medium.ttf"),
     "LexendDeca-SemiBold": require("../assets/fonts/LexendDeca-SemiBold.ttf"),
-    "LexendDeca-Bold": require("../assets/fonts/LexendDeca-Bold.ttf")
+    "LexendDeca-Bold": require("../assets/fonts/LexendDeca-Bold.ttf"),
+    "NotoSerif-Bold": require("../assets/fonts/NotoSerifKR-Bold.ttf"),
+    "NotoSerif-Regular": require("../assets/fonts/NotoSerifKR-Regular.ttf"),
   });
 
   // Xử lý lỗi tải font

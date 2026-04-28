@@ -4,6 +4,8 @@ export const FontFamily = {
   lexendDecaRegular: "LexendDeca-Regular",
   lexendDecaSemiBold: "LexendDeca-SemiBold",
   lexendDecaBold: "LexendDeca-Bold",
+  notoSerifBold: "NotoSerif-Bold",
+  notoSerifRegular: "NotoSerif-Regular",
 };
 /* Font sizes */
 export const FontSize = {

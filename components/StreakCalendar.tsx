@@ -1,7 +1,8 @@
-import { CaretLeftIcon, CaretRightIcon, FireIcon } from 'phosphor-react-native';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Padding } from '../constants/GlobalStyles';
 import SectionHeader from './SectionHeader';
+import { MonthBlock } from './StreakComponent/MonthBlock';
+import { CalendarDay, MonthSection, DayState } from './StreakComponent/types';
 
 // Mock data tháng 2/2026 theo ảnh
 const CALENDAR_DATA = [
@@ -38,78 +39,35 @@ const CALENDAR_DATA = [
   { id: '22', day: '22', status: 'inactive' },
 ];
 
-const WEEKDAYS = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
-
 type StreakCalendarProps = {
   onHeaderPress?: () => void;
 };
 
+// Chuyển đổi dữ liệu cũ sang cấu trúc chuẩn của MonthBlock
+const mockDays: CalendarDay[] = CALENDAR_DATA
+  .filter(item => item.status !== 'empty')
+  .map(item => ({
+    id: item.id,
+    day: item.day,
+    state: item.status as DayState,
+    fire: item.fire
+  }));
+
+const mockSection: MonthSection = {
+  id: 'feb-2026',
+  title: 'Tháng 2 2026',
+  month: 2,
+  year: 2026,
+  days: mockDays,
+};
+
 const StreakCalendar = ({ onHeaderPress }: StreakCalendarProps) => {
-  const renderDay = (item: any) => {
-    if (item.status === 'empty') return <View key={item.id} style={styles.dayCell} />;
-
-    let circleStyle: any = styles.circleInactive;
-    let textStyle: any = styles.textInactive;
-
-    if (item.status === 'completed') {
-      circleStyle = styles.circleCompleted;
-      textStyle = styles.textWhite;
-    } else if (item.status === 'missed') {
-      circleStyle = styles.circleMissed;
-      textStyle = styles.textWhite;
-    } else if (item.status === 'today') {
-      circleStyle = styles.circleToday;
-      textStyle = styles.textToday;
-    }
-
-    return (
-      <View key={item.id} style={styles.dayCell}>
-        <View style={[styles.dayCircle, circleStyle]}>
-          <Text style={[styles.dayText, textStyle]}>{item.day}</Text>
-        </View>
-        {item.fire && (
-          <View style={styles.fireIcon}>
-            <FireIcon size={12} color="#EA580C" weight="fill" />
-          </View>
-        )}
-      </View>
-    );
-  };
-
   return (
     <View style={styles.wrapper}>
       <SectionHeader title="Chuỗi của bạn" />
-      <View style={styles.container}>
-
-        {/* Header Calendar */}
-        <TouchableOpacity
-          style={styles.header}
-          activeOpacity={0.85}
-          onPress={onHeaderPress}
-          disabled={!onHeaderPress}
-        >
-          <CaretLeftIcon size={24} color={Color.bg} weight="bold" />
-          <Text style={styles.headerText}>Tháng 2 2026</Text>
-          <CaretRightIcon size={24} color={Color.bg} weight="bold" />
-        </TouchableOpacity>
-
-        {/* Lưới ngày */}
-        <View style={styles.grid}>
-          {/* Weekdays */}
-          <View style={styles.row}>
-            {WEEKDAYS.map(day => (
-              <View key={day} style={styles.dayCell}>
-                <Text style={styles.weekdayText}>{day}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Days */}
-          <View style={styles.daysWrap}>
-            {CALENDAR_DATA.map(renderDay)}
-          </View>
-        </View>
-      </View>
+      <TouchableOpacity activeOpacity={0.85} onPress={onHeaderPress} disabled={!onHeaderPress}>
+        <MonthBlock section={mockSection} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -119,82 +77,6 @@ const styles = StyleSheet.create({
     marginHorizontal: Padding.padding_15 || 15,
     marginBottom: 24,
   },
-  sectionTitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12 || 12,
-    color: Color.gray,
-    marginBottom: Gap.gap_10 || 10,
-  },
-  container: {
-    borderWidth: 2,
-    borderColor: Color.main2,
-    borderRadius: Border.br_20 || 20,
-    overflow: 'hidden',
-  },
-  header: {
-    backgroundColor: Color.main2,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  headerText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14 || 14,
-    color: Color.bg,
-  },
-  grid: {
-    backgroundColor: Color.bg,
-    padding: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    marginBottom: Gap.gap_10 || 10,
-  },
-  daysWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  dayCell: {
-    width: '14.28%', // 100% / 7
-    aspectRatio: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    marginBottom: 8,
-  },
-  weekdayText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 12,
-    color: Color.gray,
-  },
-  dayCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dayText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 12,
-  },
-  circleInactive: { backgroundColor: '#E2E8F0' },
-  textInactive: { color: '#64748B' },
-  circleCompleted: { backgroundColor: '#4A9F00' }, // Green
-  textWhite: { color: '#FFFFFF' },
-  circleMissed: { backgroundColor: '#EA580C' }, // Red/Orange
-  circleToday: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#4A9F00' },
-  textToday: { color: '#4A9F00' },
-  fireIcon: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    padding: 1,
-  }
 });
 
 export default StreakCalendar;

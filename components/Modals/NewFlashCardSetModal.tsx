@@ -1,82 +1,42 @@
-import { AnimatePresence, MotiView } from 'moti';
-import { CheckIcon, PlusIcon } from 'phosphor-react-native';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    ScrollView,
-    StyleSheet,
+    Modal,
+    KeyboardAvoidingView,
+    Pressable,
+    View,
     Text,
+    StyleSheet,
+    Platform,
+    Keyboard,
+    ScrollView,
     TouchableOpacity,
-    View
+    ActivityIndicator
 } from 'react-native';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
-import { ALL_NOTEBOOKS } from '../../constants/mockVocabularyNotebook';
-import { CustomInput } from '../CustomInput';
-import VocabularyCard from '../VocabularyCard';
-import SearchBar from '../SearchBar';
-import VocabularySheetModal from './VocabularySheetModal';
+import { CheckIcon, PlusIcon } from 'phosphor-react-native';
+import { AnimatePresence, MotiView } from 'moti';
 
-interface VocabularyItem {
+import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { CustomInput } from '../CustomInput';
+import SearchBar from '../SearchBar';
+import VocabularyCard from '../VocabularyCard';
+import CloseButton from '../CloseButton';
+import Button from '../Button';
+import FlashcardService from '../../api/services/flashcard.service';
+import VocabularyService from '../../api/services/vocabulary.service';
+
+export interface VocabularyItem {
     id: string;
     word: string;
-    pos: string; // Danh từ, Động từ, Tính từ...
+    pos: string;
     phonetic: string;
     meaning: string;
 }
 
-interface NewFlashCardSetModalProps {
+export interface NewFlashCardSetModalProps {
     isVisible: boolean;
     onClose: () => void;
     onCreateSet?: (setName: string, selectedWords: VocabularyItem[]) => void;
 }
-
-// Mock data - Flatten all words from all notebooks
-const VOCABULARY_SUGGESTIONS: VocabularyItem[] = ALL_NOTEBOOKS.flatMap((notebook) =>
-    notebook.words.map((word) => ({
-        id: word.id,
-        word: word.word,
-        pos: word.pos,
-        phonetic: word.phonetic,
-        meaning: word.meaning,
-    }))
-);
-
-const OLD_VOCABULARY_SUGGESTIONS: VocabularyItem[] = [
-    {
-        id: '1',
-        word: 'Đáp án',
-        pos: 'Danh từ',
-        phonetic: '/ˈdɑːp æn/',
-        meaning: 'Câu trả lời cho một câu hỏi',
-    },
-    {
-        id: '2',
-        word: 'Đáp án',
-        pos: 'Danh từ',
-        phonetic: '/ˈdɑːp æn/',
-        meaning: 'Câu trả lời cho một câu hỏi',
-    },
-    {
-        id: '3',
-        word: 'Đáp án',
-        pos: 'Danh từ',
-        phonetic: '/ˈdɑːp æn/',
-        meaning: 'Câu trả lời cho một câu hỏi',
-    },
-    {
-        id: '4',
-        word: 'Đáp án',
-        pos: 'Danh từ',
-        phonetic: '/ˈdɑːp æn/',
-        meaning: 'Câu trả lời cho một câu hỏi',
-    },
-    {
-        id: '5',
-        word: 'Đáp án',
-        pos: 'Danh từ',
-        phonetic: '/ˈdɑːp æn/',
-        meaning: 'Câu trả lời cho một câu hỏi',
-    },
-];
 
 export default function NewFlashCardSetModal({
     isVisible,
@@ -85,154 +45,256 @@ export default function NewFlashCardSetModal({
 }: NewFlashCardSetModalProps) {
     const [setName, setSetName] = useState('');
     const [searchText, setSearchText] = useState('');
-    const [selectedWords, setSelectedWords] = useState<Set<string>>(new Set());
+    
+    // Lưu trữ item hoàn chỉnh vào Map thay vì chỉ lưu ID
+    const [selectedWordsMap, setSelectedWordsMap] = useState<Record<string, VocabularyItem>>({});
+    
+    // Data states
+    const [favoriteWords, setFavoriteWords] = useState<VocabularyItem[]>([]);
+    const [searchResults, setSearchResults] = useState<VocabularyItem[]>([]);
+    
+    // Loading states
+    const [isLoadingFavs, setIsLoadingFavs] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
-    // Filter vocabulary based on search
-    const filteredVocabulary = VOCABULARY_SUGGESTIONS.filter((item) =>
-        item.word.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    const toggleWordSelection = (id: string) => {
-        const newSelected = new Set(selectedWords);
-        if (newSelected.has(id)) {
-            newSelected.delete(id);
-        } else {
-            newSelected.add(id);
+    // Reset state & Load Favorites khi Modal mở/đóng
+    useEffect(() => {
+        if (!isVisible) {
+            setSetName('');
+            setSearchText('');
+            setSelectedWordsMap({});
+            setSearchResults([]);
+            return;
         }
-        setSelectedWords(newSelected);
+
+        const fetchFavorites = async () => {
+            setIsLoadingFavs(true);
+            try {
+                const res = await FlashcardService.getSetById('favorite');
+                if (res.success && res.data) {
+                    const cards = res.data.cards || [];
+                    const mapped: VocabularyItem[] = cards.map((c: any) => ({
+                        id: c._id,
+                        word: c.word,
+                        pos: c.type || c.category || 'Từ vựng',
+                        phonetic: c.pronunciationText || '',
+                        meaning: c.meaning,
+                    }));
+                    setFavoriteWords(mapped);
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy từ vựng đề thích:', error);
+            } finally {
+                setIsLoadingFavs(false);
+            }
+        };
+
+        fetchFavorites();
+    }, [isVisible]);
+
+    // Logic tìm kiếm toàn cục với Debounce
+    useEffect(() => {
+        if (!isVisible) return;
+
+        const keyword = searchText.trim().normalize('NFC'); // Chuẩn hóa Unicode tiếng Hàn
+        if (!keyword) {
+            setSearchResults([]);
+            setIsSearching(false);
+            return;
+        }
+
+        setIsSearching(true);
+        const timeoutId = setTimeout(async () => {
+            try {
+                const res = await VocabularyService.getAll({ search: keyword, limit: 20 });
+                
+                if (res.success && res.data) {
+                    const vocabularies = res.data.vocabularies || [];
+                    const mapped: VocabularyItem[] = vocabularies.map((c: any) => ({
+                        id: c._id,
+                        word: c.word,
+                        pos: c.type || c.category || 'Từ vựng',
+                        phonetic: c.pronunciationText || '',
+                        meaning: c.meaning,
+                    }));
+                    setSearchResults(mapped);
+                }
+            } catch (error) {
+                console.error('Lỗi tìm kiếm từ vựng toàn cục:', error);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 500); // 500ms Debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [searchText, isVisible]);
+
+    const toggleWordSelection = (item: VocabularyItem) => {
+        setSelectedWordsMap(prev => {
+            const newMap = { ...prev };
+            if (newMap[item.id]) {
+                delete newMap[item.id];
+            } else {
+                newMap[item.id] = item;
+            }
+            return newMap;
+        });
+    };
+
+    const handleClose = () => {
+        Keyboard.dismiss();
+        onClose();
     };
 
     const handleCreateSet = () => {
-        if (setName.trim() && selectedWords.size > 0) {
-            const selected = VOCABULARY_SUGGESTIONS.filter((item) =>
-                selectedWords.has(item.id)
-            );
-            onCreateSet?.(setName, selected);
-            // Reset form
-            setSetName('');
-            setSearchText('');
-            setSelectedWords(new Set());
-            onClose();
+        const selectedArray = Object.values(selectedWordsMap);
+        if (setName.trim() && selectedArray.length > 0) {
+            Keyboard.dismiss();
+            onCreateSet?.(setName.trim(), selectedArray);
+            handleClose();
         }
     };
 
+    const displayList = searchText.trim() ? searchResults : favoriteWords;
+    const hasSelections = Object.keys(selectedWordsMap).length > 0;
+
     return (
-        <VocabularySheetModal
+        <Modal
             visible={isVisible}
-            title="Bộ từ vựng mới"
-            onClose={onClose}
-            maxHeight="95%"
-            edgeToBottom
-            showCloseButton={true}
-            keyboardAware={true}
-            headerHorizontalInset={20}
-            contentScrollable={true}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={handleClose}
         >
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.content}
-                scrollEnabled={true}
+            <KeyboardAvoidingView
+                style={styles.overlay}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                {/* Name Input */}
-                <View style={styles.section}>
-                    <CustomInput
-                        placeholder="Tên bộ từ vựng"
-                        value={setName}
-                        onChangeText={setSetName}
-                        placeholderTextColor={Color.gray}
-                    />
+                <Pressable style={styles.backgroundTouchable} onPress={handleClose} />
+                <View style={styles.sheetContent}>
+                    <View style={styles.dragHandle} />
+
+                    <View style={styles.header}>
+                        <Text style={styles.headerTitle}>Bộ từ vựng mới</Text>
+                        <CloseButton variant="Stroke" onPress={handleClose} />
+                    </View>
+
+                    <View style={styles.body}>
+                        <CustomInput
+                            placeholder="Tên bộ từ vựng"
+                            value={setName}
+                            onChangeText={setSetName}
+                        />
+                        <View style={{ marginTop: Gap.gap_8 }}>
+                            <SearchBar
+                                value={searchText}
+                                onChangeText={setSearchText}
+                                placeholder="Tìm kiếm từ vựng"
+                            />
+                        </View>
+
+                        <Text style={styles.sectionTitle}>
+                            {searchText.trim() ? 'Kết quả tìm kiếm' : 'Những từ bạn đã thích'}
+                        </Text>
+
+                        <View style={styles.listWrapper}>
+                            {isSearching || isLoadingFavs ? (
+                                <ActivityIndicator size="small" color={Color.main} style={{ marginTop: 20 }} />
+                            ) : displayList.length > 0 ? (
+                                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                                    {displayList.map((item) => {
+                                        const isSelected = !!selectedWordsMap[item.id];
+                                        return (
+                                            <VocabularyCard
+                                                key={item.id}
+                                                item={item as any}
+                                                isSelected={isSelected}
+                                                onPress={() => toggleWordSelection(item)}
+                                                rightAction={
+                                                    <MotiView
+                                                        style={styles.addButton}
+                                                        animate={{
+                                                            backgroundColor: isSelected ? '#F0FDF4' : Color.bg,
+                                                            borderColor: isSelected ? '#22C55E' : Color.stroke,
+                                                        }}
+                                                        transition={{ type: 'timing', duration: 200 }}
+                                                    >
+                                                        <AnimatePresence exitBeforeEnter>
+                                                            {isSelected ? (
+                                                                <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
+                                                                    <CheckIcon size={16} color="#22C55E" weight="bold" />
+                                                                </MotiView>
+                                                            ) : (
+                                                                <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
+                                                                    <PlusIcon size={16} color={Color.text} weight="bold" />
+                                                                </MotiView>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </MotiView>
+                                                }
+                                            />
+                                        );
+                                    })}
+                                </ScrollView>
+                            ) : (
+                                <Text style={styles.emptyText}>Không tìm thấy từ vựng</Text>
+                            )}
+                        </View>
+
+                        <Button
+                            title="Tạo bộ từ vựng"
+                            variant="Green"
+                            onPress={handleCreateSet}
+                            style={styles.confirmButton}
+                            disabled={!setName.trim() || !hasSelections}
+                        />
+                    </View>
                 </View>
-
-                {/* Search Input */}
-                <View style={styles.section}>
-                    <SearchBar
-                        value={searchText}
-                        onChangeText={setSearchText}
-                        placeholder="Tìm kiếm từ vựng"
-                    />
-                </View>
-
-                {/* Section Title */}
-                <Text style={styles.sectionTitle}>Những từ đề thích</Text>
-
-                {/* Vocabulary List */}
-                <View style={styles.section}>
-                    {filteredVocabulary.length > 0 ? (
-                        filteredVocabulary.map((item) => {
-                            const isSelected = selectedWords.has(item.id);
-
-                            return (
-                                <VocabularyCard
-                                    key={item.id}
-                                    item={item}
-                                    isSelected={isSelected}
-                                    rightAction={
-                                        <TouchableOpacity
-                                            onPress={() => toggleWordSelection(item.id)}
-                                        >
-                                            <MotiView
-                                                style={styles.addButton}
-                                                animate={{
-                                                    backgroundColor: isSelected ? '#F0FDF4' : (Color.bg || '#FFFFFF'),
-                                                    borderColor: isSelected ? (Color.colorLimegreen || '#22C55E') : (Color.stroke || '#E2E8F0'),
-                                                }}
-                                                transition={{ type: 'timing', duration: 200 }}
-                                            >
-                                                <AnimatePresence exitBeforeEnter>
-                                                    {isSelected ? (
-                                                        <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                            <CheckIcon size={16} color={Color.colorLimegreen} weight="bold" />
-                                                        </MotiView>
-                                                    ) : (
-                                                        <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                            <PlusIcon size={16} color={Color.text} weight="bold" />
-                                                        </MotiView>
-                                                    )}
-                                                </AnimatePresence>
-                                            </MotiView>
-                                        </TouchableOpacity>
-                                    }
-                                />
-                            );
-                        })
-                    ) : (
-                        <Text style={styles.emptyText}>Không tìm thấy từ vựng</Text>
-                    )}
-                </View>
-
-                {/* Button Group */}
-                <View style={styles.buttonGroup}>
-                    <TouchableOpacity
-                        style={[
-                            styles.createButton,
-                            !setName.trim() || selectedWords.size === 0
-                                ? styles.createButtonDisabled
-                                : null,
-                        ]}
-                        onPress={handleCreateSet}
-                        disabled={!setName.trim() || selectedWords.size === 0}
-                    >
-                        <Text style={styles.createButtonText}>Tạo bộ từ vựng</Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </VocabularySheetModal>
+            </KeyboardAvoidingView>
+        </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    content: {
+    overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+    backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+    sheetContent: {
+        backgroundColor: Color.bg,
+        borderTopLeftRadius: Border.br_30,
+        borderTopRightRadius: Border.br_30,
         paddingHorizontal: Padding.padding_20,
-        paddingBottom: Padding.padding_20,
+        paddingTop: Padding.padding_15,
+        paddingBottom: 40,
+        maxHeight: '90%', // Giới hạn chiều cao để không bị tràn khi bàn phím mở
     },
-    section: {
-        marginBottom: Gap.gap_20 || 20,
+    dragHandle: {
+        width: 40,
+        height: 5,
+        borderRadius: 3,
+        backgroundColor: '#CBD5E1',
+        alignSelf: 'center',
+        marginBottom: Gap.gap_15,
+    },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+    body: {
+        flexShrink: 1, // Cho phép body co lại khi danh sách dài
+        gap: 12,
+        paddingBottom: 8,
     },
     sectionTitle: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_14,
-        color: Color.colorDarkgray,
-        marginBottom: Gap.gap_12 || 12,
+        color: Color.gray,
+        marginTop: 4,
+        marginBottom: 2,
+    },
+    listWrapper: {
+        flexShrink: 1, // Bắt buộc để ScrollView bên trong có thể cuộn được
+        minHeight: 120, // Hiển thị ít nhất một khoảng trống
+    },
+    scrollContent: {
+        paddingBottom: 20,
+        gap: 12,
     },
     addButton: {
         width: 24,
@@ -247,28 +309,14 @@ const styles = StyleSheet.create({
     emptyText: {
         fontFamily: FontFamily.lexendDecaRegular,
         fontSize: FontSize.fs_14,
-        color: Color.colorDarkgray,
+        color: Color.gray,
         textAlign: 'center',
         paddingVertical: Padding.padding_20,
     },
-    buttonGroup: {
-        marginTop: Gap.gap_20 || 20,
-        gap: Gap.gap_12 || 12,
-    },
-    createButton: {
-        backgroundColor: Color.colorLimegreen || '#22C55E',
-        borderRadius: Border.br_15,
-        paddingVertical: Padding.padding_15,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    createButtonDisabled: {
-        backgroundColor: Color.stroke,
-        opacity: 0.5,
-    },
-    createButtonText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16 || 16,
-        color: '#FFFFFF',
+    confirmButton: {
+        height: 48,
+        borderRadius: 37,
+        marginVertical: 0,
+        marginTop: 8,
     },
 });

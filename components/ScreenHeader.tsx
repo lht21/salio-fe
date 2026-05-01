@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 import { ArrowLeftIcon } from 'phosphor-react-native';
 import { useRouter } from 'expo-router';
 import { Color, FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
@@ -9,13 +9,15 @@ interface ScreenHeaderProps {
   showBackButton?: boolean;
   onBackPress?: () => void;
   rightContent?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function ScreenHeader({ 
   title, 
   showBackButton = true, 
   onBackPress, 
-  rightContent 
+  rightContent,
+  style 
 }: ScreenHeaderProps) {
   const router = useRouter();
 
@@ -28,7 +30,7 @@ export default function ScreenHeader({
   };
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, style]}>
       <View style={styles.leftContent}>
         {showBackButton && (
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>

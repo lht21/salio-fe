@@ -20,12 +20,15 @@ export const CustomInput = ({ style, onFocus, onBlur, ...props }: CustomInputPro
     if (onBlur) onBlur(e); // Gọi hàm onBlur từ props truyền vào (nếu có)
   };
 
+  // Kiểm tra xem input đã có dữ liệu hay chưa
+  const hasValue = props.value !== undefined && props.value !== null && props.value.toString().length > 0;
+
   return (
     <View style={styles.container}>
       <TextInput
         style={[
           styles.input,
-          isFocused && styles.inputFocused, // Thêm style focus khi isFocused = true
+          (isFocused || hasValue) && styles.inputFocused, // Giữ style focus khi đang focus HOẶC đã có dữ liệu
           style // Ghi đè style từ props ở cuối cùng
         ]}
         placeholderTextColor={Color.gray}

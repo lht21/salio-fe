@@ -13,7 +13,7 @@ interface SearchBarProps {
 const SearchBar = ({ placeholder = "Tìm trong Từ vựng yêu thích", value, onChangeText, containerStyle }: SearchBarProps) => {
   return (
     <View style={[styles.searchContainer, containerStyle]}>
-      <MagnifyingGlassIcon size={20} color={Color.gray || '#64748B'} />
+      <MagnifyingGlassIcon size={20} color={Color.color || '#64748B'} weight='regular' />
       <TextInput
         style={styles.searchInput}
         placeholder={placeholder}
@@ -29,13 +29,16 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F4F4F4',
-    borderRadius: Border.br_30 || 30,
+    borderRadius: Border.br_20,
     paddingHorizontal: 15,
     height: 48,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: Color.stroke || '#E2E8F0',
+    backgroundColor: Color.bg || '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 15,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,

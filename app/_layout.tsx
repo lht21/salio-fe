@@ -1,10 +1,16 @@
-import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { DefaultTheme, ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
+
+import { UserProvider } from "../contexts/UserContext";
+import { useAuth } from "../api/hooks/useAuth";
+import { ModalProvider } from "../contexts/ModalContext"; // Giả định ModalProvider nằm ở đây
+import { ThemeProvider } from "../contexts/ThemeContext";
+import "../locales/config"; // Khởi tạo i18n
 
 // Ngăn Splash Screen tự động ẩn trước khi font chữ tải xong
 SplashScreen.preventAutoHideAsync();
@@ -38,22 +44,32 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }} initialRouteName="(auth)">
-          {/* Màn hình chính là nhóm Tabs */}
-
-          {/* Nhóm Auth (Sign-in, Register, etc.) */}
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="certificate/index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="streak/index" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen name="+not-found" options={{ title: "Oops!" }} />
-        </Stack>
-      </ThemeProvider>
+      <UserProvider>
+        <ThemeProvider>
+          <ModalProvider>
+            <RootLayoutNav />
+          </ModalProvider>
+        </ThemeProvider>
+      </UserProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function RootLayoutNav() {
+  useAuth();
+
+  return (
+    <NavThemeProvider value={DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="(auth)">
+        {/* Màn hình chính là nhóm Tabs */}
+
+        {/* Nhóm Auth (Sign-in, Register, etc.) */}
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="certificate/certificate" options={{ headerShown: false }} />
+        <Stack.Screen name="streak/streak" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" options={{ title: "Oops!" }} />
+      </Stack>
+    </NavThemeProvider>
   );
 }

@@ -25,12 +25,15 @@ type HeaderSectionProps = {
   onCurrentLessonPress?: (item: LessonItem) => void;
   onFirePress?: () => void;
   onCloudPress?: () => void;
+  streak?: number;
+  clouds?: number;
+  level?: string;
 };
 
 // Bọc LinearGradient để có thể nhận các giá trị Animation từ Reanimated
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
-const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onCloudPress }: HeaderSectionProps) => {
+const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onCloudPress, streak = 0, clouds = 0, level }: HeaderSectionProps) => {
   // --- ANIMATION CHUYỂN ĐỘNG LƠ LỬNG ---
   const translateY = useSharedValue(0);
   const colorProgress = useSharedValue(0);
@@ -91,16 +94,16 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
 
         {/* Các Badge Trạng thái */}
         <View style={styles.badgesRow}>
-          <StatusBadge text="Sơ cấp 1" bgColor="#FFFFFF" />
+          <StatusBadge text={level || "Sơ cấp 1"} bgColor="#FFFFFF" />
           <StatusBadge 
             icon={<Image source={require('../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-            text="15" 
+            text={streak.toString()} 
             bgColor="#FFFFFF" 
             onPress={onFirePress} // Giữ nguyên prop onPress có sẵn trong file của bạn
           />
           <StatusBadge 
             icon={<Image source={require('../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-            text="103" 
+            text={clouds.toString()} 
             bgColor="#FFFFFF" 
             onPress={onCloudPress} // Giữ nguyên prop onPress có sẵn trong file của bạn
           />

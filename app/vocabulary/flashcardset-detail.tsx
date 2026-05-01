@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { CardsIcon, ListChecksIcon, PlusIcon, ArrowLeftIcon, TrashIcon } from 'phosphor-react-native';
+import { CardsIcon, ListChecksIcon, PlusIcon, ArrowLeftIcon, TrashIcon, PencilSimpleIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
@@ -19,53 +19,76 @@ import Animated, {
 
 import VocabularyCard from '../../components/VocabularyCard';
 import ActionMenuItem from '../../components/ActionMenuItem';
+import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
-
-// Mock data tạm thời
-const MOCK_WORDS = [
-  {
-    id: 'w1',
-    word: '학교',
-    pos: 'Danh từ',
-    phonetic: '/hak-gyo/',
-    meaning: 'Trường học',
-    isFavorite: true,
-  },
-  {
-    id: 'w2',
-    word: '사랑하다',
-    pos: 'Động từ',
-    phonetic: '/sa-rang-ha-da/',
-    meaning: 'Yêu',
-    isFavorite: false,
-  },
-  {
-    id: 'w3',
-    word: '맛있다',
-    pos: 'Tính từ',
-    phonetic: '/ma-sit-da/',
-    meaning: 'Ngon',
-    isFavorite: false,
-  },
-];
+import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
+import FlashcardService from '../../api/services/flashcard.service';
 
 export default function FlashcardSetDetailScreen() {
   const { id, title } = useLocalSearchParams();
   const router = useRouter();
   
+  const [isLoading, setIsLoading] = useState(true);
+  const [displayTitle, setDisplayTitle] = useState((title as string) || 'Không có tên');
+
+  // State cho chức năng sửa tên bộ từ vựng
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editTitleText, setEditTitleText] = useState('');
+  const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
+  const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
+
   // State quản lý từ vựng đang được chọn để thao tác (nhấn giữ)
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null);
 
-  // Quản lý state cho danh sách từ để có thể toggle yêu thích
-  const [words, setWords] = useState(MOCK_WORDS);
+  // State quản lý modal tìm kiếm từ vựng
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
 
-  const handleToggleFavorite = (wordId: string) => {
-    setWords((prev) =>
-      prev.map((item) =>
-        item.id === wordId ? { ...item, isFavorite: !item.isFavorite } : item
-      )
-    );
+  // Quản lý state cho danh sách từ để có thể toggle yêu thích
+  const [words, setWords] = useState<any[]>([]);
+
+  // Ref để lưu id của Timeout cho việc xóa
+  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchSetDetail = async () => {
+    if (!id) return;
+    try {
+      setIsLoading(true);
+      
+      // Gọi đồng thời API lấy chi tiết bộ hiện tại và danh sách yêu thích
+      const [res, favRes] = await Promise.all([
+        FlashcardService.getSetById(id as string),
+        FlashcardService.getSetById('favorite').catch(() => null) // Bỏ qua lỗi nếu set favorite chưa có
+      ]);
+      
+      if (res.success && res.data) {
+        setDisplayTitle(res.data.name);
+        
+        // Lưu trữ các ID từ vựng đã yêu thích vào một Set để tra cứu nhanh
+        const favoriteIds = new Set();
+        if (favRes && favRes.success && favRes.data) {
+          (favRes.data.cards || []).forEach((c: any) => favoriteIds.add(c._id || c));
+        }
+
+        const mappedWords = (res.data.cards || []).map((card: any) => ({
+          id: card._id,
+          word: card.word,
+          pos: card.type || card.category || 'Từ vựng',
+          phonetic: card.pronunciationText || '',
+          meaning: card.meaning,
+          isFavorite: id === 'favorite' ? true : favoriteIds.has(card._id),
+        }));
+        setWords(mappedWords);
+      }
+    } catch (error) {
+      console.error('Lỗi lấy chi tiết bộ flashcard:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchSetDetail();
+  }, [id]);
 
   // State quản lý từ vựng vừa xóa để hoàn tác
   const [deletedWord, setDeletedWord] = useState<{ index: number, word: any } | null>(null);
@@ -97,6 +120,16 @@ export default function FlashcardSetDetailScreen() {
           withSpring(0),
           withDelay(3000, withTiming(50, { duration: 300 }))
         );
+
+        // Gọi API thực sự sau 3 giây nếu không bị hủy
+        if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+        deleteTimeoutRef.current = setTimeout(async () => {
+          try {
+            await FlashcardService.removeCardFromSet(id as string, wordToRemove.id);
+          } catch (error) {
+            console.error('Lỗi khi xóa từ vựng trên server:', error);
+          }
+        }, 3000);
       }
       setSelectedWordId(null);
     }
@@ -105,6 +138,12 @@ export default function FlashcardSetDetailScreen() {
   // Hàm xử lý khi người dùng bấm "Hoàn tác"
   const handleUndo = () => {
     if (deletedWord) {
+      // Hủy gọi API xóa
+      if (deleteTimeoutRef.current) {
+        clearTimeout(deleteTimeoutRef.current);
+        deleteTimeoutRef.current = null;
+      }
+
       setWords((prev) => {
         const newWords = [...prev];
         newWords.splice(deletedWord.index, 0, deletedWord.word); // Chèn lại đúng vị trí ban đầu
@@ -114,6 +153,71 @@ export default function FlashcardSetDetailScreen() {
       toastOpacity.value = withTiming(0, { duration: 200 });
       toastTranslateY.value = withTiming(50, { duration: 200 });
       setDeletedWord(null);
+    }
+  };
+
+  // --- HANDLER CHO SỬA TÊN BỘ TỪ VỰNG ---
+  const handleUpdateTitle = async () => {
+    if (!editTitleText.trim()) return;
+    setIsUpdatingTitle(true);
+    try {
+      const res = await FlashcardService.updateSet(id as string, { name: editTitleText.trim() });
+      if (res.success && res.data) {
+        setDisplayTitle(res.data.name);
+        setIsEditModalVisible(false);
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật tên bộ từ vựng:', error);
+      Alert.alert('Lỗi', 'Không thể cập nhật tên bộ từ vựng.');
+    } finally {
+      setIsUpdatingTitle(false);
+    }
+  };
+
+  // --- HANDLER CHO XÓA BỘ TỪ VỰNG ---
+  const handleDeleteSet = () => {
+    setIsDeleteConfirmVisible(true);
+  };
+
+  const executeDeleteSet = async () => {
+    setIsDeleteConfirmVisible(false);
+    try {
+      const res = await FlashcardService.deleteSet(id as string);
+      if (res.success) {
+        router.back();
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa bộ từ vựng:', error);
+      Alert.alert('Lỗi', 'Không thể xóa bộ từ vựng.');
+    }
+  };
+
+  const handleToggleFavorite = async (id: string) => {
+    const targetItem = words.find(item => item.id === id);
+    if (!targetItem) return;
+
+    const isCurrentlyFavorite = targetItem.isFavorite;
+
+    // 1. Optimistic Update (Cập nhật UI ngay lập tức)
+    setWords((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+      )
+    );
+
+    try {
+      // 2. Gọi API thực tế
+      if (isCurrentlyFavorite) {
+        await FlashcardService.removeCardFromSet('favorite', id);
+      } else {
+        await FlashcardService.addCardsToSet('favorite', { vocabIds: [id] });
+      }
+    } catch (error) {
+      // 3. Rollback nếu API lỗi
+      setWords((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, isFavorite: isCurrentlyFavorite } : item))
+      );
+      console.error('Lỗi khi cập nhật yêu thích:', error);
     }
   };
 
@@ -143,10 +247,23 @@ export default function FlashcardSetDetailScreen() {
           <ArrowLeftIcon size={24} color="#FFFFFF" weight="bold" />
         </TouchableOpacity>
         <Animated.Text style={[styles.headerTitle, headerTitleStyle]}>
-          {(title as string) || 'Không có tên'}
+          {displayTitle}
         </Animated.Text>
-        {/* View trống để căn giữa title */}
-        <View style={{ width: 32 }} />
+        {id !== 'favorite' ? (
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => {
+              setEditTitleText(displayTitle);
+              setIsEditModalVisible(true);
+            }}>
+              <PencilSimpleIcon size={24} color="#FFFFFF" weight="bold" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton} onPress={handleDeleteSet}>
+              <TrashIcon size={24} color="#FFFFFF" weight="bold" />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={{ width: 64 }} />
+        )}
       </View>
 
       <Animated.ScrollView 
@@ -157,7 +274,7 @@ export default function FlashcardSetDetailScreen() {
       >
         <LinearGradient colors={[Color.main || '#98F291', Color.bg]} style={styles.gradientSection}>
           <View style={styles.titleWrapper}>
-            <Text style={styles.bigTitle}>{(title as string) || 'Không có tên'}</Text>
+            <Text style={styles.bigTitle}>{displayTitle}</Text>
           </View>
           
           {/* Thống kê / Nút Hành động */}
@@ -182,17 +299,27 @@ export default function FlashcardSetDetailScreen() {
           {/* Header Danh sách */}
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>Danh sách từ vựng</Text>
-            <TouchableOpacity style={styles.addBtn}>
+            <TouchableOpacity 
+              style={styles.addBtn}
+              onPress={() => setIsSearchModalVisible(true)}
+            >
               <PlusIcon size={24} color={Color.text || '#166534'} weight="bold" />
             </TouchableOpacity>
           </View>
 
           {/* Danh sách từ vựng */}
           <View style={styles.listContainer}>
-            {words.map((item) => (
+            {isLoading ? (
+              <ActivityIndicator size="large" color={Color.main || '#98F291'} style={{ marginTop: 40 }} />
+            ) : words.length === 0 ? (
+              <Text style={{ textAlign: 'center', color: Color.gray, marginTop: 40, fontFamily: FontFamily.lexendDecaMedium }}>
+                Chưa có từ vựng nào trong bộ này.
+              </Text>
+            ) : words.map((item) => (
               <TouchableOpacity 
                 key={item.id} 
                 activeOpacity={0.9}
+                onPress={() => router.push({ pathname: '/vocabulary/vocabulary-detail', params: { wordId: item.id } })}
                 onLongPress={() => setSelectedWordId(item.id)}
                 delayLongPress={200}
               >
@@ -218,18 +345,54 @@ export default function FlashcardSetDetailScreen() {
           <View style={styles.sheetContent}>
             <View style={styles.dragHandle} />
             
-            {id !== 'favorite' ? (
-              <ActionMenuItem 
-                label="Xóa khỏi bộ từ vựng" 
-                variant="danger" 
-                icon={<TrashIcon size={24} color={Color.red || '#EF4444'} weight="bold" />} 
-                onPress={handleRemoveWord} 
-              />
-            ) : (
-              <Text style={styles.favoriteHintText}>
-                Đây là bộ "Từ vựng yêu thích". Hãy nhấn vào biểu tượng trái tim trên thẻ nếu bạn muốn loại bỏ từ vựng này nhé!
-              </Text>
-            )}
+            <ActionMenuItem 
+              label="Xóa khỏi bộ từ vựng" 
+              variant="danger" 
+              icon={<TrashIcon size={24} color={Color.red || '#EF4444'} weight="bold" />} 
+              onPress={handleRemoveWord} 
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* --- MODAL SỬA TÊN BỘ TỪ VỰNG --- */}
+      <Modal
+        visible={isEditModalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setIsEditModalVisible(false)}
+      >
+        <View style={styles.editModalOverlay}>
+          <View style={styles.editModalContent}>
+            <Text style={styles.editModalTitle}>Sửa tên bộ từ vựng</Text>
+            <TextInput
+              style={styles.editModalInput}
+              value={editTitleText}
+              onChangeText={setEditTitleText}
+              placeholder="Nhập tên mới..."
+              placeholderTextColor={Color.gray}
+              autoFocus
+            />
+            <View style={styles.editModalActions}>
+              <TouchableOpacity
+                style={[styles.editModalBtn, styles.editModalCancelBtn]}
+                onPress={() => setIsEditModalVisible(false)}
+                disabled={isUpdatingTitle}
+              >
+                <Text style={styles.editModalCancelText}>Hủy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.editModalBtn, styles.editModalSaveBtn]}
+                onPress={handleUpdateTitle}
+                disabled={isUpdatingTitle || !editTitleText.trim()}
+              >
+                {isUpdatingTitle ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.editModalSaveText}>Lưu</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -243,6 +406,28 @@ export default function FlashcardSetDetailScreen() {
           </TouchableOpacity>
         </Animated.View>
       )}
+
+      {/* --- MODAL TÌM VÀ THÊM TỪ VỰNG --- */}
+      <SearchVocaModal
+        isVisible={isSearchModalVisible}
+        onClose={() => {
+          setIsSearchModalVisible(false);
+          fetchSetDetail(); // Tải lại danh sách từ vựng sau khi modal đóng
+        }}
+        setId={id as string}
+      />
+
+      {/* --- MODAL XÁC NHẬN XÓA BỘ TỪ VỰNG --- */}
+      <ConfirmModal
+        isVisible={isDeleteConfirmVisible}
+        title="Xóa bộ từ vựng"
+        subtitle="Bạn có chắc chắn muốn xóa bộ từ vựng này không? Hành động này không thể hoàn tác."
+        confirmText="Xóa"
+        cancelText="Hủy"
+        isDestructive={true}
+        onConfirm={executeDeleteSet}
+        onCancel={() => setIsDeleteConfirmVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -258,6 +443,8 @@ const styles = StyleSheet.create({
     backgroundColor: Color.main || '#98F291',
   },
   backButton: { padding: 4 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  iconButton: { padding: 4 },
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
@@ -314,4 +501,16 @@ const styles = StyleSheet.create({
   undoText: {
     color: Color.main || '#98F291', fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14,
   },
+  
+  // --- STYLES CHO MODAL EDIT ---
+  editModalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center', padding: Padding.padding_20 },
+  editModalContent: { backgroundColor: Color.bg, borderRadius: Border.br_20, padding: Padding.padding_20, width: '100%', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
+  editModalTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_15 },
+  editModalInput: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.text, borderWidth: 1, borderColor: Color.stroke, borderRadius: Border.br_10, paddingHorizontal: Padding.padding_15, paddingVertical: 12, marginBottom: Gap.gap_20 },
+  editModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: Gap.gap_10 },
+  editModalBtn: { paddingHorizontal: Padding.padding_20, paddingVertical: 10, borderRadius: Border.br_10, justifyContent: 'center', alignItems: 'center' },
+  editModalCancelBtn: { backgroundColor: Color.stroke },
+  editModalSaveBtn: { backgroundColor: Color.main2 || '#22C55E' },
+  editModalCancelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
+  editModalSaveText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: '#FFFFFF' },
 });

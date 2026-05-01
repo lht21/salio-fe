@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,20 +9,94 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import AuthService from '../../../api/services/auth.service';
+import { EyeIcon, EyeSlashIcon } from 'phosphor-react-native';
 
 // --- Components ---
 import Button from '../../../components/Button';
 import SocialButton from '../../../components/SocialButton';
 import { CustomInput } from '../../../components/CustomInput';
+import { useModal } from '../../../contexts/ModalContext';
 
 // --- Constants ---
 import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
 
 export default function SetCredentialScreen() {
   const router = useRouter();
+  const { email, code } = useLocalSearchParams<{ email: string, code: string }>();
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // State ẩn/hiện mật khẩu
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { showModal } = useModal();
+
+  const showAlert = (title: string, subtitle: string, onConfirmAction?: () => void, confirmText: string = 'Đóng') => {
+    showModal({ 
+      title, 
+      subtitle, 
+      confirmText,
+      onConfirm: onConfirmAction,
+      hideCancelButton: true
+    });
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      showAlert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showAlert('Lỗi', 'Mật khẩu xác nhận không khớp');
+      return;
+    }
+
+    if (!email || !code) {
+      showAlert('Lỗi', 'Không tìm thấy thông tin email hoặc mã OTP. Vui lòng thử lại từ đầu.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await AuthService.resetPassword({ 
+        email, 
+        code, 
+        newPassword, 
+        confirmNewPassword: confirmPassword 
+      });
+
+      if (response.success) {
+        showAlert(
+          'Thành công', 
+          'Mật khẩu của bạn đã được đặt lại. Vui lòng đăng nhập bằng mật khẩu mới.', 
+          () => {
+            router.replace('/(auth)/sign-in');
+          },
+          'Đăng nhập ngay'
+        );
+      } else {
+        showAlert('Lỗi', response.message || 'Không thể đặt lại mật khẩu');
+      }
+    } catch (error: any) {
+      // In chi tiết lỗi ra Terminal để dễ debug
+      console.log('=== CHI TIẾT LỖI TỪ BACKEND ===', JSON.stringify(error.response?.data, null, 2));
+      
+      const errorData = error.response?.data;
+      const errorMessage = errorData?.message || (errorData?.errors && errorData.errors[0]?.msg) || 'Dữ liệu không hợp lệ (400)';
+      
+      showAlert('Lỗi', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <LinearGradient
@@ -59,14 +133,52 @@ export default function SetCredentialScreen() {
               <Text style={styles.heading}>Đặt lại mật khẩu</Text>
 
               <View style={styles.formContainer}>
-                <CustomInput
-                  placeholder="Mật khẩu mới"
-                  secureTextEntry
-                />
-                <CustomInput
-                  placeholder="Xác nhận mật khẩu mới"
-                  secureTextEntry
-                />
+                {/* Ô nhập Mật khẩu mới có Icon Mắt */}
+                <View style={styles.inputWrapper}>
+                  <CustomInput
+                    placeholder="Mật khẩu mới"
+                    secureTextEntry={!showNewPassword}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                  />
+                  <TouchableOpacity 
+                    style={styles.eyeIcon} 
+                    onPress={() => setShowNewPassword(!showNewPassword)}
+                    activeOpacity={0.7}
+                  >
+                    {showNewPassword ? <EyeIcon size={20} color={Color.gray} /> : <EyeSlashIcon size={20} color={Color.gray} />}
+                  </TouchableOpacity>
+                </View>
+                 {/* Gợi ý độ mạnh mật khẩu */}
+                {newPassword.length > 0 && (
+                  <View style={styles.criteriaContainer}>
+                    <Text style={newPassword.length >= 8 ? styles.criteriaMet : styles.criteriaUnmet}>
+                      {newPassword.length >= 8 ? '✓' : '○'} Tối thiểu 8 ký tự
+                    </Text>
+                    <Text style={/[A-Z]/.test(newPassword) ? styles.criteriaMet : styles.criteriaUnmet}>
+                      {/[A-Z]/.test(newPassword) ? '✓' : '○'} Ít nhất 1 chữ hoa
+                    </Text>
+                    <Text style={/[0-9]/.test(newPassword) ? styles.criteriaMet : styles.criteriaUnmet}>
+                      {/[0-9]/.test(newPassword) ? '✓' : '○'} Ít nhất 1 chữ số
+                    </Text>
+                  </View>
+                )}
+                {/* Ô Xác nhận mật khẩu mới có Icon Mắt */}
+                <View style={styles.inputWrapper}>
+                  <CustomInput
+                    placeholder="Xác nhận mật khẩu mới"
+                    secureTextEntry={!showConfirmPassword}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                  />
+                  <TouchableOpacity 
+                    style={styles.eyeIcon} 
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    activeOpacity={0.7}
+                  >
+                    {showConfirmPassword ? <EyeIcon size={20} color={Color.gray} /> : <EyeSlashIcon size={20} color={Color.gray} />}
+                  </TouchableOpacity>
+                </View>
 
 
               </View>
@@ -75,9 +187,10 @@ export default function SetCredentialScreen() {
               <View style={styles.actionRow}>
                
                 <Button
-                  title="Tiếp theo"
+                  title="Hoàn tất"
                   variant="Green"
-                  onPress={() => router.push('/(tabs)')}
+                  onPress={handleResetPassword}
+                  disabled={isLoading}
                   style={styles.loginButton}
                 />
               </View>
@@ -152,6 +265,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  // --- THÊM STYLE CHO ICON MẮT VÀ GỢI Ý MẬT KHẨU ---
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: Padding.padding_15,
+    height: '100%',
+    justifyContent: 'center',
+  },
+  criteriaContainer: {
+    marginTop: -Gap.gap_5,
+    paddingHorizontal: Padding.padding_5,
+    gap: Gap.gap_5,
+  },
+  criteriaMet: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: '#4CAF50', // Màu xanh báo hiệu đạt yêu cầu
+  },
+  criteriaUnmet: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: Color.gray,
+  },
+
   forgotPasswordButton: {
     marginTop: Padding.padding_10,
     backgroundColor: Color.greenLight,
@@ -164,7 +304,7 @@ const styles = StyleSheet.create({
     width: 76,
     height: 3,
     borderStyle: "solid",
-    borderColor: Color.colorSlategray,
+    borderColor: Color.gray,
     borderTopWidth: 3,
     alignSelf: 'center',
     margin: Gap.gap_20,

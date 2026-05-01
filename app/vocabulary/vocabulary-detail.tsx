@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -22,8 +22,14 @@ import {
   CheckCircleIcon,
   WarningIcon,
 } from 'phosphor-react-native';
+import { MotiView } from 'moti';
+import * as Speech from 'expo-speech';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import VocabularyService from '../../api/services/vocabulary.service';
+import { Vocabulary } from '../../api/types/vocabulary.types';
+import { useUser } from '../../contexts/UserContext';
+import FlashcardService from '../../api/services/flashcard.service';
 
 // --- TYPES ---
 interface AIResult {
@@ -115,25 +121,45 @@ export default function VocabularyDetailScreen() {
   const router = useRouter();
   // Mock Params (Thực tế sẽ lấy từ params truyền qua Router)
   const { wordId } = useLocalSearchParams();
-
-  // Mock Data
-  const MOCK_VOCAB = {
-    word: '학생',
-    phonetic: '/hak-saeng/',
-    type: 'Danh từ',
-    hanViet: 'Học sinh - 學生',
-    meaning: 'Học sinh, sinh viên (Người đang đi học tại các cơ sở giáo dục).',
-    examples: [
-      { kr: '저는 대학교 학생입니다.', vi: 'Tôi là sinh viên đại học.' },
-      { kr: '학생들이 교실에서 공부하고 있습니다.', vi: 'Các học sinh đang học trong phòng học.' }
-    ]
-  };
+  const { user } = useUser();
 
   // State AI Practice
   const [sentence, setSentence] = useState('');
   const [aiResult, setAiResult] = useState<AIResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const [vocabData, setVocabData] = useState<Vocabulary | null>(null);
+  const [isScreenLoading, setIsScreenLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVocabDetail = async () => {
+      if (!wordId) return;
+      try {
+        setIsScreenLoading(true);
+        
+        // Lấy chi tiết từ vựng và kiểm tra danh sách yêu thích cùng lúc
+        const [res, favRes] = await Promise.all([
+          VocabularyService.getById(wordId as string),
+          FlashcardService.getSetById('favorite').catch(() => null)
+        ]);
+        
+        if (res.success && res.data) {
+          setVocabData(res.data);
+        }
+        if (favRes && favRes.success && favRes.data) {
+          const isFav = favRes.data.cards.some((c: any) => (c._id || c) === wordId);
+          setIsBookmarked(isFav);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy chi tiết từ vựng:', error);
+      } finally {
+        setIsScreenLoading(false);
+      }
+    };
+    fetchVocabDetail();
+  }, [wordId]);
 
   // Hàm giả lập gọi AI Check
   const handleAICheck = () => {
@@ -142,7 +168,7 @@ export default function VocabularyDetailScreen() {
     
     // Mô phỏng delay mạng 1.5s
     setTimeout(() => {
-      if (sentence.includes(MOCK_VOCAB.word)) {
+      if (vocabData && sentence.includes(vocabData.word)) {
         setAiResult({
           isCorrect: true,
           feedback: 'Câu của bạn rất tự nhiên! Ngữ pháp và từ vựng đều được sử dụng hoàn toàn chính xác.',
@@ -150,11 +176,70 @@ export default function VocabularyDetailScreen() {
       } else {
         setAiResult({
           isCorrect: false,
-          feedback: `Bạn chưa sử dụng từ "${MOCK_VOCAB.word}" trong câu. Hãy thử viết lại nhé!`,
+          feedback: `Bạn chưa sử dụng từ "${vocabData?.word}" trong câu. Hãy thử viết lại nhé!`,
         });
       }
       setIsLoading(false);
     }, 1500);
+  };
+
+  const handleToggleBookmark = async () => {
+    if (!wordId) return;
+    const currentStatus = isBookmarked;
+    
+    // Optimistic Update (Cập nhật UI ngay lập tức để tăng trải nghiệm)
+    setIsBookmarked(!currentStatus);
+    
+    try {
+      if (currentStatus) {
+        await FlashcardService.removeCardFromSet('favorite', wordId as string);
+      } else {
+        await FlashcardService.addCardsToSet('favorite', { vocabIds: [wordId as string] });
+      }
+    } catch (error) {
+      // Rollback nếu gọi API bị lỗi
+      setIsBookmarked(currentStatus);
+      console.error('Lỗi khi cập nhật yêu thích:', error);
+    }
+  };
+
+  const handleSpeak = () => {
+    if (!vocabData) return;
+    
+    const voiceGender = user?.preferences?.voiceGender || 'male';
+    const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
+
+    Speech.stop();
+    Speech.speak(vocabData.word, {
+      language: 'ko-KR',
+      rate: 0.8,
+      pitch: currentPitch,
+      onStart: () => setIsSpeaking(true),
+      onDone: () => setIsSpeaking(false),
+      onStopped: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
+  };
+
+  const handleSpeakSentence = (text: string) => {
+    const voiceGender = user?.preferences?.voiceGender || 'male';
+    const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
+
+    Speech.stop();
+    Speech.speak(text, {
+      language: 'ko-KR',
+      rate: 0.8,
+      pitch: currentPitch,
+    });
+  };
+
+  const translateType = (type: string) => {
+    const lowerType = type.toLowerCase();
+    if (lowerType === 'noun') return 'Danh từ';
+    if (lowerType === 'verb') return 'Động từ';
+    if (lowerType === 'adjective') return 'Tính từ';
+    if (lowerType === 'adverb') return 'Phó từ';
+    return type;
   };
 
   return (
@@ -173,84 +258,137 @@ export default function VocabularyDetailScreen() {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* --- SCROLL CONTENT --- */}
-        <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* PHẦN 1: THÔNG TIN TỪ VỰNG CHÍNH (TOP CARD) */}
-          <LinearGradient
-            colors={['#CEF9B4', Color.main || '#98F291']}
-            style={styles.topCard}
-          >
-            {/* Nút thao tác góc phải */}
-            <View style={styles.cardActions}>
-              <TouchableOpacity style={styles.actionBtn}>
-                <SpeakerHighIcon size={24} color={Color.color || '#0C5F35'} weight="fill" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => setIsBookmarked(!isBookmarked)}>
-                <BookmarkSimpleIcon
-                  size={24} 
-                  color={Color.color || '#0C5F35'} 
-                  weight={isBookmarked ? "fill" : "regular"} 
-                />
-              </TouchableOpacity>
-            </View>
-
-            {/* Từ vựng siêu to */}
-            <Text style={styles.bigWord}>{MOCK_VOCAB.word}</Text>
-            <Text style={styles.phoneticText}>{MOCK_VOCAB.phonetic}</Text>
-
-            {/* Badges Phân loại & Âm Hán */}
-            <View style={styles.badgesRow}>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{MOCK_VOCAB.type}</Text>
-              </View>
-              <View style={[styles.badge, { backgroundColor: '#FDE68A' }]}>
-                <Text style={[styles.badgeText, { color: '#92400E' }]}>{MOCK_VOCAB.hanViet}</Text>
-              </View>
-            </View>
-          </LinearGradient>
-
-          {/* PHẦN 2: Ý NGHĨA & VÍ DỤ (BODY) */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Nghĩa tiếng Việt</Text>
-            <Text style={styles.meaningText}>{MOCK_VOCAB.meaning}</Text>
+        {isScreenLoading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={Color.main || '#98F291'} />
           </View>
+        ) : !vocabData ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ fontFamily: FontFamily.lexendDecaMedium, color: Color.gray }}>Không tìm thấy dữ liệu từ vựng</Text>
+          </View>
+        ) : (
+          <>
+            {/* --- SCROLL CONTENT --- */}
+            <ScrollView 
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {/* PHẦN 1: THÔNG TIN TỪ VỰNG CHÍNH (TOP CARD) */}
+              <LinearGradient
+                colors={['#CEF9B4', Color.main || '#98F291']}
+                style={styles.topCard}
+              >
+                {/* Nút thao tác góc phải */}
+                <View style={styles.cardActions}>
+                  <TouchableOpacity style={styles.actionBtn} onPress={handleSpeak} activeOpacity={0.7}>
+                    {isSpeaking && (
+                      <MotiView
+                        from={{ opacity: 0.5, scale: 1 }}
+                        animate={{ opacity: 0, scale: 1.8 }}
+                        transition={{
+                          type: 'timing',
+                          duration: 1000,
+                          loop: true,
+                          repeatReverse: false,
+                        }}
+                        style={styles.speakerRipple}
+                      />
+                    )}
+                    <SpeakerHighIcon 
+                      size={24} 
+                      color={isSpeaking ? (Color.main2 || '#22C55E') : (Color.color || '#0C5F35')} 
+                      weight="fill" 
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionBtn} onPress={handleToggleBookmark}>
+                    <BookmarkSimpleIcon
+                      size={24} 
+                      color={Color.color || '#0C5F35'} 
+                      weight={isBookmarked ? "fill" : "regular"} 
+                    />
+                  </TouchableOpacity>
+                </View>
 
-          <View style={styles.divider} />
+                {/* Từ vựng siêu to */}
+                <Text style={styles.bigWord}>{vocabData.word}</Text>
+                <Text style={styles.phoneticText}>{vocabData.pronunciationText}</Text>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ví dụ mẫu</Text>
-            
-            <View style={styles.exampleContainer}>
-              {/* Mascot Image */}
-              <Image 
-                source={require('../../assets/images/horani/sc1_b2.png')} 
-                style={styles.mascotImage} 
-                resizeMode="contain"
-              />
-              <View style={styles.exampleList}>
-                {MOCK_VOCAB.examples.map((ex, index) => (
-                  <View key={index} style={styles.exampleItem}>
-                    <Text style={styles.exKr}>{ex.kr}</Text>
-                    <Text style={styles.exVi}>{ex.vi}</Text>
+                {/* Badges Phân loại & Âm Hán */}
+                <View style={styles.badgesRow}>
+                  {vocabData.type && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{translateType(vocabData.type)}</Text>
+                    </View>
+                  )}
+                  {vocabData.sinoVietnamese && (
+                    <View style={[styles.badge, { backgroundColor: '#FDE68A' }]}>
+                      <Text style={[styles.badgeText, { color: '#92400E' }]}>{vocabData.sinoVietnamese}</Text>
+                    </View>
+                  )}
+                </View>
+              </LinearGradient>
+
+              {/* HÌNH ẢNH MINH HỌA */}
+              {vocabData.imageUrl && /^(http|https):\/\/[^ "]+$/.test(vocabData.imageUrl) && (
+                <View style={styles.imageWrapper}>
+                  <Image 
+                    source={{ uri: vocabData.imageUrl }} 
+                    style={styles.vocabImage} 
+                    resizeMode="cover" 
+                  />
+                </View>
+              )}
+
+              {/* PHẦN 2: Ý NGHĨA & VÍ DỤ (BODY) */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Nghĩa tiếng Việt</Text>
+                <Text style={styles.meaningText}>{vocabData.meaning}</Text>
+              </View>
+
+              <View style={styles.divider} />
+
+              {vocabData.examples && vocabData.examples.length > 0 && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Ví dụ mẫu</Text>
+                  
+                  <View style={styles.exampleContainer}>
+                    {/* Mascot Image */}
+                    <Image 
+                      source={require('../../assets/images/horani/sc1_b2.png')} 
+                      style={styles.mascotImage} 
+                      resizeMode="contain"
+                    />
+                    <View style={styles.exampleList}>
+                      {vocabData.examples.map((ex, index) => (
+                        <View key={index} style={styles.exampleItem}>
+                          <TouchableOpacity 
+                            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                            onPress={() => handleSpeakSentence(ex.korean)}
+                            activeOpacity={0.7}
+                          >
+                            <SpeakerHighIcon size={18} color={Color.main2 || '#22C55E'} weight="fill" />
+                            <Text style={[styles.exKr, { flex: 1 }]}>{ex.korean}</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.exVi}>{ex.vietnamese}</Text>
+                        </View>
+                      ))}
+                    </View>
                   </View>
-                ))}
-              </View>
-            </View>
-          </View>
-        </ScrollView>
+                </View>
+              )}
+            </ScrollView>
 
-        {/* PHẦN 3: FIXED FOOTER - LUYỆN TẬP ĐẶT CCâu AI */}
-        <AIPracticeFooter 
-          word={MOCK_VOCAB.word}
-          sentence={sentence}
-          setSentence={setSentence}
-          onCheck={handleAICheck}
-          isLoading={isLoading}
-          aiResult={aiResult}
-        />
+            {/* PHẦN 3: FIXED FOOTER - LUYỆN TẬP ĐẶT CCâu AI */}
+            <AIPracticeFooter 
+              word={vocabData.word}
+              sentence={sentence}
+              setSentence={setSentence}
+              onCheck={handleAICheck}
+              isLoading={isLoading}
+              aiResult={aiResult}
+            />
+          </>
+        )}
 
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -302,7 +440,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
     borderBottomWidth: 5,
-    borderColor: Color.main,
+    borderColor: Color.main2,
     borderLeftWidth: 2,
   },
   cardActions: {
@@ -319,6 +457,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  speakerRipple: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Color.main2 || '#22C55E',
   },
   bigWord: {
     fontFamily: FontFamily.lexendDecaBold,
@@ -350,6 +495,18 @@ const styles = StyleSheet.create({
     color: '#064E3B',
   },
   // --- SECTIONS ---
+  imageWrapper: {
+    width: '100%',
+    height: 200,
+    borderRadius: Border.br_20 || 20,
+    marginBottom: 16,
+    overflow: 'hidden',
+    backgroundColor: '#F8FAFC',
+  },
+  vocabImage: {
+    width: '100%',
+    height: '100%',
+  },
   section: {
     marginBottom: 16,
   },

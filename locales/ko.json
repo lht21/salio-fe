@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "title": "설정",
+    "change": "변경",
+    "personalInfo": "개인 정보",
+    "username": "사용자 이름",
+    "email": "이메일",
+    "password": "비밀번호",
+    "changePassword": "비밀번호 변경",
+    "notUpdated": "업데이트되지 않음",
+    "studyPlan": "학습 계획",
+    "interaction": "상호 작용",
+    "light": "밝게",
+    "dark": "어둡게",
+    "vietnamese": "베트남어",
+    "english": "영어",
+    "korean": "한국어",
+    "maleVoice": "남성 음성",
+    "femaleVoice": "여성 음성",
+    "reminder": "알림",
+    "platform": "플랫폼",
+    "website": "웹사이트",
+    "about": "정보",
+    "privacyPolicy": "개인정보 보호정책",
+    "termsOfService": "서비스 약관",
+    "supportCenter": "고객 센터",
+    "aboutUs": "회사 소개",
+    "loginOther": "다른 계정으로 로그인",
+    "logout": "로그아웃"
+  }
+}

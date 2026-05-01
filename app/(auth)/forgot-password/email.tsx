@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -17,12 +17,55 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Button from '../../../components/Button';
 import SocialButton from '../../../components/SocialButton';
 import { CustomInput } from '../../../components/CustomInput';
+import { useModal } from '../../../contexts/ModalContext';
 
 // --- Constants ---
 import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
+import AuthService from '../../../api/services/auth.service';
 
 export default function ForgotPasswordEmailScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { showModal } = useModal(); // <--- Sử dụng hook ở đây
+
+  const showAlert = (title: string, subtitle: string) => {
+    showModal({ title, subtitle, hideCancelButton: true, confirmText: 'Đóng' });
+  };
+
+  const handleRequestOtp = async () => {
+    const trimmedEmail = email.trim();
+    
+    if (!trimmedEmail) {
+      showAlert('Lỗi', 'Vui lòng nhập địa chỉ email của bạn');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      showAlert('Lỗi', 'Định dạng email không hợp lệ');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await AuthService.sendForgotPasswordOtp({ email: trimmedEmail });
+
+      if (response.success) {
+        router.push({
+          pathname: '/(auth)/forgot-password/verify-otp',
+          params: { email: trimmedEmail }
+        });
+      } else {
+        showAlert('Lỗi', response.message || 'Không thể gửi mã OTP. Vui lòng thử lại sau.');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Không thể kết nối đến máy chủ';
+      showAlert('Lỗi', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <LinearGradient
@@ -63,6 +106,8 @@ export default function ForgotPasswordEmailScreen() {
                   placeholder="Email"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  value={email}
+                  onChangeText={setEmail}
                 />
               </View>
 
@@ -76,8 +121,9 @@ export default function ForgotPasswordEmailScreen() {
                 <Button
                   title="Tiếp theo"
                   variant="Green"
-                  onPress={() => router.push('/(auth)/forgot-password/verify-otp')}
+                  onPress={handleRequestOtp}
                   style={styles.loginButton}
+                  disabled={isLoading}
                 />
               </View>
 
@@ -163,7 +209,7 @@ const styles = StyleSheet.create({
     width: 76,
     height: 3,
     borderStyle: "solid",
-    borderColor: Color.colorSlategray,
+    borderColor: Color.gray,
     borderTopWidth: 3,
     alignSelf: 'center',
     margin: Gap.gap_20,

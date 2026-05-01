@@ -1,31 +1,53 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { router } from 'expo-router';
+import { API_ENDPOINTS } from './endpoints';
 
-// 1. Cấu hình Base URL
-// Ưu tiên lấy từ biến môi trường (.env). 
-// Nếu chạy máy ảo Android, dùng 10.0.2.2. Nếu chạy thiết bị thật/iOS, dùng IP LAN (VD: 172.26.39.88:5000)
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://172.26.39.88:5000';
-
-// 2. Khởi tạo Axios Instance
-export const apiClient = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15000, // Timeout sau 15s nếu server không phản hồi
+/**
+ * Khởi tạo Axios Instance
+ * Thay đổi EXPO_PUBLIC_API_URL trong file .env của dự án Expo để trỏ đúng server
+ */
+const apiClient = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000',
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// 3. REQUEST INTERCEPTOR: Tự động gắn Token trước khi gửi API
+// --- EVENT EMITTER CHO AUTH ---
+// Tạo một Event Bus đơn giản để giao tiếp giữa Axios (ngoài React) và các Hook (trong React)
+export const AuthEventEmitter = {
+  listeners: new Set<() => void>(),
+  emit: () => AuthEventEmitter.listeners.forEach((cb) => cb()),
+  subscribe: (cb: () => void) => {
+    AuthEventEmitter.listeners.add(cb);
+    return () => AuthEventEmitter.listeners.delete(cb);
+  },
+};
+
+// --- BIẾN HỖ TRỢ REFRESH TOKEN ---
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (reason?: any) => void }> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+};
+
+// --- INTERCEPTORS CHO REQUEST ---
 apiClient.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
+  async (config) => {
     try {
+      // Lấy token từ SecureStore và nhét vào header Authorization
       const token = await SecureStore.getItemAsync('accessToken');
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.error('Lỗi khi lấy token từ SecureStore:', error);
+      console.error('Lỗi khi cấu hình header token:', error);
     }
     return config;
   },
@@ -34,50 +56,83 @@ apiClient.interceptors.request.use(
   }
 );
 
-// 4. RESPONSE INTERCEPTOR: Xử lý dữ liệu trả về và lỗi toàn cục
+// --- INTERCEPTORS CHO RESPONSE ---
 apiClient.interceptors.response.use(
   (response) => {
-    // Trả về thẳng data nếu API call thành công
-    return response.data;
+    // Có thể tùy chỉnh bóc tách response.data trực tiếp ở đây nếu backend luôn bọc trong trường `data`
+    return response;
   },
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+  async (error) => {
+    const originalRequest = error.config;
 
-    // Xử lý lỗi 401: Unauthorized (Token hết hạn hoặc không hợp lệ)
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true; // Đánh dấu để tránh bị lặp vô hạn (infinite loop)
-
-      try {
-        // Lấy Refresh Token đang lưu
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
-        if (!refreshToken) {
-          throw new Error('Không tìm thấy Refresh Token');
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      if (status === 401 && !originalRequest._retry) {
+        if (isRefreshing) {
+          // Đang có 1 request khác thực hiện refresh token rồi, đưa request hiện tại vào hàng đợi
+          return new Promise(function (resolve, reject) {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              return apiClient(originalRequest);
+            })
+            .catch((err) => Promise.reject(err));
         }
 
-        // Gọi API lên Backend để xin Access Token mới
-        // Chú ý: Dùng axios thuần thay vì apiClient để tránh bị kẹt trong interceptor này
-        const refreshResponse = await axios.post(`${BASE_URL}/api/v1/auth/refresh-token`, {
-          refreshToken,
-        });
+        // Đánh dấu request này đã được retry để tránh loop vô hạn
+        originalRequest._retry = true;
+        isRefreshing = true;
 
-        const newAccessToken = refreshResponse.data?.data?.accessToken;
-        
-        // Lưu token mới lại vào máy
-        await SecureStore.setItemAsync('accessToken', newAccessToken);
+        try {
+          const refreshToken = await SecureStore.getItemAsync('refreshToken');
+          if (!refreshToken) throw new Error('Không có Refresh Token trong máy');
 
-        // Cập nhật lại header của request bị lỗi ban đầu và gọi lại
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        // Nếu Refresh Token cũng hết hạn -> Xóa hết token và đẩy user ra màn hình Login
-        await SecureStore.deleteItemAsync('accessToken');
-        await SecureStore.deleteItemAsync('refreshToken');
-        router.replace('/(auth)/login'); // Đổi đường dẫn theo cấu trúc route của bạn
-        return Promise.reject(refreshError);
+          // Gọi API refresh token (Sử dụng 'axios' gốc thay vì 'apiClient' để tránh đi qua interceptor gây loop)
+          const response = await axios.post(
+            `${apiClient.defaults.baseURL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
+            { refreshToken }
+          );
+
+          // Giả định backend trả về format: { data: { accessToken: '...', refreshToken: '...' } }
+          const newAccessToken = response.data?.data?.accessToken;
+          const newRefreshToken = response.data?.data?.refreshToken;
+
+          if (newAccessToken) {
+            await SecureStore.setItemAsync('accessToken', newAccessToken);
+            if (newRefreshToken) await SecureStore.setItemAsync('refreshToken', newRefreshToken);
+            
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            
+            processQueue(null, newAccessToken);
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          
+          // Nếu Refresh Token cũng hết hạn / không hợp lệ -> Đăng xuất người dùng
+          await SecureStore.deleteItemAsync('accessToken');
+          await SecureStore.deleteItemAsync('refreshToken');
+          console.log('⚠️ [401] Phiên đăng nhập đã hết hạn hoàn toàn. Vui lòng đăng nhập lại.');
+          
+          // Phát sự kiện báo hiệu UI cần force logout
+          AuthEventEmitter.emit();
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      } else if (status === 403) {
+        console.log('⚠️ [403] Không có quyền truy cập tài nguyên này.');
       }
+      
+    } else if (error.request) {
+      console.warn('📡 Không thể kết nối tới server. Vui lòng kiểm tra lại đường truyền mạng.');
     }
 
-    // Xử lý các lỗi khác (400, 404, 500...)
     return Promise.reject(error);
   }
 );
+
+export default apiClient;

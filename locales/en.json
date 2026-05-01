@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "title": "Settings",
+    "change": "Change",
+    "personalInfo": "Personal Information",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "changePassword": "Change Password",
+    "notUpdated": "Not updated",
+    "studyPlan": "Study Plan",
+    "interaction": "Interaction",
+    "light": "Light",
+    "dark": "Dark",
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "korean": "Korean",
+    "maleVoice": "Male Voice",
+    "femaleVoice": "Female Voice",
+    "reminder": "Reminder",
+    "platform": "Platform",
+    "website": "Website",
+    "about": "About",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "supportCenter": "Support Center",
+    "aboutUs": "About Us",
+    "loginOther": "Login with another account",
+    "logout": "Logout"
+  }
+}

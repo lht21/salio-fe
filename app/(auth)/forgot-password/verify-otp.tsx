@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,25 +8,56 @@ import {
   Platform,
   ScrollView,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import AuthService from '../../../api/services/auth.service';
 
 // --- Components ---
 import Button from '../../../components/Button';
+import { ConfirmModal } from '../../../components/ModalResult/ConfirmModal';
 
 // --- Constants ---
 import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
 
 export default function ForgotPasswordVerifyOtpScreen() {
   const router = useRouter();
+  const { email } = useLocalSearchParams<{ email: string }>();
+  const [isLoading, setIsLoading] = useState(false);
   
   // State để lưu giá trị OTP 6 số
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   
   // Refs để quản lý focus của 6 ô input
   const inputRefs = useRef<Array<TextInput | null>>([]);
+
+  // --- State cho Countdown & Resend ---
+  const [countdown, setCountdown] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+
+  // --- State cho Modal Thông báo ---
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', subtitle: '' });
+
+  const showAlert = (title: string, subtitle: string) => {
+    setModalConfig({ title, subtitle });
+    setModalVisible(true);
+  };
+
+  // Effect cho bộ đếm ngược
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else {
+      setCanResend(true);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   // Hàm xử lý khi thay đổi text trong từng ô input
   const handleChangeText = (text: string, index: number) => {
@@ -47,6 +78,56 @@ export default function ForgotPasswordVerifyOtpScreen() {
   const handleKeyPress = (e: any, index: number) => {
     if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email) return;
+    try {
+      setIsLoading(true);
+      const response = await AuthService.sendForgotPasswordOtp({ email });
+      if (response.success) {
+        setCountdown(60);
+        setCanResend(false);
+        showAlert('Thành công', 'Mã xác nhận mới đã được gửi đến email của bạn.');
+      } else {
+        showAlert('Lỗi', response.message || 'Không thể gửi lại mã.');
+      }
+    } catch (error: any) {
+      showAlert('Lỗi', error.response?.data?.message || 'Không thể kết nối đến máy chủ');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    const code = otp.join('');
+    if (code.length < 6) {
+      showAlert('Lỗi', 'Vui lòng nhập đủ 6 số mã xác nhận');
+      return;
+    }
+    if (!email) {
+      showAlert('Lỗi', 'Không tìm thấy thông tin email. Vui lòng quay lại bước trước.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await AuthService.verifyForgotPasswordOtp({ email, code });
+
+      if (response.success) {
+        router.push({
+          pathname: '/(auth)/forgot-password/reset-password',
+          params: { email, code } // Truyền cả email và mã OTP sang màn hình đặt lại mật khẩu
+        });
+      } else {
+        showAlert('Xác thực thất bại', response.message || 'Mã OTP không hợp lệ');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Không thể kết nối đến máy chủ';
+      showAlert('Lỗi', errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,6 +161,10 @@ export default function ForgotPasswordVerifyOtpScreen() {
               <View style={styles.divider} />
 
               <Text style={styles.heading}>Mã xác nhận</Text>
+              <Text style={styles.subHeading}>
+                Chúng tôi đã gửi mã gồm 6 chữ số đến {'\n'}
+                <Text style={{ fontFamily: FontFamily.lexendDecaSemiBold }}>{email}</Text>
+              </Text>
 
               {/* Khu vực chứa 6 ô OTP */}
               <View style={styles.otpContainer}>
@@ -102,22 +187,35 @@ export default function ForgotPasswordVerifyOtpScreen() {
                 <Button
                   title="Tiếp theo"
                   variant="Green"
-                  onPress={() => {
-                    // Lấy mã OTP hoàn chỉnh
-                    const fullOtp = otp.join('');
-                    console.log('OTP entered:', fullOtp);
-                    // TODO: Gọi API verify OTP ở đây, nếu thành công thì chuyển trang
-                    // Tạm thời điều hướng theo yêu cầu cũ
-                    router.push('/(auth)/forgot-password/reset-password');
-                  }}
+                  onPress={handleVerify}
+                  disabled={isLoading}
                   style={styles.loginButton}
                 />
+              </View>
+
+              {/* Resend Code Section */}
+              <View style={styles.resendContainer}>
+                <Text style={styles.resendText}>Chưa nhận được mã? </Text>
+                <TouchableOpacity disabled={!canResend} onPress={handleResend}>
+                  <Text style={[styles.resendButtonText, !canResend && styles.resendButtonDisabled]}>
+                    Gửi lại {countdown > 0 ? `(sau ${countdown}s)` : ''}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      <ConfirmModal
+        isVisible={isModalVisible}
+        title={modalConfig.title}
+        subtitle={modalConfig.subtitle}
+        confirmText="Đóng"
+        hideCancelButton={true}
+        onConfirm={() => setModalVisible(false)}
+        onCancel={() => setModalVisible(false)}
+      />
     </LinearGradient>
   );
 }
@@ -163,6 +261,14 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginBottom: Padding.padding_5,
   },
+  subHeading: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: Color.gray,
+    textAlign: 'left',
+    marginBottom: Gap.gap_10,
+    lineHeight: 20,
+  },
   
   // --- OTP SECTION ---
   otpContainer: {
@@ -196,9 +302,28 @@ const styles = StyleSheet.create({
     width: 76,
     height: 3,
     borderStyle: "solid",
-    borderColor: Color.colorSlategray,
+    borderColor: Color.gray,
     borderTopWidth: 3,
     alignSelf: 'center',
     margin: Gap.gap_20,
+  },
+  resendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: Padding.padding_20,
+  },
+  resendText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: Color.gray,
+  },
+  resendButtonText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: Color.main, 
+  },
+  resendButtonDisabled: {
+    color: Color.stroke,
   },
 });

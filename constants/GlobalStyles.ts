@@ -16,10 +16,11 @@ export const FontSize = {
   fs_20: 20,
   fs_24: 24,
 };
-/* Colors */
-export const Color = {
+/* Colors - Refactored for Theme support */
+export const lightTheme = {
   // --- BASE ---
   bg: "#FFFFFF",
+  bg2: "#F1FAF9",
   text: "#1E1E1E",
   stroke: "#E2E8F0",
   gray: "#64748B",
@@ -27,7 +28,7 @@ export const Color = {
   // --- GREEN (cũ của bạn - giữ lại) ---
   main: "#98F291",
   mainLighter: "rgba(152, 242, 145, 0.10)",
-  main2: "#508D4E",
+  main2: "#6FAE6C",
   green: "#059669",
   greenLight: "#ECFFEB",
 
@@ -67,6 +68,62 @@ export const Color = {
   bgTest: "#FFFFFF",
   colorBlack: "#000000",
 };
+
+export const darkTheme = {
+  // --- BASE ---
+  bg: "#121212",
+  bg2: "#1E1E1E",
+  text: "#FFFFFF",
+  stroke: "#333333",
+  gray: "#A0AAB5",
+
+  // --- GREEN ---
+  main: "#6FAE6C", 
+  mainLighter: "rgba(111, 174, 108, 0.20)",
+  main2: "#98F291",
+  green: "#10B981",
+  greenLight: "#064E3B",
+
+  // --- BLUE ---
+  bluePastel: "#1E3A8A",
+  blue: "#60A5FA",
+  blueFb: "#3B82F6",
+  xanh: "#3B82F6",
+
+  // --- PURPLE ---
+  purplePastel: "#4C1D95",
+  purple: "#8B5CF6",
+
+  // --- PINK / PURPLE SOFT ---
+  pinkPastel: "#701A75",
+  pink: "#D946EF",
+
+  // --- MINT ---
+  mintPastel: "#134E4A",
+  mint: "#34D399",
+
+  // --- ORANGE / YELLOW ---
+  orangePastel: "#78350F",
+  orange: "#F59E0B",
+  cam: "#F97316",
+  vang: "#FBBF24",
+  textInVang: "#000000",
+
+  // --- CORAL / RED ---
+  coralPastel: "#7F1D1D",
+  coral: "#F43F5E",
+  red: "#EF4444",
+  redDark: "#991B1B",
+
+  // --- TEXT / BRAND EXTRA ---
+  color: "#6EE7B7",
+  bgTest: "#121212",
+  colorBlack: "#FFFFFF",
+};
+
+// Giữ lại export Color trỏ đến lightTheme để tương thích ngược với các components hiện tại
+export const Color = lightTheme;
+
 /* Gaps */
 export const Gap = {
   gap_1: 1,

@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { CertificateIcon, CloudIcon, GearSixIcon } from 'phosphor-react-native';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, RefreshControl } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -19,8 +20,37 @@ import StatsRow from '../../components/StatsRow';
 import StreakCalendar from '../../components/StreakCalendar';
 import { UpgradeBanner } from '../../components/UpgradeBanner';
 
+import { useUser } from '../../contexts/UserContext';
+import UserService from '../../api/services/user.service';
+import { MyStatsData } from '../../api/types/user.types';
+
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user, refreshUser } = useUser();
+
+  const [stats, setStats] = useState<MyStatsData | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchStats = async () => {
+    try {
+      const res = await UserService.getMyStats();
+      if (res.success) {
+        setStats(res.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin thống kê:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([refreshUser(), fetchStats()]);
+    setRefreshing(false);
+  }, [refreshUser]);
 
   // 1. Biến lưu giá trị cuộn
   const scrollY = useSharedValue(0);
@@ -47,15 +77,19 @@ export default function ProfileScreen() {
       <Animated.View style={[styles.stickyHeader, stickyHeaderStyle]}>
         <View style={styles.stickyUserInfo}>
           <Image 
-            source={require('../../assets/images/avatar/Ellipse 20-1.png')} 
+            source={
+              user?.avatarUrl 
+                ? { uri: user.avatarUrl } 
+                : require('../../assets/images/avatar/Ellipse 20-1.png')
+            } 
             style={styles.stickyAvatar}
             contentFit="cover"
           />
-          <Text style={styles.stickyHeaderTitle}>tranlehuy</Text>
+          <Text style={styles.stickyHeaderTitle}>{user?.username || 'Khách'}</Text>
         </View>
         <TouchableOpacity 
           style={styles.stickySettingsBtn} 
-          onPress={() => router.push('/settings')}
+          onPress={() => router.push('/settings' as any)}
         >
           <View style={styles.settingsIconBg}>
             <GearSixIcon size={20} color={Color.bg} weight="fill" />
@@ -66,16 +100,32 @@ export default function ProfileScreen() {
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        bounces={false} // Để tắt hiệu ứng nảy làm lộ background trắng trên iOS
         onScroll={scrollHandler}
         scrollEventThrottle={16}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Color.main2}
+          />
+        }
       >
 
         {/* Header (Background xanh + Avatar + Info) */}
-        <ProfileHeader />
+        <ProfileHeader 
+          username={user?.username}
+          email={user?.email}
+          avatarUrl={user?.avatarUrl}
+          level={user?.level}
+        />
 
         {/* Khối 3 thông số */}
         <StatsRow
+          streak={stats?.gamification?.currentStreak}
+          vocabCount={stats?.savedVocabulariesCount}
+          score={stats?.statistics?.highestMockScore} // Hoặc thuộc tính tổng điểm tương đương
+          certificates={stats?.gamification?.inventory?.badges?.length} 
+          clouds={stats?.gamification?.clouds}
           onStreakPress={() => router.push('/streak/streak' as any)}
           onScorePress={() => router.push('/certificate/certificate' as any)}
         />
@@ -85,19 +135,6 @@ export default function ProfileScreen() {
 
         {/* Lịch chuỗi hoạt động */}
         <StreakCalendar onHeaderPress={() => router.push('/streak/streak' as any)} />
-
-        {/* Menu Items */}
-        <MenuItem
-          icon={<CertificateIcon size={24} color={Color.main2} weight="fill" />}
-          title="Chứng chỉ"
-          subtitle="2 chứng chỉ đã ghi nhận"
-        />
-
-        <MenuItem
-          icon={<CloudIcon size={24} color={Color.main2} weight="fill" />}
-          title="103 đám mây"
-          subtitle="Quy đổi phần thưởng"
-        />
 
         {/* Banner Xanh nâng cấp */}
         <UpgradeBanner />

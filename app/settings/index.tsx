@@ -1,4 +1,8 @@
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import * as SecureStore from 'expo-secure-store';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   BellIcon,
   CaretRightIcon,
@@ -18,7 +22,7 @@ import {
   UserIcon,
   UsersIcon,
 } from 'phosphor-react-native';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -38,24 +42,37 @@ import ChangeReminderModal, { ReminderType } from '@/components/Modals/ChangeRem
 import { SettingsRow } from '@/components/SettingsRow';
 import ScreenHeader from '@/components/ScreenHeader';
 import { AVATAR_PRESETS, AvatarPreset } from '@/constants/avatarPresets';
-import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '@/constants/GlobalStyles';
-
-const LANGUAGE_LABELS: Record<LanguageMode, string> = {
-  vi: 'Tiếng Việt',
-  en: 'Tiếng Anh',
-  ko: 'Tiếng Hàn',
-};
+import { Border, FontFamily, FontSize, Gap, Padding } from '@/constants/GlobalStyles';
+import { useUser } from '@/contexts/UserContext';
+import UserService from '@/api/services/user.service';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const [selectedAvatar, setSelectedAvatar] = useState<AvatarPreset>(
-    AVATAR_PRESETS[1] ?? AVATAR_PRESETS[0]
-  );
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('light');
-  const [language, setLanguage] = useState<LanguageMode>('vi');
-  const [userName, setUserName] = useState('tranlehuy');
-  const [voice, setVoice] = useState<VoiceType>('male');
-  const [reminder, setReminder] = useState<ReminderType>('none');
+  const { user, refreshUser } = useUser();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarPreset>(() => {
+    const preset = AVATAR_PRESETS.find(a => a.id === user?.avatarUrl);
+    if (preset) {
+      return preset;
+    }
+    if (user?.avatarUrl) {
+      return { id: user.avatarUrl, imageSource: { uri: user.avatarUrl }, label: 'Ảnh cá nhân' } as AvatarPreset;
+    }
+    return AVATAR_PRESETS[1] ?? AVATAR_PRESETS[0];
+  });
+  const [displayMode, setDisplayMode] = useState<DisplayMode>((user?.preferences?.theme as DisplayMode) || 'light');
+  const [language, setLanguage] = useState<LanguageMode>((user?.preferences?.language as LanguageMode) || 'vi');
+  const [userName, setUserName] = useState(user?.username || 'Khách');
+  const [voice, setVoice] = useState<VoiceType>((user?.preferences?.voiceGender as VoiceType) || 'male');
+  const [reminder, setReminder] = useState<ReminderType>(() => {
+    if (!user?.preferences?.notifications?.enabled) return 'none';
+    if (user?.preferences?.notifications?.dailyReminderTime === '08:00') return 'morning';
+    if (user?.preferences?.notifications?.dailyReminderTime === '20:00') return 'evening';
+    return 'none';
+  });
 
   const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
   const [isDisplayModeModalVisible, setDisplayModeModalVisible] = useState(false);
@@ -67,60 +84,170 @@ export default function SettingsScreen() {
   const [isVoiceModalVisible, setVoiceModalVisible] = useState(false);
   const [isReminderModalVisible, setReminderModalVisible] = useState(false);
 
-  const handleConfirmLogout = () => {
+  useEffect(() => {
+    if (user) {
+      setUserName(user.username);
+      setDisplayMode((user.preferences?.theme as DisplayMode) || 'light');
+      setLanguage((user.preferences?.language as LanguageMode) || 'vi');
+      setVoice((user.preferences?.voiceGender as VoiceType) || 'male');
+      const preset = AVATAR_PRESETS.find(a => a.id === user.avatarUrl);
+      if (preset) {
+        setSelectedAvatar(preset);
+      } else if (user.avatarUrl) {
+        // It's a custom URL, create a temporary preset object
+        setSelectedAvatar({ id: user.avatarUrl, imageSource: { uri: user.avatarUrl }, label: 'Ảnh cá nhân' } as AvatarPreset);
+      } else {
+        setSelectedAvatar(AVATAR_PRESETS[1] ?? AVATAR_PRESETS[0]);
+      }
+      
+      if (!user.preferences?.notifications?.enabled) {
+        setReminder('none');
+      } else if (user.preferences?.notifications?.dailyReminderTime === '08:00') {
+        setReminder('morning');
+      } else if (user.preferences?.notifications?.dailyReminderTime === '20:00') {
+        setReminder('evening');
+      }
+    }
+  }, [user]);
+
+  const LANGUAGE_LABELS: Record<LanguageMode, string> = {
+    vi: t('settings.vietnamese'),
+    en: t('settings.english'),
+    ko: t('settings.korean'),
+  };
+
+  const VOICE_LABELS: Record<VoiceType, string> = { 
+    male: t('settings.maleVoice'), 
+    female: t('settings.femaleVoice') 
+  };
+
+  const handleConfirmLogout = async () => {
     setLogoutModalVisible(false);
+    
+    // 1. Xóa token để cắt đứt phiên đăng nhập hiện tại
+    await SecureStore.deleteItemAsync('accessToken');
+    await SecureStore.deleteItemAsync('refreshToken');
+    
+    // 2. Refresh lại UserContext (không có token -> API lỗi -> user tự động về null)
+    await refreshUser();
+
     router.replace('/(auth)/sign-in');
   };
 
-  const handleSelectAvatar = (avatar: AvatarPreset) => {
-    setSelectedAvatar(avatar);
-    setAvatarModalVisible(false);
+  const handleSelectAvatar = async (avatar: AvatarPreset) => {
+    try {
+      await UserService.updateProfile({ avatarUrl: avatar.id });
+      setSelectedAvatar(avatar);
+      setAvatarModalVisible(false);
+      await refreshUser();
+    } catch (error) {
+      console.error('Lỗi cập nhật avatar:', error);
+    }
   };
 
-  const handleUploadAvatar = () => {
-    console.log('Avatar upload from device is not implemented yet.');
+  const handleUploadAvatar = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // Ép khung cắt ảnh hình vuông cho avatar
+        quality: 0.8,   // Giảm chất lượng 1 chút để tối ưu dung lượng upload
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const formData = new FormData();
+        
+        const filename = asset.uri.split('/').pop() || 'avatar.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+        formData.append('avatar', { uri: asset.uri, name: filename, type } as any);
+
+        await UserService.updateAvatar(formData);
+        setAvatarModalVisible(false);
+        await refreshUser(); // Cập nhật lại context để tự động đồng bộ ảnh mới trên toàn app
+      }
+    } catch (error) {
+      console.error('Lỗi khi upload avatar từ thiết bị:', error);
+    }
   };
 
-  const handleSelectDisplayMode = (mode: DisplayMode) => {
-    setDisplayMode(mode);
-    setDisplayModeModalVisible(false);
+  const handleSelectDisplayMode = async (mode: DisplayMode) => {
+    try {
+      await UserService.updatePreferences({ preferences: { theme: mode } });
+      setDisplayMode(mode);
+      setDisplayModeModalVisible(false);
+      await refreshUser();
+    } catch (error) {
+      console.error('Lỗi cập nhật giao diện:', error);
+    }
   };
 
-  const handleSelectLanguage = (value: LanguageMode) => {
-    setLanguage(value);
-    setLanguageModalVisible(false);
+  const handleSelectLanguage = async (value: LanguageMode) => {
+    try {
+      await UserService.updatePreferences({ preferences: { language: value } });
+      setLanguage(value);
+      setLanguageModalVisible(false);
+      await refreshUser();
+    } catch (error) {
+      console.error('Lỗi cập nhật ngôn ngữ:', error);
+    }
   };
 
-  const handleChangeUserName = (newUserName: string) => {
-    setUserName(newUserName);
-    setUserNameModalVisible(false);
+  const handleChangeUserName = async (newUserName: string) => {
+    try {
+      await UserService.updateProfile({ username: newUserName });
+      setUserName(newUserName);
+      setUserNameModalVisible(false);
+      await refreshUser();
+    } catch (error) {
+      console.error('Lỗi cập nhật tên người dùng:', error);
+    }
   };
 
-  const handleChangePassword = (currentPassword: string, newPassword: string) => {
-    console.log('Password changed:', { currentPassword, newPassword });
-    setPasswordModalVisible(false);
+  const handleSelectVoice = async (selectedVoice: VoiceType) => {
+    try {
+      await UserService.updatePreferences({ preferences: { voiceGender: selectedVoice } });
+      setVoice(selectedVoice);
+      setVoiceModalVisible(false);
+      await refreshUser();
+    } catch (error) {
+      console.error('Lỗi cập nhật giọng đọc:', error);
+    }
   };
 
-  const handleSelectVoice = (selectedVoice: VoiceType) => {
-    setVoice(selectedVoice);
-    setVoiceModalVisible(false);
+  const handleSelectReminder = async (selectedReminder: ReminderType) => {
+    try {
+      let enabled = false;
+      let time = '08:00';
+      if (selectedReminder === 'morning') {
+        enabled = true;
+        time = '08:00';
+      } else if (selectedReminder === 'evening') {
+        enabled = true;
+        time = '20:00';
+      }
+      await UserService.updatePreferences({ 
+        preferences: { notifications: { enabled, dailyReminderTime: time } } 
+      });
+      setReminder(selectedReminder);
+      setReminderModalVisible(false);
+      await refreshUser();
+    } catch (error) {
+      console.error('Lỗi cập nhật nhắc nhở:', error);
+    }
   };
 
-  const handleSelectReminder = (selectedReminder: ReminderType) => {
-    setReminder(selectedReminder);
-    setReminderModalVisible(false);
-  };
-
-  const displayModeLabel = displayMode === 'light' ? 'Sáng' : 'Tối';
+  const displayModeLabel = displayMode === 'light' ? t('settings.light') : t('settings.dark');
   const languageLabel = LANGUAGE_LABELS[language];
   
-  const VOICE_LABELS: Record<VoiceType, string> = { male: 'Giọng Nam', female: 'Giọng Nữ' };
   const voiceLabel = VOICE_LABELS[voice];
-  const reminderLabel = reminder === 'none' ? 'Nhắc nhở' : (reminder === 'morning' ? '08:00' : '20:00');
+  const reminderLabel = reminder === 'none' ? t('settings.reminder') : (reminder === 'morning' ? '08:00' : '20:00');
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title="Cài đặt" />
+      <ScreenHeader title={t('settings.title')} style={{ backgroundColor: colors.bg2 }} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity
@@ -131,31 +258,31 @@ export default function SettingsScreen() {
           <View style={styles.avatarRow}>
             <Image source={selectedAvatar.imageSource} style={styles.avatarImage} />
             <View style={styles.avatarAction}>
-              <Text style={styles.avatarText}>Thay đổi</Text>
-              <CaretRightIcon size={16} color={Color.gray} weight="bold" />
+              <Text style={styles.avatarText}>{t('settings.change')}</Text>
+              <CaretRightIcon size={16} color={colors.gray} weight="bold" />
             </View>
           </View>
         </TouchableOpacity>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Thông tin cá nhân</Text>
+          <Text style={styles.sectionTitle}>{t('settings.personalInfo')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<UserIcon size={24} color={Color.main2} weight="regular" />}
-              label="Tên người dùng"
+              icon={<UserIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.username')}
               value={userName}
               onPress={() => setUserNameModalVisible(true)}
             />
             <SettingsRow
-              icon={<EnvelopeSimpleIcon size={24} color={Color.main2} weight="regular" />}
-              label="Email"
-              value="huyt61933@gmail.com"
+              icon={<EnvelopeSimpleIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.email')}
+              value={user?.email || t('settings.notUpdated')}
               onPress={() => setEmailModalVisible(true)}
             />
             <SettingsRow
-              icon={<PasswordIcon size={24} color={Color.main2} weight="regular" />}
-              label="Mật khẩu"
-              value="Đổi mật khẩu"
+              icon={<PasswordIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.password')}
+              value={t('settings.changePassword')}
               isLast
               onPress={() => setPasswordModalVisible(true)}
             />
@@ -163,10 +290,10 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Gói học tập</Text>
+          <Text style={styles.sectionTitle}>{t('settings.studyPlan')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<StarIcon size={24} color={Color.main2} weight="fill" />}
+              icon={<StarIcon size={24} color={colors.main2} weight="fill" />}
               label="Salio Master TOPIK"
               isLast
               onPress={() => router.push('/subscription/manage')}
@@ -175,7 +302,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tương tác</Text>
+          <Text style={styles.sectionTitle}>{t('settings.interaction')}</Text>
           <View style={[styles.card, styles.gridCard]}>
             <TouchableOpacity
               style={[styles.gridItem, styles.gridItemButton]}
@@ -183,9 +310,9 @@ export default function SettingsScreen() {
               onPress={() => setDisplayModeModalVisible(true)}
             >
               {displayMode === 'light' ? (
-                <SunIcon size={28} color={Color.cam} weight="fill" />
+                <SunIcon size={28} color={colors.cam} weight="fill" />
               ) : (
-                <MoonIcon size={28} color={Color.cam} weight="fill" />
+                <MoonIcon size={28} color={colors.cam} weight="fill" />
               )}
               <Text style={styles.gridText}>{displayModeLabel}</Text>
             </TouchableOpacity>
@@ -195,7 +322,7 @@ export default function SettingsScreen() {
               activeOpacity={0.8}
               onPress={() => setLanguageModalVisible(true)}
             >
-              <TranslateIcon size={28} color={Color.cam} weight="fill" />
+              <TranslateIcon size={28} color={colors.cam} weight="fill" />
               <Text style={styles.gridText}>{languageLabel}</Text>
             </TouchableOpacity>
 
@@ -204,7 +331,7 @@ export default function SettingsScreen() {
               activeOpacity={0.8}
               onPress={() => setReminderModalVisible(true)}
             >
-              <BellIcon size={28} color={Color.cam} weight="fill" />
+              <BellIcon size={28} color={colors.cam} weight="fill" />
               <Text style={styles.gridText}>{reminderLabel}</Text>
             </TouchableOpacity>
 
@@ -213,41 +340,41 @@ export default function SettingsScreen() {
               activeOpacity={0.8}
               onPress={() => setVoiceModalVisible(true)}
             >
-              <SpeakerHighIcon size={28} color={Color.cam} weight="fill" />
+              <SpeakerHighIcon size={28} color={colors.cam} weight="fill" />
               <Text style={styles.gridText}>{voiceLabel}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Nền tảng</Text>
+          <Text style={styles.sectionTitle}>{t('settings.platform')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<GlobeIcon size={24} color={Color.main2} weight="regular" />}
-              label="Website"
+              icon={<GlobeIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.website')}
               isLast
             />
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Giới thiệu</Text>
+          <Text style={styles.sectionTitle}>{t('settings.about')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<LockKeyIcon size={24} color={Color.main2} weight="regular" />}
-              label="Quyền riêng tư"
+              icon={<LockKeyIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.privacyPolicy')}
             />
             <SettingsRow
-              icon={<CookieIcon size={24} color={Color.main2} weight="regular" />}
-              label="Điều khoản dịch vụ"
+              icon={<CookieIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.termsOfService')}
             />
             <SettingsRow
-              icon={<HeadsetIcon size={24} color={Color.main2} weight="regular" />}
-              label="Trung tâm hỗ trợ"
+              icon={<HeadsetIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.supportCenter')}
             />
             <SettingsRow
-              icon={<InfoIcon size={24} color={Color.main2} weight="regular" />}
-              label="Về chúng tôi"
+              icon={<InfoIcon size={24} color={colors.main2} weight="regular" />}
+              label={t('settings.aboutUs')}
               isLast
             />
           </View>
@@ -256,15 +383,15 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <View style={styles.card}>
             <SettingsRow
-              icon={<UsersIcon size={24} color={Color.xanh} weight="regular" />}
-              label="Đăng nhập bằng tài khoản khác"
-              labelColor={Color.gray}
+              icon={<UsersIcon size={24} color={colors.xanh} weight="regular" />}
+              label={t('settings.loginOther')}
+              labelColor={colors.gray}
               showArrow={false}
             />
             <SettingsRow
-              icon={<SignOutIcon size={24} color={Color.red} weight="regular" />}
-              label="Đăng xuất"
-              labelColor={Color.red}
+              icon={<SignOutIcon size={24} color={colors.red} weight="regular" />}
+              label={t('settings.logout')}
+              labelColor={colors.red}
               showArrow={false}
               isLast
               onPress={() => setLogoutModalVisible(true)}
@@ -309,7 +436,7 @@ export default function SettingsScreen() {
 
       <EmailSettingsModal
         visible={isEmailModalVisible}
-        email="huyt61933@gmail.com"
+        email={user?.email || ''}
         onClose={() => setEmailModalVisible(false)}
         onDeleteAccount={() => {
           console.log('Xóa tài khoản đã được yêu cầu');
@@ -319,7 +446,6 @@ export default function SettingsScreen() {
 
       <ChangePasswordModal
         visible={isPasswordModalVisible}
-        onChangePassword={handleChangePassword}
         onClose={() => setPasswordModalVisible(false)}
       />
 
@@ -341,7 +467,7 @@ export default function SettingsScreen() {
         isVisible={isLogoutModalVisible}
         title="Rời đi rồi à?"
         subtitle="Bạn sẽ cần đăng nhập lại để tiếp tục học nhé."
-        confirmText="Đăng xuất"
+        confirmText={t('settings.logout')}
         cancelText="Tiếp tục học"
         isDestructive={true}
         onConfirm={handleConfirmLogout}
@@ -351,32 +477,30 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg2,
   },
   scrollContent: {
     padding: Padding.padding_15,
     paddingBottom: 40,
   },
   section: {
-    marginBottom: 20,
-    borderColor: Color.stroke,
-    borderWidth: Stroke.stroke,
+    marginBottom: Gap.gap_10,
     borderRadius: Border.br_15,
     padding: Padding.padding_15,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: Color.gray,
+    color: colors.gray,
     marginBottom: Gap.gap_8,
     marginLeft: 4,
   },
   card: {
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   avatarRow: {
     flexDirection: 'row',
@@ -388,7 +512,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Color.main2,
+    backgroundColor: colors.main2,
   },
   avatarAction: {
     flexDirection: 'row',
@@ -398,7 +522,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.gray,
+    color: colors.gray,
   },
   gridCard: {
     flexDirection: 'row',
@@ -417,7 +541,7 @@ const styles = StyleSheet.create({
   gridText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: Color.gray,
+    color: colors.gray,
     textAlign: 'center',
   },
   footer: {
@@ -427,6 +551,6 @@ const styles = StyleSheet.create({
   versionText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: Color.gray,
+    color: colors.gray,
   },
 });

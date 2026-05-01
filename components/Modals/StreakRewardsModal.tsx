@@ -85,7 +85,8 @@ export default function StreakRewardsModal({ isVisible, onClose }: StreakRewards
                         <View style={styles.titleWrap}>
                             <Text style={styles.headerTitle}>Cấp độ Ngọn lửa</Text>
                         </View>
-                        <View style={{ width: 24 }} /> {/* Spacer để cân bằng Flexbox */}
+                        {/* Spacer để cân bằng Flexbox */}
+                        <View style={{ width: 24 }} />
                     </View>
 
                     <ScrollView 

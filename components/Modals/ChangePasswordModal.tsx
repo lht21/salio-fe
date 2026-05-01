@@ -1,30 +1,39 @@
-import React from 'react';
-import { Keyboard, StyleSheet, View, Modal, Pressable, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { Keyboard, StyleSheet, View, Modal, Pressable, Text, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { Eye, EyeSlash } from 'phosphor-react-native';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
 import CloseButton from '../CloseButton';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import UserService from '../../api/services/user.service';
 
 export type ChangePasswordModalProps = {
   visible: boolean;
-  onChangePassword: (currentPassword: string, newPassword: string) => void;
   onClose: () => void;
 };
 
 const ChangePasswordModal = ({
   visible,
-  onChangePassword,
   onClose,
 }: ChangePasswordModalProps) => {
-  const [currentPassword, setCurrentPassword] = React.useState('');
-  const [newPassword, setNewPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const resetForm = () => {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
+    setShowCurrent(false);
+    setShowNew(false);
+    setShowConfirm(false);
   };
 
   const handleClose = () => {
@@ -33,18 +42,37 @@ const ChangePasswordModal = ({
     onClose();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
       return;
     }
 
     if (newPassword !== confirmPassword) {
+      Alert.alert('Lỗi', 'Mật khẩu mới và xác nhận không khớp!');
       return;
     }
 
     Keyboard.dismiss();
-    onChangePassword(currentPassword, newPassword);
-    resetForm();
+    setIsLoading(true);
+
+    try {
+      const response = await UserService.changePassword({
+        currentPassword,
+        newPassword,
+      });
+
+      if (response.success) {
+        Alert.alert('Thành công', 'Đổi mật khẩu thành công!');
+        resetForm();
+        onClose();
+      } else {
+        Alert.alert('Lỗi', response.message || 'Đổi mật khẩu thất bại!');
+      }
+    } catch (error: any) {
+      Alert.alert('Lỗi', error.response?.data?.message || 'Mật khẩu hiện tại không đúng hoặc có lỗi xảy ra');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isFormValid = Boolean(
@@ -75,40 +103,55 @@ const ChangePasswordModal = ({
           </View>
 
           <View style={styles.body}>
-            <CustomInput
-              placeholder="Nhập mật khẩu hiện tại"
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              secureTextEntry
-              returnKeyType="next"
-              accessibilityLabel="Mật khẩu hiện tại"
-            />
+            <View style={styles.inputWrapper}>
+              <CustomInput
+                placeholder="Nhập mật khẩu hiện tại"
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+                secureTextEntry={!showCurrent}
+                returnKeyType="next"
+                accessibilityLabel="Mật khẩu hiện tại"
+              />
+              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowCurrent(!showCurrent)} activeOpacity={0.7}>
+                {showCurrent ? <Eye size={20} color={Color.gray} /> : <EyeSlash size={20} color={Color.gray} />}
+              </TouchableOpacity>
+            </View>
 
-            <CustomInput
-              placeholder="Nhập mật khẩu mới"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-              returnKeyType="done"
-              accessibilityLabel="Mật khẩu mới"
-            />
+            <View style={styles.inputWrapper}>
+              <CustomInput
+                placeholder="Nhập mật khẩu mới"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry={!showNew}
+                returnKeyType="next"
+                accessibilityLabel="Mật khẩu mới"
+              />
+              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowNew(!showNew)} activeOpacity={0.7}>
+                {showNew ? <Eye size={20} color={Color.gray} /> : <EyeSlash size={20} color={Color.gray} />}
+              </TouchableOpacity>
+            </View>
 
-            <CustomInput
-              placeholder="Nhập lại mật khẩu mới"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              accessibilityLabel="Xác nhận mật khẩu mới"
-            />
+            <View style={styles.inputWrapper}>
+              <CustomInput
+                placeholder="Nhập lại mật khẩu mới"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirm}
+                returnKeyType="done"
+                onSubmitEditing={handleConfirm}
+                accessibilityLabel="Xác nhận mật khẩu mới"
+              />
+              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirm(!showConfirm)} activeOpacity={0.7}>
+                {showConfirm ? <Eye size={20} color={Color.gray} /> : <EyeSlash size={20} color={Color.gray} />}
+              </TouchableOpacity>
+            </View>
 
             <Button
               title="Lưu"
               variant="Green"
               onPress={handleConfirm}
               style={styles.confirmButton}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
             />
           </View>
         </View>
@@ -127,6 +170,16 @@ const styles = StyleSheet.create({
   body: {
     gap: 16,
     paddingBottom: 16,
+  },
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: Padding.padding_15,
+    height: '100%',
+    justifyContent: 'center',
   },
   confirmButton: {
     height: 48,

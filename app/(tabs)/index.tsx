@@ -27,6 +27,9 @@ import { Color, FontFamily } from '@/constants/GlobalStyles';
 import { useRouter } from 'expo-router';
 import StatusBadge from '../../components/StatusBadge';
 import Button from '../../components/Button';
+import { useUser } from '../../contexts/UserContext';
+import UserService from '../../api/services/user.service';
+import { MyStatsData } from '../../api/types/user.types';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -83,6 +86,23 @@ export default function HomeScreen() {
     () => LESSONS.find((item) => item.status === 'current') ?? LESSONS[0],
     []
   );
+
+  const { user } = useUser();
+  const [stats, setStats] = useState<MyStatsData | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await UserService.getMyStats();
+        if (res.success) {
+          setStats(res.data);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy thông tin thống kê:', error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // 1. Khởi tạo biến lưu giá trị cuộn
   const scrollY = useSharedValue(0);
@@ -197,16 +217,16 @@ export default function HomeScreen() {
         animatedProps={animatedGradientProps}
         style={[styles.stickyHeader, stickyHeaderStyle]}
       >
-        <StatusBadge text="Sơ cấp 1" bgColor="#FFFFFF" />
+        <StatusBadge text={user?.level || "Sơ cấp 1"} bgColor="#FFFFFF" />
         <StatusBadge 
           icon={<Image source={require('../../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-          text="15" 
+          text={stats?.gamification?.currentStreak?.toString() || "0"} 
           bgColor="#FFFFFF" 
           onPress={handleShowFireInfo} 
         />
         <StatusBadge 
           icon={<Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-          text="103" 
+          text={stats?.gamification?.clouds?.toString() || "0"} 
           bgColor="#FFFFFF" 
           onPress={handleShowCloudInfo} 
         />
@@ -224,6 +244,9 @@ export default function HomeScreen() {
           onCurrentLessonPress={openLessonBottomSheet} 
           onFirePress={handleShowFireInfo}
           onCloudPress={handleShowCloudInfo}
+          streak={stats?.gamification?.currentStreak}
+          clouds={stats?.gamification?.clouds}
+          level={user?.level}
         />
 
         <View style={styles.mapArea}>

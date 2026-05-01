@@ -1,0 +1,31 @@
+{
+  "settings": {
+    "title": "Cài đặt",
+    "change": "Thay đổi",
+    "personalInfo": "Thông tin cá nhân",
+    "username": "Tên người dùng",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "changePassword": "Đổi mật khẩu",
+    "notUpdated": "Chưa cập nhật",
+    "studyPlan": "Gói học tập",
+    "interaction": "Tương tác",
+    "light": "Sáng",
+    "dark": "Tối",
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "korean": "Tiếng Hàn",
+    "maleVoice": "Giọng Nam",
+    "femaleVoice": "Giọng Nữ",
+    "reminder": "Nhắc nhở",
+    "platform": "Nền tảng",
+    "website": "Website",
+    "about": "Giới thiệu",
+    "privacyPolicy": "Quyền riêng tư",
+    "termsOfService": "Điều khoản dịch vụ",
+    "supportCenter": "Trung tâm hỗ trợ",
+    "aboutUs": "Về chúng tôi",
+    "loginOther": "Đăng nhập bằng tài khoản khác",
+    "logout": "Đăng xuất"
+  }
+}

@@ -10,6 +10,7 @@ interface ConfirmModalProps {
   confirmText?: string; // Mặc định là "Đồng ý"
   cancelText?: string; // Mặc định là "Hủy"
   isDestructive?: boolean; // Xác định nút confirm là Xanh lá (false) hay Đỏ (true)
+  hideCancelButton?: boolean; // Ẩn nút Hủy để dùng component như một Alert thông thường
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -21,6 +22,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmText = "Đồng ý",
   cancelText = "Hủy",
   isDestructive = false, // Mặc định các action bình thường là an toàn (Nộp bài...)
+  hideCancelButton = false,
   onConfirm,
   onCancel,
 }) => {
@@ -47,12 +49,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           {/* HÀNG NÚT BẤM */}
           <View style={styles.buttonRow}>
             {/* Nút Cancel: Thường là Outline hoặc màu nhạt. Trong ảnh thiết kế, nút Hủy (Tiếp tục học) có dạng viền xanh */}
-            <Button 
-              variant="Outline" // Bạn có thể tạo thêm variant "OutlineGreen" trong Button.tsx nếu cần viền xanh chính xác
-              title={cancelText} 
-              onPress={onCancel} 
-              style={styles.actionButton} 
-            />
+            {!hideCancelButton && (
+              <Button 
+                variant="Outline" // Bạn có thể tạo thêm variant "OutlineGreen" trong Button.tsx nếu cần viền xanh chính xác
+                title={cancelText} 
+                onPress={onCancel} 
+                style={styles.actionButton} 
+              />
+            )}
 
             {/* Nút Confirm: Tuỳ thuộc vào tính chất hành động */}
             <Button 

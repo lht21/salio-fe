@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,17 +12,63 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as SecureStore from 'expo-secure-store';
+import AuthService from '../../api/services/auth.service';
 
 // --- Components ---
 import Button from '../../components/Button';
 import SocialButton from '../../components/SocialButton';
 import { CustomInput } from '../../components/CustomInput';
+import { useModal } from '../../contexts/ModalContext';
+import { useUser } from '../../contexts/UserContext';
+
 
 // --- Constants ---
 import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../constants/GlobalStyles';
 
 export default function SignInScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { showModal } = useModal();
+  const { refreshUser } = useUser();
+
+  const showAlert = (title: string, subtitle: string) => {
+    showModal({ title, subtitle, hideCancelButton: true, confirmText: 'Đóng' });
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      showAlert('Lỗi', 'Vui lòng nhập đầy đủ email và mật khẩu');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await AuthService.login({ email, password });
+
+      if (response.success) {
+        // Lưu token vào SecureStore để sử dụng cho các request sau
+        await SecureStore.setItemAsync('accessToken', response.data.accessToken);
+        await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+        
+        // Đồng bộ thông tin user vào Context TRƯỚC KHI chuyển màn hình
+        await refreshUser();
+
+        // Chuyển hướng vào màn hình chính sau khi đăng nhập thành công
+        router.replace('/(tabs)');
+      } else {
+        showAlert('Đăng nhập thất bại', response.message || 'Có lỗi xảy ra');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Không thể kết nối đến máy chủ';
+      showAlert('Lỗi', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <LinearGradient
@@ -40,7 +86,7 @@ export default function SignInScreen() {
             showsVerticalScrollIndicator={false}
             bounces={false}
           >
-            {/* --- PHẦN TRÊN: Logo & Nút đăng nhập MXH --- */}
+            {/* --- PHẦN TRÊN: Logo --- */}
             <View style={styles.topSection}>
               <Image
                 source={require('../../assets/images/horani/state_0.png')}
@@ -50,10 +96,9 @@ export default function SignInScreen() {
               
             </View>
 
-            {/* --- PHẦN DƯỚI CÙNG: Form Đăng Nhập --- */}
+            {/* --- PHẦN DƯỚI: Form Đăng Nhập --- */}
             <View style={styles.bottomSection}>
               <View style={styles.socialContainer}>
-                {/* Truyền props tương ứng vào SocialButton của bạn */}
                 <SocialButton social="google" iconColor={Color.red} />
                 <SocialButton social="facebook" iconColor={Color.blueFb} />
                 <SocialButton social="apple" iconColor={Color.text} />
@@ -68,10 +113,14 @@ export default function SignInScreen() {
                   placeholder="Email"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  value={email}
+                  onChangeText={setEmail}
                 />
                 <CustomInput
                   placeholder="Mật khẩu"
                   secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
                 />
               </View>
 
@@ -83,10 +132,10 @@ export default function SignInScreen() {
                   onPress={() => router.push('/(auth)/register/email')}
                 />
                 <Button
-                  title="Đăng nhập"
+                  title={"Đăng nhập"}
                   variant="Green"
-                  onPress={() => router.push('/placement-test/intro')}
-                  style={styles.loginButton}
+                  onPress={handleLogin}
+                  disabled={isLoading}
                 />
               </View>
               <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => router.push('/(auth)/forgot-password/email')}>

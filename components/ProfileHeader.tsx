@@ -7,7 +7,14 @@ import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/
 import StatusBadge from './StatusBadge';
 import { useRouter } from 'expo-router';
 
-const ProfileHeader = () => {
+interface ProfileHeaderProps {
+  username?: string;
+  email?: string;
+  avatarUrl?: string;
+  level?: string;
+}
+
+const ProfileHeader = ({ username, email, avatarUrl, level }: ProfileHeaderProps) => {
   const router = useRouter();
   return (
     <View style={styles.container}>
@@ -18,8 +25,10 @@ const ProfileHeader = () => {
       />
       
       {/* Settings Icon */}
-      <TouchableOpacity style={styles.settingsBtn}
-      onPress={() => router.push('/settings')}>
+      <TouchableOpacity 
+        style={styles.settingsBtn}
+        onPress={() => router.push('/settings' as any)}
+      >
         <View style={styles.settingsIconBg}>
           <GearSixIcon size={24} color={Color.bg} weight="fill" />
         </View>
@@ -29,13 +38,17 @@ const ProfileHeader = () => {
       <View style={styles.infoWrapper}>
         <View style={styles.avatarContainer}>
           <Image 
-            source={require('../assets/images/avatar/Ellipse 20-1.png')} // Placeholder Avatar
+            source={
+              avatarUrl
+                ? { uri: avatarUrl }
+                : require('../assets/images/avatar/Ellipse 20-1.png')
+            }
             style={styles.avatar}
             contentFit="cover"
           />
         </View>
-        <Text style={styles.username}>tranlehuy</Text>
-        <StatusBadge text="Trình độ học Sơ cấp 1" bgColor={Color.vang || '#F9F871'} />
+        <Text style={styles.username}>{username || 'Khách'}</Text>
+        <StatusBadge text={`Trình độ học ${level || 'Sơ cấp 1'}`} bgColor={Color.vang || '#F9F871'} />
       </View>
     </View>
   );
@@ -96,6 +109,12 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
     color: Color.text || '#1E1E1E',
+    marginBottom: 4,
+  },
+  email: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: Color.gray,
     marginBottom: Gap.gap_10,
   },
 });

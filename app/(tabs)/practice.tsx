@@ -28,6 +28,14 @@ export default function PracticeScreen() {
   const [selectedLevel, setSelectedLevel] = useState<Level>('TOPIK II');
   const [showAlert, setShowAlert] = useState(true);
 
+  // Hàm helper getExamType(level: string) để map selectedLevel sang mã tương ứng của backend
+  const getExamType = (level: string) => {
+    if (level === 'TOPIK I') return 'topik1';
+    if (level === 'TOPIK II') return 'topik2';
+    if (level === 'EPS') return 'eps';
+    return '';
+  };
+
   // TODO: Dựa vào `selectedLevel` để fetch và hiển thị dữ liệu tương ứng
   // Ví dụ: const { data, isLoading } = useQuery(['practiceContent', selectedLevel], () => fetchPracticeContent(selectedLevel));
 
@@ -39,19 +47,19 @@ export default function PracticeScreen() {
             <WritingFeaturedCard
               title="Luyện viết & Sắp xếp câu"
               subtitle="Nắm vững ngữ pháp để làm tốt phần Đọc hiểu"
-              onPress={() => router.push('/practice/writing')} 
+              onPress={() => router.push(`/practice/writing?examType=${getExamType(selectedLevel)}`)} 
             />
             <View style={styles.skillsRow}>
               <SkillCard 
                 title="Luyện nghe" 
                 backgroundColor={Color.mintPastel}
-                onPress={() => router.push('/practice/listening')}
+                onPress={() => router.push(`/practice/listening?examType=${getExamType(selectedLevel)}`)}
                 titleColor={Color.mint}
               />
               <SkillCard 
                 title="Luyện đọc" 
                 backgroundColor={Color.bluePastel}
-                onPress={() => router.push('/practice/reading')}
+                onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
                 titleColor={Color.blue}
               />
             </View>
@@ -62,7 +70,7 @@ export default function PracticeScreen() {
                   { text: 'Nghe: 30 câu', type: 'purple' },
                   { text: 'Đọc: 40 câu', type: 'gray' }
                 ]}
-                onPress={() => router.push('/practice/mock-exam-topik1')}
+                onPress={() => router.push(`/practice/full?examType=${getExamType(selectedLevel)}`)}
               />
             </View>
           </>
@@ -74,19 +82,19 @@ export default function PracticeScreen() {
             <WritingFeaturedCard
               title="Luyện viết TOPIK II"
               subtitle="Luyện viết biểu đồ (câu 53) và viết luận (câu 54)"
-              onPress={() => router.push('/practice/writing')} 
+              onPress={() => router.push(`/practice/writing?examType=${getExamType(selectedLevel)}`)} 
             />
             <View style={styles.skillsRow}>
               <SkillCard 
                 title="Luyện nghe" 
                 backgroundColor={Color.mintPastel}
-                onPress={() => router.push('/practice/listening')}
+                onPress={() => router.push(`/practice/listening?examType=${getExamType(selectedLevel)}`)}
                 titleColor={Color.mint}
               />
               <SkillCard 
                 title="Luyện đọc" 
                 backgroundColor={Color.bluePastel}
-                onPress={() => router.push('/practice/reading')}
+                onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
                 titleColor={Color.blue}
               />
             </View>
@@ -96,7 +104,7 @@ export default function PracticeScreen() {
                 badges={[
                   { text: 'Nghe, Viết, Đọc', type: 'purple' },
                 ]}
-                onPress={() => router.push('/practice/mock-exam')}
+                onPress={() => router.push(`/practice/full?examType=${getExamType(selectedLevel)}`)}
               />
             </View>
           </>
@@ -111,13 +119,13 @@ export default function PracticeScreen() {
                 title="Luyện nghe EPS" 
                 icon={<HeadphonesIcon size={24} color={Color.mint} weight="fill" />}
                 backgroundColor={Color.mintPastel}
-                onPress={() => router.push('/practice/listening')}
+                onPress={() => router.push(`/practice/listening?examType=${getExamType(selectedLevel)}`)}
               />
               <SkillCard 
                 title="Luyện đọc EPS" 
                 icon={<BookOpenTextIcon size={24} color={Color.blue} weight="fill" />}
                 backgroundColor={Color.bluePastel}
-                onPress={() => router.push('/practice/reading')}
+                onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
               />
             </View>
             <View style={styles.skillsRow}>
@@ -152,7 +160,7 @@ export default function PracticeScreen() {
                 { text: '20 câu Đọc + 20 câu Nghe', type: 'purple' },
                 { text: 'Mô phỏng CBT', type: 'gray' }
               ]}
-              onPress={() => router.push('/practice/mock-exam-eps')}
+              onPress={() => router.push(`/practice/full?examType=${getExamType(selectedLevel)}`)}
             />
           </>
         );

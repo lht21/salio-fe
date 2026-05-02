@@ -27,5 +27,14 @@
     "aboutUs": "Về chúng tôi",
     "loginOther": "Đăng nhập bằng tài khoản khác",
     "logout": "Đăng xuất"
+  },
+  "upgradeBanner": {
+    "title": "Trải nghiệm không giới hạn",
+    "desc": "Mở khóa toàn bộ lộ trình và thi thử",
+    "action": "Nâng cấp ngay"
+  },
+  "alertBanner": {
+    "defaultText": "Bạn đã đạt 215 điểm Topik thi thử. Kiểm tra ngay để chuyển đổi Trình độ học tập hiện tại",
+    "checkNow": "Kiểm tra"
   }
 }

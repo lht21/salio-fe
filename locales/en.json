@@ -27,5 +27,14 @@
     "aboutUs": "About Us",
     "loginOther": "Login with another account",
     "logout": "Logout"
+  },
+  "upgradeBanner": {
+    "title": "Unlimited Experience",
+    "desc": "Unlock all roadmaps and mock tests",
+    "action": "Upgrade Now"
+  },
+  "alertBanner": {
+    "defaultText": "You have reached 215 points in the mock TOPIK test. Check now to convert your current learning level",
+    "checkNow": "Check"
   }
 }

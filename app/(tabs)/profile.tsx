@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { CertificateIcon, CloudIcon, GearSixIcon } from 'phosphor-react-native';
 import { StyleSheet, View, Text, TouchableOpacity, RefreshControl } from 'react-native';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -9,8 +9,10 @@ import Animated, {
   interpolate, 
   Extrapolation 
 } from 'react-native-reanimated';
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize } from '../../constants/GlobalStyles';
 import { Image } from 'expo-image';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Import sub-components
 import AlertBanner from '../../components/AlertBanner';
@@ -27,6 +29,9 @@ import { MyStatsData } from '../../api/types/user.types';
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, refreshUser } = useUser();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [stats, setStats] = useState<MyStatsData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -85,14 +90,14 @@ export default function ProfileScreen() {
             style={styles.stickyAvatar}
             contentFit="cover"
           />
-          <Text style={styles.stickyHeaderTitle}>{user?.username || 'Khách'}</Text>
+          <Text style={styles.stickyHeaderTitle}>{user?.username || t('profile.guest', 'Khách')}</Text>
         </View>
         <TouchableOpacity 
           style={styles.stickySettingsBtn} 
           onPress={() => router.push('/settings' as any)}
         >
           <View style={styles.settingsIconBg}>
-            <GearSixIcon size={20} color={Color.bg} weight="fill" />
+            <GearSixIcon size={20} color={colors.bg} weight="fill" />
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -106,7 +111,7 @@ export default function ProfileScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Color.main2}
+            tintColor={colors.main2}
           />
         }
       >
@@ -144,15 +149,15 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Color.main || '#FFFFFF',
+    backgroundColor: colors.main || '#FFFFFF',
     paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
     paddingBottom: 20,
   },
   stickyHeader: {
@@ -164,7 +169,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Color.main || '#98F291',
+    backgroundColor: colors.main || '#98F291',
     paddingTop: 50, // Khớp với paddingTop của safeArea để không đè lên tai thỏ
     paddingBottom: 15,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
@@ -182,7 +187,7 @@ const styles = StyleSheet.create({
   stickyHeaderTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.text || '#1E1E1E',
+    color: colors.text || '#1E1E1E',
   },
   stickySettingsBtn: {
     position: 'absolute',
@@ -190,7 +195,7 @@ const styles = StyleSheet.create({
     bottom: 12,
   },
   settingsIconBg: {
-    backgroundColor: Color.gray || '#64748B',
+    backgroundColor: colors.gray || '#64748B',
     padding: 6,
     borderRadius: 16,
   }

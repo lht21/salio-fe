@@ -272,7 +272,7 @@ export default function FlashcardSetDetailScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        <LinearGradient colors={[Color.main || '#98F291', Color.bg]} style={styles.gradientSection}>
+        <LinearGradient colors={['#CEF9B4', Color.main || '#98F291']} style={styles.gradientSection}>
           <View style={styles.titleWrapper}>
             <Text style={styles.bigTitle}>{displayTitle}</Text>
           </View>
@@ -282,14 +282,14 @@ export default function FlashcardSetDetailScreen() {
             <Text style={styles.countText}>Tổng cộng: {words.length} từ vựng</Text>
             
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Color.text || '#98F291' }]} activeOpacity={0.8}>
-                <CardsIcon size={24} color={Color.main || '#0C5F35'} weight="fill" />
-                <Text style={[styles.actionBtnText, { color: Color.bg || '#0C5F35' }]}>Học Flashcard</Text>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#0F172A', borderBottomColor: '#000000' }]} activeOpacity={0.8}>
+                <CardsIcon size={24} color={Color.main || '#98F291'} weight="fill" />
+                <Text style={[styles.actionBtnText, { color: Color.main || '#98F291' }]}>Học Flashcard</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Color.text }]} activeOpacity={0.8}>
-                <ListChecksIcon size={24} color={Color.main || '#1E1E1E'} weight="bold" />
-                <Text style={[styles.actionBtnText, { color: Color.bg || '#1E1E1E' }]}>Trắc nghiệm</Text>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FFFFFF', borderBottomColor: '#E2E8F0' }]} activeOpacity={0.8}>
+                <ListChecksIcon size={24} color="#0F172A" weight="bold" />
+                <Text style={[styles.actionBtnText, { color: '#0F172A' }]}>Trắc nghiệm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -303,7 +303,8 @@ export default function FlashcardSetDetailScreen() {
               style={styles.addBtn}
               onPress={() => setIsSearchModalVisible(true)}
             >
-              <PlusIcon size={24} color={Color.text || '#166534'} weight="bold" />
+              <PlusIcon size={18} color="#FFFFFF" weight="bold" />
+              <Text style={styles.addBtnText}>Thêm từ</Text>
             </TouchableOpacity>
           </View>
 
@@ -312,9 +313,12 @@ export default function FlashcardSetDetailScreen() {
             {isLoading ? (
               <ActivityIndicator size="large" color={Color.main || '#98F291'} style={{ marginTop: 40 }} />
             ) : words.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: Color.gray, marginTop: 40, fontFamily: FontFamily.lexendDecaMedium }}>
-                Chưa có từ vựng nào trong bộ này.
-              </Text>
+              <View style={styles.emptyContainer}>
+                <CardsIcon size={48} color={Color.stroke || '#E2E8F0'} weight="fill" style={{ marginBottom: 12 }} />
+                <Text style={styles.emptyText}>
+                  Chưa có từ vựng nào trong bộ này.
+                </Text>
+              </View>
             ) : words.map((item) => (
               <TouchableOpacity 
                 key={item.id} 
@@ -433,14 +437,14 @@ export default function FlashcardSetDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.main || '#98F291' },
+  safeArea: { flex: 1, backgroundColor: '#CEF9B4' },
   customHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Padding.padding_15,
     paddingVertical: 12,
-    backgroundColor: Color.main || '#98F291',
+    backgroundColor: '#CEF9B4',
   },
   backButton: { padding: 4 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -455,20 +459,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: Padding.padding_15,
     paddingTop: Padding.padding_10,
     paddingBottom: Gap.gap_20,
+    borderBottomLeftRadius: Border.br_30 || 30,
+    borderBottomRightRadius: Border.br_30 || 30,
+    shadowColor: Color.main || '#98F291',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
+    marginBottom: Gap.gap_20,
   },
   titleWrapper: { marginBottom: Gap.gap_15 },
-  bigTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_24, color: Color.text },
+  bigTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: '#0C5F35' },
   actionContainer: { marginBottom: Gap.gap_20 },
-  countText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.gray, marginBottom: Gap.gap_15 },
+  countText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: '#064E3B', opacity: 0.8, marginBottom: Gap.gap_15 },
   buttonRow: { flexDirection: 'row', gap: Gap.gap_15 },
-  actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: Border.br_15, gap: Gap.gap_8, borderBottomWidth: 5, borderBottomColor: Color.color || '#0C5F35' },
+  actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: Border.br_20 || 20, gap: Gap.gap_8, borderBottomWidth: 4 },
   actionBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14 },
   bottomSection: { paddingHorizontal: Padding.padding_15 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },
   listTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Color.stroke, paddingHorizontal: 12, paddingVertical: 6, borderRadius: Border.br_20 },
-  addBtnText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.main2 || '#166534' },
+  addBtn: { 
+    flexDirection: 'row', alignItems: 'center', gap: 4, 
+    backgroundColor: Color.main2 || '#22C55E', 
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: Border.br_20,
+    shadowColor: '#22C55E', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
+  },
+  addBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#FFFFFF' },
   listContainer: { gap: 0 }, // Khoảng cách giữa các card đã được VocabularyCard tự xử lý qua marginBottom
+  emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
+  emptyText: { textAlign: 'center', color: Color.gray, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 },
 
   // --- STYLES CHO BOTTOM SHEET MODAL ---
   overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },

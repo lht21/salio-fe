@@ -1,0 +1,340 @@
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CheckCircleIcon, XCircleIcon } from 'phosphor-react-native';
+
+import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../../constants/GlobalStyles';
+import ScreenHeader from '../../../../../components/ScreenHeader';
+import QuestionBlock from '../../../../../components/ExamComponent/QuestionBlock';
+import PracticeService from '../../../../../api/services/practice.service';
+
+// --- SUB-COMPONENTS ---
+
+const QuestionNavigation = ({ questions, onJumpToQuestion }: { questions: any[], onJumpToQuestion: (id: string) => void }) => {
+  return (
+    <View style={styles.navContainer}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navScrollContent}>
+        {questions.map((q) => {
+          const isCorrect = q.userOptionId === q.correctOptionId;
+          return (
+            <TouchableOpacity
+              key={q.id}
+              style={[
+                styles.navButton,
+                isCorrect ? styles.navButtonCorrect : styles.navButtonWrong,
+              ]}
+              onPress={() => onJumpToQuestion(q.id)}
+            >
+              <Text style={styles.navButtonText}>{q.number}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+};
+
+const ExamCover = ({ title, type }: { title: string, type: string }) => {
+  const typeLabel = type === 'reading' ? '읽기' : type === 'listening' ? '듣기' : '종합';
+  return (
+    <View style={styles.coverBanner}>
+      <Text style={styles.coverTitle}>{title}</Text>
+      <View style={styles.coverInfoRow}>
+        <Text style={styles.coverInfoChip}>TOPIK II</Text>
+        <Text style={styles.coverInfoChip}>{typeLabel}</Text>
+      </View>
+    </View>
+  );
+};
+
+export default function MockExamReviewScreen() {
+  const { examId, attemptId, type } = useLocalSearchParams();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const questionLayouts = useRef<Record<string, number>>({});
+
+  const [reviewData, setReviewData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Lấy dữ liệu Review từ API
+  useEffect(() => {
+    const fetchReview = async () => {
+      try {
+        setIsLoading(true);
+        if (attemptId) {
+          const res = await PracticeService.reviewAttempt(attemptId as string);
+          if (res.success) {
+            setReviewData(res.data);
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi khi fetch review data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchReview();
+  }, [attemptId]);
+
+  // Transform Data: Giữ cấu trúc Section để render giống lúc làm bài
+  const { allQuestions, structuredSections } = useMemo(() => {
+    if (!reviewData || !reviewData.exam || !reviewData.exam.sections) return { allQuestions: [], structuredSections: {} };
+
+    let qIndex = 1;
+    const flatQs: any[] = [];
+    const sections: any = {};
+    const examType = type as string || 'full';
+    const sectionsToMap = examType === 'full' ? ['listening', 'reading'] : [examType];
+
+    sectionsToMap.forEach((sectionType) => {
+      const sectionItems = JSON.parse(JSON.stringify(reviewData.exam.sections[sectionType] || []));
+      const userAnswers = sectionType === 'listening' ? reviewData.listeningAnswers : reviewData.readingAnswers;
+
+      sectionItems.forEach((item: any) => {
+        (item.questions || []).forEach((q: any) => {
+          q.number = qIndex++;
+          const ansRecord = (userAnswers || []).find((a: any) => a.questionId === q._id);
+          const userAnswer = ansRecord ? ansRecord.userAnswer : null;
+
+          const correctOpt = q.answers?.find((a: any) => a.isCorrect);
+          let correctOptionId = correctOpt ? correctOpt._id : q.correctAnswer;
+
+          const options = (q.answers || []).map((a: any) => {
+            const isString = typeof a === 'string';
+            const optId = isString ? a : (a._id || a.label);
+            const content = isString ? a : (a.text || a.label || a.imageUrl);
+            const optType = (a.imageUrl || a.type === 'image') ? 'image' : 'text';
+            return { id: optId, type: optType, content };
+          });
+
+          // Đối chiếu chính xác ID user chọn
+          let userOptionId = userAnswer;
+          if (userAnswer) {
+            const matchedOpt = options.find((o: any) => o.id === userAnswer || o.content === userAnswer);
+            if (matchedOpt) userOptionId = matchedOpt.id;
+          }
+          if (correctOptionId) {
+            const matchedCorrect = options.find((o: any) => o.id === correctOptionId || o.content === correctOptionId);
+            if (matchedCorrect) correctOptionId = matchedCorrect.id;
+          }
+
+          q.processedOptions = options;
+          q.correctOptionId = correctOptionId;
+          q.userOptionId = userOptionId;
+
+          flatQs.push({
+            id: q._id,
+            correctOptionId,
+            userOptionId
+          });
+        });
+      });
+      sections[sectionType] = sectionItems;
+    });
+
+    return { allQuestions: flatQs, structuredSections: sections };
+  }, [reviewData, type]);
+
+  const handleJumpToQuestion = (questionId: string) => {
+    const y = questionLayouts.current[questionId];
+    if (y !== undefined && scrollViewRef.current) {
+      // Trừ đi một khoảng nhỏ để Header của QuestionBlock không bị che
+      scrollViewRef.current.scrollTo({ y: y - 10, animated: true });
+    }
+  };
+
+  const renderOptions = (question: any) => {
+    const { correctOptionId, userOptionId, processedOptions: options, explanation } = question;
+
+    let optionsView = null;
+
+    if (options && options[0]?.type === 'image') {
+      optionsView = (
+        <View style={styles.imageOptionsGrid}>
+          {options?.map((opt: any, index: number) => {
+            const isCorrect = opt.id === correctOptionId;
+            const isUserChoice = opt.id === userOptionId;
+            const isWrongChoice = isUserChoice && !isCorrect;
+
+            return (
+              <View
+                key={opt.id}
+                style={[
+                  styles.imageOptionCard,
+                  isCorrect && styles.optionCorrect,
+                  isWrongChoice && styles.optionWrong,
+                ]}
+              >
+                <Image source={{ uri: opt.content }} style={styles.optionImage} />
+                <Text style={styles.optionLabel}>{`①②③④`[index]}</Text>
+                
+                {/* Huy hiệu Đúng/Sai cho ảnh */}
+                {isCorrect && <View style={styles.iconBadge}><CheckCircleIcon size={28} color="#16A34A" weight="fill" /></View>}
+                {isWrongChoice && <View style={styles.iconBadge}><XCircleIcon size={28} color="#DC2626" weight="fill" /></View>}
+              </View>
+            );
+          })}
+        </View>
+      );
+    } else {
+      optionsView = (
+        <View style={styles.textOptionsContainer}>
+          {options?.map((opt: any) => {
+            const isCorrect = opt.id === correctOptionId;
+            const isUserChoice = opt.id === userOptionId;
+            const isWrongChoice = isUserChoice && !isCorrect;
+  
+            return (
+            <View
+              key={opt.id}
+              style={[
+                styles.textOptionCard,
+                isCorrect && styles.optionCorrect,
+                isWrongChoice && styles.optionWrong,
+              ]}
+            >
+              <Text style={[
+                styles.textOptionContent, 
+                isCorrect && { color: '#16A34A', fontFamily: FontFamily.lexendDecaMedium },
+                isWrongChoice && { color: '#DC2626' }
+              ]}>
+                {opt.content}
+              </Text>
+              
+              {/* Icon đánh dấu câu hỏi Text */}
+              {isCorrect && <CheckCircleIcon size={24} color="#16A34A" weight="fill" />}
+              {isWrongChoice && <XCircleIcon size={24} color="#DC2626" weight="fill" />}
+            </View>
+          );
+        })}
+      </View>
+      );
+    }
+
+    return (
+      <View>
+        {optionsView}
+        {explanation ? (
+          <View style={styles.explanationContainer}>
+            <Text style={styles.explanationText}>Giải thích: {explanation}</Text>
+          </View>
+        ) : null}
+      </View>
+    );
+  };
+
+  const renderSection = (secType: string, title: string) => {
+    const items = structuredSections[secType];
+    if (!items || items.length === 0) return null;
+
+    return (
+      <View key={secType}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{title}</Text>
+        </View>
+        {items.map((item: any, itemIndex: number) => (
+          <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
+            {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
+            {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
+            {item.questions?.map((q: any) => (
+              <View
+                key={q._id}
+                onLayout={(e) => { questionLayouts.current[q._id] = e.nativeEvent.layout.y; }}
+              >
+                <QuestionBlock number={q.number} questionText={q.questionText || q.text}>
+                  {renderOptions(q)}
+                </QuestionBlock>
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <ScreenHeader title="Xem lại bài làm" />
+
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <ExamCover title={reviewData?.exam?.title || 'Đề thi'} type={type as string || 'full'} />
+
+        {renderSection('listening', 'TOPIK 듣기')}
+        {renderSection('reading', 'TOPIK 읽기')}
+      </ScrollView>
+
+      <QuestionNavigation questions={allQuestions} onJumpToQuestion={handleJumpToQuestion} />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: Color.bg },
+  scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
+  
+  coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
+  coverTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: Color.bg, textAlign: 'center', marginBottom: Gap.gap_15 },
+  coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
+  coverInfoChip: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: Color.stroke, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
+  sectionHeader: { borderBottomWidth: 2, borderColor: Color.stroke, paddingBottom: 10, marginBottom: 20 },
+  sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+  instructionText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_10 },
+  passageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.color, lineHeight: 24, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
+  
+  imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
+  imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: Color.stroke, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
+  optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
+  optionLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.gray, marginTop: 8 },
+  iconBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: Color.bg, borderRadius: 14 },
+  
+  textOptionsContainer: { gap: Gap.gap_10 },
+  textOptionCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 2, borderColor: Color.stroke, borderRadius: Border.br_15, padding: Padding.padding_15 },
+  textOptionContent: { flex: 1, fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: Color.text, lineHeight: 24 },
+  
+  // Trạng thái đáp án
+  optionCorrect: { borderColor: '#22C55E', backgroundColor: '#F0FDF4' },
+  optionWrong: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
+
+  explanationContainer: {
+    marginTop: Gap.gap_15,
+    padding: Padding.padding_15,
+    backgroundColor: '#F8FAFC',
+    borderRadius: Border.br_10,
+    borderLeftWidth: 3,
+    borderLeftColor: '#94A3B8',
+  },
+  explanationText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: '#64748B',
+    fontStyle: 'italic',
+    lineHeight: 22,
+  },
+
+  // --- Question Navigation Styles ---
+  navContainer: {
+    backgroundColor: Color.bg,
+    borderTopWidth: 1,
+    borderTopColor: Color.stroke,
+    paddingVertical: Padding.padding_10,
+  },
+  navScrollContent: {
+    paddingHorizontal: Padding.padding_15,
+    gap: Gap.gap_10,
+  },
+  navButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  navButtonCorrect: { backgroundColor: '#F0FDF4', borderColor: '#22C55E' },
+  navButtonWrong: { backgroundColor: '#FEF2F2', borderColor: '#EF4444' },
+  navButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
+});

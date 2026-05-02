@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from './endpoints';
  * Thay đổi EXPO_PUBLIC_API_URL trong file .env của dự án Expo để trỏ đúng server
  */
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.11:5000',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -28,6 +28,7 @@ export const AuthEventEmitter = {
 // --- BIẾN HỖ TRỢ REFRESH TOKEN ---
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (reason?: any) => void }> = [];
+let lastEmitTime = 0;
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -118,7 +119,12 @@ apiClient.interceptors.response.use(
           console.log('⚠️ [401] Phiên đăng nhập đã hết hạn hoàn toàn. Vui lòng đăng nhập lại.');
           
           // Phát sự kiện báo hiệu UI cần force logout
-          AuthEventEmitter.emit();
+          // Throttling 2 giây để tránh bắn sự kiện liên tục gây treo máy nếu có nhiều API cùng fail
+          const now = Date.now();
+          if (now - lastEmitTime > 2000) {
+            lastEmitTime = now;
+            AuthEventEmitter.emit();
+          }
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;

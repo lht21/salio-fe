@@ -46,8 +46,8 @@ export default function TabLayout() {
           marginTop: 4,
           },
           tabBarStyle: {
-          height: Platform.OS === 'ios' ? 85 : 65, // Chiều cao chuẩn native
-          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 90 : 70, // Tăng chiều cao thêm một chút
+          paddingTop: 15, // Tăng khoảng cách phía trên icon cho thoáng
           paddingBottom: Platform.OS === 'ios' ? 25 : 10, // Tối ưu vùng vuốt cho Home Indicator của iOS
             backgroundColor: Color.bg || '#FFFFFF',
           borderTopWidth: 1,

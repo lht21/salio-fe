@@ -15,8 +15,10 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Salio can access your microphone so you can record speaking practice and listen back to your pronunciation."
-      }
+        "NSMicrophoneUsageDescription": "Salio can access your microphone so you can record speaking practice and listen back to your pronunciation.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.lehuytran.saliofe"
     },
     "android": {
       "permissions": [
@@ -36,11 +38,22 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "06f203c1-a520-4787-8d58-02cb26286bd5"
+      }
     }
   }
 }

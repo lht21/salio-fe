@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: Border.br_20,
     gap: Gap.gap_5,
   },
-  statusText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.text },
+  statusText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: Color.text },
   submitButton: { backgroundColor: Color.main, paddingHorizontal: Padding.padding_15, paddingVertical: 8, borderRadius: Border.br_20 },
-  submitText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.color },
+  submitText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_12, color: Color.color },
 });

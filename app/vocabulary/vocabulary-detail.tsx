@@ -251,7 +251,7 @@ export default function VocabularyDetailScreen() {
         {/* --- HEADER SECTION --- */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <CaretLeftIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+            <CaretLeftIcon size={24} color={Color.main2 || '#1E1E1E'} weight="bold" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chi tiết từ vựng</Text>
           {/* Spacer để căn giữa title */}
@@ -340,15 +340,13 @@ export default function VocabularyDetailScreen() {
               )}
 
               {/* PHẦN 2: Ý NGHĨA & VÍ DỤ (BODY) */}
-              <View style={styles.section}>
+              <View style={styles.sectionCard}>
                 <Text style={styles.sectionTitle}>Nghĩa tiếng Việt</Text>
                 <Text style={styles.meaningText}>{vocabData.meaning}</Text>
               </View>
 
-              <View style={styles.divider} />
-
               {vocabData.examples && vocabData.examples.length > 0 && (
-                <View style={styles.section}>
+                <View style={styles.sectionCard}>
                   <Text style={styles.sectionTitle}>Ví dụ mẫu</Text>
                   
                   <View style={styles.exampleContainer}>
@@ -362,11 +360,11 @@ export default function VocabularyDetailScreen() {
                       {vocabData.examples.map((ex, index) => (
                         <View key={index} style={styles.exampleItem}>
                           <TouchableOpacity 
-                            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                            style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}
                             onPress={() => handleSpeakSentence(ex.korean)}
                             activeOpacity={0.7}
                           >
-                            <SpeakerHighIcon size={18} color={Color.main2 || '#22C55E'} weight="fill" />
+                            <SpeakerHighIcon size={18} color={Color.main2 || '#22C55E'} weight="fill" style={{ marginTop: 2 }} />
                             <Text style={[styles.exKr, { flex: 1 }]}>{ex.korean}</Text>
                           </TouchableOpacity>
                           <Text style={styles.exVi}>{ex.vietnamese}</Text>
@@ -398,7 +396,7 @@ export default function VocabularyDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Color.bg || '#FFFFFF',
+    backgroundColor: Color.bg2,
   },
   keyboardAvoid: {
     flex: 1,
@@ -410,7 +408,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Padding.padding_15,
     paddingVertical: 12,
-    backgroundColor: Color.bg,
+    backgroundColor: '#F8FAFC',
   },
   backButton: {
     padding: 8,
@@ -435,13 +433,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     position: 'relative',
     shadowColor: Color.main || '#98F291',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
     elevation: 8,
-    borderBottomWidth: 5,
-    borderColor: Color.main2,
-    borderLeftWidth: 2,
   },
   cardActions: {
     position: 'absolute',
@@ -499,44 +494,43 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     borderRadius: Border.br_20 || 20,
-    marginBottom: 16,
+    marginBottom: Gap.gap_20 || 20,
     overflow: 'hidden',
     backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: Color.stroke || '#E2E8F0',
   },
   vocabImage: {
     width: '100%',
     height: '100%',
   },
-  section: {
-    marginBottom: 16,
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: Border.br_20 || 20,
+    padding: Padding.padding_20 || 20,
+    marginBottom: Gap.gap_10 || 20,
+    borderWidth: 1,
+    borderColor: Color.greenLight || '#E2E8F0',
   },
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.text,
+    color: Color.main2 || '#22C55E',
     marginBottom: 10,
   },
   meaningText: {
-    fontFamily: FontFamily.lexendDecaRegular,
+    fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.gray,
+    color: Color.text,
     lineHeight: 24,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Color.stroke || '#E2E8F0',
-    marginVertical: 16,
   },
   exampleContainer: {
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
-    borderRadius: Border.br_20 || 20,
-    padding: 16,
     alignItems: 'center',
   },
   mascotImage: {
-    width: 60,
-    height: 80,
+    width: 70,
+    height: 90,
     marginRight: 16,
   },
   exampleList: {
@@ -544,6 +538,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   exampleItem: {
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 12,
     gap: 4,
   },
   exKr: {
@@ -579,10 +576,9 @@ const styles = StyleSheet.create({
   handDrawnInput: {
     minHeight: 80,
     maxHeight: 120,
-    backgroundColor: '#FAFAFA',
-    borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    borderStyle: 'dashed', // Khung vẽ tay nét đứt
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     borderRadius: 16,
     padding: 16,
     fontFamily: FontFamily.lexendDecaRegular,

@@ -11,8 +11,8 @@ export interface Exam {
   year: number;
   isUnlocked: boolean;
   isFeatured: boolean;
-  questionCount?: number;
-  duration?: number; // in minutes
+  questionCount?: number | { listening?: number; reading?: number; writing?: number; [key: string]: any };
+  duration?: number | { listening?: number; reading?: number; writing?: number; [key: string]: any };
 }
 
 interface ExamCardProps {
@@ -21,6 +21,24 @@ interface ExamCardProps {
 }
 
 export default function ExamCard({ exam, onPress }: ExamCardProps) {
+  // Tính tổng số câu hỏi nếu API trả về là một object {listening, reading, writing}
+  let displayQuestionCount = exam.questionCount as number;
+  if (typeof exam.questionCount === 'object' && exam.questionCount !== null) {
+    displayQuestionCount = Object.values(exam.questionCount).reduce(
+      (sum, val) => sum + (typeof val === 'number' ? val : 0),
+      0
+    ) as number;
+  }
+
+  // Tương tự, tính tổng thời gian nếu duration cũng là một object
+  let displayDuration = exam.duration as number;
+  if (typeof exam.duration === 'object' && exam.duration !== null) {
+    displayDuration = Object.values(exam.duration).reduce(
+      (sum, val) => sum + (typeof val === 'number' ? val : 0),
+      0
+    ) as number;
+  }
+
   return (
     <View style={[styles.examCard, !exam.isUnlocked && styles.examCardLocked]}>
       {/* Watermark */}
@@ -45,26 +63,26 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
         <Text style={[
           styles.examTitle, 
           !exam.isUnlocked && { color: '#9CA3AF' },
-          (exam.questionCount || exam.duration) ? { marginBottom: 4 } : {} // Giảm margin nếu có hiển thị số câu/thời gian
+          (displayQuestionCount || displayDuration) ? { marginBottom: 4 } : {} // Giảm margin nếu có hiển thị số câu/thời gian
         ]}>
           {exam.title}
         </Text>
-        {(exam.questionCount || exam.duration) && (
+        {(displayQuestionCount || displayDuration) ? (
           <View style={styles.statsRow}>
-            {exam.questionCount && (
+            {displayQuestionCount ? (
               <View style={styles.statItem}>
                 <ListNumbersIcon size={14} color="#64748B" />
-                <Text style={styles.statText}>{exam.questionCount} câu</Text>
+                <Text style={styles.statText}>{displayQuestionCount} câu</Text>
               </View>
-            )}
-            {exam.duration && (
+            ) : null}
+            {displayDuration ? (
               <View style={styles.statItem}>
                 <ClockIcon size={14} color="#64748B" />
-                <Text style={styles.statText}>{exam.duration} phút</Text>
+                <Text style={styles.statText}>{displayDuration} phút</Text>
               </View>
-            )}
+            ) : null}
           </View>
-        )}
+        ) : null}
         <Button 
           title="Luyện tập"
           variant={exam.isUnlocked ? "Green" : "Gray"}

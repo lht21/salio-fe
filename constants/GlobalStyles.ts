@@ -20,7 +20,7 @@ export const FontSize = {
 export const lightTheme = {
   // --- BASE ---
   bg: "#FFFFFF",
-  bg2: "#F1FAF9",
+  bg2: "#F6FBF5",
   text: "#1E1E1E",
   stroke: "#E2E8F0",
   gray: "#64748B",

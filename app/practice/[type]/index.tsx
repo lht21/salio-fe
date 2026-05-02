@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   ScrollView, 
   Pressable, 
-  Image 
+  Image,
+  ActivityIndicator
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { 
@@ -18,101 +19,138 @@ import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../cons
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../components/ScreenHeader';
 import TopicItem from '../../../components/TopicItem';
-import ExamCard, { Exam } from '../../../components/ExamComponent/ExamCard';
+import ExamCard from '../../../components/ExamComponent/ExamCard';
 import SectionHeader from '../../../components/SectionHeader';
+import FeaturedAICard from '../../../components/ExamComponent/FeaturedAICard';
 
-// --- MOCK DATA ---
-interface WritingTopic {
-  id: string;
-  title: string;
-  description: string;
-  image: any;
-  isFeatured: boolean;
-  usersCount?: string;
-}
+import PracticeService from '../../../api/services/practice.service';
+import { PracticeType } from '../../../api/types/practice.types';
 
-const writingTopics: WritingTopic[] = [
-  {
-    id: '1',
-    title: 'Chạy theo xu hướng',
-    description: 'Viết bài luận (500-700 từ) về việc con người có nên chạy theo các xu hướng mới nổi hay không, và tại sao.',
-    image: require('../../../assets/images/imageExam/ie_1.png'),
-    isFeatured: true,
-    usersCount: '12k',
-  },
-  {
-    id: '2',
-    title: 'Trí tuệ nhân tạo (AI) và Tương lai',
-    description: 'Trình bày suy nghĩ của bạn về những lợi ích và rủi ro mà AI mang lại cho thị trường lao động trong tương lai.',
-    image: require('../../../assets/images/imageExam/ie_2.png'),
-    isFeatured: false,
-  },
-  {
-    id: '3',
-    title: 'Ảnh hưởng của Mạng xã hội',
-    description: 'Mạng xã hội giúp con người kết nối dễ dàng nhưng cũng làm suy giảm giao tiếp trực tiếp. Hãy phân tích vấn đề này.',
-    image: require('../../../assets/images/imageExam/ie_2.png'),
-    isFeatured: false,
-  },
-  {
-    id: '4',
-    title: 'Tỷ lệ sinh thấp & Già hóa dân số',
-    description: 'Viết bài luận về nguyên nhân của hiện tượng tỷ lệ sinh thấp hiện nay và đề xuất phương hướng khắc phục.',
-    image: require('../../../assets/images/imageExam/ie_2.png'),
-    isFeatured: false,
-  },
-];
+// --- CUSTOM HOOK FETCH DATA ---
+const usePracticeData = (type: string, examType?: string) => {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-// --- MOCK DATA FOR READING/LISTENING ---
-const mockReadingExams: Exam[] = [
-  { id: 'r96', title: '제96회 한국어능력시험', edition: 96, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 70 },
-  { id: 'r95', title: '제95회 한국어능력시험', edition: 95, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 70 },
-  { id: 'r94', title: '제94회 한국어능력시험', edition: 94, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
-  { id: 'r93', title: '제93회 한국어능력시험', edition: 93, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
-  { id: 'r92', title: '제92회 한국어능력시험', edition: 92, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
-  { id: 'r91', title: '제91회 한국어능력시험', edition: 91, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 70 },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response: any = await PracticeService.getSets(type as PracticeType, { page: 1, limit: 20, examType });
+        const items = response?.data?.data || response?.data || response || [];
+        setData(Array.isArray(items) ? items : []);
+      } catch (error) {
+        console.error(`Error fetching practice sets for ${type}:`, error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [type, examType]);
 
-const mockListeningExams: Exam[] = [
-  { id: 'l96', title: '제96회 한국어능력시험', edition: 96, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 60 },
-  { id: 'l95', title: '제95회 한국어능력시험', edition: 95, year: 2024, isUnlocked: true, isFeatured: true, questionCount: 50, duration: 60 },
-  { id: 'l94', title: '제94회 한국어능력시험', edition: 94, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
-  { id: 'l93', title: '제93회 한국어능력시험', edition: 93, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
-  { id: 'l92', title: '제92회 한국어능력시험', edition: 92, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
-  { id: 'l91', title: '제91회 한국어능력시험', edition: 91, year: 2023, isUnlocked: false, isFeatured: false, questionCount: 50, duration: 60 },
-];
+  return { data, isLoading };
+};
 
 // --- COMPONENTS CON ---
 
-const FeaturedCard = ({ topic, onPress }: { topic: WritingTopic; onPress: () => void }) => (
+const FeaturedCard = ({ topic, onPress }: { topic: any; onPress: () => void }) => (
   <View style={styles.featuredContainer}>
     <Pressable style={styles.featuredCard} onPress={onPress}>
       <View style={styles.featuredTextContent}>
         <Text style={styles.featuredTitle} numberOfLines={2}>{topic.title}</Text>
-        <Text style={styles.featuredDesc} numberOfLines={3}>{topic.description}</Text>
+        <Text style={styles.featuredDesc} numberOfLines={3}>{topic.prompt || topic.instruction || 'Không có mô tả'}</Text>
       </View>
-      <Image source={topic.image} style={styles.featuredImage} resizeMode="cover" />
+      <View>
+        <Image source={topic.image} style={styles.featuredImage} resizeMode="cover" />
+        {(topic.level || (topic.tags && topic.tags.length > 0)) && (
+          <View style={styles.badgeContainer}>
+            <Text style={styles.badgeText}>{topic.level || topic.tags[0]}</Text>
+          </View>
+        )}
+      </View>
     </Pressable>
-    
-    {/* Dòng thông tin xã hội dưới Card */}
-    {topic.usersCount && (
-      <View style={styles.socialRow}>
-        <UsersIcon size={18} color={Color.gray} weight="fill" />
-        <Text style={styles.socialText}>{topic.usersCount} người dùng đã viết thử</Text>
-      </View>
-    )}
   </View>
 );
 
-// --- VIEW CHO READING / LISTENING (Giống mock-exam nhưng không có Zenmode) ---
-const ReadingListeningView = ({ type }: { type: string }) => {
+// --- VIEW CHO FULL EXAM ---
+const FullExamView = ({ examType }: { examType?: string }) => {
   const router = useRouter();
-  const isReading = type === 'reading';
-  const exams = isReading ? mockReadingExams : mockListeningExams;
-  const title = isReading ? 'Luyện đọc' : 'Luyện nghe';
+  const type = 'full';
+  const { data, isLoading } = usePracticeData(type, examType);
 
-  const featuredExams = exams.filter(e => e.isFeatured);
-  const otherExams = exams.filter(e => !e.isFeatured);
+  const featuredExams = data.slice(0, 2);
+  const otherExams = data.slice(2);
+
+  const handleStartExam = (id: string) => {
+    router.push(`/practice/${type}/${id}/intro` as any);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader
+        title="Chọn đề TOPIK II"
+        rightContent={
+          <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
+            <ClockCounterClockwiseIcon size={24} color={Color.text} weight="bold" />
+          </Pressable>
+        }
+      />
+
+      
+
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* AI Section */}
+        <SectionHeader title="Để tổng hợp theo trình độ của bạn" />
+        <FeaturedAICard onPress={() => handleStartExam('ai-generated')} />
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
+        ) : data.length === 0 ? (
+          <Text style={styles.emptyText}>Chưa có bài tập nào</Text>
+        ) : (
+          <>
+            {/* Featured Exams Section */}
+            {featuredExams.length > 0 && (
+              <>
+                <SectionHeader title="Đề nổi bật" />
+                <View style={styles.listContainer}>
+                  {featuredExams.map(exam => (
+                    <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => handleStartExam(exam._id)} />
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* Other Exams Section */}
+            {otherExams.length > 0 && (
+              <>
+                <SectionHeader title="Các đề khác" />
+                <View style={styles.gridContainer}>
+                  {otherExams.map(exam => (
+                    <View key={exam._id} style={styles.gridItem}>
+                      <ExamCard exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => handleStartExam(exam._id)} />
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// --- VIEW CHO READING / LISTENING (Giống mock-exam nhưng không có Zenmode) ---
+const ReadingListeningView = ({ type, examType }: { type: string; examType?: string }) => {
+  const router = useRouter();
+  const { data, isLoading } = usePracticeData(type, examType);
+  const title = type === 'reading' ? 'Luyện đọc' : 'Luyện nghe';
+
+  const featuredExams = data.slice(0, 1);
+  const otherExams = data.slice(1);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,29 +163,37 @@ const ReadingListeningView = ({ type }: { type: string }) => {
         }
       />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Featured Exams Section */}
-        {featuredExams.length > 0 && (
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
+        ) : data.length === 0 ? (
+          <Text style={styles.emptyText}>Chưa có bài tập nào</Text>
+        ) : (
           <>
-            <SectionHeader title="Đề nổi bật" />
-            <View style={styles.listContainer}>
-              {featuredExams.map(exam => (
-                <ExamCard key={exam.id} exam={exam} onPress={() => router.push({ pathname: `/practice/${type}/${exam.id}/practice` as any })} />
-              ))}
-            </View>
-          </>
-        )}
-
-        {/* Other Exams Section */}
-        {otherExams.length > 0 && (
-          <>
-            <SectionHeader title="Các đề khác" />
-            <View style={styles.gridContainer}>
-              {otherExams.map(exam => (
-                <View key={exam.id} style={styles.gridItem}>
-                  <ExamCard exam={exam} onPress={() => router.push({ pathname: `/practice/${type}/${exam.id}/practice` as any })} />
+            {/* Featured Exams Section */}
+            {featuredExams.length > 0 && (
+              <>
+                <SectionHeader title="Đề nổi bật" />
+                <View style={styles.listContainer}>
+                  {featuredExams.map(exam => (
+                    <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any })} />
+                  ))}
                 </View>
-              ))}
-            </View>
+              </>
+            )}
+
+            {/* Other Exams Section */}
+            {otherExams.length > 0 && (
+              <>
+                <SectionHeader title="Các đề khác" />
+                <View style={styles.gridContainer}>
+                  {otherExams.map(exam => (
+                    <View key={exam._id} style={styles.gridItem}>
+                      <ExamCard exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any })} />
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
           </>
         )}
       </ScrollView>
@@ -156,23 +202,26 @@ const ReadingListeningView = ({ type }: { type: string }) => {
 };
 
 // --- VIEW CHO WRITING / SPEAKING (Giữ nguyên hiện tại) ---
-const WritingSpeakingView = ({ type }: { type: string }) => {
+const WritingSpeakingView = ({ type, examType }: { type: string; examType?: string }) => {
   const router = useRouter();
+  const { data, isLoading } = usePracticeData(type, examType);
 
-  // Lọc dữ liệu
-  const featuredTopic = writingTopics.find(t => t.isFeatured);
-  const otherTopics = writingTopics.filter(t => !t.isFeatured);
+  const featuredTopic = data.length > 0 ? data[0] : null;
+  const otherTopics = data.length > 1 ? data.slice(1) : [];
 
   const handlePressTopic = (id: string) => {
-    // Điều hướng sang màn hình làm bài tự do, không còn phụ thuộc vào 'lessons'
-    router.push({ pathname: `/practice/${type}/${id}/practice` as any });
+    router.push({ pathname: `/practice/${type}/${id}/intro` as any });
+  };
+
+  const getTopicImage = (topic: any) => {
+    return require('../../../assets/images/imageExam/ie_1.png');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <ScreenHeader 
-        title="Luyện viết" 
+        title={type === 'writing' ? "Luyện viết" : "Luyện nói"} 
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
             <ClockCounterClockwiseIcon size={24} color={Color.text} weight="bold" />
@@ -184,30 +233,49 @@ const WritingSpeakingView = ({ type }: { type: string }) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Phần 1: Chủ đề nổi bật */}
-        {featuredTopic && (
-          <View style={styles.section}>
-            <SectionHeader title="Chủ đề nổi bật" />
-            <FeaturedCard 
-              topic={featuredTopic} 
-              onPress={() => handlePressTopic(featuredTopic.id)} 
-            />
-          </View>
-        )}
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
+        ) : data.length === 0 ? (
+          <Text style={styles.emptyText}>Chưa có bài tập nào</Text>
+        ) : (
+          <>
+            {/* Phần 1: Chủ đề nổi bật */}
+            {featuredTopic && (
+              <View style={styles.section}>
+                <SectionHeader title="Chủ đề nổi bật" />
+                <FeaturedCard 
+                  topic={{
+                    ...featuredTopic,
+                    id: featuredTopic._id,
+                    image: getTopicImage(featuredTopic)
+                  }} 
+                  onPress={() => handlePressTopic(featuredTopic._id)} 
+                />
+              </View>
+            )}
 
-        {/* Phần 2: Các chủ đề khác */}
-        <View style={styles.section}>
-          <SectionHeader title="Các chủ đề khác" />
-          <View style={styles.listContainer}>
-            {otherTopics.map((topic) => (
-              <TopicItem 
-                key={topic.id} 
-                topic={topic} 
-                onPress={() => handlePressTopic(topic.id)} 
-              />
-            ))}
-          </View>
-        </View>
+            {/* Phần 2: Các chủ đề khác */}
+            {otherTopics.length > 0 && (
+              <View style={styles.section}>
+                <SectionHeader title="Các chủ đề khác" />
+                <View style={styles.listContainer}>
+                  {otherTopics.map((topic) => (
+                    <TopicItem 
+                      key={topic._id} 
+                      topic={{
+                        ...topic,
+                        id: topic._id,
+                        description: topic.prompt || topic.instruction,
+                        image: getTopicImage(topic)
+                      }} 
+                      onPress={() => handlePressTopic(topic._id)} 
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -215,16 +283,19 @@ const WritingSpeakingView = ({ type }: { type: string }) => {
 
 // --- MÀN HÌNH CHÍNH (ĐIỀU HƯỚNG THEO TYPE) ---
 export default function PracticeListScreen() {
-  const { type } = useLocalSearchParams(); 
-  const typeString = (type as string) || 'writing';
+  const { type, examType } = useLocalSearchParams(); 
+  const typeString = (type as string) || 'full';
+  const examTypeString = examType as string;
 
-  const isReadingOrListening = typeString === 'reading' || typeString === 'listening';
-
-  if (isReadingOrListening) {
-    return <ReadingListeningView type={typeString} />;
+  if (typeString === 'full') {
+    return <FullExamView examType={examTypeString} />;
   }
 
-  return <WritingSpeakingView type={typeString} />;
+  if (typeString === 'reading' || typeString === 'listening') {
+    return <ReadingListeningView type={typeString} examType={examTypeString} />;
+  }
+
+  return <WritingSpeakingView type={typeString} examType={examTypeString} />;
 }
 
 // --- STYLES ---
@@ -232,15 +303,17 @@ export default function PracticeListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.bg,
+    backgroundColor: Color.bg, // Chuyển từ trắng tinh sang xám nhạt để làm dịu mắt
   },
   iconButton: {
     padding: Padding.padding_5,
   },
   scrollContent: {
+    flex: 1,
     padding: Padding.padding_20,
     paddingTop: 0,
     paddingBottom: 40,
+    backgroundColor: Color.bg2, // Thêm nền cho phần scroll để phân tách rõ ràng với header
   },
   section: {
     marginBottom: Gap.gap_20,
@@ -284,16 +357,19 @@ const styles = StyleSheet.create({
     height: 90,
     borderRadius: Border.br_15,
   },
-  socialRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_5,
-    paddingHorizontal: Padding.padding_5,
+  badgeContainer: {
+    position: 'absolute',
+    bottom: -8,
+    right: -8,
+    backgroundColor: Color.vang,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: Border.br_10,
   },
-  socialText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.gray, // Tương đương textSecondary
+  badgeText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 10,
+    color: Color.text,
   },
 
   // --- Topic Item Styles ---
@@ -309,4 +385,11 @@ const styles = StyleSheet.create({
     width: '50%',
     padding: Gap.gap_10 / 2,
   },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: Color.gray,
+    textAlign: 'center',
+    marginTop: 40,
+  }
 });

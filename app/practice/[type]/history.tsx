@@ -1,120 +1,101 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
-import { Color, Padding, Gap } from '../../../constants/GlobalStyles';
+import { Color, Padding, Gap, FontFamily, FontSize } from '../../../constants/GlobalStyles';
 import ScreenHeader from '../../../components/ScreenHeader';
 import TopicItem, { TopicItemData } from '../../../components/TopicItem';
 import HistoryCard from '../../../components/ExamComponent/HistoryCard';
 import HistoryActionModal from '../../../components/Modals/HistoryActionModal';
+import PracticeService from '../../../api/services/practice.service';
+import { AttemptResult } from '../../../api/types/practice.types';
 
-// --- MOCK DATA ---
-
-// 1. Dữ liệu cho Writing / Speaking
-interface WritingHistoryItem extends TopicItemData {
-  id: string;
-}
-
-const WRITING_HISTORY_DATA: WritingHistoryItem[] = [
-  {
-    id: '1',
-    title: 'Bảo vệ môi trường & Rác thải nhựa',
-    description: '',
-    image: require('../../../assets/images/imageExam/ie_1.png'),
-    score: '85/100',
-    timeAgo: '2 giờ trước',
-  },
-  {
-    id: '2',
-    title: 'Trí tuệ nhân tạo (AI) và Tương lai',
-    description: '',
-    image: require('../../../assets/images/imageExam/ie_2.png'),
-    score: '92/100',
-    timeAgo: 'Hôm qua',
-  },
-  {
-    id: '3',
-    title: 'Tỷ lệ sinh thấp & Già hóa dân số',
-    description: '',
-    image: require('../../../assets/images/imageExam/ie_2.png'),
-    score: 'Đang chấm', // Có thể linh hoạt truyền Text báo trạng thái
-    timeAgo: '3 ngày trước',
-  },
-];
-
-// 2. Dữ liệu cho Reading / Listening
-interface ExamHistoryItem {
-  id: string;
-  title: string;
-  score: string;
-  timeAgo: string;
-}
-
-const READING_LISTENING_HISTORY_DATA: ExamHistoryItem[] = [
-  {
-    id: '96',
-    title: '제96회 한국어능력시험',
-    score: '45/50',
-    timeAgo: '2 giờ trước',
-  },
-  {
-    id: '95',
-    title: '제95회 한국어능력시험',
-    score: '38/50',
-    timeAgo: 'Hôm qua',
-  },
-];
+const formatTimeAgo = (dateString?: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN');
+};
 
 // --- SUB COMPONENTS ---
 
 // View cho WRITING / SPEAKING
-const WritingSpeakingHistoryView = ({ type }: { type: string }) => {
+const WritingSpeakingHistoryView = ({ type, data, isLoading }: { type: string; data: AttemptResult[]; isLoading: boolean }) => {
   const router = useRouter();
   
   const [isActionMenuVisible, setIsActionMenuVisible] = useState(false);
-  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<AttemptResult | null>(null);
 
-  const handleLongPress = (id: string) => {
-    setSelectedHistoryId(id);
+  const handleLongPress = (item: AttemptResult) => {
+    setSelectedItem(item);
     setIsActionMenuVisible(true);
   };
 
   const handleRetry = () => {
     setIsActionMenuVisible(false);
-    Alert.alert("Luyện tập lại", `Bắt đầu lại bài thi ID: ${selectedHistoryId}`);
+    const setId = selectedItem?.writing?._id || (selectedItem as any)?.speaking?._id;
+    if (setId) {
+      router.push(`/practice/${type}/${setId}/intro` as any);
+    } else {
+      Alert.alert('Lỗi', 'Không tìm thấy thông tin đề bài.');
+    }
   };
 
   const handleShare = () => {
     setIsActionMenuVisible(false);
-    Alert.alert("Chia sẻ", "Mở tính năng chia sẻ...");
+    Alert.alert("Chia sẻ", "Mở tính năng chia sẻ kết quả...");
   };
 
   const handleDelete = () => {
     setIsActionMenuVisible(false);
-    Alert.alert("Xóa bài viết", `Đã xóa bài thi ID: ${selectedHistoryId} khỏi lịch sử`);
+    Alert.alert("Xóa bài làm", `Đã xóa bài làm ID: ${selectedItem?._id} khỏi lịch sử`);
+  };
+
+  const getHeaderTitle = () => {
+    if (type === 'writing') return 'Lịch sử luyện viết';
+    if (type === 'speaking') return 'Lịch sử luyện nói';
+    return 'Lịch sử làm bài';
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title="Lịch sử làm bài" />
+      <ScreenHeader title={getHeaderTitle()} />
       
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.listContainer}>
-          {WRITING_HISTORY_DATA.map((item) => (
-            <TopicItem 
-              key={item.id} 
-              topic={item} 
-              onPress={() => {
-                console.log('Xem chi tiết lịch sử:', item.title);
-              }} 
-              onLongPress={() => handleLongPress(item.id)}
-            />
-          ))}
-        </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 20 }} />
+        ) : data.length === 0 ? (
+          <Text style={styles.emptyText}>Chưa có lịch sử làm bài</Text>
+        ) : (
+          <View style={styles.listContainer}>
+            {data.map((item) => {
+              const setId = item.writing?._id || (item as any).speaking?._id;
+              const titleStr = item.writing?.title || (item as any).speaking?.title || 'Chủ đề không xác định';
+              const scoreStr = item.status === 'evaluated' ? `${item.evaluation?.totalScore || 0}/100` : 'Đang chấm';
+              
+              const topicData: TopicItemData = {
+                id: item._id,
+                title: titleStr,
+                description: item.writing?.description || '',
+                image: require('../../../assets/images/imageExam/ie_1.png'), // Ảnh mặc định
+                score: scoreStr,
+                timeAgo: formatTimeAgo(item.startedAt || (item as any).createdAt),
+              };
+
+              return (
+                <TopicItem 
+                  key={item._id} 
+                  topic={topicData as any} 
+                  onPress={() => router.push(`/practice/${type}/${setId}/${item._id}/result` as any)} 
+                  onLongPress={() => handleLongPress(item)}
+                />
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
 
       <HistoryActionModal 
@@ -128,21 +109,25 @@ const WritingSpeakingHistoryView = ({ type }: { type: string }) => {
   );
 }
 
-// View cho READING / LISTENING
-const ReadingListeningHistoryView = ({ type }: { type: string }) => {
+// View cho EXAM (READING / LISTENING / FULL)
+const ExamHistoryView = ({ type, data, isLoading }: { type: string; data: AttemptResult[]; isLoading: boolean }) => {
   const router = useRouter();
   
   const [isActionMenuVisible, setIsActionMenuVisible] = useState(false);
-  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<AttemptResult | null>(null);
 
-  const handleLongPress = (id: string) => {
-    setSelectedHistoryId(id);
+  const handleLongPress = (item: AttemptResult) => {
+    setSelectedItem(item);
     setIsActionMenuVisible(true);
   };
 
   const handleRetry = () => {
     setIsActionMenuVisible(false);
-    router.push(`/practice/${type}/${selectedHistoryId}/intro` as any);
+    if (selectedItem?.exam?._id) {
+      router.push(`/practice/${type}/${selectedItem.exam._id}/intro` as any);
+    } else {
+      Alert.alert('Lỗi', 'Không tìm thấy thông tin đề bài.');
+    }
   };
 
   const handleShare = () => {
@@ -152,30 +137,43 @@ const ReadingListeningHistoryView = ({ type }: { type: string }) => {
 
   const handleDelete = () => {
     setIsActionMenuVisible(false);
-    Alert.alert("Xóa bài thi", `Đã xóa bài thi ID: ${selectedHistoryId} khỏi lịch sử`);
+    Alert.alert("Xóa bài thi", `Đã xóa bài thi ID: ${selectedItem?._id} khỏi lịch sử`);
+  };
+
+  const getHeaderTitle = () => {
+    if (type === 'full') return 'Lịch sử thi thử';
+    if (type === 'reading') return 'Lịch sử luyện đọc';
+    if (type === 'listening') return 'Lịch sử luyện nghe';
+    return 'Lịch sử làm bài';
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title={`Lịch sử ${type === 'reading' ? 'luyện đọc' : 'luyện nghe'}`} />
+      <ScreenHeader title={getHeaderTitle()} />
       
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.listContainer}>
-          {READING_LISTENING_HISTORY_DATA.map((item) => (
-            <HistoryCard 
-              key={item.id} 
-              title={item.title}
-              score={item.score}
-              time={item.timeAgo}
-              style={{ width: '100%' }} // Phủ kín chiều ngang
-              onPress={() => router.push(`/practice/${type}/${item.id}/result` as any)} 
-              onLongPress={() => handleLongPress(item.id)}
-            />
-          ))}
-        </View>
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 20 }} />
+        ) : data.length === 0 ? (
+          <Text style={styles.emptyText}>Chưa có lịch sử làm bài</Text>
+        ) : (
+          <View style={styles.listContainer}>
+            {data.map((item) => (
+              <HistoryCard 
+                key={item._id} 
+                title={item.exam?.title || 'Đề thi không xác định'}
+                score={`${item.totalScore || 0}`}
+                time={formatTimeAgo(item.startedAt || (item as any).createdAt)}
+                style={{ width: '100%' }}
+                onPress={() => router.push(`/practice/${type}/${item.exam?._id}/${item._id}/result` as any)} 
+                onLongPress={() => handleLongPress(item)}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       <HistoryActionModal 
@@ -192,13 +190,36 @@ const ReadingListeningHistoryView = ({ type }: { type: string }) => {
 // --- MAIN SCREEN ---
 export default function PracticeHistoryScreen() {
   const { type } = useLocalSearchParams();
-  const typeString = (type as string) || 'writing';
-  const isReadingOrListening = typeString === 'reading' || typeString === 'listening';
+  const typeString = (type as string) || 'full';
+  const isExamType = ['reading', 'listening', 'full'].includes(typeString);
 
-  if (isReadingOrListening) {
-    return <ReadingListeningHistoryView type={typeString} />;
+  const [historyData, setHistoryData] = useState<AttemptResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setIsLoading(true);
+        const res = await PracticeService.getHistory({ page: 1, limit: 20 });
+        if (res.success) {
+          setHistoryData(res.data.history || []);
+        }
+      } catch (error) {
+        console.error('Lỗi lấy lịch sử:', error);
+        Alert.alert('Lỗi', 'Không thể tải lịch sử làm bài');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [typeString]);
+
+  if (isExamType) {
+    return <ExamHistoryView type={typeString} data={historyData} isLoading={isLoading} />;
   }
-  return <WritingSpeakingHistoryView type={typeString} />;
+  
+  return <WritingSpeakingHistoryView type={typeString} data={historyData} isLoading={isLoading} />;
 }
 
 const styles = StyleSheet.create({
@@ -209,8 +230,16 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: Padding.padding_20,
     paddingBottom: 40,
+    backgroundColor: Color.bg2,
   },
   listContainer: {
     gap: Gap.gap_12,
+  },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: Color.text,
+    textAlign: 'center',
+    marginTop: 40,
   },
 });

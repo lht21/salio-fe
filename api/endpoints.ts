@@ -164,15 +164,6 @@ export const API_ENDPOINTS = {
     DELETE_USER: (userId: string) => `/api/v1/users/${userId}`,
     GET_USER_PROGRESS: (userId: string) => `/api/v1/users/${userId}/progress`,
     GET_USER_SUBSCRIPTION: (userId: string) => `/api/v1/users/${userId}/subscription`,
-  },
+  }
 
-  EXAM: {
-    GET_ALL: '/api/v1/exams',
-    CREATE: '/api/v1/exams',
-    GET_BY_ID: (examId: string) => `/api/v1/exams/${examId}`,
-    UPDATE: (examId: string) => `/api/v1/exams/${examId}`,
-    DELETE: (examId: string) => `/api/v1/exams/${examId}`,
-    PUBLISH: (examId: string) => `/api/v1/exams/${examId}/publish`,
-    ASSEMBLE: (examId: string) => `/api/v1/exams/${examId}/assemble`,
-  },
 };

@@ -27,5 +27,14 @@
     "aboutUs": "회사 소개",
     "loginOther": "다른 계정으로 로그인",
     "logout": "로그아웃"
+  },
+  "upgradeBanner": {
+    "title": "무제한 경험",
+    "desc": "모든 로드맵 및 모의고사 잠금 해제",
+    "action": "지금 업그레이드"
+  },
+  "alertBanner": {
+    "defaultText": "모의 TOPIK 시험에서 215점을 달성했습니다. 현재 학습 수준을 전환하려면 지금 확인하세요",
+    "checkNow": "확인"
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Switch } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
-import { Color, FontFamily, FontSize, Padding, Border } from '../../constants/GlobalStyles';
+import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
 
 interface ZenmodeBannerProps {
   isEnabled: boolean;
@@ -45,7 +45,13 @@ export default function ZenmodeBanner({ isEnabled, onToggle }: ZenmodeBannerProp
 }
 
 const styles = StyleSheet.create({
-  zenContainer: { borderRadius: Border.br_15, overflow: 'hidden', backgroundColor: Color.vang },
+  zenContainer: { 
+    width: '100%', 
+    marginBottom: Gap.gap_20, 
+    borderRadius: Border.br_15, 
+    overflow: 'hidden', 
+    backgroundColor: Color.vang 
+  },
   zenBanner: {
     backgroundColor: Color.purplePastel,
     padding: Padding.padding_15,

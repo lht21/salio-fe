@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
-import { CheckCircleIcon, ClockIcon } from 'phosphor-react-native';
+import { CheckCircleIcon, ClockIcon, CircleIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 
 export interface TopicItemData {
+  id: string;
   title: string;
   description: string;
   image: any;
@@ -15,14 +16,24 @@ interface TopicItemProps {
   topic: TopicItemData;
   onPress: () => void;
   onLongPress?: () => void;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
 }
 
-const TopicItem = ({ topic, onPress, onLongPress }: TopicItemProps) => (
+const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }: TopicItemProps) => (
   <Pressable 
-    style={styles.topicItemCard} 
+    style={[styles.topicItemCard, isSelected && styles.cardSelected]} 
     onPress={onPress} 
     onLongPress={onLongPress}
   >
+    {isSelectionMode && (
+      <View style={styles.checkboxContainer}>
+        {isSelected 
+          ? <CheckCircleIcon size={24} color={Color.main} weight="fill" />
+          : <CircleIcon size={24} color={Color.gray} weight="light" />
+        }
+      </View>
+    )}
     <Image source={topic.image} style={styles.topicItemImage} resizeMode="cover" />
     <View style={styles.topicItemTextContent}>
       <Text style={styles.topicItemTitle} numberOfLines={1}>{topic.title}</Text>
@@ -54,6 +65,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Color.stroke,
     alignItems: 'center',
+  },
+  cardSelected: {
+    borderColor: Color.main,
+    backgroundColor: '#F0FDF4',
+  },
+  checkboxContainer: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
   topicItemImage: {
     width: 70,

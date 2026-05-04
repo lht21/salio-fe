@@ -67,6 +67,59 @@ export const lightTheme = {
   color: "#0C5F35",
   bgTest: "#FFFFFF",
   colorBlack: "#000000",
+
+  fireIcon: '#991B1B',   // Màu đỏ tối cho thẻ chuỗi ngày
+  trophyIcon: '#D97706', // Màu cam/vàng cho thẻ cúp điểm
+  monthBlockBorder: 'rgba(80, 141, 78, 0.22)', // Viền lịch chuỗi ngày
+
+  upgradeBannerGradientStart: '#1E293B',
+  upgradeBannerGradientEnd: '#0F172A',
+  upgradeBannerIconBg: 'rgba(255, 255, 255, 0.1)',
+  upgradeBannerDesc: '#CBD5E1',
+  upgradeBannerActionText: '#0F172A',
+  modalOverlayBg: 'rgba(0, 0, 0, 0.5)',
+  shadow: '#000000',
+
+  btnGreenBorder: '#3AB878',
+  btnOrangeBorder: '#BB5D11',
+  btnGreenBoldBg: '#A3E88A',
+  btnGreenBoldText: '#000000',
+  whiteText: '#FFFFFF',
+
+  dragHandleBg: '#CBD5E1',
+  optionCardBorder: '#C9D7E8',
+  optionCardActiveBorder: '#D8E3F2',
+  activeAccentBg: '#0B663B',
+  sunIconColor: '#8CED82',
+  moonIconColor: '#202124',
+  displayOptionBorder: '#EDF0F5',
+  displayOptionShadow: '#0C5F35',
+  appliedBadgeBg: '#C9D3E3',
+  gridCardBorder: '#7F8B99',
+  avatarFrameBorder: '#658067',
+  avatarFrameSelectedBorder: '#2F7A4D',
+
+  borderAvatar: '#0C5F35',
+  picVocabBg: '#DCFCE7',
+  picVocabText: '#16A34A',
+  factoryIcon: '#B45309',
+  optionDescSelected: '#D1D5DB',
+
+  badgePurpleBg: '#E9D5FF',
+  badgePurpleText: '#7E22CE',
+  safetyIcon: '#DC2626',
+  safetyTitle: '#B91C1C',
+  safetySubtitle: '#EF4444',
+  industryTitle: '#B45309',
+  industrySubtitle: '#D97706',
+  historyRedBg: '#FEF2F2',
+  historyRedText: '#EF4444',
+  historyOrangeBg: '#D97706',
+  historyOrangeText: '#FFFFFF',
+  historyYellowBg: '#FEF08A',
+  historyYellowText: '#B45309',
+  historySelectedBg: '#F0FDF4',
+  starIconExcellent: '#D97706',
 };
 
 export const darkTheme = {
@@ -119,6 +172,59 @@ export const darkTheme = {
   color: "#6EE7B7",
   bgTest: "#121212",
   colorBlack: "#FFFFFF",
+
+  fireIcon: '#EF4444',   // Đổi sang đỏ sáng trong dark mode
+  trophyIcon: '#F59E0B', // Đổi sang vàng sáng hơn trong dark mode
+  monthBlockBorder: 'rgba(80, 141, 78, 0.40)', // Viền lịch chuỗi ngày sáng hơn trong dark mode
+
+  upgradeBannerGradientStart: '#0F172A',
+  upgradeBannerGradientEnd: '#000000',
+  upgradeBannerIconBg: 'rgba(255, 255, 255, 0.05)',
+  upgradeBannerDesc: '#94A3B8',
+  upgradeBannerActionText: '#0F172A',
+  modalOverlayBg: 'rgba(0, 0, 0, 0.7)',
+  shadow: '#000000',
+
+  btnGreenBorder: '#22C55E',
+  btnOrangeBorder: '#C2410C',
+  btnGreenBoldBg: '#14532D',
+  btnGreenBoldText: '#FFFFFF',
+  whiteText: '#FFFFFF',
+
+  dragHandleBg: '#475569',
+  optionCardBorder: '#334155',
+  optionCardActiveBorder: '#475569',
+  activeAccentBg: '#22C55E',
+  sunIconColor: '#8CED82',
+  moonIconColor: '#E2E8F0',
+  displayOptionBorder: '#334155',
+  displayOptionShadow: '#000000',
+  appliedBadgeBg: '#334155',
+  gridCardBorder: '#475569',
+  avatarFrameBorder: '#475569',
+  avatarFrameSelectedBorder: '#22C55E',
+
+  borderAvatar: '#98F291',
+  picVocabBg: '#052E16',
+  picVocabText: '#4ADE80',
+  factoryIcon: '#D97706',
+  optionDescSelected: '#9CA3AF',
+
+  badgePurpleBg: '#4C1D95',
+  badgePurpleText: '#DDD6FE',
+  safetyIcon: '#EF4444',
+  safetyTitle: '#FCA5A5',
+  safetySubtitle: '#F87171',
+  industryTitle: '#FBBF24',
+  industrySubtitle: '#FCD34D',
+  historyRedBg: '#450A0A',
+  historyRedText: '#FCA5A5',
+  historyOrangeBg: '#9A3412',
+  historyOrangeText: '#FFFFFF',
+  historyYellowBg: '#451A03',
+  historyYellowText: '#FDE047',
+  historySelectedBg: '#064E3B',
+  starIconExcellent: '#FBBF24',
 };
 
 // Giữ lại export Color trỏ đến lightTheme để tương thích ngược với các components hiện tại

@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  numberText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.gray },
-  questionText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.text, lineHeight: 24 },
+  numberText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_14, color: Color.gray },
+  questionText: { flex: 1, fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_16, color: Color.text, lineHeight: 24 },
   optionsWrapper: { paddingLeft: 42 }, // Căn lề với nội dung câu hỏi
 });

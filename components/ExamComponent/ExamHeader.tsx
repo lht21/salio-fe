@@ -26,7 +26,7 @@ export default function ExamHeader({ onClose, onSubmit, timeLeft, remainingQuest
       {/* Center: Statuses */}
       <View style={styles.centerContainer}>
         <TouchableOpacity style={styles.statusPill} onPress={onOpenQuestionList} activeOpacity={0.7}>
-          <ListChecksIcon size={18} color={Color.text} weight="bold" />
+          <ListChecksIcon size={18} color={Color.blueFb} weight="bold" />
           <Text style={styles.statusText}>còn {remainingQuestions} câu</Text>
         </TouchableOpacity>
         <View style={styles.statusPill}>
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: Border.br_20,
     gap: Gap.gap_5,
   },
-  statusText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: Color.text },
+  statusText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.text },
   submitButton: { backgroundColor: Color.main, paddingHorizontal: Padding.padding_15, paddingVertical: 8, borderRadius: Border.br_20 },
-  submitText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_12, color: Color.color },
+  submitText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.color },
 });

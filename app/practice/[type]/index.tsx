@@ -80,8 +80,12 @@ const FullExamView = ({ examType }: { examType?: string }) => {
   const featuredExams = data.slice(0, 2);
   const otherExams = data.slice(2);
 
-  const handleStartExam = (id: string) => {
-    router.push(`/practice/${type}/${id}/intro` as any);
+  const handleStartExam = (id: string, isPremium: boolean = false) => {
+    if (isPremium) {
+      router.push('/subscription');
+    } else {
+      router.push(`/practice/${type}/${id}/intro` as any);
+    }
   };
 
   return (
@@ -103,7 +107,7 @@ const FullExamView = ({ examType }: { examType?: string }) => {
       >
         {/* AI Section */}
         <SectionHeader title="Để tổng hợp theo trình độ của bạn" />
-        <FeaturedAICard onPress={() => handleStartExam('ai-generated')} />
+        <FeaturedAICard onPress={() => handleStartExam('ai-generated', false)} />
 
         {isLoading ? (
           <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
@@ -117,7 +121,7 @@ const FullExamView = ({ examType }: { examType?: string }) => {
                 <SectionHeader title="Đề nổi bật" />
                 <View style={styles.listContainer}>
                   {featuredExams.map(exam => (
-                    <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => handleStartExam(exam._id)} />
+                    <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => handleStartExam(exam._id, exam.isPremium)} />
                   ))}
                 </View>
               </>
@@ -130,7 +134,7 @@ const FullExamView = ({ examType }: { examType?: string }) => {
                 <View style={styles.gridContainer}>
                   {otherExams.map(exam => (
                     <View key={exam._id} style={styles.gridItem}>
-                      <ExamCard exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => handleStartExam(exam._id)} />
+                      <ExamCard exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => handleStartExam(exam._id, exam.isPremium)} />
                     </View>
                   ))}
                 </View>
@@ -175,7 +179,7 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
                 <SectionHeader title="Đề nổi bật" />
                 <View style={styles.listContainer}>
                   {featuredExams.map(exam => (
-                    <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any })} />
+                    <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => exam.isPremium ? router.push('/subscription') : router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any })} />
                   ))}
                 </View>
               </>
@@ -188,7 +192,7 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
                 <View style={styles.gridContainer}>
                   {otherExams.map(exam => (
                     <View key={exam._id} style={styles.gridItem}>
-                      <ExamCard exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any })} />
+                      <ExamCard exam={{ ...exam, id: exam._id, isUnlocked: !exam.isPremium }} onPress={() => exam.isPremium ? router.push('/subscription') : router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any })} />
                     </View>
                   ))}
                 </View>

@@ -26,7 +26,31 @@
     "supportCenter": "고객 센터",
     "aboutUs": "회사 소개",
     "loginOther": "다른 계정으로 로그인",
-    "logout": "로그아웃"
+    "logout": "로그아웃",
+    "reminderTitle": "학습 알림",
+    "reminderNone": "알림 끄기",
+    "reminderMorning": "아침 (08:00)",
+    "reminderEvening": "저녁 (20:00)",
+    "pwdMismatch": "새 비밀번호와 확인이 일치하지 않습니다!",
+    "pwdSuccess": "비밀번호가 성공적으로 변경되었습니다!",
+    "pwdFailed": "비밀번호 변경 실패!",
+    "pwdCurrentWrong": "현재 비밀번호가 틀렸거나 오류가 발생했습니다",
+    "enterCurrentPwd": "현재 비밀번호 입력",
+    "enterNewPwd": "새 비밀번호 입력",
+    "confirmNewPwd": "새 비밀번호 확인",
+    "currentPwd": "현재 비밀번호",
+    "newPwd": "새 비밀번호",
+    "confirmNewPwdLabel": "새 비밀번호 확인",
+    "language": "언어",
+    "display": "디스플레이",
+    "applied": "적용됨",
+    "mode": "모드",
+    "changeAvatar": "프로필 사진 변경",
+    "uploadFromDevice": "기기에서 업로드",
+    "availableImages": "사용 가능한 이미지",
+    "chooseVoice": "음성 선택",
+    "changeUserName": "사용자 이름 변경",
+    "newName": "새 이름"
   },
   "upgradeBanner": {
     "title": "무제한 경험",
@@ -36,5 +60,83 @@
   "alertBanner": {
     "defaultText": "모의 TOPIK 시험에서 215점을 달성했습니다. 현재 학습 수준을 전환하려면 지금 확인하세요",
     "checkNow": "확인"
+  },
+  "stats": {
+    "days": "일",
+    "vocab": "단어",
+    "score": "점수",
+    "certificates": "자격증",
+    "clouds": "구름"
+  },
+  "profile": {
+    "header": {
+      "guest": "게스트",
+      "level": "학습 수준"
+    }
+  },
+  "streak": {
+    "your_streak": "나의 스트릭",
+    "month": "월"
+  },
+  "common": {
+    "confirm": "확인",
+    "cancel": "취소",
+    "label": "라벨",
+    "error": "오류",
+    "success": "성공",
+    "save": "저장"
+  },
+  "tabs": {
+    "learn": "학습",
+    "practice": "시험",
+    "vocabulary": "어휘",
+    "community": "커뮤니티",
+    "profile": "프로필"
+  },
+  "practice": {
+    "alert_text": "이전 모의고사에서 200점을 획득하여 TOPIK 수준이 점수에 따라 자동으로 변경됩니다. 그러나 현재 수준 외에 다른 수준을 선택할 수도 있습니다!",
+    "close": "닫기",
+    "title": "시험 준비",
+    "level": "시험 수준",
+    "listening": "듣기 연습",
+    "reading": "읽기 연습",
+    "mocktest_topik1": "모의고사 TOPIK I",
+    "listen_30": "듣기: 30문제",
+    "read_40": "읽기: 40문제",
+    "writing_topik2": "TOPIK II 쓰기 연습",
+    "writing_desc": "차트 쓰기 (53번) 및 에세이 쓰기 (54번)",
+    "mocktest_topik2": "모의고사 TOPIK II",
+    "listen_write_read": "듣기, 쓰기, 읽기",
+    "listening_eps": "EPS 듣기 연습",
+    "reading_eps": "EPS 읽기 연습",
+    "pic_vocab": "그림 어휘",
+    "real_info": "실제 정보",
+    "industry": "산업 선택",
+    "industry_desc": "제조업, 건설업, 농업, 어업",
+    "mocktest_eps": "모의고사 EPS-TOPIK",
+    "eps_20_20": "읽기 20문제 + 듣기 20문제",
+    "cbt_sim": "CBT 시뮬레이션",
+    "mocktest_default": "종합 모의고사",
+    "zenmode": "젠모드",
+    "focus_mode": "집중 모드",
+    "safety": "산업 안전",
+    "safety_desc": "금지, 위험, 지시 표지판",
+    "writing_title": "쓰기 연습",
+    "writing_subtitle": "실제 시험 표준 원고지 에디터"
+  },
+  "level": {
+    "title": "시험 수준 선택",
+    "eps_desc": "전문 한국어 시험",
+    "topik1_desc": "1-2급, 초급",
+    "topik2_desc": "3-6급, 중고급"
+  },
+  "history": {
+    "title": "시험 기록",
+    "see_all": "모두 보기",
+    "unknown": "알 수 없음",
+    "unknown_exam": "알 수 없는 시험",
+    "writing_topic": "쓰기 주제",
+    "grading": "채점 중",
+    "speaking_topic": "말하기 주제"
   }
 }

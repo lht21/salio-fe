@@ -9,8 +9,10 @@ import {
 import { StyleSheet, View, Platform } from 'react-native';
 import { MotiView } from 'moti';
 
+import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import LessonBottomSheetHost from '@/components/Modals/LessonBottomSheetHost';
-import { Color, FontFamily } from '@/constants/GlobalStyles';
+import { FontFamily } from '@/constants/GlobalStyles';
 
 // Component bọc Icon để tạo hiệu ứng Bounce khi được Focus
 const AnimatedTabIcon = ({ focused, children }: { focused: boolean; children: React.ReactNode }) => {
@@ -32,12 +34,15 @@ const AnimatedTabIcon = ({ focused, children }: { focused: boolean; children: Re
 };
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Color.main2,
-          tabBarInactiveTintColor: '#64748B',
+          tabBarActiveTintColor: colors.main2,
+          tabBarInactiveTintColor: colors.gray,
           headerShown: false,
           tabBarHideOnKeyboard: true,
           tabBarLabelStyle: {
@@ -49,10 +54,10 @@ export default function TabLayout() {
           height: Platform.OS === 'ios' ? 90 : 70, // Tăng chiều cao thêm một chút
           paddingTop: 15, // Tăng khoảng cách phía trên icon cho thoáng
           paddingBottom: Platform.OS === 'ios' ? 25 : 10, // Tối ưu vùng vuốt cho Home Indicator của iOS
-            backgroundColor: Color.bg || '#FFFFFF',
+            backgroundColor: colors.bg,
           borderTopWidth: 1,
-          borderTopColor: '#E2E8F0',
-          shadowColor: '#000',
+          borderTopColor: colors.stroke,
+          shadowColor: colors.shadow,
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.05,
           shadowRadius: 10,
@@ -63,7 +68,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Học',
+            title: t('tabs.learn', 'Học'),
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon focused={focused}>
                 <HouseIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
@@ -74,7 +79,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="practice"
           options={{
-            title: 'Thi',
+            title: t('tabs.practice', 'Thi'),
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon focused={focused}>
                 <PenNibStraightIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
@@ -85,7 +90,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="vocabulary"
           options={{
-            title: 'Từ vựng',
+            title: t('tabs.vocabulary', 'Từ vựng'),
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon focused={focused}>
                 <CardsIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
@@ -96,7 +101,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="community"
           options={{
-            title: 'Cộng đồng',
+            title: t('tabs.community', 'Cộng đồng'),
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon focused={focused}>
                 <UsersThreeIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />
@@ -107,7 +112,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'Tôi',
+            title: t('tabs.profile', 'Tôi'),
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon focused={focused}>
                 <IdentificationBadgeIcon size={24} color={color} weight={focused ? 'fill' : 'fill'} />

@@ -2,7 +2,9 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CheckCircleIcon, XCircleIcon } from 'phosphor-react-native';
+import { CheckCircleIcon, XCircleIcon, PlayIcon, PauseIcon } from 'phosphor-react-native';
+import { Audio, AVPlaybackStatus } from 'expo-av';
+import { Image as ExpoImage } from 'expo-image';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../../constants/GlobalStyles';
 import ScreenHeader from '../../../../../components/ScreenHeader';
@@ -16,7 +18,7 @@ const QuestionNavigation = ({ questions, onJumpToQuestion }: { questions: any[],
     <View style={styles.navContainer}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navScrollContent}>
         {questions.map((q) => {
-          const isCorrect = q.userOptionId === q.correctOptionId;
+          const isCorrect = q.isCorrect;
           return (
             <TouchableOpacity
               key={q.id}
@@ -48,6 +50,92 @@ const ExamCover = ({ title, type }: { title: string, type: string }) => {
   );
 };
 
+const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void }) => {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [position, setPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    let soundInstance: Audio.Sound | null = null;
+
+    const loadAudio = async () => {
+      try {
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: url },
+          { progressUpdateIntervalMillis: 500 },
+          (status: AVPlaybackStatus) => {
+            if (!isMounted) return;
+            if (status.isLoaded) {
+              setPosition(status.positionMillis);
+              setDuration(status.durationMillis || 0);
+              setIsPlaying(status.isPlaying);
+              if (status.didJustFinish) {
+                setIsPlaying(false);
+                newSound.setPositionAsync(0);
+              }
+            }
+          }
+        );
+        soundInstance = newSound;
+        if (isMounted) setSound(newSound);
+      } catch (error) {
+        console.log('Lỗi khi tải Audio:', error);
+      }
+    };
+
+    if (url) loadAudio();
+
+    return () => {
+      isMounted = false;
+      if (soundInstance) soundInstance.unloadAsync();
+    };
+  }, [url]);
+
+  useEffect(() => {
+    if (currentlyPlayingId !== id && isPlaying && sound) {
+      sound.pauseAsync();
+    }
+  }, [currentlyPlayingId, isPlaying, sound, id]);
+
+  const handlePlayPause = async () => {
+    if (!sound) return;
+    if (isPlaying) {
+      await sound.pauseAsync();
+    } else {
+      onPlay(id);
+      await sound.playAsync();
+    }
+  };
+
+  const formatTime = (millis: number) => {
+    const totalSeconds = Math.floor(millis / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  const progressPercent = duration > 0 ? (position / duration) * 100 : 0;
+
+  return (
+    <View style={styles.audioPlayerContainer}>
+      <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
+        {isPlaying ? <PauseIcon size={20} color={Color.bg} weight="fill" /> : <PlayIcon size={20} color={Color.bg} weight="fill" />}
+      </TouchableOpacity>
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
+        </View>
+        <View style={styles.timeRow}>
+          <Text style={styles.timeText}>{formatTime(position)}</Text>
+          <Text style={styles.timeText}>{formatTime(duration)}</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 export default function MockExamReviewScreen() {
   const { examId, attemptId, type } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -55,6 +143,7 @@ export default function MockExamReviewScreen() {
 
   const [reviewData, setReviewData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
 
   // Lấy dữ liệu Review từ API
   useEffect(() => {
@@ -93,29 +182,50 @@ export default function MockExamReviewScreen() {
       sectionItems.forEach((item: any) => {
         (item.questions || []).forEach((q: any) => {
           q.number = qIndex++;
-          const ansRecord = (userAnswers || []).find((a: any) => a.questionId === q._id);
+          const ansRecord = (userAnswers || []).find((a: any) => String(a.questionId) === String(q._id));
           const userAnswer = ansRecord ? ansRecord.userAnswer : null;
+          const isBackendCorrect = ansRecord ? ansRecord.isCorrect : false;
 
-          const correctOpt = q.answers?.find((a: any) => a.isCorrect);
-          let correctOptionId = correctOpt ? correctOpt._id : q.correctAnswer;
+          const rawOptions = q.metadata?.options || q.answers || [];
 
-          const options = (q.answers || []).map((a: any) => {
+          // 1. Chuẩn hóa options: Đảm bảo id duy nhất và là chuỗi
+          const options = rawOptions.map((a: any, index: number) => {
             const isString = typeof a === 'string';
-            const optId = isString ? a : (a._id || a.label);
-            const content = isString ? a : (a.text || a.label || a.imageUrl);
-            const optType = (a.imageUrl || a.type === 'image') ? 'image' : 'text';
-            return { id: optId, type: optType, content };
+            // Ưu tiên lấy _id, nếu không có lấy label, text, hoặc index làm id dự phòng
+            const optId = isString ? a : (a._id || a.label || a.text || String(index));
+            const content = isString ? a : (a.text || a.label || a.imageUrl || '');
+            const optType = (!isString && (a.imageUrl || a.type === 'image')) ? 'image' : 'text';
+            return { 
+              id: String(optId), 
+              type: optType, 
+              content: String(content),
+              rawRef: a 
+            };
           });
 
-          // Đối chiếu chính xác ID user chọn
-          let userOptionId = userAnswer;
-          if (userAnswer) {
-            const matchedOpt = options.find((o: any) => o.id === userAnswer || o.content === userAnswer);
-            if (matchedOpt) userOptionId = matchedOpt.id;
+          // 2. Tìm correctOptionId chuẩn
+          const correctOptIndex = rawOptions.findIndex((a: any) => a.isCorrect === true || a.isCorrect === 'true');
+          let correctOptionId = null;
+          
+          if (correctOptIndex !== -1) {
+            correctOptionId = options[correctOptIndex].id;
+          } else if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
+            const fallbackAns = String(q.correctAnswer);
+            const matchedOpt = options.find((o: any) => 
+              o.id === fallbackAns || o.content === fallbackAns || 
+              (o.rawRef && typeof o.rawRef !== 'string' && (String(o.rawRef._id) === fallbackAns || String(o.rawRef.label) === fallbackAns || String(o.rawRef.text) === fallbackAns))
+            );
+            correctOptionId = matchedOpt ? matchedOpt.id : fallbackAns;
           }
-          if (correctOptionId) {
-            const matchedCorrect = options.find((o: any) => o.id === correctOptionId || o.content === correctOptionId);
-            if (matchedCorrect) correctOptionId = matchedCorrect.id;
+
+          // 3. Tìm userOptionId chuẩn
+          let userOptionId = (userAnswer !== undefined && userAnswer !== null) ? String(userAnswer) : null;
+          if (userOptionId !== null) {
+            const matchedOpt = options.find((o: any) => 
+              o.id === userOptionId || o.content === userOptionId || 
+              (o.rawRef && typeof o.rawRef !== 'string' && (String(o.rawRef._id) === userOptionId || String(o.rawRef.label) === userOptionId || String(o.rawRef.text) === userOptionId))
+            );
+            if (matchedOpt) userOptionId = matchedOpt.id;
           }
 
           q.processedOptions = options;
@@ -124,8 +234,8 @@ export default function MockExamReviewScreen() {
 
           flatQs.push({
             id: q._id,
-            correctOptionId,
-            userOptionId
+            number: q.number,
+            isCorrect: isBackendCorrect
           });
         });
       });
@@ -232,22 +342,41 @@ export default function MockExamReviewScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{title}</Text>
         </View>
-        {items.map((item: any, itemIndex: number) => (
-          <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
-            {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
-            {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
-            {item.questions?.map((q: any) => (
-              <View
-                key={q._id}
-                onLayout={(e) => { questionLayouts.current[q._id] = e.nativeEvent.layout.y; }}
-              >
-                <QuestionBlock number={q.number} questionText={q.questionText || q.text}>
-                  {renderOptions(q)}
-                </QuestionBlock>
-              </View>
-            ))}
-          </View>
-        ))}
+        {items.map((item: any, itemIndex: number) => {
+          const passageAudioUrl = item.audioUrl || item.passageAudioUrl;
+          return (
+            <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
+              {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
+              
+              {passageAudioUrl && (
+                <MiniAudioPlayer id={`item-${item._id || itemIndex}`} url={passageAudioUrl} currentlyPlayingId={playingAudioId} onPlay={setPlayingAudioId} />
+              )}
+
+              {item.imageUrl && (
+                <ExpoImage source={{ uri: item.imageUrl }} style={styles.contentImage} contentFit="contain" />
+              )}
+
+              {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
+              
+              {item.questions?.map((q: any) => (
+                <View
+                  key={q._id}
+                  onLayout={(e) => { questionLayouts.current[q._id] = e.nativeEvent.layout.y; }}
+                >
+                  {q.audioUrl && (
+                    <MiniAudioPlayer id={`q-${q._id}`} url={q.audioUrl} currentlyPlayingId={playingAudioId} onPlay={setPlayingAudioId} />
+                  )}
+                  <QuestionBlock number={q.number} questionText={q.questionText || q.text}>
+                    {q.imageUrl && (
+                      <ExpoImage source={{ uri: q.imageUrl }} style={styles.contentImage} contentFit="contain" />
+                    )}
+                    {renderOptions(q)}
+                  </QuestionBlock>
+                </View>
+              ))}
+            </View>
+          );
+        })}
       </View>
     );
   };
@@ -337,4 +466,13 @@ const styles = StyleSheet.create({
   navButtonCorrect: { backgroundColor: '#F0FDF4', borderColor: '#22C55E' },
   navButtonWrong: { backgroundColor: '#FEF2F2', borderColor: '#EF4444' },
   navButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
+
+  audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: Color.stroke },
+  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
+  progressContainer: { flex: 1, justifyContent: 'center' },
+  progressBarBg: { height: 6, backgroundColor: Color.stroke, borderRadius: 3, marginBottom: 6 },
+  progressBarFill: { height: 6, backgroundColor: Color.main, borderRadius: 3 },
+  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray },
+  contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
 });

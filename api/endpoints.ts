@@ -61,6 +61,8 @@ export const API_ENDPOINTS = {
     SUBMIT: (attemptId: string) => `/api/v1/attempts/${attemptId}/submit`,
     GET_RESULT: (attemptId: string) => `/api/v1/attempts/${attemptId}/result`,
     REVIEW: (attemptId: string) => `/api/v1/attempts/${attemptId}/review`,
+    DELETE: (attemptId: string) => `/api/v1/attempts/${attemptId}`,
+    BATCH_DELETE: '/api/v1/attempts/batch-delete',
   },
 
   AUDIT_LOG: {

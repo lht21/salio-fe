@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Color, FontFamily, FontSize, Padding } from '../../constants/GlobalStyles';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
+import { FontFamily, FontSize, Padding } from '../../constants/GlobalStyles';
 import { DayDot, PlaceholderDot } from './DayCell';
 import { MonthSection, CalendarDay } from './types';
 
@@ -34,6 +36,10 @@ const buildMonthCells = (section: MonthSection): MonthCell[] => {
 };
 
 export const MonthBlock = ({ section }: { section: MonthSection }) => {
+    const { t } = useTranslation();
+    const { colors } = useTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
+
     const monthCells = buildMonthCells(section);
 
     return (
@@ -55,9 +61,9 @@ export const MonthBlock = ({ section }: { section: MonthSection }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    monthBlock: { backgroundColor: Color.bg, borderWidth: 2, borderColor: 'rgba(80, 141, 78, 0.22)', borderRadius: 26, overflow: 'hidden' },
-    monthHeader: { backgroundColor: Color.main2, paddingHorizontal: Padding.padding_20, paddingVertical: 14, borderTopLeftRadius: 26, borderTopRightRadius: 26 },
-    monthTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.bg },
-    daysWrap: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: Padding.padding_20, backgroundColor: Color.bg },
+const createStyles = (colors: any) => StyleSheet.create({
+    monthBlock: { backgroundColor: colors.bg, borderWidth: 2, borderColor: colors.monthBlockBorder || 'rgba(80, 141, 78, 0.22)', borderRadius: 26, overflow: 'hidden' },
+    monthHeader: { backgroundColor: colors.main2, paddingHorizontal: Padding.padding_20, paddingVertical: 14, borderTopLeftRadius: 26, borderTopRightRadius: 26 },
+    monthTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.bg },
+    daysWrap: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: Padding.padding_20, backgroundColor: colors.bg },
 });

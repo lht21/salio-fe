@@ -111,7 +111,7 @@ export default function AudioCheckScreen() {
 
   // Xử lý logic Animation Ripple/Pulse (sóng âm)
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     if (isPlaying) {
       ring1.value = 0;
       ring2.value = 0;

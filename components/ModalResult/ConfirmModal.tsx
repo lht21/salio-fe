@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, View, Text, StyleSheet, Pressable } from 'react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button'; // Đảm bảo đường dẫn đúng tới Button.tsx
 
 interface ConfirmModalProps {
@@ -19,13 +21,17 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isVisible,
   title,
   subtitle,
-  confirmText = "Đồng ý",
-  cancelText = "Hủy",
+  confirmText,
+  cancelText,
   isDestructive = false, // Mặc định các action bình thường là an toàn (Nộp bài...)
   hideCancelButton = false,
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <Modal
       transparent={true}
@@ -52,7 +58,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             {!hideCancelButton && (
               <Button 
                 variant="Outline" // Bạn có thể tạo thêm variant "OutlineGreen" trong Button.tsx nếu cần viền xanh chính xác
-                title={cancelText} 
+                title={cancelText || t('common.cancel', 'Hủy')} 
                 onPress={onCancel} 
                 style={styles.actionButton} 
               />
@@ -61,7 +67,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             {/* Nút Confirm: Tuỳ thuộc vào tính chất hành động */}
             <Button 
               variant={isDestructive ? "Red" : "Green"} // Đăng xuất/Thoát bài -> Đỏ; Nộp bài -> Xanh lá
-              title={confirmText} 
+              title={confirmText || t('common.confirm', 'Đồng ý')} 
               onPress={onConfirm} 
               style={styles.actionButton} 
             />
@@ -73,10 +79,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.modalOverlayBg || 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Padding.padding_15, // Tạo lề cho an toàn
@@ -91,10 +97,10 @@ const styles = StyleSheet.create({
   alertBox: {
     width: '100%',
     maxWidth: 340, // Giới hạn chiều rộng tối đa để UI không bị quá bành trướng trên màn hình to
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
     borderRadius: Border.br_20, // Bo góc mềm mại
     padding: Padding.padding_20, // Padding đều các góc theo chuẩn UI hiện đại
-    shadowColor: '#000',
+    shadowColor: colors.shadow || '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -103,14 +109,14 @@ const styles = StyleSheet.create({
   titleText: {
     fontFamily: FontFamily.lexendDecaSemiBold, // Tiêu đề thường in đậm hơn
     fontSize: FontSize.fs_16, // To hơn để làm điểm nhấn
-    color: Color.text,
+    color: colors.text,
     textAlign: 'left', // Theo thiết kế của bạn, nội dung căn trái
     marginBottom: Gap.gap_10,
   },
   subtitleText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: Color.text, 
+    color: colors.text, 
     textAlign: 'left',
     marginBottom: Gap.gap_20,
     lineHeight: 22,

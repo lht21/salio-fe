@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { XIcon } from 'phosphor-react-native';
-import { Color } from '../constants/GlobalStyles';
+import { useTheme } from '../contexts/ThemeContext';
 
 export type CloseBtnVariant = 'Yellow' | 'Stroke' | 'Main';
 
@@ -12,27 +12,29 @@ interface CloseButtonProps {
 }
 
 export default function CloseButton({ variant = 'Stroke', onPress, style }: CloseButtonProps) {
+  const { colors } = useTheme();
+
   const getColors = () => {
     switch (variant) {
       case 'Yellow':
-        return { bg: Color.vang, icon: Color.color };
+        return { bg: colors.vang, icon: colors.color };
       case 'Main':
-        return { bg: Color.main, icon: Color.color };
+        return { bg: colors.main, icon: colors.color };
       case 'Stroke':
       default:
-        return { bg: Color.stroke, icon: Color.gray };
+        return { bg: colors.stroke, icon: colors.gray };
     }
   };
 
-  const colors = getColors();
+  const variantColors = getColors();
 
   return (
     <TouchableOpacity 
-      style={[styles.button, { backgroundColor: colors.bg }, style]} 
+      style={[styles.button, { backgroundColor: variantColors.bg }, style]} 
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <XIcon size={18} color={colors.icon} weight="bold" />
+      <XIcon size={18} color={variantColors.icon} weight="bold" />
     </TouchableOpacity>
   );
 }

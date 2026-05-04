@@ -1,4 +1,7 @@
+import React, { useMemo } from 'react';
 import { Pressable, StyleProp, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   Border,
   Color,
@@ -28,12 +31,17 @@ export type ButtonType = {
 
 const Button = ({
   variant = "Green",
-  title = "Label",
+  title,
   onPress,
   style,
   textStyle,
   disabled = false
 }: ButtonType) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const displayTitle = title || t('common.label', 'Nhãn');
 
   // Hàm mapping style cho background/border của Button
   const getButtonVariantStyle = (): StyleProp<ViewStyle> => {
@@ -82,13 +90,13 @@ const Button = ({
         disabled && styles.textDisabled,
         textStyle,
       ]}>
-        {title}
+        {displayTitle}
       </Text>
     </Pressable>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   // --- STYLES DÙNG CHUNG ---
   baseButton: {
     height: 47, // Bạn có thể dùng Height.height_47 nếu có
@@ -106,11 +114,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   buttonDisabled: {
-    backgroundColor: Color.stroke,
-    borderColor: Color.stroke,
+    backgroundColor: colors.stroke,
+    borderColor: colors.stroke,
   },
   textDisabled: {
-    color: Color.gray,
+    color: colors.gray,
   },
 
   // --- STYLES TỪNG VARIANT ---
@@ -118,7 +126,7 @@ const styles = StyleSheet.create({
   // 1. Green (Mặc định)
   variantGreen: {
     backgroundColor: Color.main,
-    borderColor: '#3AB878', // Màu xanh lá đậm hơn cho viền
+    borderColor: colors.btnGreenBorder || '#3AB878', // Màu xanh lá đậm hơn cho viền
     borderBottomWidth: 5,
     borderLeftWidth:2,// Bạn có thể đổi sang Color.main nếu khớp màu
   },
@@ -129,47 +137,47 @@ const styles = StyleSheet.create({
 
   // 2. Orange
   variantOrange: {
-    backgroundColor: Color.cam,
-    borderColor: '#BB5D11', // Màu xanh lá đậm hơn cho viền
+    backgroundColor: colors.cam,
+    borderColor: colors.btnOrangeBorder || '#BB5D11', // Màu xanh cam đậm hơn cho viền
     borderBottomWidth: 5,
     borderLeftWidth:2,
 
   },
   textOrange: {
-    color: Color.bg,
+    color: colors.bg,
     fontWeight: "500",
   },
 
   // 3. Outline
   variantOutline: {
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
     borderWidth: 1.5,
-    borderColor: Color.color,
+    borderColor: colors.color,
     borderBottomWidth: 5,
   },
   textOutline: {
-    color: Color.color,
+    color: colors.color,
     fontWeight: "500",
   },
 
   // 4. Gray (Disabled / Phụ)
   variantGray: {
-    backgroundColor: Color.stroke,
-    borderColor: Color.gray, // Màu xanh lá đậm hơn cho viền
+    backgroundColor: colors.stroke,
+    borderColor: colors.gray, // Màu xám cho viền
     borderBottomWidth: 5,
     borderLeftWidth:2,
   },
   textGray: {
-    color: Color.gray,
+    color: colors.gray,
     fontWeight: "500",
   },
 
   // 5. Green Bold
   variantGreenBold: {
-    backgroundColor: "#A3E88A",
+    backgroundColor: colors.btnGreenBoldBg || "#A3E88A",
   },
   textGreenBold: {
-    color: "#000000",
+    color: colors.btnGreenBoldText || "#000000",
     fontWeight: "700", // Chữ đậm hơn bản Green thường
   },
 
@@ -178,32 +186,32 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent", // Không có nền
   },
   textTextOnly: {
-    color: Color.cam,
+    color: colors.cam,
     fontWeight: "500",
   },
 
   // 7. Red (Cảnh báo / Thoát / Xóa)
   variantRed: {
-    backgroundColor: Color.red || "#E53E3E",
-     borderColor: Color.redDark || "#AB2424", // Màu xanh lá đậm hơn cho viền
+    backgroundColor: colors.red || "#E53E3E",
+    borderColor: colors.redDark || "#AB2424", // Màu đỏ đậm hơn cho viền
       borderBottomWidth: 5,
     borderLeftWidth:2,
 
   },
   textRed: {
-    color: Color.bg || "#FFFFFF", // Chữ màu trắng/nền để nổi bật trên nền đỏ
+    color: colors.whiteText || "#FFFFFF", // Chữ màu trắng/nền để nổi bật trên nền đỏ
     fontWeight: "500",
   },
 
   // 8. Black
   variantBlack: {
     backgroundColor: Color.text,
-    borderColor: Color.main || '#3AB878', // Màu xanh lá đậm hơn cho viền
+    borderColor: colors.main || '#3AB878', // Màu xanh lá cho viền
     borderBottomWidth: 5,
     borderLeftWidth: 2,
   },
   textBlack: {
-    color: "#FFFFFF",
+    color: Color.bg, // Màu nghịch đảo tự động
     fontWeight: "500",
   },
 });

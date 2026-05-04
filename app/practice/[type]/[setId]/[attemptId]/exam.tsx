@@ -29,7 +29,7 @@ export default function PracticeExamContainer() {
   const [timeLeft, setTimeLeft] = useState(0);
   const totalTimeRef = useRef<number>(0);
   
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch đề thi
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function PracticeExamContainer() {
           setExamData(setRes.data);
           
           // Set thời gian làm bài (Viết dùng timeLimit(giây), Trắc nghiệm dùng duration(phút))
-          const durationInSeconds = isWriting ? setRes.data.timeLimit : (setRes.data.duration * 60);
+          const durationInSeconds = isWriting ? (setRes.data?.timeLimit || 0) : ((setRes.data?.duration || 0) * 60);
           const initialTime = durationInSeconds || 50 * 60;
           totalTimeRef.current = initialTime;
           
@@ -116,24 +116,46 @@ export default function PracticeExamContainer() {
     return () => clearInterval(timer);
   }, [timeLeft, isLoading]);
 
-  // Handle Lưu bài với Debounce 2 giây
+  // Handle Lưu bài
   const handleSaveAnswer = (questionId: string | null, answerValue: string, sectionType?: string) => {
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    
     const timeSpent = totalTimeRef.current > 0 ? totalTimeRef.current - timeLeft : 0;
 
-    debounceTimerRef.current = setTimeout(async () => {
-      try {
-        await PracticeService.saveAnswer(attemptId as string, {
-          type: sectionType || typeString,
-          questionId: questionId || undefined,
-          answer: answerValue,
-          timeSpent
+    // Tự động suy luận type dựa trên examData nếu không được truyền vào
+    let derivedType = sectionType || typeString;
+    
+    if (isWriting) {
+      derivedType = 'writing';
+    } else if (typeString === 'full' && !sectionType && questionId && examData?.items) {
+      const isListening = examData.items.listening?.some((item: any) => 
+        item.questions?.some((q: any) => q._id === questionId || q.id === questionId)
+      );
+      const isReading = examData.items.reading?.some((item: any) => 
+        item.questions?.some((q: any) => q._id === questionId || q.id === questionId)
+      );
+
+      if (isListening) derivedType = 'listening';
+      else if (isReading) derivedType = 'reading';
+    }
+
+    const payload = {
+      type: derivedType as PracticeType,
+      questionId: questionId || undefined,
+      answer: answerValue,
+      timeSpent
+    };
+
+    if (isWriting) {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        PracticeService.saveAnswer(attemptId as string, payload).catch(error => {
+          console.log('Lỗi Auto-save Writing:', error);
         });
-      } catch (error) {
-        console.log('Lỗi Auto-save:', error);
-      }
-    }, 2000);
+      }, 2000);
+    } else {
+      PracticeService.saveAnswer(attemptId as string, payload).catch(error => {
+        console.log('Lỗi Save Trắc nghiệm:', error);
+      });
+    }
   };
 
   const onSelectMultipleChoice = (questionId: string, answerId: string, sectionType?: string) => {
@@ -154,7 +176,21 @@ export default function PracticeExamContainer() {
       }
       
       const timeSpent = totalTimeRef.current > 0 ? totalTimeRef.current - timeLeft : 0;
-      const res = await PracticeService.submitAttempt(attemptId as string, { timeSpent });
+
+      if (isWriting) {
+        try {
+          await PracticeService.saveAnswer(attemptId as string, {
+            type: 'writing' as PracticeType,
+            questionId: undefined,
+            answer: writingText,
+            timeSpent
+          });
+        } catch (saveError) {
+          console.log('Lỗi lưu bài viết trước khi nộp:', saveError);
+        }
+      }
+
+      const res = await PracticeService.submitAttempt(attemptId as string, timeSpent);
       if (res.success) {
         router.replace(`/practice/${typeString}/${setId}/${attemptId}/result` as any);
       } else {

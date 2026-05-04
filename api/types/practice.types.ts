@@ -138,3 +138,9 @@ export type PracticeHistoryResponse = BaseResponse<{
   page: number;
   pages: number;
 }>;
+
+export type DeleteAttemptResponse = BaseResponse<null>;
+
+export type DeleteMultipleAttemptsResponse = BaseResponse<{
+  deletedCount: number;
+}>;

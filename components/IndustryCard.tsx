@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap, Stroke } from '../constants/GlobalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FontFamily, Border, Padding, Gap, Stroke } from '../constants/GlobalStyles';
 
 interface IndustryCardProps {
   title: string;
@@ -10,6 +11,9 @@ interface IndustryCardProps {
 }
 
 const IndustryCard = ({ title, subtitle, icon, onPress }: IndustryCardProps) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.iconContainer}>{icon}</View>
@@ -21,13 +25,13 @@ const IndustryCard = ({ title, subtitle, icon, onPress }: IndustryCardProps) => 
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Color.bg, // Light yellow background
+    backgroundColor: colors.bg, 
     borderWidth: Stroke.stroke,
-    borderColor: Color.stroke, // Yellow border
+    borderColor: colors.stroke, 
     borderRadius: Border.br_15 || 15,
     padding: Padding.padding_15 || 15,
     marginBottom: Gap.gap_20 || 20,
@@ -47,13 +51,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 15,
-    color: '#B45309', // Dark yellow
+    color: colors.industryTitle || '#B45309', 
     marginBottom: 4,
   },
   subtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 12,
-    color: '#D97706', // Medium yellow
+    color: colors.industrySubtitle || '#D97706', 
   },
 });
 

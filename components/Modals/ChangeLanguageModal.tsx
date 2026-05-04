@@ -1,6 +1,9 @@
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View, Modal } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import CloseButton from '../CloseButton';
 
 export type LanguageMode = 'vi' | 'en' | 'ko';
@@ -12,22 +15,26 @@ export type ChangeLanguageModalProps = {
   onClose: () => void;
 };
 
-const LANGUAGE_OPTIONS: Array<{
-  value: LanguageMode;
-  label: string;
-  flag: string;
-}> = [
-    { value: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-    { value: 'en', label: 'Tiếng Anh', flag: '🇬🇧' },
-    { value: 'ko', label: 'Tiếng Hàn', flag: '🇰🇷' },
-  ];
-
 const ChangeLanguageModal = ({
   visible,
   language,
   onSelectLanguage,
   onClose,
 }: ChangeLanguageModalProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const LANGUAGE_OPTIONS: Array<{
+    value: LanguageMode;
+    label: string;
+    flag: string;
+  }> = [
+      { value: 'vi', label: t('settings.vietnamese', 'Tiếng Việt'), flag: '🇻🇳' },
+      { value: 'en', label: t('settings.english', 'Tiếng Anh'), flag: '🇬🇧' },
+      { value: 'ko', label: t('settings.korean', 'Tiếng Hàn'), flag: '🇰🇷' },
+    ];
+
   return (
     <Modal
       visible={visible}
@@ -41,7 +48,7 @@ const ChangeLanguageModal = ({
           <View style={styles.dragHandle} />
 
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Ngôn ngữ</Text>
+            <Text style={styles.headerTitle}>{t('settings.language', 'Ngôn ngữ')}</Text>
             <CloseButton variant="Stroke" onPress={onClose} />
           </View>
 
@@ -80,13 +87,13 @@ const ChangeLanguageModal = ({
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+const createStyles = (colors: any) => StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg || 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
   backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
-  sheetContent: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
-  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+  sheetContent: { backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
+  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: colors.dragHandleBg || '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
   body: {
     minHeight: 288,
     paddingBottom: 4,
@@ -96,13 +103,13 @@ const styles = StyleSheet.create({
     minHeight: 74,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#C9D7E8',
-    backgroundColor: Color.bg,
+    borderColor: colors.optionCardBorder || '#C9D7E8',
+    backgroundColor: colors.bg,
     marginBottom: 18,
     overflow: 'hidden',
   },
   optionCardActive: {
-    borderColor: '#D8E3F2',
+    borderColor: colors.optionCardActiveBorder || '#D8E3F2',
   },
   optionCardLast: {
     marginBottom: 0,
@@ -120,7 +127,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   flagText: {
     fontSize: 28,
@@ -129,7 +136,7 @@ const styles = StyleSheet.create({
   optionLabel: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: Color.text,
+    color: colors.text,
   },
   activeAccent: {
     position: 'absolute',
@@ -137,7 +144,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 5,
-    backgroundColor: '#0B663B',
+    backgroundColor: colors.activeAccentBg || '#0B663B',
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
   },

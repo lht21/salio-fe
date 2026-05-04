@@ -11,6 +11,9 @@ import {
   SubmitAttemptResponse,
   AttemptResultResponse,
   AttemptReviewResponse,
+  DeleteAttemptResponse,
+  DeleteMultipleAttemptsResponse,
+  BaseResponse,
 } from '../types/practice.types';
 
 /**
@@ -122,6 +125,26 @@ class PracticeService {
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi gọi API reviewAttempt (${attemptId}):`, error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  static async deleteAttempt(attemptId: string): Promise<DeleteAttemptResponse> {
+    try {
+      const response = await apiClient.delete<DeleteAttemptResponse>(API_ENDPOINTS.ATTEMPT.DELETE(attemptId));
+      return response.data;
+    } catch (error: any) {
+      console.error(`Lỗi khi gọi API deleteAttempt (${attemptId}):`, error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  static async deleteMultipleAttempts(attemptIds: string[]): Promise<DeleteMultipleAttemptsResponse> {
+    try {
+      const response = await apiClient.post<DeleteMultipleAttemptsResponse>(API_ENDPOINTS.ATTEMPT.BATCH_DELETE, { attemptIds });
+      return response.data;
+    } catch (error: any) {
+      console.error('Lỗi khi gọi API deleteMultipleAttempts:', error.response?.data || error.message);
       throw error;
     }
   }

@@ -1,4 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 import { Padding } from '../constants/GlobalStyles';
 import SectionHeader from './SectionHeader';
 import { MonthBlock } from './StreakComponent/MonthBlock';

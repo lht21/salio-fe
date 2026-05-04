@@ -37,7 +37,7 @@ export default function CertificateScreen() {
         <SafeAreaView style={styles.safeArea}>
             <ScreenHeader 
                 title="Huy hiệu" 
-                onBackPress={() => router.replace('/(tabs)/profile')} 
+                onBackPress={() => router.back()} 
             />
 
             <View style={styles.badgesRow}>

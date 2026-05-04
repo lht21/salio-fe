@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { GearSixIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 import StatusBadge from './StatusBadge';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProfileHeaderProps {
   username?: string;
@@ -16,6 +17,10 @@ interface ProfileHeaderProps {
 
 const ProfileHeader = ({ username, email, avatarUrl, level }: ProfileHeaderProps) => {
   const router = useRouter();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.container}>
       {/* Background Gradient */}
@@ -30,7 +35,7 @@ const ProfileHeader = ({ username, email, avatarUrl, level }: ProfileHeaderProps
         onPress={() => router.push('/settings' as any)}
       >
         <View style={styles.settingsIconBg}>
-          <GearSixIcon size={24} color={Color.bg} weight="fill" />
+          <GearSixIcon size={24} color={colors.bg} weight="fill" />
         </View>
       </TouchableOpacity>
 
@@ -47,14 +52,14 @@ const ProfileHeader = ({ username, email, avatarUrl, level }: ProfileHeaderProps
             contentFit="cover"
           />
         </View>
-        <Text style={styles.username}>{username || 'Khách'}</Text>
-        <StatusBadge text={`Trình độ học ${level || 'Sơ cấp 1'}`} bgColor={Color.vang || '#F9F871'} />
+        <Text style={styles.username}>{username || t('profile.header.guest', 'Khách')}</Text>
+        <StatusBadge text={`${t('profile.header.level', 'Trình độ học')} ${level || 'Sơ cấp 1'}`} bgColor={colors.vang || '#F9F871'} />
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     position: 'relative',
     paddingTop: 60,
@@ -68,7 +73,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 120,
     zIndex: 0,
-    backgroundColor: Color.main || '#98F291',
+    backgroundColor: colors.main || '#98F291',
   },
   settingsBtn: {
     position: 'absolute',
@@ -77,7 +82,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   settingsIconBg: {
-    backgroundColor: Color.gray,
+    backgroundColor: colors.gray,
     padding: 8,
     borderRadius: 20,
   },
@@ -89,32 +94,32 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    backgroundColor: Color.bg || '#1877F2',
-    borderColor: Color.main,
+    backgroundColor: colors.bg || '#FFFFFF',
+    borderColor: colors.main,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Gap.gap_15,
     borderBottomWidth:5,
     borderWidth: 5,
-    borderBottomColor: Color.color,
+    borderBottomColor: colors.borderAvatar,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 51,
-    borderColor: Color.bg || '#1877F2',
+    borderColor: colors.bg || '#FFFFFF',
     borderWidth: 2,
   },
   username: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.text || '#1E1E1E',
+    color: colors.text || '#1E1E1E',
     marginBottom: 4,
   },
   email: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: Color.gray,
+    color: colors.gray,
     marginBottom: Gap.gap_10,
   },
 });

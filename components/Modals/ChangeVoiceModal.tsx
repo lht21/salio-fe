@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Modal, Pressable, Text, TouchableOpacity } from 'react-native';
 import { CheckCircleIcon, CircleIcon } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 import CloseButton from '../CloseButton';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 
 export type VoiceType = 'male' | 'female';
 
@@ -13,12 +15,16 @@ export type ChangeVoiceModalProps = {
   onClose: () => void;
 };
 
-const VOICES: { id: VoiceType; label: string }[] = [
-  { id: 'male', label: 'Giọng Nam' },
-  { id: 'female', label: 'Giọng Nữ' },
-];
-
 const ChangeVoiceModal = ({ visible, voice, onSelectVoice, onClose }: ChangeVoiceModalProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const VOICES: { id: VoiceType; label: string }[] = [
+    { id: 'male', label: t('settings.maleVoice', 'Giọng Nam') },
+    { id: 'female', label: t('settings.femaleVoice', 'Giọng Nữ') },
+  ];
+
   return (
     <Modal
       visible={visible}
@@ -32,7 +38,7 @@ const ChangeVoiceModal = ({ visible, voice, onSelectVoice, onClose }: ChangeVoic
           <View style={styles.dragHandle} />
 
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Chọn Giọng Đọc</Text>
+            <Text style={styles.headerTitle}>{t('settings.chooseVoice', 'Chọn Giọng Đọc')}</Text>
             <CloseButton variant="Stroke" onPress={onClose} />
           </View>
 
@@ -46,9 +52,9 @@ const ChangeVoiceModal = ({ visible, voice, onSelectVoice, onClose }: ChangeVoic
               >
                 <Text style={styles.optionText}>{item.label}</Text>
                 {voice === item.id ? (
-                  <CheckCircleIcon size={24} color={Color.main2} weight="fill" />
+                  <CheckCircleIcon size={24} color={colors.main2} weight="fill" />
                 ) : (
-                  <CircleIcon size={24} color={Color.gray} weight="regular" />
+                  <CircleIcon size={24} color={colors.gray} weight="regular" />
                 )}
               </TouchableOpacity>
             ))}
@@ -59,11 +65,11 @@ const ChangeVoiceModal = ({ visible, voice, onSelectVoice, onClose }: ChangeVoic
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+const createStyles = (colors: any) => StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg || 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
   backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
   sheetContent: {
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
     borderTopLeftRadius: Border.br_30,
     borderTopRightRadius: Border.br_30,
     paddingHorizontal: Padding.padding_20,
@@ -74,18 +80,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#CBD5E1',
+    backgroundColor: colors.dragHandleBg || '#CBD5E1',
     alignSelf: 'center',
     marginBottom: Gap.gap_15,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
   body: { paddingBottom: 16 },
   optionRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: Color.stroke,
+    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.stroke,
   },
-  optionText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
+  optionText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
 });
 
 export default ChangeVoiceModal;

@@ -1,7 +1,8 @@
-import * as React from "react";
+import React, { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { GoogleLogoIcon, AppleLogoIcon, FacebookLogoIcon, FacebookLogo } from "phosphor-react-native";
-import { Color, Padding } from "../constants/GlobalStyles";
+import { useTheme } from "../contexts/ThemeContext";
+import { Padding } from "../constants/GlobalStyles";
 
 // Định nghĩa kiểu icon hỗ trợ
 export type SocialType = "google" | "apple" | "facebook";
@@ -24,10 +25,14 @@ const SocialButton = ({
   social,
   onPress,
   size = 35,
-  iconColor = Color.stroke,
+  iconColor,
 }: SocialButtonType) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const IconComponent = SOCIAL_ICONS[social];
+  // Nếu không truyền iconColor từ ngoài vào thì lấy mặc định từ theme
+  const finalIconColor = iconColor || colors.stroke;
 
   return (
     <Pressable
@@ -39,21 +44,21 @@ const SocialButton = ({
     >
       <IconComponent
         size={size}
-        color={iconColor}
+        color={finalIconColor}
         weight="fill"   // thin | light | regular | bold | fill | duotone
       />
     </Pressable>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   wrapper: {
     height: 65,
     width: 65,
     borderRadius: 43,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
     borderStyle: "solid",
-    borderColor: Color.stroke,
+    borderColor: colors.stroke,
     borderWidth: 2,
     flexDirection: "row",
     alignItems: "center",

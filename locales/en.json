@@ -26,7 +26,31 @@
     "supportCenter": "Support Center",
     "aboutUs": "About Us",
     "loginOther": "Login with another account",
-    "logout": "Logout"
+    "logout": "Logout",
+    "reminderTitle": "Study Reminder",
+    "reminderNone": "Turn off reminder",
+    "reminderMorning": "Morning (08:00)",
+    "reminderEvening": "Evening (20:00)",
+    "pwdMismatch": "New password and confirmation do not match!",
+    "pwdSuccess": "Password changed successfully!",
+    "pwdFailed": "Failed to change password!",
+    "pwdCurrentWrong": "Current password incorrect or an error occurred",
+    "enterCurrentPwd": "Enter current password",
+    "enterNewPwd": "Enter new password",
+    "confirmNewPwd": "Confirm new password",
+    "currentPwd": "Current password",
+    "newPwd": "New password",
+    "confirmNewPwdLabel": "Confirm new password",
+    "language": "Language",
+    "display": "Display",
+    "applied": "Applied",
+    "mode": "Mode",
+    "changeAvatar": "Change Avatar",
+    "uploadFromDevice": "Upload from device",
+    "availableImages": "Available images",
+    "chooseVoice": "Choose Voice",
+    "changeUserName": "Change Username",
+    "newName": "New name"
   },
   "upgradeBanner": {
     "title": "Unlimited Experience",
@@ -36,5 +60,83 @@
   "alertBanner": {
     "defaultText": "You have reached 215 points in the mock TOPIK test. Check now to convert your current learning level",
     "checkNow": "Check"
+  },
+  "stats": {
+    "days": "days",
+    "vocab": "vocab",
+    "score": "score",
+    "certificates": "certificates",
+    "clouds": "clouds"
+  },
+  "profile": {
+    "header": {
+      "guest": "Guest",
+      "level": "Level"
+    }
+  },
+  "streak": {
+    "your_streak": "Your streak",
+    "month": "Month"
+  },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "label": "Label",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save"
+  },
+  "tabs": {
+    "learn": "Learn",
+    "practice": "Test",
+    "vocabulary": "Vocabulary",
+    "community": "Community",
+    "profile": "Me"
+  },
+  "practice": {
+    "alert_text": "You achieved 200 TOPIK points from the previous mock test, so your TOPIK level will automatically change according to your score. But you can also choose other levels besides this current one!",
+    "close": "Close",
+    "title": "Practice",
+    "level": "Level",
+    "listening": "Listening",
+    "reading": "Reading",
+    "mocktest_topik1": "Mock test TOPIK I",
+    "listen_30": "Listening: 30 questions",
+    "read_40": "Reading: 40 questions",
+    "writing_topik2": "Writing TOPIK II",
+    "writing_desc": "Chart writing (Q53) and essay writing (Q54)",
+    "mocktest_topik2": "Mock test TOPIK II",
+    "listen_write_read": "Listen, Write, Read",
+    "listening_eps": "EPS Listening",
+    "reading_eps": "EPS Reading",
+    "pic_vocab": "Picture vocabulary",
+    "real_info": "Real information",
+    "industry": "Choose industry",
+    "industry_desc": "Manufacturing, Construction, Agriculture, Fishery",
+    "mocktest_eps": "Mock test EPS-TOPIK",
+    "eps_20_20": "20 Reading + 20 Listening",
+    "cbt_sim": "CBT Simulation",
+    "mocktest_default": "Comprehensive Mock Test",
+    "zenmode": "Zenmode",
+    "focus_mode": "Focus mode",
+    "safety": "Occupational Safety",
+    "safety_desc": "Prohibition, danger, and instruction signs",
+    "writing_title": "Writing practice",
+    "writing_subtitle": "Real exam standard Wongoji editor"
+  },
+  "level": {
+    "title": "Select exam level",
+    "eps_desc": "Specialized Korean exam",
+    "topik1_desc": "Level 1-2, Beginner",
+    "topik2_desc": "Level 3-6, Intermediate - Advanced"
+  },
+  "history": {
+    "title": "Test history",
+    "see_all": "See all",
+    "unknown": "Unknown",
+    "unknown_exam": "Unknown exam",
+    "writing_topic": "Writing topic",
+    "grading": "Grading",
+    "speaking_topic": "Speaking topic"
   }
 }

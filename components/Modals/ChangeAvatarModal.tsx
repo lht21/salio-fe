@@ -1,7 +1,10 @@
+import React, { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, Modal } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
 import { AvatarPreset } from '../../constants/avatarPresets';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button';
 import CloseButton from '../CloseButton';
 
@@ -22,6 +25,10 @@ const ChangeAvatarModal = ({
   onClose,
   onUploadPress,
 }: ChangeAvatarModalProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const handleUploadPress = () => {
     if (onUploadPress) {
       onUploadPress();
@@ -49,19 +56,19 @@ const ChangeAvatarModal = ({
           <View style={styles.dragHandle} />
 
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Thay đổi ảnh đại diện</Text>
+            <Text style={styles.headerTitle}>{t('settings.changeAvatar', 'Thay đổi ảnh đại diện')}</Text>
             <CloseButton variant="Stroke" onPress={onClose} />
           </View>
 
           <View style={styles.body}>
             <Button
-              title="Tải lên từ thiết bị"
+              title={t('settings.uploadFromDevice', 'Tải lên từ thiết bị')}
               variant="Green"
               onPress={handleUploadPress}
               style={styles.uploadButton}
             />
 
-            <Text style={styles.sectionLabel}>Hình ảnh có sẵn</Text>
+            <Text style={styles.sectionLabel}>{t('settings.availableImages', 'Hình ảnh có sẵn')}</Text>
 
             <View style={styles.gridCard}>
               {avatarRows.map((row, rowIndex) => (
@@ -96,13 +103,13 @@ const ChangeAvatarModal = ({
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+const createStyles = (colors: any) => StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg || 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
   backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
-  sheetContent: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
-  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+  sheetContent: { backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
+  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: colors.dragHandleBg || '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
   body: {
     gap: 0,
     paddingBottom: 10,
@@ -117,18 +124,18 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: Color.gray,
+    color: colors.gray,
     marginBottom: 10,
     marginLeft: 2,
   },
   gridCard: {
     borderWidth: 1.2,
-    borderColor: '#7F8B99',
+    borderColor: colors.gridCardBorder || '#7F8B99',
     borderRadius: 28,
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   gridRow: {
     flexDirection: 'row',
@@ -144,20 +151,20 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   avatarFrame: {
     width: '100%',
     height: '100%',
     borderRadius: 999,
     borderWidth: 1.2,
-    borderColor: '#658067',
+    borderColor: colors.avatarFrameBorder || '#658067',
     padding: 2,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   avatarFrameSelected: {
     borderWidth: 1.6,
-    borderColor: '#2F7A4D',
+    borderColor: colors.avatarFrameSelectedBorder || '#2F7A4D',
   },
   avatarImage: {
     width: '100%',

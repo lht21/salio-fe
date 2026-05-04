@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View, Image } from 'react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FontFamily, FontSize, Border, Gap } from '../constants/GlobalStyles';
 
 interface SkillCardProps {
   title: string;
@@ -10,10 +11,17 @@ interface SkillCardProps {
   onPress?: () => void;
 }
 
-const SkillCard = ({ title, icon, backgroundColor = Color.bg, titleColor = Color.text, onPress }: SkillCardProps) => {
+const SkillCard = ({ title, icon, backgroundColor, titleColor, onPress }: SkillCardProps) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const bg = backgroundColor || colors.bg;
+  const txtColor = titleColor || colors.text;
+
+  // Mở rộng logic phát hiện icon bằng Đa ngôn ngữ (cả tiếng Việt, Anh và Hàn)
   const lowerTitle = title.toLowerCase();
-  const isListening = lowerTitle.includes('nghe');
-  const isReading = lowerTitle.includes('đọc');
+  const isListening = lowerTitle.includes('nghe') || lowerTitle.includes('listening') || lowerTitle.includes('듣기');
+  const isReading = lowerTitle.includes('đọc') || lowerTitle.includes('reading') || lowerTitle.includes('읽기');
 
   let imageSource = null;
   if (isListening) {
@@ -23,24 +31,24 @@ const SkillCard = ({ title, icon, backgroundColor = Color.bg, titleColor = Color
   }
 
   return (
-    <TouchableOpacity style={[styles.card, { backgroundColor }]} onPress={onPress}>
+    <TouchableOpacity style={[styles.card, { backgroundColor: bg }]} onPress={onPress}>
       <View style={styles.leftPart}>
         {imageSource ? <Image source={imageSource} style={styles.skillImage} resizeMode="contain" /> : icon}
       </View>
       <View style={styles.rightPart}>
-        <Text style={[styles.title, { color: titleColor }]}>{title}</Text>
+        <Text style={[styles.title, { color: txtColor }]}>{title}</Text>
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: Color.stroke || '#E2E8F0',
+    borderColor: colors.stroke || '#E2E8F0',
     borderRadius: Border.br_15 || 15,
     minHeight: 75,
     paddingRight: 15,

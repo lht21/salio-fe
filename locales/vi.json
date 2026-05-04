@@ -26,7 +26,31 @@
     "supportCenter": "Trung tâm hỗ trợ",
     "aboutUs": "Về chúng tôi",
     "loginOther": "Đăng nhập bằng tài khoản khác",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "reminderTitle": "Nhắc Nhở Học Tập",
+    "reminderNone": "Tắt nhắc nhở",
+    "reminderMorning": "Buổi sáng (08:00)",
+    "reminderEvening": "Buổi tối (20:00)",
+    "pwdMismatch": "Mật khẩu mới và xác nhận không khớp!",
+    "pwdSuccess": "Đổi mật khẩu thành công!",
+    "pwdFailed": "Đổi mật khẩu thất bại!",
+    "pwdCurrentWrong": "Mật khẩu hiện tại không đúng hoặc có lỗi xảy ra",
+    "enterCurrentPwd": "Nhập mật khẩu hiện tại",
+    "enterNewPwd": "Nhập mật khẩu mới",
+    "confirmNewPwd": "Nhập lại mật khẩu mới",
+    "currentPwd": "Mật khẩu hiện tại",
+    "newPwd": "Mật khẩu mới",
+    "confirmNewPwdLabel": "Xác nhận mật khẩu mới",
+    "language": "Ngôn ngữ",
+    "display": "Hiển thị",
+    "applied": "Đang áp dụng",
+    "mode": "Chế độ",
+    "changeAvatar": "Thay đổi ảnh đại diện",
+    "uploadFromDevice": "Tải lên từ thiết bị",
+    "availableImages": "Hình ảnh có sẵn",
+    "chooseVoice": "Chọn Giọng Đọc",
+    "changeUserName": "Thay đổi Tên người dùng",
+    "newName": "Tên mới"
   },
   "upgradeBanner": {
     "title": "Trải nghiệm không giới hạn",
@@ -36,5 +60,83 @@
   "alertBanner": {
     "defaultText": "Bạn đã đạt 215 điểm Topik thi thử. Kiểm tra ngay để chuyển đổi Trình độ học tập hiện tại",
     "checkNow": "Kiểm tra"
+  },
+  "stats": {
+    "days": "ngày",
+    "vocab": "từ vựng",
+    "score": "điểm",
+    "certificates": "chứng chỉ",
+    "clouds": "đám mây"
+  },
+  "profile": {
+    "header": {
+      "guest": "Khách",
+      "level": "Trình độ học"
+    }
+  },
+  "streak": {
+    "your_streak": "Chuỗi của bạn",
+    "month": "Tháng"
+  },
+  "common": {
+    "confirm": "Đồng ý",
+    "cancel": "Hủy",
+    "label": "Nhãn",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "save": "Lưu"
+  },
+  "tabs": {
+    "learn": "Học",
+    "practice": "Thi",
+    "vocabulary": "Từ vựng",
+    "community": "Cộng đồng",
+    "profile": "Tôi"
+  },
+  "practice": {
+    "alert_text": "Bạn đã đạt 200 điểm TOPIK từ lần thi thử trước đó nên trình độ TOPIK sẽ tự động thay đổi theo số điểm của bạn. Nhưng bạn cũng có thể lựa chọn lại các trình độ khác ngoài trình độ hiện tại này!",
+    "close": "Đóng",
+    "title": "Luyện thi",
+    "level": "Cấp độ đề",
+    "listening": "Luyện nghe",
+    "reading": "Luyện đọc",
+    "mocktest_topik1": "Thi thử TOPIK I",
+    "listen_30": "Nghe: 30 câu",
+    "read_40": "Đọc: 40 câu",
+    "writing_topik2": "Luyện viết TOPIK II",
+    "writing_desc": "Luyện viết biểu đồ (câu 53) và viết luận (câu 54)",
+    "mocktest_topik2": "Thi thử TOPIK II",
+    "listen_write_read": "Nghe, Viết, Đọc",
+    "listening_eps": "Luyện nghe EPS",
+    "reading_eps": "Luyện đọc EPS",
+    "pic_vocab": "Nhìn hình chọn từ",
+    "real_info": "Thông tin thực tế",
+    "industry": "Chọn ngành nghề",
+    "industry_desc": "Sản xuất, Xây dựng, Nông nghiệp, Ngư nghiệp",
+    "mocktest_eps": "Thi thử EPS-TOPIK",
+    "eps_20_20": "20 câu Đọc + 20 câu Nghe",
+    "cbt_sim": "Mô phỏng CBT",
+    "mocktest_default": "Thi thử toàn diện (Mocktest)",
+    "zenmode": "Zenmode",
+    "focus_mode": "Chế độ tập trung",
+    "safety": "An toàn lao động",
+    "safety_desc": "Biển báo cấm, nguy hiểm, chỉ dẫn",
+    "writing_title": "Luyện viết",
+    "writing_subtitle": "Trình soạn thảo Wongoji chuẩn thi thật"
+  },
+  "level": {
+    "title": "Chọn cấp độ đề",
+    "eps_desc": "Đề thi tiếng Hàn chuyên ngành",
+    "topik1_desc": "Cấp 1-2, trình độ Sơ cấp",
+    "topik2_desc": "Cấp 3-6, trình độ Trung - Cao cấp"
+  },
+  "history": {
+    "title": "Lịch sử làm bài",
+    "see_all": "Xem tất cả",
+    "unknown": "Không xác định",
+    "unknown_exam": "Đề thi không xác định",
+    "writing_topic": "Chủ đề viết",
+    "grading": "Đang chấm",
+    "speaking_topic": "Chủ đề nói"
   }
 }

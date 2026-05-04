@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 
 interface WritingFeaturedCardProps {
   onPress?: () => void;
@@ -10,7 +12,14 @@ interface WritingFeaturedCardProps {
   imageSource?: any;
 }
 
-const WritingFeaturedCard = ({ onPress, title = "Luyện viết", subtitle = "Trình soạn thảo Wongoji chuẩn thi thật", imageSource = require('../assets/images/woji.png') }: WritingFeaturedCardProps) => {
+const WritingFeaturedCard = ({ onPress, title, subtitle, imageSource = require('../assets/images/woji.png') }: WritingFeaturedCardProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const displayTitle = title || t('practice.writing_title', 'Luyện viết');
+  const displaySubtitle = subtitle || t('practice.writing_subtitle', 'Trình soạn thảo Wongoji chuẩn thi thật');
+
   return (
     <TouchableOpacity activeOpacity={0.9} style={styles.card} onPress={onPress}>
       <View style={styles.imageContainer}>
@@ -22,16 +31,16 @@ const WritingFeaturedCard = ({ onPress, title = "Luyện viết", subtitle = "Tr
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <Text style={styles.title}>{displayTitle}</Text>
+        <Text style={styles.subtitle}>{displaySubtitle}</Text>
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
-    backgroundColor: Color.main || '#98F291',
+    backgroundColor: colors.main || '#98F291',
     borderRadius: Border.br_30 || 30,
     paddingHorizontal: Padding.padding_15 || 15,
     paddingBottom: Padding.padding_30 || 20,
@@ -53,13 +62,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.color,
+    color: colors.color,
     marginBottom: 4,
   },
   subtitle: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12 || 12,
-    color: Color.gray, // Xám đậm
+    color: colors.gray, // Xám đậm
   },
 });
 

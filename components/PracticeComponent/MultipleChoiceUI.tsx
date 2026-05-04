@@ -1,5 +1,8 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
+import { Audio, AVPlaybackStatus } from 'expo-av';
+import { PlayIcon, PauseIcon } from 'phosphor-react-native';
+import { Image } from 'expo-image';
 
 // Import Design System & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
@@ -17,27 +20,126 @@ const ExamCover = ({ title, type }: { title: string, type: string }) => (
   </View>
 );
 
+const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void }) => {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [position, setPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    let soundInstance: Audio.Sound | null = null;
+
+    const loadAudio = async () => {
+      try {
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: url },
+          { progressUpdateIntervalMillis: 500 },
+          (status: AVPlaybackStatus) => {
+            if (!isMounted) return;
+            if (status.isLoaded) {
+              setPosition(status.positionMillis);
+              setDuration(status.durationMillis || 0);
+              setIsPlaying(status.isPlaying);
+              if (status.didJustFinish) {
+                setIsPlaying(false);
+                newSound.setPositionAsync(0);
+              }
+            }
+          }
+        );
+        soundInstance = newSound;
+        if (isMounted) setSound(newSound);
+      } catch (error) {
+        console.log('Lỗi khi tải Audio:', error);
+      }
+    };
+
+    if (url) loadAudio();
+
+    return () => {
+      isMounted = false;
+      if (soundInstance) soundInstance.unloadAsync(); // Tránh rò rỉ bộ nhớ
+    };
+  }, [url]);
+
+  useEffect(() => {
+    // Logic Auto-Stop
+    if (currentlyPlayingId !== id && isPlaying && sound) {
+      sound.pauseAsync();
+    }
+  }, [currentlyPlayingId, isPlaying, sound, id]);
+
+  const handlePlayPause = async () => {
+    if (!sound) return;
+    if (isPlaying) {
+      await sound.pauseAsync();
+    } else {
+      onPlay(id); // Set active audio
+      await sound.playAsync();
+    }
+  };
+
+  const formatTime = (millis: number) => {
+    const totalSeconds = Math.floor(millis / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  const progressPercent = duration > 0 ? (position / duration) * 100 : 0;
+
+  return (
+    <View style={styles.audioPlayerContainer}>
+      <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
+        {isPlaying ? <PauseIcon size={20} color={Color.bg} weight="fill" /> : <PlayIcon size={20} color={Color.bg} weight="fill" />}
+      </TouchableOpacity>
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
+        </View>
+        <View style={styles.timeRow}>
+          <Text style={styles.timeText}>{formatTime(position)}</Text>
+          <Text style={styles.timeText}>{formatTime(duration)}</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, onExit, type }: any) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const questionLayouts = useRef<Record<string, number>>({});
   const [showExitModal, setShowExitModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showQuestionListModal, setShowQuestionListModal] = useState(false);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null); // Trạng thái dùng cho Auto-Stop
   const examTitle = data?.title || 'Bài thi trắc nghiệm';
 
   // Làm phẳng danh sách câu hỏi để tính toán và Modal Grid
   const allQuestions = useMemo(() => {
+    if (!data?.items) return [];
     let questions: any[] = [];
-    const sections = type === 'full' ? ['listening', 'reading'] : [type];
-    sections.forEach(sec => {
-      if (data?.items && data.items[sec]) {
-        data.items[sec].forEach((item: any) => {
-          if (item.questions) {
-            questions = [...questions, ...item.questions];
-          }
-        });
-      }
-    });
+
+    if (type === 'full') {
+      const sections = ['listening', 'reading'];
+      sections.forEach(sec => {
+        if (data.items[sec]) {
+          data.items[sec].forEach((item: any) => {
+            if (item.questions) {
+              questions.push(...item.questions);
+            }
+          });
+        }
+      });
+    } else {
+      // For 'reading' or 'listening', data.items is an array
+      data.items.forEach((item: any) => {
+        if (item.questions) {
+          questions.push(...item.questions);
+        }
+      });
+    }
     return questions;
   }, [data, type]);
 
@@ -85,22 +187,51 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{title}</Text>
         </View>
-        {items.map((item: any, itemIndex: number) => (
-          <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
-            {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
-            {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
-            {item.questions?.map((q: any, qIndex: number) => (
-              <View
-                key={q._id || qIndex}
-                onLayout={(e) => { questionLayouts.current[q._id] = e.nativeEvent.layout.y; }}
-              >
-                <QuestionBlock number={qIndex + 1} questionText={q.questionText || q.text}>
-                  {renderOptions(q._id, q.metadata?.options || q.answers, secType)}
-                </QuestionBlock>
-              </View>
-            ))}
-          </View>
-        ))}
+        {items.map((item: any, itemIndex: number) => {
+          const passageAudioUrl = item.audioUrl || item.passageAudioUrl;
+          return (
+            <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
+              {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
+              
+              {passageAudioUrl && (
+                <MiniAudioPlayer
+                  id={`item-${item._id || itemIndex}`}
+                  url={passageAudioUrl}
+                  currentlyPlayingId={playingAudioId}
+                  onPlay={setPlayingAudioId}
+                />
+              )}
+
+              {item.imageUrl && (
+                <Image source={{ uri: item.imageUrl }} style={styles.contentImage} contentFit="contain" />
+              )}
+
+              {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
+              
+              {item.questions?.map((q: any, qIndex: number) => (
+                <View
+                  key={q._id || qIndex}
+                  onLayout={(e) => { questionLayouts.current[q._id] = e.nativeEvent.layout.y; }}
+                >
+                  {q.audioUrl && (
+                    <MiniAudioPlayer
+                      id={`q-${q._id || qIndex}`}
+                      url={q.audioUrl}
+                      currentlyPlayingId={playingAudioId}
+                      onPlay={setPlayingAudioId}
+                    />
+                  )}
+                  <QuestionBlock number={qIndex + 1} questionText={q.questionText || q.text}>
+                    {q.imageUrl && (
+                      <Image source={{ uri: q.imageUrl }} style={styles.contentImage} contentFit="contain" />
+                    )}
+                    {renderOptions(q._id, q.metadata?.options || q.answers, secType)}
+                  </QuestionBlock>
+                </View>
+              ))}
+            </View>
+          );
+        })}
       </>
     );
   };
@@ -201,6 +332,14 @@ const styles = StyleSheet.create({
   questionBoxPending: { backgroundColor: Color.stroke },
   questionBoxAnswered: { backgroundColor: Color.main },
   questionBoxText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: Color.gray },
+  audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: Color.stroke },
+  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
+  progressContainer: { flex: 1, justifyContent: 'center' },
+  progressBarBg: { height: 6, backgroundColor: Color.stroke, borderRadius: 3, marginBottom: 6 },
+  progressBarFill: { height: 6, backgroundColor: Color.main, borderRadius: 3 },
+  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  timeText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: Color.gray },
+  contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
 });
 
 export default MultipleChoiceUI;

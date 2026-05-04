@@ -244,7 +244,7 @@ export default function FlashcardSetDetailScreen() {
       {/* Custom Header */}
       <View style={styles.customHeader}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color="#FFFFFF" weight="bold" />
+          <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
         </TouchableOpacity>
         <Animated.Text style={[styles.headerTitle, headerTitleStyle]}>
           {displayTitle}
@@ -255,10 +255,10 @@ export default function FlashcardSetDetailScreen() {
               setEditTitleText(displayTitle);
               setIsEditModalVisible(true);
             }}>
-              <PencilSimpleIcon size={24} color="#FFFFFF" weight="bold" />
+              <PencilSimpleIcon size={24} color={Color.text} weight="fill" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={handleDeleteSet}>
-              <TrashIcon size={24} color="#FFFFFF" weight="bold" />
+              <TrashIcon size={24} color={Color.text} weight="fill" />
             </TouchableOpacity>
           </View>
         ) : (

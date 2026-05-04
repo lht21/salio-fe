@@ -20,22 +20,22 @@ export const UpgradeBanner = () => {
       style={bannerStyles.wrapper}
       activeOpacity={0.8}
       // Điều hướng đến thư mục subscription
-      onPress={() => router.push('/subscription/')} 
+      onPress={() => router.push('/subscription/' as any)} 
     >
       <LinearGradient 
-        colors={['#1E293B', colors.text || '#0F172A']} // Tone màu tối để tạo độ tương phản sang trọng
+        colors={[colors.upgradeBannerGradientStart || '#1E293B', colors.upgradeBannerGradientEnd || '#0F172A']} // Tone màu tối để tạo độ tương phản sang trọng
         start={{x:0, y:0}} 
         end={{x:1, y:1}} 
         style={bannerStyles.gradient}
       >
         {/* Watermark Icon chìm ở góc phải */}
         <View style={bannerStyles.watermark}>
-          <CrownIcon size={100} color={colors.main || '#98F291'} weight="fill" opacity={0.1} />
+          <CrownIcon size={100} color={colors.main} weight="fill" opacity={0.1} />
         </View>
 
         <View style={bannerStyles.content}>
           <View style={bannerStyles.iconWrapper}>
-            <CrownIcon size={24} color={colors.cam || '#FBBF24'} weight="fill" />
+            <CrownIcon size={24} color={colors.cam} weight="fill" />
           </View>
 
           <View style={bannerStyles.textWrapper}>
@@ -46,7 +46,7 @@ export const UpgradeBanner = () => {
 
         <View style={bannerStyles.actionRow}>
           <Text style={bannerStyles.sub}>{t('upgradeBanner.action', 'Nâng cấp ngay')}</Text>
-          <CaretRightIcon size={14} color={colors.bg || '#0F172A'} weight="bold" />
+          <CaretRightIcon size={14} color={colors.upgradeBannerActionText || '#0F172A'} weight="bold" />
         </View>
       </LinearGradient>
     </TouchableOpacity>
@@ -86,7 +86,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.upgradeBannerIconBg || 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -96,19 +96,19 @@ const createStyles = (colors: any) => StyleSheet.create({
   title: { 
     fontFamily: FontFamily.lexendDecaSemiBold, 
     fontSize: FontSize.fs_16 || 16, 
-    color: colors.main || '#98F291', 
+    color: colors.main, 
     marginBottom: 4 
   },
   desc: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12 || 12,
-    color: '#CBD5E1',
+    color: colors.upgradeBannerDesc || '#CBD5E1',
   },
   actionRow: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     alignSelf: 'flex-start',
-    backgroundColor: colors.main || '#98F291',
+    backgroundColor: colors.main,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -117,6 +117,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   sub: { 
     fontFamily: FontFamily.lexendDecaSemiBold, 
     fontSize: FontSize.fs_12 || 12, 
-    color: colors.bg || '#0F172A' 
+    color: colors.upgradeBannerActionText || '#0F172A' 
   },
 });

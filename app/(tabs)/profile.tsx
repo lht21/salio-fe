@@ -43,7 +43,7 @@ export default function ProfileScreen() {
         setStats(res.data);
       }
     } catch (error) {
-      console.error('Lỗi khi lấy thông tin thống kê:', error);
+      console.error(t('error.fetch_stats', 'Lỗi khi lấy thông tin thống kê:'), error);
     }
   };
 
@@ -90,7 +90,7 @@ export default function ProfileScreen() {
             style={styles.stickyAvatar}
             contentFit="cover"
           />
-          <Text style={styles.stickyHeaderTitle}>{user?.username || t('profile.guest', 'Khách')}</Text>
+          <Text style={styles.stickyHeaderTitle}>{user?.username || t('profile.header.guest', 'Khách')}</Text>
         </View>
         <TouchableOpacity 
           style={styles.stickySettingsBtn} 
@@ -132,7 +132,10 @@ export default function ProfileScreen() {
           certificates={stats?.gamification?.inventory?.badges?.length} 
           clouds={stats?.gamification?.clouds}
           onStreakPress={() => router.push('/streak/streak' as any)}
-          onScorePress={() => router.push('/certificate/certificate' as any)}
+          onScorePress={() => router.push('/practice/full/history' as any)}
+          onCertificatePress={() => router.push('/certificate/certificate' as any)}
+          onVocabPress={() => router.push('/vocabulary' as any)}
+          onCloudPress={() => router.push('/cloud/' as any)}
         />
 
         {/* Banner Vàng Thông báo */}
@@ -152,7 +155,7 @@ export default function ProfileScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.main || '#FFFFFF',
+    backgroundColor: colors.main,
     paddingTop: 50,
   },
   scrollContent: {
@@ -169,7 +172,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.main || '#98F291',
+    backgroundColor: colors.main,
     paddingTop: 50, // Khớp với paddingTop của safeArea để không đè lên tai thỏ
     paddingBottom: 15,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
@@ -186,8 +189,8 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   stickyHeaderTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 || 16,
-    color: colors.text || '#1E1E1E',
+    fontSize: FontSize.fs_16,
+    color: colors.text,
   },
   stickySettingsBtn: {
     position: 'absolute',
@@ -195,7 +198,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     bottom: 12,
   },
   settingsIconBg: {
-    backgroundColor: colors.gray || '#64748B',
+    backgroundColor: colors.gray,
     padding: 6,
     borderRadius: 16,
   }

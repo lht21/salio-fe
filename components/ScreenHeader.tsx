@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 import { ArrowLeftIcon } from 'phosphor-react-native';
 import { useRouter } from 'expo-router';
-import { Color, FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ScreenHeaderProps {
   title: string;
@@ -20,6 +21,8 @@ export default function ScreenHeader({
   style 
 }: ScreenHeaderProps) {
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const handleBack = () => {
     if (onBackPress) {
@@ -34,7 +37,7 @@ export default function ScreenHeader({
       <View style={styles.leftContent}>
         {showBackButton && (
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeftIcon size={24} color={Color.main2} weight="bold" />
+            <ArrowLeftIcon size={24} color={colors.main2} weight="bold" />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>{title}</Text>
@@ -44,10 +47,10 @@ export default function ScreenHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, paddingBottom: Padding.padding_15, backgroundColor: Color.bg },
+const createStyles = (colors: any) => StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, paddingBottom: Padding.padding_15, backgroundColor: colors.bg },
   leftContent: { flexDirection: 'row', alignItems: 'center' },
   backButton: { marginRight: Gap.gap_15 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: Color.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.text },
   rightContent: { flexDirection: 'row', alignItems: 'center' },
 });

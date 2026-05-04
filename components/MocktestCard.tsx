@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 
 interface Badge {
   text: string;
@@ -14,13 +16,20 @@ interface MocktestCardProps {
 }
 
 const MocktestCard = ({ 
-  title = "Thi thử toàn diện (Mocktest)", 
-  badges = [
-    { text: 'Zenmode', type: 'purple' },
-    { text: 'Chế độ tập trung', type: 'gray' }
-  ],
+  title, 
+  badges,
   onPress
 }: MocktestCardProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const displayTitle = title || t('practice.mocktest_default', 'Thi thử toàn diện (Mocktest)');
+  const displayBadges = badges || [
+    { text: t('practice.zenmode', 'Zenmode'), type: 'purple' },
+    { text: t('practice.focus_mode', 'Chế độ tập trung'), type: 'gray' }
+  ];
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       {/* Hình ảnh minh họa (Mascot) */}
@@ -34,9 +43,9 @@ const MocktestCard = ({
 
       {/* Nội dung */}
       <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{displayTitle}</Text>
         <View style={styles.badgesRow}>
-          {badges.map((badge, index) => (
+          {displayBadges.map((badge, index) => (
             <View key={index} style={badge.type === 'purple' ? styles.badgePurple : styles.badgeGray}>
               <Text style={badge.type === 'purple' ? styles.badgePurpleText : styles.badgeGrayText}>{badge.text}</Text>
             </View>
@@ -47,13 +56,13 @@ const MocktestCard = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Color.purplePastel,
+    backgroundColor: colors.purplePastel,
     borderWidth: 1.5,
-    borderColor: Color.stroke || '#E2E8F0',
+    borderColor: colors.stroke || '#E2E8F0',
     borderRadius: Border.br_20 || 15,
     minHeight: 75,
     overflow: 'visible', // Cho phép hình ảnh tràn viền 3D
@@ -81,18 +90,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 15,
-    color: Color.purple,
+    color: colors.purple,
     marginBottom: 6,
   },
   badgesRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: Color.bg, // Xám nhạt
+    backgroundColor: colors.bg, 
     borderRadius: 12,
   },
   badgePurple: {
-    backgroundColor: '#E9D5FF', // Tím nhạt
+    backgroundColor: colors.badgePurpleBg || '#E9D5FF', 
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -100,7 +109,7 @@ const styles = StyleSheet.create({
   badgePurpleText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 10,
-    color: '#7E22CE', // Tím đậm
+    color: colors.badgePurpleText || '#7E22CE', 
   },
   badgeGray: {
     paddingHorizontal: 8,
@@ -110,7 +119,7 @@ const styles = StyleSheet.create({
   badgeGrayText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 10,
-    color: Color.text, // Xám
+    color: colors.text, 
   }
 });
 

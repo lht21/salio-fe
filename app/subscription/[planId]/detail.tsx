@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ArrowLeftIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,26 +7,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Constants & Components
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../../constants/GlobalStyles';
 import Button from '../../../components/Button';
+import SubscriptionService from '../../../api/services/subscription.service';
+import { SubscriptionPlan, CheckoutRequest } from '../../../api/types/subscription.types';
 
-// Mock Data cho các phương thức thanh toán
+// Mock Data cho các phương thức thanh toán (Đã cập nhật ID để match với backend)
 const PAYMENT_METHODS = [
-  { id: 'momo', title: 'Ví MoMo', iconUrl: 'https://img.icons8.com/color/48/momo.png' },
-  { id: 'zalo', title: 'Ví ZaloPay', iconUrl: 'https://img.icons8.com/color/48/zalo.png' }, // Sửa lại text ZaloPay
-  { id: 'visa', title: 'Thẻ Visa/Mastercard', iconUrl: 'https://img.icons8.com/color/48/visa.png' },
-  { id: 'apple', title: 'Apple Pay', iconUrl: 'https://img.icons8.com/ios-filled/50/mac-os.png' },
+  { id: 'bank_transfer', title: 'Chuyển khoản Ngân hàng (QR)', iconUrl: 'https://img.icons8.com/color/48/bank-cards.png' },
 ];
-
-// Data thông tin các gói cước để map với planId
-const PLAN_DETAILS: Record<string, { title: string; price: string }> = {
-  month: {
-    title: 'Gói 1 tháng (Salio Master)',
-    price: '99.000 VNĐ'
-  },
-  year: {
-    title: 'Gói 1 năm (Salio Master)',
-    price: '699.000 VNĐ'
-  }
-};
 
 export default function OrderDetailsScreen() {
   const router = useRouter();
@@ -36,11 +23,50 @@ export default function OrderDetailsScreen() {
   // Xử lý đảm bảo planId luôn là chuỗi (tránh lỗi khi params trả về mảng)
   const currentPlanId = typeof planId === 'string' ? planId : 'month';
   
-  // Lấy thông tin gói cước tương ứng, nếu không có ID hợp lệ thì mặc định lấy gói tháng
-  const planInfo = PLAN_DETAILS[currentPlanId] || PLAN_DETAILS['month'];
-
+  // States
+  const [planDetail, setPlanDetail] = useState<SubscriptionPlan | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   // Quản lý phương thức thanh toán được chọn
-  const [selectedPayment, setSelectedPayment] = useState<string>('momo');
+  const [selectedPayment, setSelectedPayment] = useState<string>('bank_transfer');
+
+  // Fetch thông tin gói cước
+  useEffect(() => {
+    const fetchPlanDetail = async () => {
+      try {
+        setIsLoading(true);
+        const response = await SubscriptionService.getPlanById(currentPlanId);
+        if (response.success && response.data) {
+          setPlanDetail(response.data);
+        }
+      } catch (error) {
+        Alert.alert('Lỗi', 'Không thể lấy thông tin gói cước. Vui lòng thử lại sau.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlanDetail();
+  }, [currentPlanId]);
+
+  // Xử lý thanh toán
+  const handleCheckout = async () => {
+    if (!planDetail) return;
+    try {
+      setIsProcessing(true);
+      const response = await SubscriptionService.checkoutPlan(currentPlanId, { 
+        paymentMethod: selectedPayment as CheckoutRequest['paymentMethod'] 
+      });
+      
+      if (response.success && response.data) {
+        // Điều hướng sang trang VietQR với mã đơn hàng và số tiền
+        router.push(`/subscription/${currentPlanId}/checkout-transfer?orderId=${response.data.orderId}&amount=${response.data.amount}&bankId=${response.data.bankConfig?.bankId}&accountNo=${response.data.bankConfig?.accountNo}&accountName=${response.data.bankConfig?.accountName}` );
+      }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Không thể khởi tạo thanh toán. Vui lòng thử lại.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -59,49 +85,54 @@ export default function OrderDetailsScreen() {
           showsVerticalScrollIndicator={false} 
           contentContainerStyle={styles.scrollContent}
         >
-          
-          {/* Order Summary Card */}
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Gói cước</Text>
-              {/* Hiển thị tên gói động */}
-              <Text style={styles.summaryValue}>{planInfo.title}</Text>
-            </View>
-            
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Tổng tiền</Text>
-              {/* Hiển thị giá tiền động */}
-              <Text style={styles.totalPrice}>{planInfo.price}</Text>
-            </View>
-          </View>
+          {isLoading ? (
+            <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 50 }} />
+          ) : planDetail ? (
+            <>
+              {/* Order Summary Card */}
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Gói cước</Text>
+                  <Text style={styles.summaryValue}>{planDetail.name}</Text>
+                </View>
+                
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Tổng tiền</Text>
+                  <Text style={styles.totalPrice}>{planDetail.price.toLocaleString('vi-VN')} đ</Text>
+                </View>
+              </View>
 
-          {/* Payment Methods */}
-          <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
-          
-          <View style={styles.paymentList}>
-            {PAYMENT_METHODS.map((method) => {
-              const isSelected = selectedPayment === method.id;
+              {/* Payment Methods */}
+              <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
               
-              return (
-                <TouchableOpacity
-                  key={method.id}
-                  activeOpacity={0.8}
-                  style={[
-                    styles.paymentCard,
-                    isSelected ? styles.paymentCardSelected : styles.paymentCardUnselected
-                  ]}
-                  onPress={() => setSelectedPayment(method.id)}
-                >
-                  <Image 
-                    source={{ uri: method.iconUrl }} 
-                    style={styles.paymentIcon} 
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.paymentTitle}>{method.title}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+              <View style={styles.paymentList}>
+                {PAYMENT_METHODS.map((method) => {
+                  const isSelected = selectedPayment === method.id;
+                  
+                  return (
+                    <TouchableOpacity
+                      key={method.id}
+                      activeOpacity={0.8}
+                      style={[
+                        styles.paymentCard,
+                        isSelected ? styles.paymentCardSelected : styles.paymentCardUnselected
+                      ]}
+                      onPress={() => setSelectedPayment(method.id)}
+                    >
+                      <Image 
+                        source={{ uri: method.iconUrl }} 
+                        style={styles.paymentIcon} 
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.paymentTitle}>{method.title}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          ) : (
+            <Text style={{ textAlign: 'center', marginTop: 50, color: Color.gray }}>Không tìm thấy thông tin gói cước</Text>
+          )}
 
         </ScrollView>
 
@@ -111,11 +142,9 @@ export default function OrderDetailsScreen() {
             Thanh toán an toàn, không tự động gia hạn
           </Text>
           <Button
-            title="Xác nhận thanh toán"
+            title={isProcessing ? "Đang xử lý..." : "Xác nhận thanh toán"}
             variant="Green"
-            onPress={() => {
-              router.push('/subscription/success'); // Điều hướng đến trang thành công sau khi xác nhận
-            }}
+            onPress={handleCheckout}
           />
         </View>
 

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { GearSixIcon } from 'phosphor-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 import StatusBadge from './StatusBadge';
 import { useRouter } from 'expo-router';
@@ -13,9 +14,10 @@ interface ProfileHeaderProps {
   email?: string;
   avatarUrl?: string;
   level?: string;
+  isPremium?: boolean;
 }
 
-const ProfileHeader = ({ username, email, avatarUrl, level }: ProfileHeaderProps) => {
+const ProfileHeader = ({ username, email, avatarUrl, level, isPremium }: ProfileHeaderProps) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -41,17 +43,36 @@ const ProfileHeader = ({ username, email, avatarUrl, level }: ProfileHeaderProps
 
       {/* Avatar & Info */}
       <View style={styles.infoWrapper}>
-        <View style={styles.avatarContainer}>
-          <Image 
-            source={
-              avatarUrl
-                ? { uri: avatarUrl }
-                : require('../assets/images/avatar/Ellipse 20-1.png')
-            }
-            style={styles.avatar}
-            contentFit="cover"
-          />
-        </View>
+        {isPremium ? (
+          <LinearGradient
+            colors={['#98F291', '#7C3AED']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.premiumAvatarContainer}
+          >
+            <Image 
+              source={
+                avatarUrl
+                  ? { uri: avatarUrl }
+                  : require('../assets/images/avatar/Ellipse 20-1.png')
+              }
+              style={styles.avatar}
+              contentFit="cover"
+            />
+          </LinearGradient>
+        ) : (
+          <View style={styles.avatarContainer}>
+            <Image 
+              source={
+                avatarUrl
+                  ? { uri: avatarUrl }
+                  : require('../assets/images/avatar/Ellipse 20-1.png')
+              }
+              style={styles.avatar}
+              contentFit="cover"
+            />
+          </View>
+        )}
         <Text style={styles.username}>{username || t('profile.header.guest', 'Khách')}</Text>
         <StatusBadge text={`${t('profile.header.level', 'Trình độ học')} ${level || 'Sơ cấp 1'}`} bgColor={colors.vang || '#F9F871'} />
       </View>
@@ -102,6 +123,14 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderBottomWidth:5,
     borderWidth: 5,
     borderBottomColor: colors.borderAvatar,
+  },
+  premiumAvatarContainer: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Gap.gap_15,
   },
   avatar: {
     width: 100,

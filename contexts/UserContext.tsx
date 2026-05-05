@@ -2,11 +2,14 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { UserProfile } from '../api/types/user.types';
 import UserService from '../api/services/user.service';
 import i18n from '../locales/config';
+import * as SecureStore from 'expo-secure-store';
 
 interface UserContextType {
   user: UserProfile | null;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>; // Cập nhật thêm
+  logout: () => Promise<void>; // Cập nhật thêm
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -47,8 +50,18 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [user?.preferences?.language]);
 
+  const logout = async () => {
+    try {
+      await SecureStore.deleteItemAsync('accessToken');
+      await SecureStore.deleteItemAsync('refreshToken');
+      setUser(null);
+    } catch (error) {
+      console.error('Lỗi khi dọn dẹp bộ nhớ đăng xuất:', error);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, isLoading, refreshUser }}>
+    <UserContext.Provider value={{ user, isLoading, refreshUser, setUser, logout }}>
       {children}
     </UserContext.Provider>
   );

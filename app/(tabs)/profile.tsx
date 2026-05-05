@@ -122,6 +122,7 @@ export default function ProfileScreen() {
           email={user?.email}
           avatarUrl={user?.avatarUrl}
           level={user?.level}
+          isPremium={user?.subscription?.type === 'premium'}
         />
 
         {/* Khối 3 thông số */}
@@ -144,8 +145,8 @@ export default function ProfileScreen() {
         {/* Lịch chuỗi hoạt động */}
         <StreakCalendar onHeaderPress={() => router.push('/streak/streak' as any)} />
 
-        {/* Banner Xanh nâng cấp */}
-        <UpgradeBanner />
+        {/* Banner Xanh nâng cấp - Hiển thị nếu người dùng chưa có gói, hoặc đang ở gói miễn phí */}
+        {(!user?.subscription?.type || user?.subscription?.type === 'free') && <UpgradeBanner />}
 
       </Animated.ScrollView>
     </View>

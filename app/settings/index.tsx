@@ -48,7 +48,7 @@ import UserService from '@/api/services/user.service';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, refreshUser } = useUser();
+  const { user, refreshUser, setUser, logout } = useUser() as any;
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -123,15 +123,16 @@ export default function SettingsScreen() {
 
   const handleConfirmLogout = async () => {
     setLogoutModalVisible(false);
-    
-    // 1. Xóa token để cắt đứt phiên đăng nhập hiện tại
-    await SecureStore.deleteItemAsync('accessToken');
-    await SecureStore.deleteItemAsync('refreshToken');
-    
-    // 2. Refresh lại UserContext (không có token -> API lỗi -> user tự động về null)
-    await refreshUser();
-
-    router.replace('/(auth)/sign-in');
+  
+    try {
+      // 1. Chỉ cần gọi hàm logout từ Context, nó sẽ lo hết việc xóa token và state
+      await logout();
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất:', error);
+    } finally {
+      // 2. Chuyển hướng về trang đăng nhập
+      router.replace('/(auth)/sign-in');
+    }
   };
 
   const handleSelectAvatar = async (avatar: AvatarPreset) => {

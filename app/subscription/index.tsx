@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   ImageBackground,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,6 +20,8 @@ import SubscriptionCard from '../../components/SubscriptionCard';
 // Constants
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import { MotiView } from 'moti';
+import SubscriptionService from '../../api/services/subscription.service';
+import { SubscriptionPlan } from '../../api/types/subscription.types';
 
 // Dữ liệu mẫu (Tách biệt logic)
 const BENEFITS = [
@@ -27,32 +31,37 @@ const BENEFITS = [
   'Loại bỏ hoàn toàn quảng cáo',
 ];
 
-const PLANS = [
-  {
-    id: 'month',
-    title: 'Gói 1 tháng',
-    price: '99.000',
-    unit: 'đ / tháng',
-    subText: 'Thanh toán hàng tháng',
-    isRecommended: false,
-  },
-  {
-    id: 'year',
-    title: 'Gói 1 năm',
-    price: '699.000',
-    unit: 'đ / năm',
-    subText: 'Tiết kiệm 40% (~58k/tháng)',
-    isRecommended: true,
-  },
-];
-
 export default function SubscriptionScreen() {
   const router = useRouter();
-  // Quản lý plan đang chọn. Mặc định chọn gói năm (phần tử thứ 2)
-  const [selectedPlanId, setSelectedPlanId] = useState<string>(PLANS[1].id);
+  
+  // Quản lý trạng thái gọi API
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
 
-  // Lấy ra giá của gói đang được chọn để hiển thị ở nút bấm
-  const currentPlan = PLANS.find((p) => p.id === selectedPlanId);
+  // Fetch dữ liệu các gói từ API
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        setIsLoading(true);
+        const response = await SubscriptionService.getPlans();
+        if (response.success && response.data) {
+          setPlans(response.data);
+          // Tự động chọn gói có isPopular === true, nếu không thì chọn gói đầu tiên
+          const defaultPlan = response.data.find(p => p.isPopular) || response.data[0];
+          if (defaultPlan) setSelectedPlanId(defaultPlan._id);
+        }
+      } catch (error) {
+        Alert.alert('Lỗi', 'Không thể lấy danh sách gói cước. Vui lòng thử lại sau.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  // Lấy ra gói đang được chọn để hiển thị thông tin ở nút Tiếp tục
+  const currentPlan = plans.find((p) => p._id === selectedPlanId);
 
   return (
     <MotiView
@@ -81,21 +90,33 @@ export default function SubscriptionScreen() {
             >
             <Text style={styles.mainTitle}>Salio Master TOPIK</Text>
 
+            {isLoading ? (
+              <ActivityIndicator size="large" color={Color.vang} style={{ marginVertical: 30 }} />
+            ) : (
+              <View style={styles.plansContainer}>
+                  {plans.map((plan) => {
+                    const formattedPrice = plan.price.toLocaleString('vi-VN');
+                    let unit = 'đ / tháng';
+                    if (plan.type === 'premium_yearly') unit = 'đ / năm';
+                    else if (plan.type === 'premium_quarterly') unit = 'đ / 3 tháng';
+                    else if (plan.type === 'lifetime') unit = 'đ / vĩnh viễn';
 
-            <View style={styles.plansContainer}>
-                {PLANS.map((plan) => (
-                <SubscriptionCard
-                    key={plan.id}
-                    title={plan.title}
-                    price={plan.price}
-                    unit={plan.unit}
-                    subText={plan.subText}
-                    isRecommended={plan.isRecommended}
-                    isSelected={selectedPlanId === plan.id}
-                    onPress={() => setSelectedPlanId(plan.id)}
-                />
-                ))}
-            </View>
+                    return (
+                      <SubscriptionCard
+                          key={plan._id}
+                          title={plan.name}
+                          price={formattedPrice}
+                          unit={unit}
+                          subText={plan.description || ''}
+                          isRecommended={plan.isPopular}
+                          isSelected={selectedPlanId === plan._id}
+                          onPress={() => setSelectedPlanId(plan._id)}
+                      />
+                    );
+                  })}
+              </View>
+            )}
+
             <View style={styles.benefitsContainer}>
                 {BENEFITS.map((text, index) => (
                 <BenefitItem key={index} text={text} />
@@ -114,10 +135,14 @@ export default function SubscriptionScreen() {
                 <TouchableOpacity 
                   style={styles.continueButton} 
                   activeOpacity={0.8}
-                  onPress={() => router.push(`/subscription/${selectedPlanId}/detail`)} // Điều hướng đến trang chi tiết gói đã chọn
+                  onPress={() => {
+                    if (selectedPlanId) {
+                      router.push(`/subscription/${selectedPlanId}/detail`);
+                    }
+                  }}
                 >
                   <Text style={styles.continueButtonText}>
-                    Tiếp tục - {currentPlan?.price} đ
+                    Tiếp tục - {currentPlan ? currentPlan.price.toLocaleString('vi-VN') : '0'} đ
                   </Text>
                 </TouchableOpacity>
             </View>

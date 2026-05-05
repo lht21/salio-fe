@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -11,6 +11,8 @@ import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constan
 import Button from '../../components/Button';
 import CancelAutoRenewModal from '../../components/Modals/CancelAutoRenewModal';
 import ScreenHeader from '../../components/ScreenHeader';
+import SubscriptionService from '../../api/services/subscription.service';
+import { UserSubscription } from '../../api/types/subscription.types';
 
 // Mock Data: Danh sách quyền lợi
 const BENEFITS = [
@@ -22,20 +24,42 @@ const BENEFITS = [
 export default function ManageSubscriptionScreen() {
   const router = useRouter();
 
-  // Biến state quản lý trạng thái có gói học tập hay chưa
-  // (Đổi thành true để xem giao diện quản lý gói, false để xem giao diện chưa có gói)
-  const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean>(true);
+  const [currentSub, setCurrentSub] = useState<UserSubscription | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCancelModalVisible, setCancelModalVisible] = useState(false);
+
+  useEffect(() => {
+    const fetchCurrentSub = async () => {
+      try {
+        setIsLoading(true);
+        const response = await SubscriptionService.getCurrentSubscription();
+        if (response.success && response.data) {
+          setCurrentSub(response.data);
+        }
+      } catch (error) {
+        Alert.alert('Lỗi', 'Không thể lấy thông tin gói cước hiện tại.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCurrentSub();
+  }, []);
 
   // Logic xử lý khi bấm nút "Hủy tự động gia hạn"
   const handleCancelSubscription = () => {
     setCancelModalVisible(true);
   };
 
-  const handleConfirmCancelAutoRenew = () => {
-    setCancelModalVisible(false);
-    // TODO: Gọi API hủy gia hạn tại đây
-    console.log('Đã xác nhận hủy tự động gia hạn');
+  const handleConfirmCancelAutoRenew = async () => {
+    try {
+      const response = await SubscriptionService.cancelSubscription();
+      if (response.success) {
+        setCurrentSub(prev => prev ? { ...prev, isAutoRenew: false } : null);
+        setCancelModalVisible(false);
+      }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Không thể hủy tự động gia hạn. Vui lòng thử lại sau.');
+    }
   };
 
   return (
@@ -50,7 +74,9 @@ export default function ManageSubscriptionScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         
-        {hasActiveSubscription ? (
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 50 }} />
+        ) : currentSub?.isActive === true ? (
           /* =========================================
              TRẠNG THÁI 1: ĐÃ CÓ GÓI HỌC TẬP (ACTIVE)
              ========================================= */
@@ -72,7 +98,8 @@ export default function ManageSubscriptionScreen() {
               </View>
               
               <Text style={styles.billingCycleText}>
-                Chu kỳ thanh toán tiếp theo: 20/12/2025
+                {currentSub.isAutoRenew ? 'Chu kỳ thanh toán tiếp theo: ' : 'Ngày hết hạn: '}
+                {currentSub.endDate ? new Date(currentSub.endDate).toLocaleDateString('vi-VN') : 'Không rõ'}
               </Text>
             </ImageBackground>
 
@@ -163,14 +190,20 @@ export default function ManageSubscriptionScreen() {
       </ScrollView>
 
       {/* --- FOOTER: Action Button (Chỉ hiện khi có gói) --- */}
-      {hasActiveSubscription && (
+      {currentSub?.isActive === true && (
         <View style={styles.footer}>
-          <Button 
-            title="Hủy tự động gia hạn" 
-            variant="Red"
-            onPress={handleCancelSubscription}
-            style={styles.cancelButton} // Chỉ giữ lại style này để ghi đè chiều cao và bo góc
-          />
+          {currentSub.isAutoRenew ? (
+            <Button 
+              title="Hủy tự động gia hạn" 
+              variant="Red"
+              onPress={handleCancelSubscription}
+              style={styles.cancelButton} // Chỉ giữ lại style này để ghi đè chiều cao và bo góc
+            />
+          ) : (
+            <Text style={styles.cancelTextInfo}>
+              Gói cước của bạn sẽ tự động hủy vào ngày {currentSub.endDate ? new Date(currentSub.endDate).toLocaleDateString('vi-VN') : 'Không rõ'}
+            </Text>
+          )}
         </View>
       )}
 
@@ -367,5 +400,12 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
     color: Color.text,
+  },
+  cancelTextInfo: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: Color.gray,
+    textAlign: 'center',
+    paddingVertical: Padding.padding_10,
   },
 });

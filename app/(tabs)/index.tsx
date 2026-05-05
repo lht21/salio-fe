@@ -29,6 +29,8 @@ import StatusBadge from '../../components/StatusBadge';
 import Button from '../../components/Button';
 import { useUser } from '../../contexts/UserContext';
 import UserService from '../../api/services/user.service';
+import GamificationService from '../../api/services/gamification.service';
+import DailyMissionsModal from '../../components/Modals/DailyMissionsModal';
 import { MyStatsData } from '../../api/types/user.types';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -78,6 +80,15 @@ const LESSONS: LessonItem[] = [
   },
 ];
 
+const getStreakImage = (streak: number) => {
+  if (streak > 60) return require('../../assets/images/streak/lv6.png');
+  if (streak >= 31) return require('../../assets/images/streak/lv5.png');
+  if (streak >= 15) return require('../../assets/images/streak/lv4.png');
+  if (streak >= 7) return require('../../assets/images/streak/lv3.png');
+  if (streak >= 4) return require('../../assets/images/streak/lv2.png');
+  return require('../../assets/images/streak/lv1.png');
+};
+
 export default function HomeScreen() {
 
 
@@ -89,19 +100,48 @@ export default function HomeScreen() {
 
   const { user } = useUser();
   const [stats, setStats] = useState<MyStatsData | null>(null);
+  const [isMissionsModalVisible, setMissionsModalVisible] = useState(false);
+  const [isAutoConfetti, setIsAutoConfetti] = useState(false);
+
+  const fetchStats = async () => {
+    try {
+      const res = await UserService.getMyStats();
+      if (res.success) {
+        setStats(res.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin thống kê:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const handleAutoCheckIn = async () => {
       try {
-        const res = await UserService.getMyStats();
-        if (res.success) {
-          setStats(res.data);
+        // 1. Gọi API Điểm danh (Tăng tiến độ D1)
+        const checkInRes = await GamificationService.dailyCheckIn();
+        
+        if (checkInRes.success) {
+          // 2. Tự động nhận thưởng nhiệm vụ D1
+          const claimRes = await GamificationService.claimMissionReward({ missionId: 'D1' });
+          
+          if (claimRes.success) {
+            // 3. Bật Modal kèm hiệu ứng pháo giấy và làm mới số Mây
+            setIsAutoConfetti(true);
+            setMissionsModalVisible(true);
+            fetchStats();
+          }
         }
-      } catch (error) {
-        console.error('Lỗi khi lấy thông tin thống kê:', error);
+      } catch (error: any) {
+        // Bỏ qua lỗi 400 (Bạn đã điểm danh hôm nay rồi!) một cách tĩnh lặng
+        console.log('Auto Check-in message:', error.response?.data?.message || error.message);
       }
     };
-    fetchStats();
+
+    handleAutoCheckIn();
   }, []);
 
   // 1. Khởi tạo biến lưu giá trị cuộn
@@ -149,11 +189,14 @@ export default function HomeScreen() {
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [infoContent, setInfoContent] = useState<{title: string, desc: string, icon: React.ReactNode | null}>({ title: '', desc: '', icon: null });
 
+  const currentStreak = stats?.gamification?.currentStreak || 0;
+  const currentStreakImage = getStreakImage(currentStreak);
+
   const handleShowFireInfo = () => {
     setInfoContent({
       title: 'Chuỗi ngày học (Streak)',
       desc: 'Mỗi ngày bạn hoàn thành ít nhất một bài học, ngọn lửa sẽ cháy thêm 1 ngày. Giữ lửa liên tục để nhận thưởng lớn nhé!',
-      icon: <Image source={require('../../assets/images/streak/lv1.png')} style={{ width: 48, height: 48 }} resizeMode="contain" />
+      icon: <Image source={currentStreakImage} style={{ width: 48, height: 48 }} resizeMode="contain" />
     });
     setInfoModalVisible(true);
   };
@@ -219,8 +262,8 @@ export default function HomeScreen() {
       >
         <StatusBadge text={user?.level || "Sơ cấp 1"} bgColor="#FFFFFF" />
         <StatusBadge 
-          icon={<Image source={require('../../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-          text={stats?.gamification?.currentStreak?.toString() || "0"} 
+            icon={<Image source={currentStreakImage} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
+            text={currentStreak.toString()} 
           bgColor="#FFFFFF" 
           onPress={handleShowFireInfo} 
         />
@@ -290,6 +333,16 @@ export default function HomeScreen() {
         </Animated.View>
       )}
 
+      {/* --- POPUP NHIỆM VỤ HẰNG NGÀY KÈM HIỆU ỨNG --- */}
+      <DailyMissionsModal 
+        isVisible={isMissionsModalVisible} 
+        onClose={() => {
+          setMissionsModalVisible(false);
+          setIsAutoConfetti(false); // Reset cờ
+        }}
+        autoTriggerConfetti={isAutoConfetti}
+        onClaimSuccess={() => fetchStats()}
+      />
     </View>
   );
 }

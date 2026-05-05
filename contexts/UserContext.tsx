@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { UserProfile } from '../api/types/user.types';
+import { UserProfile, MyStatsData } from '../api/types/user.types';
 import UserService from '../api/services/user.service';
 import i18n from '../locales/config';
 import * as SecureStore from 'expo-secure-store';
 
 interface UserContextType {
   user: UserProfile | null;
+  stats: MyStatsData | null;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>; // Cập nhật thêm
@@ -16,22 +17,33 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [stats, setStats] = useState<MyStatsData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const refreshUser = async () => {
     setIsLoading(true);
     try {
-      // UserService.getMe() đã return response.data là kiểu BaseResponse<UserProfile>
-      const res = await UserService.getMe();
+      // Gọi song song cả API lấy User và Stats để tối ưu tốc độ
+      const [userRes, statsRes] = await Promise.all([
+        UserService.getMe(),
+        UserService.getMyStats()
+      ]);
       
-      if (res.success) {
-        setUser(res.data); // Bóc tách data từ BaseResponse để lấy UserProfile
+      if (userRes.success) {
+        setUser(userRes.data);
       } else {
         setUser(null);
+      }
+
+      if (statsRes.success) {
+        setStats(statsRes.data);
+      } else {
+        setStats(null);
       }
     } catch (error) {
       console.error('Lỗi khi lấy thông tin người dùng trong UserContext:', error);
       setUser(null);
+      setStats(null);
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +73,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <UserContext.Provider value={{ user, isLoading, refreshUser, setUser, logout }}>
+    <UserContext.Provider value={{ user, stats, isLoading, refreshUser, setUser, logout }}>
       {children}
     </UserContext.Provider>
   );

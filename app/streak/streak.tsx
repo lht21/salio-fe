@@ -2,6 +2,8 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FireIcon, TrophyIcon, CalendarBlankIcon } from 'phosphor-react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import ScreenHeader from '../../components/ScreenHeader';
@@ -10,25 +12,26 @@ import { MonthBlock } from '../../components/StreakComponent/MonthBlock';
 import { MonthConnector } from '../../components/StreakComponent/MonthConnector';
 import StreakRewardsModal from '../../components/Modals/StreakRewardsModal';
 import Button from '../../components/Button';
+import { useUser } from '../../contexts/UserContext';
 
-type SummaryCard = {
-    id: string;
-    value: string;
-    label: string;
-};
-
-const SUMMARY_CARDS: SummaryCard[] = [
-    { id: 'current', value: '2', label: 'Chuỗi 7' },
-    { id: 'best-week', value: '5', label: 'Chuỗi 4' },
-    { id: 'best', value: '15d', label: 'Dài nhất' },
-];
-
-const generateMockMonths = (numMonths: number): MonthSection[] => {
+const generateStreakMonths = (activeDates: string[], numMonths: number, createdAtStr?: string): MonthSection[] => {
     const sections: MonthSection[] = [];
+    
+    // Hàm tiện ích format ngày thành YYYY-MM-DD theo giờ local
+    const formatDate = (y: number, m: number, d: number) => {
+        return `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+    };
+
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1;
     const currentDate = today.getDate();
+
+    let createdAtDate: Date | null = null;
+    if (createdAtStr) {
+        createdAtDate = new Date(createdAtStr);
+        createdAtDate.setHours(0, 0, 0, 0); // Đưa về 00:00:00 để so sánh chính xác theo ngày
+    }
     
     let currentStreak = 0; // Biến theo dõi chuỗi học liên tiếp
 
@@ -46,20 +49,27 @@ const generateMockMonths = (numMonths: number): MonthSection[] => {
 
             const isToday = year === currentYear && month === currentMonth && d === currentDate;
             const isFuture = year > currentYear || (year === currentYear && month > currentMonth) || (year === currentYear && month === currentMonth && d > currentDate);
-            const isPast = !isToday && !isFuture;
+            
+            const currentIterDate = new Date(year, month - 1, d);
+            const isBeforeCreation = createdAtDate ? currentIterDate < createdAtDate : false;
+            const isPast = !isToday && !isFuture && !isBeforeCreation;
 
-            if (isFuture) {
-                state = 'inactive'; // Ngày trong tương lai (chưa tới) -> Xám
+            if (isFuture || isBeforeCreation) {
+                state = 'inactive'; // Ngày trong tương lai hoặc trước khi tạo tài khoản -> Xám
             } else if (isToday) {
-                state = 'today';
+                const todayStr = formatDate(year, month, d);
+                state = activeDates.includes(todayStr) ? 'completed' : 'today';
+                if (state === 'completed') currentStreak++;
             } else if (isPast) {
-                // Ngày trong quá khứ chỉ có thể là Đã học (completed) hoặc Bỏ lỡ (missed)
-                const rand = (d * 7 + month * 13) % 10;
-                if (rand < 7) {
+                const dateStr = formatDate(year, month, d);
+                const isCompleted = activeDates.includes(dateStr);
+                
+                if (isCompleted) {
                     state = 'completed';
                     currentStreak++;
-                    if (currentStreak > 0 && currentStreak % 4 === 0) {
-                        fire = true; // Cứ đạt 4 ngày liên tiếp thì hiện lửa
+                    // Hiện biểu tượng lửa cho các mốc chuỗi chia hết cho 7 (ví dụ)
+                    if (currentStreak > 0 && currentStreak % 7 === 0) {
+                        fire = true; 
                     }
                 } else {
                     state = 'missed';
@@ -68,7 +78,7 @@ const generateMockMonths = (numMonths: number): MonthSection[] => {
             }
 
             days.push({
-                id: `${year}-${month}-${d}`,
+                id: formatDate(year, month, d),
                 day: d.toString(),
                 state,
                 fire
@@ -86,30 +96,76 @@ const generateMockMonths = (numMonths: number): MonthSection[] => {
     return sections;
 };
 
-// Sinh ra 3 tháng liên tiếp tính đến tháng hiện tại
-const MONTH_SECTIONS: MonthSection[] = generateMockMonths(3);
+const getStreakImage = (streak: number) => {
+    if (streak > 60) return require('../../assets/images/streak/lv6.png');
+    if (streak >= 31) return require('../../assets/images/streak/lv5.png');
+    if (streak >= 15) return require('../../assets/images/streak/lv4.png');
+    if (streak >= 7) return require('../../assets/images/streak/lv3.png');
+    if (streak >= 4) return require('../../assets/images/streak/lv2.png');
+    return require('../../assets/images/streak/lv1.png');
+};
 
 export default function StreakScreen() {
     const router = useRouter();
+    const { stats, user } = useUser();
     const scrollRef = React.useRef<ScrollView>(null);
     const [hasScrolledToEnd, setHasScrolledToEnd] = React.useState(false);
     const [isRewardsModalVisible, setIsRewardsModalVisible] = React.useState(false);
+
+    // Lấy dữ liệu thật từ stats
+    const activeDates = stats?.gamification?.activeDates || [];
+    const currentStreak = stats?.gamification?.currentStreak || 0;
+    const highestStreak = stats?.gamification?.highestStreak || 0;
+
+    // Render 3 tháng liên tiếp tính đến tháng hiện tại dựa trên activeDates
+    const MONTH_SECTIONS = React.useMemo(() => generateStreakMonths(activeDates, 3, user?.createdAt), [activeDates, user?.createdAt]);
+    const currentStreakImage = getStreakImage(currentStreak);
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <ScreenHeader 
                 title="Chuỗi học tập" 
-                onBackPress={() => router.replace('/(tabs)/profile')} 
+                onBackPress={() => router.back()} 
             />
 
             <View style={styles.summaryRowWrap}>
                 <View style={styles.summaryRow}>
-                    {SUMMARY_CARDS.map((card) => (
-                        <View key={card.id} style={styles.summaryCard}>
-                            <Text style={styles.summaryValue}>{card.value}</Text>
-                            <Text style={styles.summaryLabel}>{card.label}</Text>
+                    <LinearGradient 
+                        colors={['#1E293B', '#0F172A']} 
+                        start={{x:0, y:0}} 
+                        end={{x:1, y:1}} 
+                        style={styles.summaryCard}
+                    >
+                        <View style={styles.summaryWatermark}>
+                            <FireIcon size={64} color="#EA580C" weight="fill" opacity={0.15} />
                         </View>
-                    ))}
+                        <Text style={styles.summaryValue}>{currentStreak}</Text>
+                        <Text style={styles.summaryLabel}>Chuỗi hiện tại</Text>
+                    </LinearGradient>
+                    <LinearGradient 
+                        colors={['#1E293B', '#0F172A']} 
+                        start={{x:0, y:0}} 
+                        end={{x:1, y:1}} 
+                        style={styles.summaryCard}
+                    >
+                        <View style={styles.summaryWatermark}>
+                            <TrophyIcon size={64} color="#FBBF24" weight="fill" opacity={0.15} />
+                        </View>
+                        <Text style={styles.summaryValue}>{highestStreak}</Text>
+                        <Text style={styles.summaryLabel}>Dài nhất</Text>
+                    </LinearGradient>
+                    <LinearGradient 
+                        colors={['#1E293B', '#0F172A']} 
+                        start={{x:0, y:0}} 
+                        end={{x:1, y:1}} 
+                        style={styles.summaryCard}
+                    >
+                        <View style={styles.summaryWatermark}>
+                            <CalendarBlankIcon size={64} color="#3B82F6" weight="fill" opacity={0.15} />
+                        </View>
+                        <Text style={styles.summaryValue}>{activeDates.length}</Text>
+                        <Text style={styles.summaryLabel}>Tổng ngày học</Text>
+                    </LinearGradient>
                 </View>
             </View>
 
@@ -135,12 +191,12 @@ export default function StreakScreen() {
                 
                 <View style={styles.encouragementCard}>
                     <View style={styles.encouragementIconWrap}>
-                        <Image source={require('../../assets/images/streak/lv1.png')} style={{ width: 36, height: 36 }} resizeMode="contain" />
+                        <Image source={currentStreakImage} style={{ width: 36, height: 36 }} resizeMode="contain" />
                     </View>
                     <View style={styles.encouragementTextWrap}>
-                        <Text style={styles.encouragementTitle}>15 ngày</Text>
+                        <Text style={styles.encouragementTitle}>{currentStreak} ngày</Text>
                         <Text style={styles.encouragementDesc}>
-                            Tuyệt vời! Chỉ còn 5 ngày nữa là bạn đạt mốc 20 ngày. Giữ vững phong độ nhé!
+                            Tuyệt vời! Bạn đang có chuỗi học rất tốt. Hãy tiếp tục giữ vững phong độ nhé!
                         </Text>
                     </View>
                     <Button 
@@ -167,6 +223,7 @@ const styles = StyleSheet.create({
     },
     scroll: {
         flex: 1,
+        backgroundColor: Color.bg2,
     },
     scrollContent: {
         paddingHorizontal: Padding.padding_15,
@@ -186,33 +243,37 @@ const styles = StyleSheet.create({
     },
     summaryCard: {
         flex: 1,
-        borderWidth: 1.5,
-        borderColor: '#B9C2D1',
-        borderRadius: 16,
-        backgroundColor: Color.bg,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: 74,
         paddingVertical: 10,
         paddingHorizontal: 6,
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    summaryWatermark: {
+        position: 'absolute',
+        right: -15,
+        bottom: -15,
+        transform: [{ rotate: '-15deg' }],
     },
     summaryValue: {
         fontFamily: FontFamily.lexendDecaSemiBold,
         fontSize: FontSize.fs_24,
         lineHeight: 30,
-        color: Color.text,
+        color: Color.main || '#98F291',
     },
     summaryLabel: {
         marginTop: 2,
         fontFamily: FontFamily.lexendDecaRegular,
         fontSize: FontSize.fs_12,
-        color: Color.gray,
+        color: '#CBD5E1',
+        textAlign: 'center',
     },
     encouragementCard: {
         marginTop: 10,
         backgroundColor: '#FFF7ED',
-        borderWidth: 3,
-        borderColor: '#FFEDD5',
         borderRadius: Border.br_30,
         padding: 16,
         flexDirection: 'column',

@@ -20,7 +20,7 @@ const ExamCover = ({ title, type }: { title: string, type: string }) => (
   </View>
 );
 
-const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void }) => {
+const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay, onFinish, autoPlay = false }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void, onFinish?: (id: string) => void, autoPlay?: boolean }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
@@ -34,7 +34,7 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
       try {
         const { sound: newSound } = await Audio.Sound.createAsync(
           { uri: url },
-          { progressUpdateIntervalMillis: 500 },
+          { progressUpdateIntervalMillis: 500, shouldPlay: autoPlay },
           (status: AVPlaybackStatus) => {
             if (!isMounted) return;
             if (status.isLoaded) {
@@ -44,11 +44,15 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
               if (status.didJustFinish) {
                 setIsPlaying(false);
                 newSound.setPositionAsync(0);
+                if (onFinish) onFinish(id);
               }
             }
           }
         );
         soundInstance = newSound;
+        if (autoPlay && isMounted) {
+          onPlay(id);
+        }
         if (isMounted) setSound(newSound);
       } catch (error) {
         console.log('Lỗi khi tải Audio:', error);
@@ -64,21 +68,15 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
   }, [url]);
 
   useEffect(() => {
-    // Logic Auto-Stop
-    if (currentlyPlayingId !== id && isPlaying && sound) {
-      sound.pauseAsync();
+    if (autoPlay && sound) {
+      sound.getStatusAsync().then((status) => {
+        if (status.isLoaded && !status.isPlaying) {
+          sound.playAsync();
+          onPlay(id);
+        }
+      });
     }
-  }, [currentlyPlayingId, isPlaying, sound, id]);
-
-  const handlePlayPause = async () => {
-    if (!sound) return;
-    if (isPlaying) {
-      await sound.pauseAsync();
-    } else {
-      onPlay(id); // Set active audio
-      await sound.playAsync();
-    }
-  };
+  }, [autoPlay, sound]);
 
   const formatTime = (millis: number) => {
     const totalSeconds = Math.floor(millis / 1000);
@@ -91,9 +89,9 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
 
   return (
     <View style={styles.audioPlayerContainer}>
-      <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
+      <View style={styles.playButton}>
         {isPlaying ? <PauseIcon size={20} color={Color.bg} weight="fill" /> : <PlayIcon size={20} color={Color.bg} weight="fill" />}
-      </TouchableOpacity>
+      </View>
       <View style={styles.progressContainer}>
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
@@ -142,6 +140,51 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
     }
     return questions;
   }, [data, type]);
+
+  const allAudioIds = useMemo(() => {
+    if (!data?.items) return null;
+
+    const ids: string[] = [];
+    const findAudioInItems = (items: any[]) => {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.audioUrl || item.passageAudioUrl) {
+          ids.push(`item-${item._id || i}`);
+        }
+        if (item.questions) {
+          for (let j = 0; j < item.questions.length; j++) {
+            const q = item.questions[j];
+            if (q.audioUrl) {
+              ids.push(`q-${q._id || j}`);
+            }
+          }
+        }
+      }
+    };
+
+    if (type === 'full') {
+      if (data.items.listening) findAudioInItems(data.items.listening);
+      if (data.items.reading) findAudioInItems(data.items.reading);
+    } else if (Array.isArray(data.items)) {
+      findAudioInItems(data.items);
+    }
+    return ids;
+  }, [data, type]);
+
+  const [autoPlayId, setAutoPlayId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (allAudioIds.length > 0 && !autoPlayId) {
+      setAutoPlayId(allAudioIds[0]);
+    }
+  }, [allAudioIds]);
+
+  const handleAudioFinish = (finishedId: string) => {
+    const currentIndex = allAudioIds.indexOf(finishedId);
+    if (currentIndex !== -1 && currentIndex + 1 < allAudioIds.length) {
+      setAutoPlayId(allAudioIds[currentIndex + 1]);
+    }
+  };
 
   const totalQuestions = allQuestions.length;
   const answeredQuestions = Object.keys(answers).length;
@@ -199,6 +242,8 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
                   url={passageAudioUrl}
                   currentlyPlayingId={playingAudioId}
                   onPlay={setPlayingAudioId}
+                  onFinish={handleAudioFinish}
+                  autoPlay={`item-${item._id || itemIndex}` === autoPlayId}
                 />
               )}
 
@@ -219,6 +264,8 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
                       url={q.audioUrl}
                       currentlyPlayingId={playingAudioId}
                       onPlay={setPlayingAudioId}
+                      onFinish={handleAudioFinish}
+                      autoPlay={`q-${q._id || qIndex}` === autoPlayId}
                     />
                   )}
                   <QuestionBlock number={qIndex + 1} questionText={q.questionText || q.text}>
@@ -333,10 +380,10 @@ const styles = StyleSheet.create({
   questionBoxAnswered: { backgroundColor: Color.main },
   questionBoxText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: Color.gray },
   audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: Color.stroke },
-  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
+  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main2, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
   progressContainer: { flex: 1, justifyContent: 'center' },
   progressBarBg: { height: 6, backgroundColor: Color.stroke, borderRadius: 3, marginBottom: 6 },
-  progressBarFill: { height: 6, backgroundColor: Color.main, borderRadius: 3 },
+  progressBarFill: { height: 6, backgroundColor: Color.main2, borderRadius: 3 },
   timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
   timeText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: Color.gray },
   contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },

@@ -6,70 +6,97 @@ import { Padding } from '../constants/GlobalStyles';
 import SectionHeader from './SectionHeader';
 import { MonthBlock } from './StreakComponent/MonthBlock';
 import { CalendarDay, MonthSection, DayState } from './StreakComponent/types';
+import { useUser } from '../contexts/UserContext';
 
-// Mock data tháng 2/2026 theo ảnh
-const CALENDAR_DATA = [
-  { id: 'e1', day: '', status: 'empty' },
-  { id: 'e2', day: '', status: 'empty' },
-  { id: 'e3', day: '', status: 'empty' },
-  { id: 'e4', day: '', status: 'empty' },
-  { id: 'e5', day: '', status: 'empty' },
-  { id: 'e6', day: '', status: 'empty' },
-  { id: '1', day: '1', status: 'inactive' },
+// Hàm tiện ích format ngày thành YYYY-MM-DD theo giờ local
+const formatDate = (y: number, m: number, d: number) => {
+    return `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+};
 
-  { id: '2', day: '2', status: 'completed' },
-  { id: '3', day: '3', status: 'completed' },
-  { id: '4', day: '4', status: 'completed', fire: true },
-  { id: '5', day: '5', status: 'completed', fire: true },
-  { id: '6', day: '6', status: 'completed', fire: true },
-  { id: '7', day: '7', status: 'completed', fire: true },
-  { id: '8', day: '8', status: 'missed' },
+const generateCurrentMonth = (activeDates: string[], createdAtStr?: string): MonthSection => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const currentDate = today.getDate();
+    const daysInMonth = new Date(year, month, 0).getDate();
 
-  { id: '9', day: '9', status: 'missed' },
-  { id: '10', day: '10', status: 'completed' },
-  { id: '11', day: '11', status: 'completed' },
-  { id: '12', day: '12', status: 'completed', fire: true },
-  { id: '13', day: '13', status: 'completed', fire: true },
-  { id: '14', day: '14', status: 'missed' },
-  { id: '15', day: '15', status: 'completed' },
+    let createdAtDate: Date | null = null;
+    if (createdAtStr) {
+        createdAtDate = new Date(createdAtStr);
+        createdAtDate.setHours(0, 0, 0, 0);
+    }
 
-  { id: '16', day: '16', status: 'today' },
-  { id: '17', day: '17', status: 'inactive' },
-  { id: '18', day: '18', status: 'inactive' },
-  { id: '19', day: '19', status: 'inactive' },
-  { id: '20', day: '20', status: 'inactive' },
-  { id: '21', day: '21', status: 'inactive' },
-  { id: '22', day: '22', status: 'inactive' },
-];
+    // Hàm tính chính xác số streak tại một ngày cụ thể (bằng cách đếm ngược về quá khứ)
+    const getStreakAtDay = (dateStr: string) => {
+        if (!activeDates.includes(dateStr)) return 0;
+        let streak = 1;
+        const d = new Date(dateStr);
+        while (true) {
+            d.setDate(d.getDate() - 1);
+            const prevStr = formatDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+            if (activeDates.includes(prevStr)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
+    };
+
+    const days: CalendarDay[] = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+        let state: DayState = 'inactive';
+        let fire = false;
+
+        const isToday = d === currentDate;
+        const isFuture = d > currentDate; // Vì đang tạo cho tháng hiện tại
+        
+        const currentIterDate = new Date(year, month - 1, d);
+        const isBeforeCreation = createdAtDate ? currentIterDate < createdAtDate : false;
+        const isPast = !isToday && !isFuture && !isBeforeCreation;
+
+        const dateStr = formatDate(year, month, d);
+
+        if (isFuture || isBeforeCreation) {
+            state = 'inactive';
+        } else if (isToday) {
+            state = activeDates.includes(dateStr) ? 'completed' : 'today';
+        } else if (isPast) {
+            state = activeDates.includes(dateStr) ? 'completed' : 'missed';
+        }
+
+        if (state === 'completed') {
+            const streakAtDay = getStreakAtDay(dateStr);
+            if (streakAtDay > 0 && streakAtDay % 7 === 0) {
+                fire = true;
+            }
+        }
+
+        days.push({ id: dateStr, day: d.toString(), state, fire });
+    }
+
+    return { id: `${month}-${year}`, title: `Tháng ${month} ${year}`, month, year, days };
+};
 
 type StreakCalendarProps = {
   onHeaderPress?: () => void;
 };
 
-// Chuyển đổi dữ liệu cũ sang cấu trúc chuẩn của MonthBlock
-const mockDays: CalendarDay[] = CALENDAR_DATA
-  .filter(item => item.status !== 'empty')
-  .map(item => ({
-    id: item.id,
-    day: item.day,
-    state: item.status as DayState,
-    fire: item.fire
-  }));
-
-const mockSection: MonthSection = {
-  id: 'feb-2026',
-  title: 'Tháng 2 2026',
-  month: 2,
-  year: 2026,
-  days: mockDays,
-};
-
 const StreakCalendar = ({ onHeaderPress }: StreakCalendarProps) => {
+  const { stats, user } = useUser();
+  
+  const activeDates = stats?.gamification?.activeDates || [];
+  
+  const currentMonthSection = useMemo(
+    () => generateCurrentMonth(activeDates, user?.createdAt), 
+    [activeDates, user?.createdAt]
+  );
+
   return (
     <View style={styles.wrapper}>
       <SectionHeader title="Chuỗi của bạn" />
       <TouchableOpacity activeOpacity={0.85} onPress={onHeaderPress} disabled={!onHeaderPress}>
-        <MonthBlock section={mockSection} />
+        <MonthBlock section={currentMonthSection} />
       </TouchableOpacity>
     </View>
   );

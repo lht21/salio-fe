@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { CardsIcon, PlusCircleIcon, PlusIcon } from 'phosphor-react-native';
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { ActivityIndicator, Alert, FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -11,6 +11,8 @@ import Animated, {
   Extrapolation,
   useAnimatedProps
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Import các components đã tách
 import CategoryChip from '../../components/CategoryChip';
@@ -36,11 +38,20 @@ const AnimatedFlatList =
     React.ComponentProps<typeof FlatList<VocabularyItem>>
   >;
 
-const CATEGORIES = ['Tất cả', 'Thành thạo', 'Đang học'];
-
 export default function VocabularyScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('Tất cả');
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const CATEGORIES = useMemo(() => [
+    { key: 'all', label: t('vocabulary.all', 'Tất cả') },
+    { key: 'remembered', label: t('vocabulary.mastered', 'Thành thạo') },
+    { key: 'learning', label: t('vocabulary.learning', 'Đang học') },
+    { key: 'forgotten', label: t('vocabulary.forgotten', 'Đã quên') }
+  ], [t]);
+
+  const [activeTab, setActiveTab] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [isNewSetModalVisible, setIsNewSetModalVisible] = useState(false);
   const [isSearchVocaModalVisible, setIsSearchVocaModalVisible] = useState(false);
@@ -58,18 +69,17 @@ export default function VocabularyScreen() {
       ]);
 
       if (setsRes.success) {
-        const colors = ['#F9F871', '#CEF9B4', '#E9D5FF'];
         const images = [
           require('../../assets/images/horani/sc1_b0.png'),
           require('../../assets/images/horani/sc1_b2.png'),
           require('../../assets/images/horani/sc1_b3.png'),
         ];
 
-        const mappedSets = setsRes.data.map((set, index) => ({
+        const mappedSets = setsRes.data.map((set: any, index: number) => ({
           id: set._id,
           title: set.name,
           totalWords: set.cards.length,
-          color: colors[index % colors.length],
+          index,
           imageSource: images[index % images.length],
         }));
         setFlashcardSets(mappedSets);
@@ -80,11 +90,11 @@ export default function VocabularyScreen() {
         const mappedVocabs: VocabularyItem[] = cards.map((card: any) => ({
           id: card._id,
           word: card.word,
-          pos: card.type || card.category || 'Từ vựng',
+          pos: card.type || card.category || '',
           phonetic: card.pronunciationText || '',
           meaning: card.meaning,
           isFavorite: true,
-          status: 'Đang học',
+          status: card.learningStatus?.status || 'learning',
         }));
         setVocabularyItems(mappedVocabs);
       }
@@ -109,7 +119,6 @@ export default function VocabularyScreen() {
 
     const isCurrentlyFavorite = targetItem.isFavorite;
 
-    // 1. Optimistic Update (Cập nhật UI ngay lập tức để tạo cảm giác mượt mà)
     setVocabularyItems((prev) =>
       prev.map((item) =>
         item.id === id
@@ -119,14 +128,12 @@ export default function VocabularyScreen() {
     );
 
     try {
-      // 2. Gọi API ngầm phía sau
       if (isCurrentlyFavorite) {
         await FlashcardService.removeCardFromSet('favorite', id);
       } else {
         await FlashcardService.addCardsToSet('favorite', { vocabIds: [id] });
       }
     } catch (error) {
-      // 3. Rollback nếu API lỗi
       setVocabularyItems((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, isFavorite: isCurrentlyFavorite } : item
@@ -139,19 +146,16 @@ export default function VocabularyScreen() {
   const handleCreateNewSet = async (setName: string, selectedWords: any[]) => {
     try {
       setIsLoading(true);
-      // Bước 1: Gọi API tạo bộ từ vựng mới
       const createRes = await FlashcardService.createSet({ name: setName });
 
       if (createRes.success && createRes.data) {
         const newSetId = createRes.data._id;
 
-        // Bước 2: Lấy mảng ID và thêm vào bộ vừa tạo
         const vocabIds = selectedWords.map(word => word.id);
         if (vocabIds.length > 0) {
           await FlashcardService.addCardsToSet(newSetId, { vocabIds });
         }
 
-        // Thành công: Đóng modal và tải lại dữ liệu để cập nhật danh sách
         setIsNewSetModalVisible(false);
         await fetchData(); 
       }
@@ -163,14 +167,13 @@ export default function VocabularyScreen() {
   };
 
   const filteredItems = vocabularyItems.filter(item => {
-    const matchTab = activeTab === 'Tất cả' || item.status === activeTab;
+    const matchTab = activeTab === 'all' || item.status === activeTab;
     const matchSearch = item.word.toLowerCase().includes(searchText.toLowerCase()) || item.meaning.toLowerCase().includes(searchText.toLowerCase());
     return matchTab && matchSearch;
   });
 
   const favoriteCount = vocabularyItems.filter(item => item.isFavorite).length;
 
-  // --- ANIMATION CHO STICKY SEARCHBAR ---
   const scrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -178,11 +181,9 @@ export default function VocabularyScreen() {
   });
 
   const stickySearchBarStyle = useAnimatedStyle(() => {
-    // V�?trí xuất hiện của Sticky SearchBar (Ước tính Header + Banner + Chips ~ 200px)
     const opacity = interpolate(scrollY.value, [200, 250], [0, 1], Extrapolation.CLAMP);
     const translateY = interpolate(scrollY.value, [200, 250], [-20, 0], Extrapolation.CLAMP);
     
-    // Ẩn zIndex khi chưa xuất hiện đ�?không đè thao tác bấm của các nút bên dưới
     const zIndex = scrollY.value > 220 ? 100 : -1;
 
     return {
@@ -198,66 +199,86 @@ export default function VocabularyScreen() {
     } as any;
   });
 
-  // --- TÁCH CÁC PHẦN T�?CHO FLATLIST ---
+  const handleStudyFlashcard = (setId: string, wordCount: number) => {
+    if (wordCount === 0) {
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_study', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi học nhé!'));
+    }
+    router.push({ pathname: '/vocabulary/flashcard-study', params: { setId } });
+  };
 
-  // Header của danh sách (gồm Header, Banner, Chips, SearchBar)
+  const handleQuiz = (setId: string, wordCount: number) => {
+    if (wordCount === 0) {
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_quiz', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi kiểm tra nhé!'));
+    }
+    router.push({ pathname: '/vocabulary/flashcard-quiz', params: { setId } });
+  };
+
   const renderListHeader = () => (
     <View>
-      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Sổ tay từ vựng</Text>
+        <Text style={styles.headerTitle}>{t('vocabulary.notebook', 'Sổ tay từ vựng')}</Text>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity onPress={() => setIsNewSetModalVisible(true)}>
-            <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+            <PlusIcon size={24} color={colors.text} weight="bold" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Banner */}
       <View style={styles.bannerContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bannerScroll}>
           {favoriteCount >= 0 && (
             <FlashcardSetCard 
-              title="Từ vựng yêu thích" 
+              title={t('vocabulary.favorite', 'Từ vựng yêu thích')} 
               totalWords={favoriteCount} 
               isSpecial={true}
               imageSource={require('../../assets/images/horani/horani_vocab.png')}
+              onFlashcardPress={() => handleStudyFlashcard('favorite', favoriteCount)}
+              onQuizPress={() => handleQuiz('favorite', favoriteCount)}
             />
           )}
           
-          {flashcardSets.map((set) => (
-            <FlashcardSetCard 
-              key={set.id} 
-              title={set.title} 
-              totalWords={set.totalWords} 
-              backgroundColor={set.color}
-              imageSource={set.imageSource} 
-              onPress={() => {
-                router.push({
-                  pathname: '/vocabulary/flashcardset-detail',
-                  params: { id: set.id, title: set.title }
-                });
-              }}
-            />
-          ))}
+          {flashcardSets.map((set) => {
+            const cardColors = [colors.vang, colors.cardGreenBg, colors.badgePurpleBg];
+            return (
+              <FlashcardSetCard 
+                key={set.id} 
+                title={set.title} 
+                totalWords={set.totalWords} 
+                backgroundColor={cardColors[set.index % cardColors.length]}
+                imageSource={set.imageSource} 
+                onPress={() => {
+                  router.push({
+                    pathname: '/vocabulary/flashcardset-detail',
+                    params: { id: set.id, title: set.title }
+                  });
+                }}
+                onFlashcardPress={() => handleStudyFlashcard(set.id, set.totalWords)}
+                onQuizPress={() => handleQuiz(set.id, set.totalWords)}
+              />
+            );
+          })}
         </ScrollView>
       </View>
 
-      {/* Filter Chips */}
       <View style={styles.chipRow}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-          {CATEGORIES.map(cat => (
-            <CategoryChip
-              key={cat}
-              label={cat}
-              isActive={activeTab === cat}
-              onPress={() => setActiveTab(cat)}
-            />
-          ))}
+          {CATEGORIES.map(cat => {
+            const isForgotten = cat.key === 'forgotten';
+            return (
+              <CategoryChip
+                key={cat.key}
+                label={cat.label}
+                isActive={activeTab === cat.key}
+                onPress={() => setActiveTab(cat.key)}
+                activeBgColor={isForgotten ? colors.historyRedBg : undefined}
+                activeBorderColor={isForgotten ? colors.red : undefined}
+                activeTextColor={isForgotten ? colors.historyRedText : undefined}
+              />
+            );
+          })}
         </ScrollView>
       </View>
 
-      {/* Search */}
       <SearchBar
         value={searchText}
         onChangeText={setSearchText}
@@ -267,16 +288,14 @@ export default function VocabularyScreen() {
         onPress={() => setIsSearchVocaModalVisible(true)}
         activeOpacity={0.7}
       >
-        <PlusCircleIcon size={20} color={Color.main2 || '#64748B'} weight="fill" />
-        <Text style={styles.emptyCardText}>Lưu thêm từ vựng</Text>
+        <PlusCircleIcon size={20} color={colors.main2} weight="fill" />
+        <Text style={styles.emptyCardText}>{t('vocabulary.add_more', 'Lưu thêm từ vựng')}</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.safeArea}>
-      {/* Sticky SearchBar (Thanh dính trên cùng) */}
-      {/* Sticky Header (dính trên cùng) */}
       <Animated.View 
         style={[styles.stickySearchBar, stickySearchBarStyle]}
         animatedProps={stickySearchBarProps}
@@ -291,7 +310,7 @@ export default function VocabularyScreen() {
           onPress={() => setIsSearchVocaModalVisible(true)}
           activeOpacity={0.7}
         >
-          <PlusIcon size={24} color={Color.text || '#1E1E1E'} weight="bold" />
+          <PlusIcon size={24} color={colors.text} weight="bold" />
         </TouchableOpacity>
       </Animated.View>
 
@@ -305,7 +324,7 @@ export default function VocabularyScreen() {
           onPress={() => router.push({ pathname: '/vocabulary/vocabulary-detail', params: { wordId: item.id } })}
         >
           <VocabularyCard
-            item={item}
+            item={{...item, pos: item.pos || t('vocabulary.word', 'Từ vựng')}}
             onToggleFavorite={() => handleToggleFavorite(item.id)}
           />
         </TouchableOpacity>
@@ -314,12 +333,12 @@ export default function VocabularyScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             {isLoading ? (
-              <ActivityIndicator size="large" color={Color.main || '#98F291'} />
+              <ActivityIndicator size="large" color={colors.main} />
             ) : (
               <View style={{ alignItems: 'center', gap: Gap.gap_10 || 10 }}>
-                <CardsIcon size={48} color={Color.stroke || '#64748B'} weight="regular" style={{ marginBottom: 16 }} />
-                <Text style={styles.emptyText}>Chưa có từ vựng nào trong danh sách.</Text>
-                <Text style={styles.emptyText}>Hãy thêm từ vựng yêu thích của bạn vào đây!</Text>
+                <CardsIcon size={48} color={colors.stroke} weight="regular" style={{ marginBottom: 16 }} />
+                <Text style={styles.emptyText}>{t('vocabulary.empty_list', 'Chưa có từ vựng nào trong danh sách.')}</Text>
+                <Text style={styles.emptyText}>{t('vocabulary.add_favorite_hint', 'Hãy thêm từ vựng yêu thích của bạn vào đây!')}</Text>
               </View>
             )}
           </View>
@@ -332,12 +351,11 @@ export default function VocabularyScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor={Color.main || '#98F291'}
+            tintColor={colors.main}
           />
         }
       />
 
-      {/* New FlashCard Set Modal */}
       <NewFlashCardSetModal
         isVisible={isNewSetModalVisible}
         onClose={() => setIsNewSetModalVisible(false)}
@@ -352,10 +370,10 @@ export default function VocabularyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Color.bg || '#FFFFFF',
+    backgroundColor: colors.bg,
     paddingTop: 50,
   },
     stickySearchBar: {
@@ -366,7 +384,7 @@ const styles = StyleSheet.create({
       top: 0,
       left: 0,
       right: 0,
-      backgroundColor: Color.bg || '#FFFFFF',
+    backgroundColor: colors.bg,
       paddingTop: 50,
       paddingBottom: 15,
       paddingHorizontal: Padding.padding_15 || 15,
@@ -376,14 +394,14 @@ const styles = StyleSheet.create({
       width: 48,
       height: 48,
       borderRadius: Border.br_30 || 30,
-      backgroundColor: Color.stroke,
+    backgroundColor: colors.stroke,
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: Color.stroke || '#E2E8F0',
+    borderColor: colors.stroke,
     },
-  scrollContent: { // Gi�?lại tên này đ�?không phải sửa nhiều, FlatList vẫn dùng được
-    flexGrow: 1, // Quan trọng đ�?ListEmptyComponent có th�?căn giữa
+  scrollContent: { 
+    flexGrow: 1, 
     padding: Padding.padding_15 || 15
   },
   header: {
@@ -395,13 +413,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_20 || 20,
-    color: Color.text || '#1E1E1E'
+    color: colors.text
   },
   testButton: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#FEF08A',
+    backgroundColor: colors.historyYellowBg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -425,8 +443,7 @@ const styles = StyleSheet.create({
   emptyCardButton: {
     flexDirection: 'row',
     alignItems: 'center',
-
-    backgroundColor: Color.bg2 || '#E2E8F0',
+    backgroundColor: colors.bg2,
     borderRadius: Border.br_20,
     padding: Padding.padding_15 || 15,
     marginBottom: Gap.gap_20 || 20,
@@ -434,7 +451,7 @@ const styles = StyleSheet.create({
   emptyCardText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: Color.gray || '#64748B',
+    color: colors.gray,
     marginLeft: Gap.gap_10 || 10,
   },
   emptyContainer: {
@@ -445,7 +462,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: Color.gray || '#64748B',
+    color: colors.gray,
     textAlign: 'center',
   }
 });

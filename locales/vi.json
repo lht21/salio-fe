@@ -84,7 +84,8 @@
     "label": "Nhãn",
     "error": "Lỗi",
     "success": "Thành công",
-    "save": "Lưu"
+    "save": "Lưu",
+    "notice": "Thông báo"
   },
   "tabs": {
     "learn": "Học",
@@ -138,5 +139,43 @@
     "writing_topic": "Chủ đề viết",
     "grading": "Đang chấm",
     "speaking_topic": "Chủ đề nói"
+  },
+  "vocabulary": {
+    "all": "Tất cả",
+    "mastered": "Thành thạo",
+    "learning": "Đang học",
+    "forgotten": "Đã quên",
+    "notebook": "Sổ tay từ vựng",
+    "favorite": "Từ vựng yêu thích",
+    "add_more": "Lưu thêm từ vựng",
+    "word": "Từ vựng",
+    "empty_list": "Chưa có từ vựng nào trong danh sách.",
+    "add_favorite_hint": "Hãy thêm từ vựng yêu thích của bạn vào đây!",
+    "pos_noun": "Danh từ",
+    "pos_verb": "Động từ",
+    "pos_adjective": "Tính từ",
+    "pos_adverb": "Phó từ",
+    "saved_words_prefix": "Bạn đã lưu ",
+    "saved_words_suffix": " từ vựng",
+    "flashcard_mode": "Chế độ Flashcard",
+    "quiz_mode": "Chế độ Trắc nghiệm",
+    "search_fav_placeholder": "Tìm trong Từ vựng yêu thích",
+    "new_set": "Bộ từ vựng mới",
+    "set_name_placeholder": "Tên bộ từ vựng",
+    "search_placeholder": "Tìm kiếm từ vựng",
+    "search_results": "Kết quả tìm kiếm",
+    "liked_words": "Những từ bạn đã thích",
+    "no_words_found": "Không tìm thấy từ vựng",
+    "create_set": "Tạo bộ từ vựng",
+    "search_title": "Tìm kiếm từ vựng",
+    "search_placeholder_short": "Nhập từ khóa...",
+    "recent_searches": "Tìm kiếm gần đây",
+    "empty_study": "Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi học nhé!",
+    "empty_quiz": "Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi kiểm tra nhé!",
+    "study_complete": "Hoàn thành ôn tập!",
+    "remembered_count": "Đã thuộc",
+    "learn_again": "Cần học lại",
+    "back_to_set": "Về bộ từ vựng",
+    "study_again": "Ôn tập lại"
   }
 }

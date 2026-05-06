@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { CardsIcon, ListChecksIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -11,7 +11,9 @@ import Animated, {
   withTiming,
   Easing
 } from 'react-native-reanimated';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -22,6 +24,8 @@ interface FlashcardSetCardProps {
   onPress?: () => void;
   isSpecial?: boolean;
   imageSource?: any;
+  onFlashcardPress?: () => void;
+  onQuizPress?: () => void;
 }
 
 const FlashcardSetCard = ({
@@ -30,8 +34,13 @@ const FlashcardSetCard = ({
   backgroundColor,
   onPress,
   isSpecial,
-  imageSource
+  imageSource,
+  onFlashcardPress,
+  onQuizPress
 }: FlashcardSetCardProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const colorProgress = useSharedValue(0);
 
   useEffect(() => {
@@ -51,11 +60,11 @@ const FlashcardSetCard = ({
 
     return {
       colors: [
-        interpolateColor(colorProgress.value, [0, 1], ['#CEF9B4', '#E6FFD1']),
-        interpolateColor(colorProgress.value, [0, 1], [Color.main || '#98F291', '#5DE367']),
+        interpolateColor(colorProgress.value, [0, 1], [colors.cardGreenBg, colors.greenLight]),
+        interpolateColor(colorProgress.value, [0, 1], [colors.main, colors.main2]),
       ]
-    } as any;
-  }, [isSpecial]);
+    };
+  }, [isSpecial, colors, colorProgress]);
 
   const resolvedImage = imageSource || (isSpecial ? require('../assets/images/horani/horani_vocab.png') : null);
 
@@ -73,16 +82,16 @@ const FlashcardSetCard = ({
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
           <View style={styles.subtitleRow}>
-            <Text style={styles.subtitle}>Bạn đã lưu </Text>
+            <Text style={styles.subtitle}>{t('vocabulary.saved_words_prefix', 'Bạn đã lưu ')}</Text>
             <Text style={styles.countText}>{totalWords}</Text>
-            <Text style={styles.subtitle}> từ vựng</Text>
+            <Text style={styles.subtitle}>{t('vocabulary.saved_words_suffix', ' từ vựng')}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]}>
-          <CardsIcon size={20} color={Color.bg} weight="fill" />
+        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]} onPress={onFlashcardPress}>
+          <CardsIcon size={20} color={colors.bg} weight="fill" />
           {isSpecial ? (
             <Text
               style={styles.buttonText}
@@ -90,13 +99,13 @@ const FlashcardSetCard = ({
               adjustsFontSizeToFit
               minimumFontScale={0.85}
             >
-              Chế độ Flashcard
+              {t('vocabulary.flashcard_mode', 'Chế độ Flashcard')}
             </Text>
           ) : null}
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]}>
-          <ListChecksIcon size={20} color={Color.bg} weight="bold" />
+        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]} onPress={onQuizPress}>
+          <ListChecksIcon size={20} color={colors.bg} weight="bold" />
           {isSpecial ? (
             <Text
               style={styles.buttonText}
@@ -104,7 +113,7 @@ const FlashcardSetCard = ({
               adjustsFontSizeToFit
               minimumFontScale={0.85}
             >
-              Chế độ Trắc nghiệm
+              {t('vocabulary.quiz_mode', 'Chế độ Trắc nghiệm')}
             </Text>
           ) : null}
         </TouchableOpacity>
@@ -120,7 +129,7 @@ const FlashcardSetCard = ({
     >
       {isSpecial ? (
         <AnimatedLinearGradient
-          colors={['#CEF9B4', Color.main || '#98F291']}
+          colors={[colors.cardGreenBg, colors.main]}
           animatedProps={animatedGradientProps}
           style={styles.container}
         >
@@ -135,7 +144,7 @@ const FlashcardSetCard = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   cardWrapper: {
     marginBottom: 24,
     width: 300,
@@ -162,7 +171,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 16,
-    color: Color.text,
+    color: colors.text,
     marginBottom: Gap.gap_8,
   },
   subtitleRow: {
@@ -173,12 +182,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 13,
-    color: Color.gray,
+    color: colors.gray,
   },
   countText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 18,
-    color: Color.text,
+    color: colors.text,
   },
   actionRow: {
     flexDirection: 'row',
@@ -188,7 +197,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     flexDirection: 'row',
-    backgroundColor: Color.text || '#2D2D2D',
+    backgroundColor: colors.text,
     borderRadius: Border.br_15,
     paddingHorizontal: Padding.padding_10 || 10,
     paddingVertical: Padding.padding_11,
@@ -205,7 +214,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     flexShrink: 1,
-    color: Color.bg,
+    color: colors.bg,
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 14,
   },

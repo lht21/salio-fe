@@ -15,6 +15,13 @@ export interface BaseResponse<T> {
   data: T;
 }
 
+export interface LearningStatus {
+  status: 'learning' | 'remembered' | 'forgotten';
+  reviewCount: number;
+  correctCount: number;
+  wrongCount: number;
+}
+
 /**
  * Cấu trúc cơ bản của một từ vựng khi được populate.
  * Đây là type mock, nên được import từ file vocabulary.types.ts nếu có.
@@ -27,6 +34,7 @@ export interface Vocabulary {
   imageUrl?: string;
   level?: string;
   category?: string;
+  learningStatus?: LearningStatus;
 }
 
 /**

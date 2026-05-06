@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Modal,
     KeyboardAvoidingView,
@@ -15,7 +15,7 @@ import {
 import { CheckIcon, PlusIcon } from 'phosphor-react-native';
 import { AnimatePresence, MotiView } from 'moti';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import { CustomInput } from '../CustomInput';
 import SearchBar from '../SearchBar';
 import VocabularyCard from '../VocabularyCard';
@@ -23,6 +23,8 @@ import CloseButton from '../CloseButton';
 import Button from '../Button';
 import FlashcardService from '../../api/services/flashcard.service';
 import VocabularyService from '../../api/services/vocabulary.service';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface VocabularyItem {
     id: string;
@@ -43,6 +45,9 @@ export default function NewFlashCardSetModal({
     onClose,
     onCreateSet,
 }: NewFlashCardSetModalProps) {
+    const { t } = useTranslation();
+    const { colors } = useTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const [setName, setSetName] = useState('');
     const [searchText, setSearchText] = useState('');
     
@@ -180,7 +185,7 @@ export default function NewFlashCardSetModal({
 
                     <View style={styles.body}>
                         <CustomInput
-                            placeholder="Tên bộ từ vựng"
+                        placeholder={t('vocabulary.set_name_placeholder', 'Tên bộ từ vựng')}
                             value={setName}
                             onChangeText={setSetName}
                         />
@@ -188,17 +193,17 @@ export default function NewFlashCardSetModal({
                             <SearchBar
                                 value={searchText}
                                 onChangeText={setSearchText}
-                                placeholder="Tìm kiếm từ vựng"
+                            placeholder={t('vocabulary.search_placeholder', 'Tìm kiếm từ vựng')}
                             />
                         </View>
 
                         <Text style={styles.sectionTitle}>
-                            {searchText.trim() ? 'Kết quả tìm kiếm' : 'Những từ bạn đã thích'}
+                        {searchText.trim() ? t('vocabulary.search_results', 'Kết quả tìm kiếm') : t('vocabulary.liked_words', 'Những từ bạn đã thích')}
                         </Text>
 
                         <View style={styles.listWrapper}>
                             {isSearching || isLoadingFavs ? (
-                                <ActivityIndicator size="small" color={Color.main} style={{ marginTop: 20 }} />
+                            <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 20 }} />
                             ) : displayList.length > 0 ? (
                                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                                     {displayList.map((item) => {
@@ -213,19 +218,19 @@ export default function NewFlashCardSetModal({
                                                     <MotiView
                                                         style={styles.addButton}
                                                         animate={{
-                                                            backgroundColor: isSelected ? '#F0FDF4' : Color.bg,
-                                                            borderColor: isSelected ? '#22C55E' : Color.stroke,
+                                                        backgroundColor: isSelected ? colors.historySelectedBg : colors.bg,
+                                                        borderColor: isSelected ? colors.main2 : colors.stroke,
                                                         }}
                                                         transition={{ type: 'timing', duration: 200 }}
                                                     >
                                                         <AnimatePresence exitBeforeEnter>
                                                             {isSelected ? (
                                                                 <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                                    <CheckIcon size={16} color="#22C55E" weight="bold" />
+                                                                <CheckIcon size={16} color={colors.main2} weight="bold" />
                                                                 </MotiView>
                                                             ) : (
                                                                 <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                                    <PlusIcon size={16} color={Color.text} weight="bold" />
+                                                                <PlusIcon size={16} color={colors.text} weight="bold" />
                                                                 </MotiView>
                                                             )}
                                                         </AnimatePresence>
@@ -236,12 +241,12 @@ export default function NewFlashCardSetModal({
                                     })}
                                 </ScrollView>
                             ) : (
-                                <Text style={styles.emptyText}>Không tìm thấy từ vựng</Text>
+                            <Text style={styles.emptyText}>{t('vocabulary.no_words_found', 'Không tìm thấy từ vựng')}</Text>
                             )}
                         </View>
 
                         <Button
-                            title="Tạo bộ từ vựng"
+                        title={t('vocabulary.create_set', 'Tạo bộ từ vựng')}
                             variant="Green"
                             onPress={handleCreateSet}
                             style={styles.confirmButton}
@@ -254,11 +259,11 @@ export default function NewFlashCardSetModal({
     );
 }
 
-const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+const createStyles = (colors: any) => StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'flex-end' },
     backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
     sheetContent: {
-        backgroundColor: Color.bg,
+        backgroundColor: colors.bg,
         borderTopLeftRadius: Border.br_30,
         borderTopRightRadius: Border.br_30,
         paddingHorizontal: Padding.padding_20,
@@ -270,12 +275,12 @@ const styles = StyleSheet.create({
         width: 40,
         height: 5,
         borderRadius: 3,
-        backgroundColor: '#CBD5E1',
+        backgroundColor: colors.dragHandleBg,
         alignSelf: 'center',
         marginBottom: Gap.gap_15,
     },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
     body: {
         flexShrink: 1, // Cho phép body co lại khi danh sách dài
         gap: 12,
@@ -284,7 +289,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_14,
-        color: Color.gray,
+        color: colors.gray,
         marginTop: 4,
         marginBottom: 2,
     },
@@ -300,16 +305,16 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderWidth: 1,
-        borderColor: Color.stroke,
+        borderColor: colors.stroke,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: Color.bg,
+        backgroundColor: colors.bg,
     },
     emptyText: {
         fontFamily: FontFamily.lexendDecaRegular,
         fontSize: FontSize.fs_14,
-        color: Color.gray,
+        color: colors.gray,
         textAlign: 'center',
         paddingVertical: Padding.padding_20,
     },

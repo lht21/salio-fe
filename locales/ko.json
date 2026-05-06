@@ -84,7 +84,8 @@
     "label": "라벨",
     "error": "오류",
     "success": "성공",
-    "save": "저장"
+    "save": "저장",
+    "notice": "알림"
   },
   "tabs": {
     "learn": "학습",
@@ -138,5 +139,43 @@
     "writing_topic": "쓰기 주제",
     "grading": "채점 중",
     "speaking_topic": "말하기 주제"
+  },
+  "vocabulary": {
+    "all": "전체",
+    "mastered": "마스터함",
+    "learning": "학습 중",
+    "forgotten": "잊어버림",
+    "notebook": "단어장",
+    "favorite": "즐겨찾는 단어",
+    "add_more": "단어 추가하기",
+    "word": "단어",
+    "empty_list": "아직 목록에 단어가 없습니다.",
+    "add_favorite_hint": "여기에 즐겨찾는 단어를 추가해 보세요!",
+    "pos_noun": "명사",
+    "pos_verb": "동사",
+    "pos_adjective": "형용사",
+    "pos_adverb": "부사",
+    "saved_words_prefix": "저장된 단어 ",
+    "saved_words_suffix": "개",
+    "flashcard_mode": "플래시카드 모드",
+    "quiz_mode": "퀴즈 모드",
+    "search_fav_placeholder": "즐겨찾는 단어에서 검색",
+    "new_set": "새 단어장",
+    "set_name_placeholder": "단어장 이름",
+    "search_placeholder": "단어 검색",
+    "search_results": "검색 결과",
+    "liked_words": "좋아요 한 단어",
+    "no_words_found": "단어를 찾을 수 없습니다",
+    "create_set": "단어장 생성",
+    "search_title": "단어 검색",
+    "search_placeholder_short": "키워드 입력...",
+    "recent_searches": "최근 검색",
+    "empty_study": "이 단어장에는 아직 단어가 없습니다. 학습하기 전에 단어를 추가해 주세요!",
+    "empty_quiz": "이 단어장에는 아직 단어가 없습니다. 퀴즈를 풀기 전에 단어를 추가해 주세요!",
+    "study_complete": "학습 완료!",
+    "remembered_count": "외운 단어",
+    "learn_again": "다시 학습",
+    "back_to_set": "단어장으로 돌아가기",
+    "study_again": "다시 학습하기"
   }
 }

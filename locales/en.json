@@ -84,7 +84,8 @@
     "label": "Label",
     "error": "Error",
     "success": "Success",
-    "save": "Save"
+    "save": "Save",
+    "notice": "Notice"
   },
   "tabs": {
     "learn": "Learn",
@@ -138,5 +139,43 @@
     "writing_topic": "Writing topic",
     "grading": "Grading",
     "speaking_topic": "Speaking topic"
+  },
+  "vocabulary": {
+    "all": "All",
+    "mastered": "Mastered",
+    "learning": "Learning",
+    "forgotten": "Forgotten",
+    "notebook": "Vocabulary Notebook",
+    "favorite": "Favorite Vocabulary",
+    "add_more": "Add more vocabulary",
+    "word": "Vocabulary",
+    "empty_list": "No vocabulary in the list yet.",
+    "add_favorite_hint": "Add your favorite vocabulary here!",
+    "pos_noun": "Noun",
+    "pos_verb": "Verb",
+    "pos_adjective": "Adjective",
+    "pos_adverb": "Adverb",
+    "saved_words_prefix": "You have saved ",
+    "saved_words_suffix": " words",
+    "flashcard_mode": "Flashcard Mode",
+    "quiz_mode": "Quiz Mode",
+    "search_fav_placeholder": "Search in Favorite Vocabulary",
+    "new_set": "New Vocabulary Set",
+    "set_name_placeholder": "Set name",
+    "search_placeholder": "Search vocabulary",
+    "search_results": "Search Results",
+    "liked_words": "Liked words",
+    "no_words_found": "No vocabulary found",
+    "create_set": "Create set",
+    "search_title": "Search vocabulary",
+    "search_placeholder_short": "Enter keyword...",
+    "recent_searches": "Recent searches",
+    "empty_study": "This set has no words yet. Please add some before studying!",
+    "empty_quiz": "This set has no words yet. Please add some before taking a quiz!",
+    "study_complete": "Study complete!",
+    "remembered_count": "Remembered",
+    "learn_again": "Learn again",
+    "back_to_set": "Back to set",
+    "study_again": "Study again"
   }
 }

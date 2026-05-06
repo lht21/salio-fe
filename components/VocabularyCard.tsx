@@ -1,10 +1,12 @@
 import { BookmarkSimpleIcon, SpeakerSimpleHighIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MotiView } from 'moti';
-import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding, Stroke } from '../constants/GlobalStyles';
 import * as Speech from 'expo-speech';
 import { useUser } from '../contexts/UserContext';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Props {
   item: {
@@ -24,20 +26,31 @@ interface Props {
 const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPress }: Props) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { user } = useUser();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const translatePos = (pos: string) => {
+  const getPosKey = (pos: string) => {
     const lowerPos = pos.toLowerCase();
-    if (lowerPos === 'noun') return 'Danh từ';
-    if (lowerPos === 'verb') return 'Động từ';
-    if (lowerPos === 'adjective') return 'Tính từ';
-    if (lowerPos === 'adverb') return 'Phó từ';
-    return pos;
+    if (lowerPos === 'noun' || lowerPos === 'danh từ') return 'noun';
+    if (lowerPos === 'verb' || lowerPos === 'động từ') return 'verb';
+    if (lowerPos === 'adjective' || lowerPos === 'tính từ') return 'adjective';
+    if (lowerPos === 'adverb' || lowerPos === 'phó từ') return 'adverb';
+    return 'other';
   };
 
-  const getBadgeColor = (pos: string) => {
-    if (pos === 'Danh từ') return { bg: '#DCFCE7', text: '#15803D' };
-    if (pos === 'Động từ') return { bg: '#F3E8FF', text: '#7E22CE' };
-    return { bg: '#FFEDD5', text: '#C2410C' };
+  const translatePos = (posKey: string, original: string) => {
+    if (posKey === 'noun') return t('vocabulary.pos_noun', 'Danh từ');
+    if (posKey === 'verb') return t('vocabulary.pos_verb', 'Động từ');
+    if (posKey === 'adjective') return t('vocabulary.pos_adjective', 'Tính từ');
+    if (posKey === 'adverb') return t('vocabulary.pos_adverb', 'Phó từ');
+    return original;
+  };
+
+  const getBadgeColor = (posKey: string) => {
+    if (posKey === 'noun') return { bg: colors.picVocabBg, text: colors.picVocabText };
+    if (posKey === 'verb') return { bg: colors.badgePurpleBg, text: colors.badgePurpleText };
+    return { bg: colors.orangePastel, text: colors.cam };
   };
 
   const handleSpeak = () => {
@@ -57,16 +70,17 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
     }); // Phát âm tiếng Hàn với tốc độ hơi chậm lại một chút để dễ nghe
   };
 
-  const displayPos = translatePos(item.pos);
-  const badge = getBadgeColor(displayPos);
+  const posKey = getPosKey(item.pos);
+  const displayPos = translatePos(posKey, item.pos);
+  const badge = getBadgeColor(posKey);
 
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={onPress} disabled={!onPress}>
     <MotiView
       style={styles.card}
       animate={{
-        backgroundColor: isSelected ? '#F0FDF4' : (Color.bg || '#FFFFFF'),
-        borderColor: isSelected ? (Color.main2 || '#22C55E') : (Color.stroke || '#E2E8F0'),
+        backgroundColor: isSelected ? colors.historySelectedBg : colors.bg,
+        borderColor: isSelected ? colors.main2 : colors.stroke,
       }}
       transition={{ type: 'timing', duration: 200 }}
     >
@@ -85,7 +99,7 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
         <TouchableOpacity onPress={handleSpeak} activeOpacity={0.7}>
           <SpeakerSimpleHighIcon 
             size={24} 
-            color={isSpeaking ? (Color.main2 || Color.main || '#22C55E') : Color.text} 
+            color={isSpeaking ? colors.main2 : colors.text} 
             weight={isSpeaking ? "fill" : "regular"} 
           />
         </TouchableOpacity>
@@ -97,7 +111,7 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
           >
             <BookmarkSimpleIcon
               size={24}
-              color={item.isFavorite ? (Color.main2 || '#22C55E') : Color.text}
+              color={item.isFavorite ? colors.main2 : colors.text}
               weight={item.isFavorite ? 'fill' : 'regular'}
             />
           </TouchableOpacity>
@@ -108,12 +122,12 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
     borderWidth: Stroke.stroke,
-    borderColor: Color.stroke,
+    borderColor: colors.stroke,
     borderRadius: Border.br_20,
     padding: Padding.padding_15,
     marginBottom: Gap.gap_15,
@@ -121,11 +135,11 @@ const styles = StyleSheet.create({
   },
   content: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
-  word: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16 || 16, color: Color.text },
+  word: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16 || 16, color: colors.text },
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: Border.br_5 },
   badgeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10 },
-  phonetic: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray, marginBottom: 2 },
-  meaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.color },
+  phonetic: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray, marginBottom: 2 },
+  meaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color },
   actions: { flexDirection: 'row', gap: Gap.gap_15 || 15 },
   favoriteButton: {
     padding: 0,

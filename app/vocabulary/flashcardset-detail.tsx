@@ -76,6 +76,7 @@ export default function FlashcardSetDetailScreen() {
           phonetic: card.pronunciationText || '',
           meaning: card.meaning,
           isFavorite: id === 'favorite' ? true : favoriteIds.has(card._id),
+          status: card.learningStatus?.status || 'learning', // Lấy trạng thái học từ backend nếu có
         }));
         setWords(mappedWords);
       }
@@ -239,6 +240,26 @@ export default function FlashcardSetDetailScreen() {
     return { opacity };
   });
 
+  // --- HANDLER CHO NÚT HỌC FLASHCARD VÀ TRẮC NGHIỆM ---
+  const handleStudyFlashcard = () => {
+    if (words.length === 0) {
+      return Alert.alert("Thông báo", "Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi học nhé!");
+    }
+    router.push({ pathname: '/vocabulary/flashcard-study', params: { setId: id } });
+  };
+
+  const handleQuiz = () => {
+    if (words.length === 0) {
+      return Alert.alert("Thông báo", "Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi kiểm tra nhé!");
+    }
+    router.push({ pathname: '/vocabulary/flashcard-quiz', params: { setId: id } });
+  };
+
+  // Tính toán tiến độ học
+  const rememberedCount = words.filter(w => w.status === 'remembered').length;
+  const forgottenCount = words.length - rememberedCount;
+  const progressPercent = words.length > 0 ? (rememberedCount / words.length) * 100 : 0;
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Custom Header */}
@@ -246,9 +267,9 @@ export default function FlashcardSetDetailScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
         </TouchableOpacity>
-        <Animated.Text style={[styles.headerTitle, headerTitleStyle]}>
-          {displayTitle}
-        </Animated.Text>
+          <Animated.Text style={[styles.headerTitle, headerTitleStyle]}>
+            {displayTitle}
+          </Animated.Text>
         {id !== 'favorite' ? (
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.iconButton} onPress={() => {
@@ -277,17 +298,38 @@ export default function FlashcardSetDetailScreen() {
             <Text style={styles.bigTitle}>{displayTitle}</Text>
           </View>
           
+          {/* Thanh tiến độ */}
+          {words.length > 0 && (
+            <View style={styles.progressContainer}>
+              <View style={styles.progressStats}>
+                <Text style={styles.progressText}>Đã thuộc: <Text style={{color: Color.main2 || '#16A34A'}}>{rememberedCount}</Text></Text>
+                <Text style={styles.progressText}>Cần học: <Text style={{color: Color.cam || '#F97316'}}>{forgottenCount}</Text></Text>
+              </View>
+              <View style={styles.progressBarBgDetail}>
+                <View style={[styles.progressBarFillDetail, { width: `${progressPercent}%` }]} />
+              </View>
+            </View>
+          )}
+          
           {/* Thống kê / Nút Hành động */}
           <View style={styles.actionContainer}>
             <Text style={styles.countText}>Tổng cộng: {words.length} từ vựng</Text>
             
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#0F172A', borderBottomColor: '#000000' }]} activeOpacity={0.8}>
+              <TouchableOpacity 
+                style={[styles.actionBtn, { backgroundColor: '#0F172A', borderBottomColor: '#000000' }]} 
+                activeOpacity={0.8}
+                onPress={handleStudyFlashcard}
+              >
                 <CardsIcon size={24} color={Color.main || '#98F291'} weight="fill" />
                 <Text style={[styles.actionBtnText, { color: Color.main || '#98F291' }]}>Học Flashcard</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FFFFFF', borderBottomColor: '#E2E8F0' }]} activeOpacity={0.8}>
+              <TouchableOpacity 
+                style={[styles.actionBtn, { backgroundColor: '#FFFFFF', borderBottomColor: '#E2E8F0' }]} 
+                activeOpacity={0.8}
+                onPress={handleQuiz}
+              >
                 <ListChecksIcon size={24} color="#0F172A" weight="bold" />
                 <Text style={[styles.actionBtnText, { color: '#0F172A' }]}>Trắc nghiệm</Text>
               </TouchableOpacity>
@@ -452,7 +494,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: '#FFFFFF',
+    color: Color.text,
   },
   content: { flexGrow: 1, backgroundColor: Color.bg, paddingBottom: 40 },
   gradientSection: {
@@ -472,6 +514,11 @@ const styles = StyleSheet.create({
   bigTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: '#0C5F35' },
   actionContainer: { marginBottom: Gap.gap_20 },
   countText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: '#064E3B', opacity: 0.8, marginBottom: Gap.gap_15 },
+  progressContainer: { backgroundColor: '#FFFFFF', borderRadius: Border.br_20, padding: Padding.padding_15, marginBottom: Gap.gap_15, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
+  progressStats: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  progressText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.text },
+  progressBarBgDetail: { height: 8, backgroundColor: Color.stroke, borderRadius: 4, overflow: 'hidden' },
+  progressBarFillDetail: { height: 8, backgroundColor: Color.main, borderRadius: 4 },
   buttonRow: { flexDirection: 'row', gap: Gap.gap_15 },
   actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: Border.br_20 || 20, gap: Gap.gap_8, borderBottomWidth: 4 },
   actionBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14 },

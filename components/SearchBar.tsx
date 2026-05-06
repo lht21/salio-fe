@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TextInput, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { MagnifyingGlassIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Border } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Border } from '../constants/GlobalStyles';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -10,14 +12,18 @@ interface SearchBarProps {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-const SearchBar = ({ placeholder = "Tìm trong Từ vựng yêu thích", value, onChangeText, containerStyle }: SearchBarProps) => {
+const SearchBar = ({ placeholder, value, onChangeText, containerStyle }: SearchBarProps) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={[styles.searchContainer, containerStyle]}>
-      <MagnifyingGlassIcon size={20} color={Color.color || '#64748B'} weight='regular' />
+      <MagnifyingGlassIcon size={20} color={colors.color} weight='regular' />
       <TextInput
         style={styles.searchInput}
-        placeholder={placeholder}
-        placeholderTextColor={Color.gray || '#64748B'}
+        placeholder={placeholder || t('vocabulary.search_fav_placeholder', "Tìm trong Từ vựng yêu thích")}
+        placeholderTextColor={colors.gray}
         value={value}
         onChangeText={onChangeText}
       />
@@ -25,7 +31,7 @@ const SearchBar = ({ placeholder = "Tìm trong Từ vựng yêu thích", value, 
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -33,7 +39,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     height: 48,
     marginBottom: 20,
-    backgroundColor: Color.bg || '#FFFFFF',
+    backgroundColor: colors.bg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
@@ -45,7 +51,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12 || 12,
-    color: Color.text || '#1E1E1E',
+    color: colors.text,
   },
 });
 

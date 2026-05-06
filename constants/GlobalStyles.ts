@@ -119,7 +119,11 @@ export const lightTheme = {
   historyYellowBg: '#FEF08A',
   historyYellowText: '#B45309',
   historySelectedBg: '#F0FDF4',
+  cardGreenBg: '#CEF9B4',
   starIconExcellent: '#D97706',
+  searchKeywordBg: '#D5DCE6',
+  chipActiveBg: '#1E1E1E', // Trùng với màu text ở Light Mode
+  chipActiveText: '#FFFFFF', // Trùng với màu bg ở Light Mode
 };
 
 export const darkTheme = {
@@ -224,7 +228,11 @@ export const darkTheme = {
   historyYellowBg: '#451A03',
   historyYellowText: '#FDE047',
   historySelectedBg: '#064E3B',
+  cardGreenBg: '#14532D',
   starIconExcellent: '#FBBF24',
+  searchKeywordBg: '#334155',
+  chipActiveBg: lightTheme.main, // Trùng với màu main ở Dark Mode
+  chipActiveText: '#121212', // Trùng với màu bg ở Dark Mode
 };
 
 // Giữ lại export Color trỏ đến lightTheme để tương thích ngược với các components hiện tại

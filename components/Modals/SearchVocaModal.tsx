@@ -1,5 +1,5 @@
 import { XIcon, CheckIcon, PlusIcon } from 'phosphor-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Keyboard,
@@ -16,12 +16,14 @@ import {
 import { useRouter } from 'expo-router';
 import { AnimatePresence, MotiView } from 'moti';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import SearchBar from '../SearchBar';
 import VocabularyCard from '../VocabularyCard';
 import CloseButton from '../CloseButton';
 import VocabularyService from '../../api/services/vocabulary.service';
 import FlashcardService from '../../api/services/flashcard.service';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type SearchVocaModalProps = {
     isVisible: boolean;
@@ -41,6 +43,9 @@ export type SearchVocaItem = {
 const RECENT_KEYWORDS = ['호텔', '선생님', '학교'];
 
 export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVocaModalProps) {
+    const { t } = useTranslation();
+    const { colors } = useTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const targetSetId = setId || 'favorite';
     const isFavoriteMode = targetSetId === 'favorite';
 
@@ -183,7 +188,7 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                     <View style={styles.dragHandle} />
 
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Tìm kiếm từ vựng</Text>
+                    <Text style={styles.headerTitle}>{t('vocabulary.search_title', 'Tìm kiếm từ vựng')}</Text>
                         <CloseButton variant="Stroke" onPress={handleClose} />
                     </View>
 
@@ -192,17 +197,17 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                             <SearchBar
                                 value={searchText}
                                 onChangeText={setSearchText}
-                                placeholder="Nhập từ khóa..."
+                            placeholder={t('vocabulary.search_placeholder_short', 'Nhập từ khóa...')}
                             />
                         </View>
 
                         <Text style={styles.sectionTitle}>
-                            {searchText.trim() ? 'Kết quả tìm kiếm' : 'Tìm kiếm gần đây'}
+                        {searchText.trim() ? t('vocabulary.search_results', 'Kết quả tìm kiếm') : t('vocabulary.recent_searches', 'Tìm kiếm gần đây')}
                         </Text>
 
                         <View style={styles.listWrapper}>
                             {isSearching ? (
-                                <ActivityIndicator size="small" color={Color.main} style={{ marginTop: 20 }} />
+                            <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 20 }} />
                             ) : searchText.trim().length > 0 ? (
                                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                                     {searchResults.length > 0 ? (
@@ -216,19 +221,19 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                                                         <MotiView
                                                             style={styles.addButton}
                                                             animate={{
-                                                                backgroundColor: item.isFavorite ? '#F0FDF4' : Color.bg,
-                                                                borderColor: item.isFavorite ? '#22C55E' : Color.stroke,
+                                                            backgroundColor: item.isFavorite ? colors.historySelectedBg : colors.bg,
+                                                            borderColor: item.isFavorite ? colors.main2 : colors.stroke,
                                                             }}
                                                             transition={{ type: 'timing', duration: 200 }}
                                                         >
                                                             <AnimatePresence exitBeforeEnter>
                                                                 {item.isFavorite ? (
                                                                     <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                                        <CheckIcon size={16} color="#22C55E" weight="bold" />
+                                                                    <CheckIcon size={16} color={colors.main2} weight="bold" />
                                                                     </MotiView>
                                                                 ) : (
                                                                     <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                                        <PlusIcon size={16} color={Color.text} weight="bold" />
+                                                                    <PlusIcon size={16} color={colors.text} weight="bold" />
                                                                     </MotiView>
                                                                 )}
                                                             </AnimatePresence>
@@ -239,7 +244,7 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                                             />
                                         ))
                                     ) : (
-                                        <Text style={styles.emptyText}>Không tìm thấy từ vựng</Text>
+                                    <Text style={styles.emptyText}>{t('vocabulary.no_words_found', 'Không tìm thấy từ vựng')}</Text>
                                     )}
                                 </ScrollView>
                             ) : (
@@ -257,7 +262,7 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                                                 style={styles.removeButton}
                                                 hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
                                             >
-                                                <XIcon size={12} color={Color.gray} weight="bold" />
+                                            <XIcon size={12} color={colors.gray} weight="bold" />
                                             </TouchableOpacity>
                                         </TouchableOpacity>
                                     ))}
@@ -271,11 +276,11 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
     );
 }
 
-const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+const createStyles = (colors: any) => StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'flex-end' },
     backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
     sheetContent: {
-        backgroundColor: Color.bg,
+        backgroundColor: colors.bg,
         borderTopLeftRadius: Border.br_30,
         borderTopRightRadius: Border.br_30,
         paddingHorizontal: Padding.padding_20,
@@ -287,12 +292,12 @@ const styles = StyleSheet.create({
         width: 40,
         height: 5,
         borderRadius: 3,
-        backgroundColor: '#CBD5E1',
+        backgroundColor: colors.dragHandleBg,
         alignSelf: 'center',
         marginBottom: Gap.gap_15,
     },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
     body: {
         flexShrink: 1,
         gap: 12,
@@ -304,7 +309,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_14,
-        color: Color.gray,
+        color: colors.gray,
         marginTop: 4,
         marginBottom: 2,
     },
@@ -327,12 +332,12 @@ const styles = StyleSheet.create({
         gap: Gap.gap_5,
         paddingHorizontal: Padding.padding_8,
         paddingVertical: Padding.padding_3,
-        backgroundColor: '#D5DCE6',
+        backgroundColor: colors.searchKeywordBg,
         borderRadius: Border.br_5,
     },
     keywordText: {
         fontSize: FontSize.fs_14,
-        color: Color.gray,
+        color: colors.gray,
     },
     removeButton: {
         justifyContent: 'center',
@@ -342,7 +347,7 @@ const styles = StyleSheet.create({
     emptyText: {
         fontFamily: FontFamily.lexendDecaRegular,
         fontSize: FontSize.fs_14,
-        color: Color.gray,
+        color: colors.gray,
         textAlign: 'center',
         paddingVertical: Padding.padding_20,
     },
@@ -350,10 +355,10 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderWidth: 1,
-        borderColor: Color.stroke,
+        borderColor: colors.stroke,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: Color.bg,
+        backgroundColor: colors.bg,
     },
 });

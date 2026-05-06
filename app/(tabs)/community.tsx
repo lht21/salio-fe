@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { PlusIcon } from 'phosphor-react-native';
+import { PlusIcon, MagnifyingGlassIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
 
 // Sub-components
-import SearchBar from '../../components/SearchBar';
 import CategoryChip from '../../components/CategoryChip';
 import TopExpertsCard from '../../components/TopExpertsCard';
-import PostCard, { PostItem } from '../../components/PostCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import PostCard, { PostItem } from '../../components/CommunityComponent/PostCard';
+import CreatePostModal from '../../components/CommunityComponent/CreatePostModal';
+import PostDetailModal from '../../components/CommunityComponent/PostDetailModal';
 
-const CHIPS = ['Tất cả', 'Ngữ pháp', 'Từ vựng'];
+
+const CHIPS = ['Tất cả', 'Của tôi', 'Đã thích'];
 
 const MOCK_POSTS: PostItem[] = [
   {
@@ -48,7 +49,8 @@ const MOCK_POSTS: PostItem[] = [
 
 export default function CommunityScreen() {
   const [activeTab, setActiveTab] = useState('Tất cả');
-  const [searchText, setSearchText] = useState('');
+  const [isCreatePostModalVisible, setCreatePostModalVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<PostItem | null>(null);
 
   // Header chứa các phần tĩnh bên trên danh sách
   const renderHeader = () => (
@@ -56,17 +58,18 @@ export default function CommunityScreen() {
       {/* Title Bar */}
       <View style={styles.topBar}>
         <Text style={styles.pageTitle}>Cộng đồng trao đổi</Text>
-        <TouchableOpacity>
-          <PlusIcon size={24} color={Color.text} weight="bold" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity activeOpacity={0.7}>
+            <MagnifyingGlassIcon size={24} color={Color.text} weight="bold" />
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => setCreatePostModalVisible(true)}>
+            <PlusIcon size={24} color={Color.text} weight="bold" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Search & Filter */}
-      <SearchBar 
-        placeholder="Tìm kiếm"
-        value={searchText}
-        onChangeText={setSearchText}
-      />
+      {/* Top Experts */}
+      <TopExpertsCard />
 
       <View style={styles.chipRow}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
@@ -80,9 +83,6 @@ export default function CommunityScreen() {
           ))}
         </ScrollView>
       </View>
-
-      {/* Top Experts */}
-      <TopExpertsCard />
     </View>
   );
 
@@ -97,10 +97,23 @@ export default function CommunityScreen() {
       <FlatList
         data={MOCK_POSTS}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <PostCard item={item} />}
+        renderItem={({ item }) => <PostCard item={item} onCommentPress={() => setSelectedPost(item)} />}
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+      />
+
+      {/* Modal Tạo bài viết */}
+      <CreatePostModal 
+        isVisible={isCreatePostModalVisible} 
+        onClose={() => setCreatePostModalVisible(false)} 
+      />
+
+      {/* Modal Chi tiết bài viết & Bình luận */}
+      <PostDetailModal
+        isVisible={!!selectedPost}
+        post={selectedPost}
+        onClose={() => setSelectedPost(null)}
       />
     </View>
   );
@@ -139,6 +152,11 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold, 
     fontSize: FontSize.fs_20 || 20, 
     color: Color.text || '#1E1E1E' 
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_15 || 15,
   },
   chipRow: {
     marginBottom: 24,

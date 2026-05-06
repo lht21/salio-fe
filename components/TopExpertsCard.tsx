@@ -1,45 +1,60 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import { ChartBarIcon } from 'phosphor-react-native';
+import { CaretRightIcon, FireIcon, CloudIcon, TrophyIcon } from 'phosphor-react-native';
+import { useRouter } from 'expo-router';
 import { Color, FontFamily, FontSize, Border, Padding } from '../constants/GlobalStyles';
 
-const TopExpertsCard = () => {
+interface RankItemProps {
+  type: 'streak' | 'cloud' | 'score';
+  rank: number;
+  avatarUrl: string;
+}
+
+const RankItem = ({ type, rank, avatarUrl }: RankItemProps) => {
+  const renderBgIcon = () => {
+    switch (type) {
+      case 'streak': return <FireIcon size={100} color="#EA580C" weight="fill" opacity={0.15} />;
+      case 'cloud': return <CloudIcon size={100} color="#3B82F6" weight="fill" opacity={0.15} />;
+      case 'score': return <TrophyIcon size={100} color="#FBBF24" weight="fill" opacity={0.15} />;
+    }
+  };
+
   return (
-    <View style={styles.card}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <ChartBarIcon size={24} color={Color.cam} weight="fill" />
-          <Text style={styles.title}>Top chuyên gia</Text>
-        </View>
-        <Text style={styles.linkText}>Bảng xếp hạng</Text>
+    <View style={styles.rankItem}>
+      <View style={styles.bgIcon}>
+        {renderBgIcon()}
       </View>
-
-      {/* Body: Avatars */}
-      <View style={styles.body}>
-        {/* Top 1 Avatar */}
-        <View style={styles.mainAvatarWrapper}>
-          <Image 
-            source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 
-            style={styles.mainAvatar} 
-          />
-          <View style={styles.rankBadge}>
-            <Text style={styles.rankText}>#25</Text>
-          </View>
-        </View>
-
-        {/* Overlapping Avatars Group */}
-        <View style={styles.avatarGroup}>
-          <Image source={{ uri: 'https://i.pravatar.cc/150?img=12' }} style={[styles.smallAvatar, { zIndex: 3 }]} />
-          <Image source={{ uri: 'https://i.pravatar.cc/150?img=13' }} style={[styles.smallAvatar, { marginLeft: -12, zIndex: 2 }]} />
-          <Image source={{ uri: 'https://i.pravatar.cc/150?img=14' }} style={[styles.smallAvatar, { marginLeft: -12, zIndex: 1 }]} />
-          <View style={[styles.moreAvatarBadge, { marginLeft: -12, zIndex: 0 }]}>
-            <Text style={styles.moreAvatarText}>+42</Text>
-          </View>
+      <View style={styles.avatarWrapper}>
+        <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+        <View style={styles.rankBadge}>
+          <Text style={styles.rankText}>#{rank}</Text>
         </View>
       </View>
     </View>
+  );
+};
+
+const TopExpertsCard = () => {
+  const router = useRouter();
+  // Mock avatar cho user hiện tại (có thể thay bằng avatarUrl từ context sau)
+  const userAvatar = 'https://i.pravatar.cc/150?img=11';
+
+  return (
+    <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => router.push('/community/leaderboard')}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Bảng xếp hạng</Text>
+        <CaretRightIcon size={16} color={Color.gray} weight="bold" />
+      </View>
+
+      {/* Body: 3 Rank Items */}
+      <View style={styles.body}>
+        <RankItem type="streak" rank={12} avatarUrl={userAvatar} />
+        <RankItem type="cloud" rank={5} avatarUrl={userAvatar} />
+        <RankItem type="score" rank={108} avatarUrl={userAvatar} />
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -47,7 +62,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Color.bg,
     borderRadius: Border.br_20 || 20,
-    padding: Padding.padding_15 || 15,
+    padding: Padding.padding_20 || 20,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -57,48 +72,52 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 16,
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 || 16,
+    fontSize: FontSize.fs_12 || 16,
     color: Color.text,
-  },
-  linkText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12 || 12,
-    color: Color.gray,
   },
   body: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
-  mainAvatarWrapper: {
-    position: 'relative',
-    borderWidth: 3,
-    borderColor: '#FBBF24', // Vàng cam
-    borderRadius: 40,
-    padding: 2,
+  rankItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 70,
+    height: 70,
   },
-  mainAvatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  bgIcon: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 0,
+    transform: [{ rotate: '-20deg' }],
+  },
+  avatarWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  avatar: {
+    width: 55,
+    height: 55,
+    borderRadius: Border.br_30 || 15,
+    borderWidth: 2,
+    borderColor: Color.bg,
   },
   rankBadge: {
     position: 'absolute',
     bottom: -8,
     alignSelf: 'center',
-    backgroundColor: '#FDE047',
-    paddingHorizontal: 8,
+    backgroundColor: Color.cam,
+    paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 10,
     borderWidth: 1,
@@ -108,32 +127,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 10,
     color: '#B45309',
-  },
-  avatarGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  smallAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: Color.bg,
-  },
-  moreAvatarBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E2E8F0',
-    borderWidth: 2,
-    borderColor: Color.bg,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  moreAvatarText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 12,
-    color: '#475569',
   },
 });
 

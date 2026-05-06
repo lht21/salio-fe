@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     marginBottom: Gap.gap_15,
   },
   progressPill: {
-    backgroundColor: Color.main,
+    backgroundColor: Color.main2,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: Border.br_20,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: 8,
-    backgroundColor: Color.main,
+    backgroundColor: Color.main2,
     borderRadius: 4,
   },
 });

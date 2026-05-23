@@ -61,41 +61,40 @@ export default function SetCredentialScreen() {
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const response = await AuthService.createAccount({
-        email,
-        username: username.trim(),
-        password,
-        confirmPassword,
-      });
+  try {
+    setIsLoading(true);
+    const response = await AuthService.createAccount({
+      email,
+      username: username.trim(),
+      password,
+      confirmPassword,
+    });
 
-      if (response.success) {
-        // Đăng nhập tự động: Lưu token vào thiết bị
-        await SecureStore.setItemAsync('accessToken', response.data.accessToken);
-        await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
-
-        // Cập nhật state toàn cục để useAuth nhận diện đã đăng nhập
-        await refreshUser();
-
-        // Điều hướng vào màn hình chính
-        router.replace('/(tabs)');
-      } else {
-        showAlert('Tạo tài khoản thất bại', response.message || 'Vui lòng thử lại');
-      }
-    } catch (error: any) {
-      // In chi tiết lỗi ra Terminal để bạn dễ debug
-      console.log('=== CHI TIẾT LỖI TỪ BACKEND ===', JSON.stringify(error.response?.data, null, 2));
-      
-      // Xử lý bắt lỗi sâu hơn (hỗ trợ cả mảng errors của express-validator nếu có)
-      const errorData = error.response?.data;
-      const errorMessage = errorData?.message || (errorData?.errors && errorData.errors[0]?.msg) || 'Dữ liệu không hợp lệ (400)';
-      
-      showAlert('Lỗi', errorMessage);
-    } finally {
-      setIsLoading(false);
+    if (response.success) {
+      await SecureStore.setItemAsync('accessToken', response.data.accessToken);
+      await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+      await SecureStore.setItemAsync('pendingPlacementTest', 'true');
+      await refreshUser();
+      router.replace('/placement-test/intro');
     }
-  };
+  } catch (error: any) {
+    const errorData = error.response?.data;
+
+    const fieldError = errorData?.errors && errorData.errors.length > 0
+      ? errorData.errors[0].message
+      : null;
+
+    const generalMessage = errorData?.message;
+
+    const finalMessage = fieldError || generalMessage || 'Đã có lỗi xảy ra, vui lòng thử lại.';
+
+    showAlert('Thông báo', finalMessage);
+
+    console.log('Error Data:', errorData);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <LinearGradient

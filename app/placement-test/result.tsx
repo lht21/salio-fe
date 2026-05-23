@@ -1,9 +1,12 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, Dimensions, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import PlacementTestService from "@/api/services/placement-test.service";
+import { PlacementSession } from "@/api/types/placement-test.types";
 import Button from "../../components/Button";
 import { Color, FontFamily } from "../../constants/GlobalStyles";
 
@@ -11,6 +14,55 @@ const { width } = Dimensions.get("window");
 
 export default function PlacementTestResult() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ sessionId?: string }>();
+  const sessionId = Array.isArray(params.sessionId) ? params.sessionId[0] : params.sessionId;
+  const [result, setResult] = useState<PlacementSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadResult = async () => {
+      if (!sessionId) {
+        Alert.alert("Thiếu phiên kiểm tra", "Vui lòng làm lại bài kiểm tra.");
+        router.replace("/placement-test/intro");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await PlacementTestService.getResult(sessionId);
+        setResult(response.data);
+      } catch (error: any) {
+        Alert.alert(
+          "Không thể tải kết quả",
+          error.response?.data?.message || "Vui lòng thử lại sau.",
+          [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadResult();
+  }, [router, sessionId]);
+
+  const scoreText = useMemo(() => {
+    if (!result) return "";
+    if (result.maxScore && result.maxScore > 0) {
+      return `Đúng ${result.totalScore || 0}/${result.maxScore} điểm`;
+    }
+    return `Hoàn thành ${result.percentage || 0}%`;
+  }, [result]);
+
+  if (isLoading) {
+    return (
+      <LinearGradient colors={["#ADFF66", "#8AFF81", "#FFFFFF"]} style={styles.container}>
+        <SafeAreaView style={[styles.safeArea, styles.centered]}>
+          <ActivityIndicator color={Color.main2} size="large" />
+          <Text style={styles.loadingText}>Đang tải kết quả...</Text>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -20,7 +72,6 @@ export default function PlacementTestResult() {
     >
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <View style={styles.content}>
-          {/* Mascot Section */}
           <View style={styles.mascotContainer}>
             <Image
               source={require("../../assets/images/horani/result-levelup.png")}
@@ -29,30 +80,33 @@ export default function PlacementTestResult() {
             />
           </View>
 
-          {/* Rank Section */}
           <View style={styles.rankSection}>
             <Text style={styles.rankLabel}>Cấp bậc</Text>
-            <Text style={styles.rankValue}>Trung cấp</Text>
+            <Text style={styles.rankValue}>{result?.recommendedLevel || "Chưa xác định"}</Text>
           </View>
 
-          {/* Score Capsule */}
           <View style={styles.scoreCapsule}>
-            <Text style={styles.scoreText}>Đúng 7/10</Text>
+            <Text style={styles.scoreText}>{scoreText}</Text>
+            <Text style={styles.percentText}>{result?.percentage || 0}%</Text>
           </View>
 
           <View style={{ flex: 1 }} />
 
-          {/* Bottom Card */}
           <View style={styles.bottomCard}>
             <Text style={styles.congratsText}>
               Chúc mừng bạn đã hoàn thành thử thách!{"\n"}
-              Hãy tiếp tục chinh phục những nhiệm vụ khó hơn nhé!
+              Salio đã ghi nhận cấp độ phù hợp để gợi ý lộ trình học tiếp theo.
             </Text>
 
             <Button
               variant="Orange"
-              title="Xem kết quả bài học được bỏ qua"
-              onPress={() => router.push("/placement-test/skipped-lessons")}
+              title="Xem bài học được bỏ qua"
+              onPress={() =>
+                router.push({
+                  pathname: "/placement-test/skipped-lessons",
+                  params: { sessionId }
+                })
+              }
               style={styles.actionButton}
               textStyle={styles.actionButtonText}
             />
@@ -71,29 +125,22 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1
   },
+  centered: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
   content: {
     flex: 1,
     alignItems: "center",
     paddingTop: 60
   },
+  loadingText: {
+    marginTop: 12,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: Color.text
+  },
   mascotContainer: {
     marginBottom: 40
-  },
-  mascotHalo: {
-    width: 180,
-    height: 180,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 80,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 4,
-    borderColor: "#E6F4FF",
-    // Halo shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 8
   },
   mascotImage: {
     width: 180,
@@ -107,19 +154,19 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 17,
     fontWeight: "700",
-
     color: Color.text || "#1E1E1E",
     marginBottom: 10
   },
   rankValue: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: "600",
-    color: Color.main2 || "#3C8137" // Intermediate green
+    color: Color.main2 || "#3C8137",
+    textAlign: "center"
   },
   scoreCapsule: {
     backgroundColor: Color.mainLighter,
-    paddingVertical: 15,
+    paddingVertical: 12,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
@@ -131,9 +178,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Color.text || "#1E1E1E"
   },
+  percentText: {
+    marginTop: 4,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 22,
+    color: Color.main2 || "#3C8137"
+  },
   bottomCard: {
-    width: width,
-    backgroundColor: "#98F291", // Light green base
+    width,
+    backgroundColor: "#98F291",
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingHorizontal: 30,
@@ -155,7 +208,6 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     marginVertical: 0,
-
     elevation: 3
   },
   actionButtonText: {

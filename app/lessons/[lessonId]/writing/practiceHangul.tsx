@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SpeakerHighIcon, XIcon } from 'phosphor-react-native';
 
+import LessonService from '@/api/services/lesson.service';
+import { HangulCharacter } from '@/api/types/lesson.types';
 import Button from '../../../../components/Button';
 import HangulCompleteModal from '../../../../components/Modals/HangulCompleteModal';
 import HangulPracticeCanvas from '../../../../components/Modals/HangulPracticeCanvas';
@@ -32,9 +34,67 @@ const WritingPracticeScreen = () => {
     : Math.max(0, getHangulWritingIndex(params.glyph, params.label));
   const currentItem = getHangulWritingItemAt(currentIndex) ?? HANGUL_WRITING_SEQUENCE[0];
   const progress = ((currentIndex + 1) / HANGUL_WRITING_SEQUENCE.length) * 100;
+
   const [renderSeed, setRenderSeed] = React.useState(0);
   const [canvasResetToken, setCanvasResetToken] = React.useState(0);
   const [showCompleteModal, setShowCompleteModal] = React.useState(false);
+  const [hangulItems, setHangulItems] = React.useState<HangulCharacter[]>([]);
+  const [resolvedLessonId, setResolvedLessonId] = React.useState(lessonId);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isLoadingLesson, setIsLoadingLesson] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!lessonId) return;
+
+    let isMounted = true;
+
+    const loadLesson = async () => {
+      try {
+        if (isMounted) setIsLoadingLesson(true);
+        let targetLessonId = lessonId;
+        let lessonListHangulItems: HangulCharacter[] = [];
+
+        if (targetLessonId === '0') {
+          const lessonsResponse = await LessonService.getAll({ limit: 50 });
+          const hangulLesson = lessonsResponse.data?.lessons?.find((lesson) => lesson.lessonType === 'hangul');
+          if (!hangulLesson?._id) return;
+          targetLessonId = hangulLesson._id;
+          lessonListHangulItems = hangulLesson.hangul ?? [];
+        }
+
+        await LessonService.start(targetLessonId);
+        const modulesResponse = await LessonService.getModules(targetLessonId);
+        let items = [...(modulesResponse.data?.hangul ?? [])].sort((a, b) => a.order - b.order);
+
+        if (items.length === 0) {
+          if (lessonListHangulItems.length === 0) {
+            const lessonsResponse = await LessonService.getAll({ limit: 50 });
+            const hangulLesson = lessonsResponse.data?.lessons?.find((lesson) => {
+              return lesson._id === targetLessonId || lesson.lessonType === 'hangul';
+            });
+            lessonListHangulItems = hangulLesson?.hangul ?? [];
+          }
+
+          items = [...lessonListHangulItems].sort((a, b) => a.order - b.order);
+        }
+
+        if (isMounted) {
+          setResolvedLessonId(targetLessonId);
+          setHangulItems(items);
+        }
+      } catch (error: any) {
+        console.warn('Could not load Hangul lesson progress:', error.response?.data || error.message);
+      } finally {
+        if (isMounted) setIsLoadingLesson(false);
+      }
+    };
+
+    loadLesson();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lessonId]);
 
   const handleClose = React.useCallback(() => {
     router.back();
@@ -48,10 +108,64 @@ const WritingPracticeScreen = () => {
     setRenderSeed((value) => value + 1);
   }, []);
 
-  const handleNext = React.useCallback(() => {
+  const markCurrentItemCompleted = React.useCallback(async () => {
+    const currentHangulItem =
+      hangulItems.find((item) => item.label === currentItem.label)
+      ?? hangulItems.find((item) => item.glyph === currentItem.glyph && item.order === currentIndex + 1)
+      ?? hangulItems[currentIndex];
+
+    if (!resolvedLessonId || resolvedLessonId === '0' || !currentHangulItem?._id) {
+      console.warn('Missing real Hangul lessonId/itemId for saving progress', {
+        lessonId: resolvedLessonId,
+        currentIndex,
+        currentItem,
+        loadedItems: hangulItems.length,
+      });
+      return false;
+    }
+
+    await LessonService.updateSectionItem(resolvedLessonId, 'hangul', currentHangulItem._id, {
+      moduleType: 'hangul',
+      status: 'completed',
+      score: 100,
+      maxScore: 100,
+      percentage: 100,
+      resultKind: 'Manual',
+      breakdown: {
+        glyph: currentItem.glyph,
+        label: currentItem.label,
+        sequenceIndex: currentIndex,
+      },
+      title: currentItem.label,
+    });
+    return true;
+  }, [currentIndex, currentItem, hangulItems, resolvedLessonId]);
+
+  const handleNext = React.useCallback(async () => {
+    if (isSaving) return;
+
+    setIsSaving(true);
+    let didSave = false;
+    try {
+      didSave = await markCurrentItemCompleted();
+    } catch (error: any) {
+      console.warn('Could not save Hangul progress:', error.response?.data || error.message);
+    } finally {
+      setIsSaving(false);
+    }
+
+    if (!didSave) return;
+
     const nextItem = HANGUL_WRITING_SEQUENCE[currentIndex + 1];
 
     if (!nextItem) {
+      if (resolvedLessonId && resolvedLessonId !== '0') {
+        try {
+          await LessonService.complete(resolvedLessonId);
+        } catch (error: any) {
+          console.warn('Could not complete Hangul lesson:', error.response?.data || error.message);
+        }
+      }
       setShowCompleteModal(true);
       return;
     }
@@ -59,14 +173,14 @@ const WritingPracticeScreen = () => {
     router.replace({
       pathname: '/lessons/[lessonId]/writing/practiceHangul',
       params: {
-        lessonId,
+        lessonId: resolvedLessonId,
         glyph: nextItem.glyph,
         label: nextItem.label,
         mode: params.mode ?? 'sequence',
         sequenceIndex: String(currentIndex + 1),
       },
     });
-  }, [currentIndex, lessonId, params.mode, router]);
+  }, [currentIndex, isSaving, markCurrentItemCompleted, params.mode, resolvedLessonId, router]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -111,8 +225,9 @@ const WritingPracticeScreen = () => {
           />
 
           <Button
-            title={currentIndex === HANGUL_WRITING_SEQUENCE.length - 1 ? 'Hoàn thành' : 'Tiếp theo'}
+            title={isLoadingLesson ? 'Đang tải...' : currentIndex === HANGUL_WRITING_SEQUENCE.length - 1 ? 'Hoàn thành' : 'Tiếp theo'}
             onPress={handleNext}
+            disabled={isSaving || isLoadingLesson || resolvedLessonId === '0' || hangulItems.length === 0}
             style={styles.nextButton}
           />
         </View>

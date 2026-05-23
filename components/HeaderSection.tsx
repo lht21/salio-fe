@@ -96,13 +96,13 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
         <View style={styles.badgesRow}>
           <StatusBadge text={level || "Sơ cấp 1"} bgColor="#FFFFFF" />
           <StatusBadge 
-            icon={<Image source={require('../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
+            icon={<Image source={require('../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} contentFit="contain" />} 
             text={streak.toString()} 
             bgColor="#FFFFFF" 
             onPress={onFirePress} // Giữ nguyên prop onPress có sẵn trong file của bạn
           />
           <StatusBadge 
-            icon={<Image source={require('../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
+            icon={<Image source={require('../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} contentFit="contain" />} 
             text={clouds.toString()} 
             bgColor="#FFFFFF" 
             onPress={onCloudPress} // Giữ nguyên prop onPress có sẵn trong file của bạn

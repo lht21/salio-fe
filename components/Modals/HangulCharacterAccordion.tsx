@@ -10,6 +10,7 @@ import HangulTracingGlyph from './HangulTracingGlyph';
 import { getHangulWritingIndex } from './hangulWritingSequence';
 
 type HangulCharacterAccordionProps = {
+  lessonId: string;
   label: string;
   glyph: string;
   example: string;
@@ -17,6 +18,7 @@ type HangulCharacterAccordionProps = {
 };
 
 const HangulCharacterAccordion = ({
+  lessonId,
   label,
   glyph,
   example,
@@ -30,7 +32,7 @@ const HangulCharacterAccordion = ({
     router.push({
       pathname: '/lessons/[lessonId]/writing/practiceHangul',
       params: {
-        lessonId: '0',
+        lessonId,
         glyph,
         label,
         sequenceIndex: String(getHangulWritingIndex(glyph, label)),

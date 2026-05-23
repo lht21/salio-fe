@@ -1,29 +1,83 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import PlacementTestService from "@/api/services/placement-test.service";
+import { PlacementLesson, SkippedLessonsData } from "@/api/types/placement-test.types";
 import Button from "../../components/Button";
 import { Color, FontFamily } from "../../constants/GlobalStyles";
 
 const { width } = Dimensions.get("window");
 
-// Mock data for the starting point
-const STARTING_POINT_DATA = {
-  label: "Bắt đầu học từ",
-  lessonTitle: "Bài 1",
-  rank: "Trung cấp 3",
-  congratsMessage: "Chuẩn bị tinh thần và học ngay nhé!",
-  buttonTitle: "Bắt đầu học"
-};
-
 export default function SkippedLessonsScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ sessionId?: string }>();
+  const sessionId = Array.isArray(params.sessionId) ? params.sessionId[0] : params.sessionId;
+  const [data, setData] = useState<SkippedLessonsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSkippedLessons = async () => {
+      if (!sessionId) {
+        Alert.alert("Thiếu phiên kiểm tra", "Vui lòng làm lại bài kiểm tra.");
+        router.replace("/placement-test/intro");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await PlacementTestService.getSkippedLessons(sessionId);
+        setData(response.data);
+      } catch (error: any) {
+        Alert.alert(
+          "Không thể tải danh sách bài học",
+          error.response?.data?.message || "Vui lòng thử lại sau."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSkippedLessons();
+  }, [router, sessionId]);
+
+  const lastSkippedLesson = useMemo(() => {
+    const lessons = data?.skippedLessons || [];
+    if (lessons.length === 0) return null;
+    return [...lessons].sort((a, b) => (b.order || 0) - (a.order || 0))[0];
+  }, [data]);
 
   const handleStartLearning = () => {
-    // Navigate to home/tabs to start learning
     router.replace("/(tabs)");
   };
+
+  const renderLesson = ({ item }: { item: PlacementLesson }) => (
+    <View style={styles.lessonItem}>
+      <Text style={styles.lessonCode}>{item.code || `Bài ${item.order || ""}`}</Text>
+      <Text style={styles.lessonName}>{item.title}</Text>
+    </View>
+  );
+
+  if (isLoading) {
+    return (
+      <LinearGradient colors={["#ADFF66", "#8AFF81", "#FFFFFF"]} style={styles.container}>
+        <SafeAreaView style={[styles.safeArea, styles.centered]}>
+          <ActivityIndicator color={Color.main2} size="large" />
+          <Text style={styles.loadingText}>Đang tải lộ trình...</Text>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -33,30 +87,45 @@ export default function SkippedLessonsScreen() {
     >
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <View style={styles.content}>
-          {/* Header Section */}
           <View style={styles.headerSection}>
-            <Text style={styles.startLabel}>{STARTING_POINT_DATA.label}</Text>
+            <Text style={styles.startLabel}>
+              {lastSkippedLesson ? "Được bỏ qua đến" : "Bắt đầu học từ"}
+            </Text>
             <Text style={styles.lessonTitle}>
-              {STARTING_POINT_DATA.lessonTitle}
+              {lastSkippedLesson?.title || "Bài nền tảng đầu tiên"}
             </Text>
           </View>
 
-          {/* Rank Capsule */}
           <View style={styles.rankCapsule}>
-            <Text style={styles.rankText}>{STARTING_POINT_DATA.rank}</Text>
+            <Text style={styles.rankText}>{data?.recommendedLevel || "Cấp độ mới"}</Text>
+          </View>
+
+          <View style={styles.listWrap}>
+            <Text style={styles.listTitle}>Bài học được bỏ qua</Text>
+            {(data?.skippedLessons?.length || 0) > 0 ? (
+              <FlatList
+                data={data?.skippedLessons || []}
+                keyExtractor={(item) => item._id}
+                renderItem={renderLesson}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : (
+              <Text style={styles.emptyText}>
+                Chưa có bài học nào được bỏ qua. Bạn sẽ bắt đầu từ nền tảng đầu tiên.
+              </Text>
+            )}
           </View>
 
           <View style={{ flex: 1 }} />
 
-          {/* Bottom Card */}
           <View style={styles.bottomCard}>
             <Text style={styles.instructionText}>
-              {STARTING_POINT_DATA.congratsMessage}
+              Chuẩn bị tinh thần và học ngay nhé!
             </Text>
 
             <Button
-              variant="Orange" // Overridden style for yellow button
-              title={STARTING_POINT_DATA.buttonTitle}
+              variant="Orange"
+              title="Bắt đầu học"
               onPress={handleStartLearning}
               style={styles.actionButton}
               textStyle={styles.actionButtonText}
@@ -76,10 +145,19 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1
   },
+  centered: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
   content: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 100
+    paddingTop: 80
+  },
+  loadingText: {
+    marginTop: 12,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: Color.text
   },
   headerSection: {
     alignItems: "center",
@@ -93,14 +171,14 @@ const styles = StyleSheet.create({
   },
   lessonTitle: {
     fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 32,
-    color: Color.main2 || "#3C8137" 
+    fontSize: 30,
+    color: Color.main2 || "#3C8137",
+    textAlign: "center"
   },
   rankCapsule: {
     backgroundColor: Color.mainLighter || "rgba(236, 255, 235, 0.8)",
-    paddingVertical: 18,
+    paddingVertical: 16,
     width: "100%",
-
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 15
@@ -110,8 +188,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Color.text || "#1E1E1E"
   },
+  listWrap: {
+    width: "100%",
+    maxHeight: 220,
+    marginTop: 24
+  },
+  listTitle: {
+    fontFamily: FontFamily.lexendDecaBold,
+    color: Color.text || "#1E1E1E",
+    marginBottom: 10
+  },
+  lessonItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.75)",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 8
+  },
+  lessonCode: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: Color.main2 || "#3C8137",
+    fontSize: 12,
+    marginBottom: 4
+  },
+  lessonName: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: Color.text || "#1E1E1E",
+    fontSize: 14
+  },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: Color.text || "#1E1E1E",
+    lineHeight: 22
+  },
   bottomCard: {
-    width: width,
+    width,
     backgroundColor: "#98F291",
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,

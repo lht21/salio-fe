@@ -20,6 +20,18 @@ type HangulItem = {
   initiallyExpanded?: boolean;
 };
 
+type HangulLessonContentProps = {
+  lessonId: string;
+  hangul?: Array<{
+    _id: string;
+    glyph: string;
+    label: string;
+    order: number;
+    group: string;
+    romanization?: string;
+  }>;
+};
+
 const HANGUL_TABS: { key: HangulTabKey; label: string }[] = [
   { key: 'basic_consonants', label: 'Phụ âm cơ bản' },
   { key: 'basic_vowels', label: 'Nguyên âm cơ bản' },
@@ -78,10 +90,13 @@ const HANGUL_CONTENT: Record<HangulTabKey, HangulItem[]> = {
   ],
 };
 
-const HangulLessonContent = () => {
+const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<HangulTabKey>('basic_consonants');
   const items = HANGUL_CONTENT[activeTab];
+  const firstSequenceItem = React.useMemo(() => {
+    return [...(hangul ?? [])].sort((a, b) => a.order - b.order)[0];
+  }, [hangul]);
 
   return (
     <View style={styles.wrapper}>
@@ -114,6 +129,7 @@ const HangulLessonContent = () => {
         {items.map((item) => (
           <HangulCharacterAccordion
             key={item.id}
+            lessonId={lessonId}
             label={item.label}
             glyph={item.glyph}
             example={item.example}
@@ -135,11 +151,11 @@ const HangulLessonContent = () => {
             router.push({
               pathname: '/lessons/[lessonId]/writing/practiceHangul',
               params: {
-                lessonId: '0',
-                glyph: firstItem.glyph,
-                label: firstItem.label,
+                lessonId,
+                glyph: firstSequenceItem?.glyph ?? firstItem.glyph,
+                label: firstSequenceItem?.label ?? firstItem.label,
                 mode: 'sequence',
-                sequenceIndex: String(getHangulWritingIndex(firstItem.glyph, firstItem.label)),
+                sequenceIndex: String(getHangulWritingIndex(firstSequenceItem?.glyph ?? firstItem.glyph, firstSequenceItem?.label ?? firstItem.label)),
               },
             });
           }}

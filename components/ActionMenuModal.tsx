@@ -18,12 +18,12 @@ import ActionMenuItem from './ActionMenuItem';
 interface ActionMenuModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onViewSample: () => void;
-  onViewHistory: () => void;
-  onDownloadPDF: () => void;
-  onRetry: () => void;
-  onReport: () => void;
-  onShare: () => void;
+  onViewSample?: () => void;    
+  onViewHistory?: () => void;    
+  onDownloadPDF?: () => void;   
+  onRetry?: () => void;          
+  onReport?: () => void;       
+  onShare?: () => void;       
 }
 
 export default function ActionMenuModal({ 
@@ -49,42 +49,41 @@ export default function ActionMenuModal({
           </View>
 
           <View style={styles.menuContainer}>
-            
-            {/* NHÓM 1: HỌC TẬP */}
-            <ActionMenuItem 
-              label="Xem bài mẫu" 
-              icon={<ArticleIcon size={24} color={Color.text} weight="regular" />} 
-              onPress={onViewSample} 
-            />
-            <ActionMenuItem 
-              label="Lịch sử luyện tập đề này" 
-              icon={<ClockCounterClockwiseIcon size={24} color={Color.text} weight="regular" />} 
-              onPress={onViewHistory} 
-            />
-            <ActionMenuItem 
-              label="Luyện tập lại" 
-              icon={<ArrowsClockwiseIcon size={24} color={Color.text} weight="regular" />} 
-              onPress={onRetry} 
-            />
+              {/* NHÓM 1: HỌC TẬP */}
+              <ActionMenuItem 
+                  label="Xem bài mẫu" 
+                  icon={<ArticleIcon size={24} color={Color.text} weight="regular" />} 
+                  onPress={() => onViewSample?.()} // Bọc lại như thế này
+              />
+              <ActionMenuItem 
+                  label="Lịch sử luyện tập đề này" 
+                  icon={<ClockCounterClockwiseIcon size={24} color={Color.text} weight="regular" />} 
+                  onPress={() => onViewHistory?.()} 
+              />
+              <ActionMenuItem 
+                  label="Luyện tập lại" 
+                  icon={<ArrowsClockwiseIcon size={24} color={Color.text} weight="regular" />} 
+                  onPress={() => onRetry?.()} 
+              />
 
-            <View style={styles.divider} />
+              <View style={styles.divider} />
 
-            {/* NHÓM 2: TIỆN ÍCH */}
-            <ActionMenuItem 
-              label="Tải xuống PDF" 
-              icon={<DownloadSimpleIcon size={24} color={Color.text} weight="regular" />} 
-              onPress={onDownloadPDF} 
-            />
-            <ActionMenuItem 
-              label="Chia sẻ" 
-              icon={<ExportIcon size={24} color={Color.text} weight="regular" />} 
-              onPress={onShare} 
-            />
-            <ActionMenuItem 
-              label="Báo cáo lỗi sai" 
-              icon={<WarningCircleIcon size={24} color={Color.text} weight="regular" />} 
-              onPress={onReport} 
-            />
+              {/* NHÓM 2: TIỆN ÍCH */}
+              <ActionMenuItem 
+                  label="Tải xuống PDF" 
+                  icon={<DownloadSimpleIcon size={24} color={Color.text} weight="regular" />} 
+                  onPress={() => onDownloadPDF?.()} 
+              />
+              <ActionMenuItem 
+                  label="Chia sẻ" 
+                  icon={<ExportIcon size={24} color={Color.text} weight="regular" />} 
+                  onPress={() => onShare?.()} 
+              />
+              <ActionMenuItem 
+                  label="Báo cáo lỗi sai" 
+                  icon={<WarningCircleIcon size={24} color={Color.text} weight="regular" />} 
+                  onPress={() => onReport?.()} 
+              />
 
           </View>
         </View>

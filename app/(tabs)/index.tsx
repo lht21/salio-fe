@@ -32,6 +32,8 @@ import UserService from '../../api/services/user.service';
 import GamificationService from '../../api/services/gamification.service';
 import DailyMissionsModal from '../../components/Modals/DailyMissionsModal';
 import { MyStatsData } from '../../api/types/user.types';
+import LessonService from '@/api/services/lesson.service';
+import { Lesson, LessonProgress, LessonStatus } from '@/api/types/lesson.types';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -88,14 +90,65 @@ const getStreakImage = (streak: number) => {
   if (streak >= 4) return require('../../assets/images/streak/lv2.png');
   return require('../../assets/images/streak/lv1.png');
 };
+const MASCOTS = [
+  require('../../assets/images/horani/sc1_b0.png'),
+  require('../../assets/images/horani/sc1_b1.png'),
+  require('../../assets/images/horani/sc1_b2.png'),
+  require('../../assets/images/horani/sc1_b3.png'),
+  require('../../assets/images/horani/sc1_b4.png'),
+];
+
+const mapLessonToItem = (lesson: Lesson, index: number, status: LessonStatus): LessonItem => ({
+  id: lesson._id,
+  unit: `Bài ${lesson.order}`,
+  title: lesson.title,
+  lessonType: lesson.lessonType ?? 'standard',
+  hangul: lesson.hangul,
+  status,
+  mascotPos: index % 2 === 0 ? 'left' : 'right',
+  mascotImg: MASCOTS[index % MASCOTS.length],
+});
+
+const getLessonProgressMap = async (sourceLessons: Lesson[]) => {
+  const entries = await Promise.all(
+    sourceLessons.map(async (lesson) => {
+      try {
+        const response = await LessonService.getProgress(lesson._id);
+        return [lesson._id, response.data] as const;
+      } catch {
+        return [lesson._id, null] as const;
+      }
+    })
+  );
+
+  return new Map<string, LessonProgress | null>(entries);
+};
+
+const mapLessonsWithProgress = async (sourceLessons: Lesson[]) => {
+  const progressMap = await getLessonProgressMap(sourceLessons);
+  const firstIncompleteIndex = sourceLessons.findIndex((lesson) => !progressMap.get(lesson._id)?.isCompleted);
+  const currentIndex = firstIncompleteIndex === -1 ? sourceLessons.length - 1 : firstIncompleteIndex;
+
+  return sourceLessons.map((lesson, index) => {
+    const progress = progressMap.get(lesson._id);
+    const status: LessonStatus = progress?.isCompleted
+      ? 'completed'
+      : index === currentIndex
+        ? 'current'
+        : 'locked';
+
+    return mapLessonToItem(lesson, index, status);
+  });
+};
 
 export default function HomeScreen() {
 
 
   const router = useRouter();
+  const [lessons, setLessons] = useState<LessonItem[]>(LESSONS);
   const currentLesson = React.useMemo(
-    () => LESSONS.find((item) => item.status === 'current') ?? LESSONS[0],
-    []
+    () => lessons.find((item) => item.status === 'current') ?? lessons[0],
+    [lessons]
   );
 
   const { user } = useUser();
@@ -118,36 +171,48 @@ export default function HomeScreen() {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    const handleAutoCheckIn = async () => {
+useEffect(() => {
+  const handleAutoCheckIn = async () => {
+    
+    const fetchLessons = async () => {
       try {
-        // 1. Gọi API Điểm danh (Tăng tiến độ D1)
+        const res = await LessonService.getAll({ limit: 50 });
+        if (res.success && Array.isArray(res.data?.lessons) && res.data.lessons.length > 0) {
+          const nextLessons = await mapLessonsWithProgress(res.data.lessons);
+          setLessons(nextLessons);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách lesson:', error);
+      }
+    };
+
+    const fetchStats = async () => {
+      try {
         const checkInRes = await GamificationService.dailyCheckIn();
         
         if (checkInRes.success) {
-          // 2. Tự động nhận thưởng nhiệm vụ D1
           const claimRes = await GamificationService.claimMissionReward({ missionId: 'D1' });
           
           if (claimRes.success) {
-            // 3. Bật Modal kèm hiệu ứng pháo giấy và làm mới số Mây
             setIsAutoConfetti(true);
             setMissionsModalVisible(true);
             fetchStats();
           }
         }
       } catch (error: any) {
-        // Bỏ qua lỗi 400 (Bạn đã điểm danh hôm nay rồi!) một cách tĩnh lặng
         console.log('Auto Check-in message:', error.response?.data?.message || error.message);
       }
     };
 
-    handleAutoCheckIn();
-  }, []);
+    await fetchLessons();  
+    await fetchStats();   
+  };  
 
-  // 1. Khởi tạo biến lưu giá trị cuộn
+  handleAutoCheckIn();  
+}, []);
+
   const scrollY = useSharedValue(0);
 
-  // 2. Bắt sự kiện cuộn
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
@@ -174,7 +239,6 @@ export default function HomeScreen() {
     } as any;
   });
 
-  // 3. Style cho Sticky Header: Hiện ra khi cuộn qua tọa độ 200px
   const stickyHeaderStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [180, 230], [0, 1], Extrapolation.CLAMP);
     const translateY = interpolate(scrollY.value, [180, 230], [-20, 0], Extrapolation.CLAMP);
@@ -296,7 +360,7 @@ export default function HomeScreen() {
           <WindingPath />
 
           <View style={styles.nodesWrapper}>
-            {LESSONS.map((item, index) => (
+            {lessons.map((item, index) => (
               <LessonNode 
                 key={item.id} 
                 item={item} 

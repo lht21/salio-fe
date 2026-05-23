@@ -36,6 +36,8 @@ const LessonBottomSheetHost = () => {
           lessonId={selectedLesson.id}
           unit={selectedLesson.unit}
           title={selectedLesson.title.replace('\n', ' ')}
+          lessonType={selectedLesson.lessonType}
+          hangul={selectedLesson.hangul}
           initialIndex={0}
           onClose={() => setSelectedLesson(null)}
         />

@@ -22,7 +22,7 @@ export default function SpeakingIntroPopup({
   onClose,
   title,
   description,
-  buttonLabel = 'Bat dau ngay',
+  buttonLabel = 'Bắt đầu ngay',
   mascotLeft,
   mascotRight,
   mascotSources,

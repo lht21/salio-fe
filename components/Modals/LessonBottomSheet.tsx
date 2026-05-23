@@ -1,5 +1,5 @@
 ﻿import React, { forwardRef, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -16,12 +16,22 @@ import Button from '../Button';
 import HangulLessonContent from './HangulLessonContent';
 import { closeLessonBottomSheet } from './lessonBottomSheetBus';
 import LessonSectionAccordion, { LessonSectionDetailItem } from './LessonSectionAccordion';
+import LessonService from '../../api/services/lesson.service';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 
 type LessonBottomSheetProps = {
   lessonId: string;
   unit: string;
   title: string;
+  lessonType?: 'standard' | 'hangul';
+  hangul?: Array<{
+    _id: string;
+    glyph: string;
+    label: string;
+    order: number;
+    group: string;
+    romanization?: string;
+  }>;
   onClose?: () => void;
   initialIndex?: number;
 };
@@ -40,6 +50,32 @@ type LessonSectionConfig = {
   icon: React.ReactNode;
   details?: LessonSectionDetailItem[];
   footerBadges?: string[];
+};
+
+type ModuleItem = Record<string, any> & { _id?: string };
+
+type ProgressSection = {
+  isUnlocked?: boolean;
+  progress?: number;
+  totalItems?: number;
+  completedCount?: number;
+  items?: Array<{
+    itemId?: string | { _id?: string };
+    status?: 'locked' | 'learning' | 'completed';
+  }>;
+};
+
+type LessonModulesData = {
+  lessonType?: 'standard' | 'hangul';
+  vocabulary?: ModuleItem[];
+  vocabularyQuizzes?: ModuleItem[];
+  grammar?: ModuleItem[];
+  grammarQuizzes?: ModuleItem[];
+  listening?: ModuleItem[];
+  speaking?: ModuleItem[];
+  reading?: ModuleItem[];
+  writing?: ModuleItem[];
+  finalTest?: ModuleItem | null;
 };
 
 const VOCAB_DETAILS: LessonSectionDetailItem[] = [
@@ -242,6 +278,167 @@ const DEFAULT_SECTIONS: LessonSectionConfig[] = [
   },
 ];
 
+const getItemId = (item: any) => {
+  if (!item) return '';
+  if (typeof item === 'string') return item;
+  return item._id?.toString?.() ?? item.toString?.() ?? '';
+};
+
+const getProgressItemStatus = (section: ProgressSection | undefined, itemId: string): LessonSectionDetailItem['status'] => {
+  const itemProgress = section?.items?.find((item) => getItemId(item.itemId) === itemId);
+  if (itemProgress?.status === 'completed') return 'done';
+  if (itemProgress?.status === 'learning') return 'learning';
+  return 'todo';
+};
+
+const getSectionTone = (section: ProgressSection | undefined) => {
+  const progressValue = Math.max(0, Math.min(100, Math.round(section?.progress ?? 0)));
+  const isUnlocked = section?.isUnlocked !== false;
+
+  if (!isUnlocked) {
+    return {
+      progressValue: 0,
+      progressText: 'Chưa mở khóa',
+      progressColor: Color.gray,
+      progressTrackColor: '#E5E7EB',
+      backgroundColor: '#F3F4F6',
+    };
+  }
+
+  if (progressValue >= 100) {
+    return {
+      progressValue,
+      progressText: 'Đã hoàn thành 100%',
+      progressColor: Color.green,
+      progressTrackColor: '#DDF7D8',
+    };
+  }
+
+  return {
+    progressValue,
+    progressText: progressValue > 0 ? `Đang học ${progressValue}%` : 'Chưa học 0%',
+    progressColor: progressValue > 0 ? Color.xanh : Color.gray,
+    progressTrackColor: progressValue > 0 ? '#DBEAFE' : '#E5E7EB',
+  };
+};
+
+const buildDetails = (
+  items: ModuleItem[],
+  section: ProgressSection | undefined,
+  leftGetter: (item: ModuleItem, index: number) => string,
+  rightGetter: (item: ModuleItem, index: number) => string
+): LessonSectionDetailItem[] => {
+  return items.map((item, index) => {
+    const itemId = getItemId(item);
+
+    return {
+      id: itemId || `${index}`,
+      left: leftGetter(item, index),
+      right: rightGetter(item, index),
+      status: getProgressItemStatus(section, itemId),
+    };
+  });
+};
+
+const buildDynamicSections = (modules: LessonModulesData | null, progress: any): LessonSectionConfig[] => {
+  if (!modules) return [];
+
+  const progressSections = progress?.sections ?? {};
+  const vocabularyItems = [...(modules.vocabulary ?? []), ...(modules.vocabularyQuizzes ?? [])];
+  const grammarItems = [...(modules.grammar ?? []), ...(modules.grammarQuizzes ?? [])];
+  const configs: LessonSectionConfig[] = [];
+
+  const pushSection = (
+    key: string,
+    items: ModuleItem[],
+    title: string,
+    subtitle: string,
+    icon: React.ReactNode,
+    details: LessonSectionDetailItem[]
+  ) => {
+    if (items.length === 0) return;
+    const tone = getSectionTone(progressSections[key]);
+
+    configs.push({
+      id: `intro-${key === 'vocabulary' ? 'vocab' : key}`,
+      title,
+      subtitle,
+      icon,
+      expandable: details.length > 0,
+      initiallyExpanded: true,
+      details,
+      footerBadges: ['Chưa học', 'Đang học', 'Đã học'],
+      ...tone,
+    });
+  };
+
+  pushSection(
+    'vocabulary',
+    vocabularyItems,
+    `${vocabularyItems.length} từ vựng`,
+    'Từ vựng của bài học',
+    <BookOpenTextIcon size={24} color={Color.main2} weight="fill" />,
+    buildDetails(
+      vocabularyItems.slice(0, 10),
+      progressSections.vocabulary,
+      (item, index) => item.word ?? item.title ?? `Quiz ${index + 1}`,
+      (item) => item.meaning ?? item.description ?? 'Bài luyện từ vựng'
+    )
+  );
+
+  pushSection(
+    'grammar',
+    grammarItems,
+    `${grammarItems.length} ngữ pháp`,
+    'Mẫu câu và điểm ngữ pháp',
+    <SpeakerHighIcon size={24} color={Color.main2} weight="fill" />,
+    buildDetails(
+      grammarItems,
+      progressSections.grammar,
+      (item, index) => item.structure ?? item.title ?? `Quiz ${index + 1}`,
+      (item) => item.meaning ?? item.description ?? 'Bài luyện ngữ pháp'
+    )
+  );
+
+  pushSection(
+    'listening',
+    modules.listening ?? [],
+    `${modules.listening?.length ?? 0} bài nghe`,
+    'Luyện nghe theo ngữ cảnh',
+    <HeadphonesIcon size={24} color={Color.main2} weight="fill" />,
+    buildDetails(modules.listening ?? [], progressSections.listening, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? 'Bài nghe')
+  );
+
+  pushSection(
+    'speaking',
+    modules.speaking ?? [],
+    `${modules.speaking?.length ?? 0} bài nói`,
+    'Luyện phát âm và phản xạ nói',
+    <MicrophoneStageIcon size={24} color={Color.main2} weight="fill" />,
+    buildDetails(modules.speaking ?? [], progressSections.speaking, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? item.prompt ?? 'Bài nói')
+  );
+
+  pushSection(
+    'reading',
+    modules.reading ?? [],
+    `${modules.reading?.length ?? 0} bài đọc`,
+    'Luyện đọc hiểu',
+    <BookOpenTextIcon size={24} color={Color.main2} weight="fill" />,
+    buildDetails(modules.reading ?? [], progressSections.reading, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? 'Bài đọc')
+  );
+
+  pushSection(
+    'writing',
+    modules.writing ?? [],
+    `${modules.writing?.length ?? 0} bài viết`,
+    'Luyện viết câu và đoạn văn',
+    <PenNibStraightIcon size={24} color={Color.main2} weight="fill" />,
+    buildDetails(modules.writing ?? [], progressSections.writing, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? item.prompt ?? 'Bài viết')
+  );
+
+  return configs;
+};
+
 const LESSON_META_MAP: Record<string, { progressText: string; progressSegments: string[]; mascot: any }> = {
   '1': {
     progressText: '100% hoàn thành',
@@ -256,11 +453,14 @@ const LESSON_META_MAP: Record<string, { progressText: string; progressSegments: 
 };
 
 const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
-  ({ lessonId, unit, title, onClose, initialIndex = -1 }, ref) => {
+  ({ lessonId, unit, title, lessonType, hangul, onClose, initialIndex = -1 }, ref) => {
     const router = useRouter();
-    const isHangulLesson = lessonId === '0';
+    const isHangulLesson = lessonType === 'hangul' || lessonId === '0';
+    const [modules, setModules] = React.useState<LessonModulesData | null>(null);
+    const [lessonProgress, setLessonProgress] = React.useState<any>(null);
+    const [isLoadingModules, setIsLoadingModules] = React.useState(!isHangulLesson);
     const snapPoints = useMemo(() => [isHangulLesson ? '92%' : '80%'], [isHangulLesson]);
-    const sections = LESSON_SECTION_MAP[lessonId] ?? DEFAULT_SECTIONS;
+    const sections = useMemo(() => buildDynamicSections(modules, lessonProgress), [modules, lessonProgress]);
     const introRouteMap: Record<string, string> = {
       'intro-vocab': `/lessons/${lessonId}/vocabulary/intro`,
       'intro-grammar': `/lessons/${lessonId}/grammar/intro`,
@@ -269,11 +469,50 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
       'intro-reading': `/lessons/${lessonId}/reading/intro`,
       'intro-writing': `/lessons/${lessonId}/writing/intro`,
     };
+    const progressSegments = sections.length > 0
+      ? sections.map((section) => section.progressValue >= 100 ? Color.green : section.progressValue > 0 ? Color.xanh : '#E5E7EB')
+      : ['#E5E7EB'];
+    const overallProgress = Math.round(lessonProgress?.overallProgress ?? (
+      sections.length > 0
+        ? sections.reduce((sum, section) => sum + section.progressValue, 0) / sections.length
+        : 0
+    ));
     const meta = LESSON_META_MAP[lessonId] ?? {
-      progressText: '25% hoan thanh',
-      progressSegments: [Color.xanh, '#E5E7EB', '#E5E7EB', '#E5E7EB'],
+      progressText: `${overallProgress}% hoàn thành`,
+      progressSegments,
       mascot: require('../../assets/images/horani/sc1_b0.png'),
     };
+    const finalTestLocked = !lessonProgress?.finalTestStatus?.isUnlocked;
+
+    React.useEffect(() => {
+      if (isHangulLesson || !lessonId || lessonId === '0') return;
+
+      let isMounted = true;
+
+      const loadLessonModules = async () => {
+        try {
+          setIsLoadingModules(true);
+          const [progressResponse, modulesResponse] = await Promise.all([
+            LessonService.start(lessonId),
+            LessonService.getModules(lessonId),
+          ]);
+
+          if (!isMounted) return;
+          setLessonProgress(progressResponse.data);
+          setModules(modulesResponse.data as unknown as LessonModulesData);
+        } catch (error: any) {
+          console.warn('Could not load lesson modules:', error.response?.data || error.message);
+        } finally {
+          if (isMounted) setIsLoadingModules(false);
+        }
+      };
+
+      loadLessonModules();
+
+      return () => {
+        isMounted = false;
+      };
+    }, [isHangulLesson, lessonId]);
 
     return (
       <BottomSheet
@@ -290,7 +529,7 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
       >
         <BottomSheetScrollView contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
           {isHangulLesson ? (
-            <HangulLessonContent />
+            <HangulLessonContent lessonId={lessonId} hangul={hangul} />
           ) : (
             <>
               <View style={styles.lessonHeader}>
@@ -312,49 +551,63 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
                 <Text style={styles.lessonSummaryText}>{meta.progressText}</Text>
               </View>
 
-              <View style={styles.sections}>
-                {sections.map((section, index) => {
-                  const isLocked =
-                    section.progressColor === Color.gray &&
-                    section.progressValue === 0 &&
-                    section.progressText.toLowerCase().includes('khóa');
-                  const introRoute = introRouteMap[section.id];
+              {isLoadingModules ? (
+                <View style={styles.loadingBox}>
+                  <ActivityIndicator color={Color.main} />
+                  <Text style={styles.loadingText}>Đang tải module...</Text>
+                </View>
+              ) : (
+                <View style={styles.sections}>
+                  {sections.length === 0 ? (
+                    <Text style={styles.emptyText}>Lesson này chưa có module học.</Text>
+                  ) : null}
 
-                  return (
-                    <LessonSectionAccordion
-                      key={section.id}
-                      delay={50 + index * 50}
-                      icon={section.icon}
-                      title={section.title}
-                      subtitle={section.subtitle}
-                      progressText={section.progressText}
-                      progressValue={section.progressValue}
-                      progressColor={section.progressColor}
-                      progressTrackColor={section.progressTrackColor}
-                      backgroundColor={section.backgroundColor}
-                      expandable={section.expandable}
-                      initiallyExpanded={section.initiallyExpanded}
-                      details={section.details}
-                      footerBadges={section.footerBadges}
-                      onPress={
-                        introRoute && !isLocked
-                          ? () => {
-                              closeLessonBottomSheet();
-                              router.push(introRoute as any);
-                            }
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-              </View>
+                  {sections.map((section, index) => {
+                    const isLocked =
+                      section.progressColor === Color.gray &&
+                      section.progressValue === 0 &&
+                      section.progressText.toLowerCase().includes('khóa');
+                    const introRoute = introRouteMap[section.id];
+
+                    return (
+                      <LessonSectionAccordion
+                        key={section.id}
+                        delay={50 + index * 50}
+                        icon={section.icon}
+                        title={section.title}
+                        subtitle={section.subtitle}
+                        progressText={section.progressText}
+                        progressValue={section.progressValue}
+                        progressColor={section.progressColor}
+                        progressTrackColor={section.progressTrackColor}
+                        backgroundColor={section.backgroundColor}
+                        expandable={section.expandable}
+                        initiallyExpanded={section.initiallyExpanded}
+                        details={section.details}
+                        footerBadges={section.footerBadges}
+                        onPress={
+                          introRoute && !isLocked
+                            ? () => {
+                                closeLessonBottomSheet();
+                                router.push(introRoute as any);
+                              }
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </View>
+              )}
 
               <View style={styles.ctaWrapper}>
-                <Button
-                  title={`Mini test: ${title}`}
-                  style={styles.ctaButton}
-                  onPress={() => router.push(`/lessons/${lessonId}/final-test/exam` as any)}
-                />
+                  <Button
+                    title={`Mini test: ${title}`}
+                    style={styles.ctaButton}
+                    disabled={finalTestLocked}
+                    onPress={() => {
+                      router.push(`/lessons/${lessonId}/final-test/exam` as any);
+                    }}
+                  />
 
                 <View style={styles.ctaIcon}>
                   <CaretRightIcon size={18} color={Color.text} weight="bold" />
@@ -432,6 +685,24 @@ const styles = StyleSheet.create({
   },
   sections: {
     gap: Gap.gap_14,
+  },
+  loadingBox: {
+    minHeight: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Gap.gap_10,
+  },
+  loadingText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: Color.gray,
+  },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: Color.gray,
+    textAlign: 'center',
+    paddingVertical: 24,
   },
   ctaWrapper: {
     marginTop: Gap.gap_10,

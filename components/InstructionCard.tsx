@@ -1,49 +1,55 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { StarFourIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../constants/GlobalStyles';
+import { Color, FontFamily, FontSize, Border, Gap } from '../constants/GlobalStyles';
+import { WritingItem } from '../api/types/lesson.types';
 
 interface InstructionCardProps {
-  onStart?: () => void; // Không bắt buộc, vì Modal không cần nút Bắt đầu
-  isModal?: boolean; // Để điều chỉnh UI nếu đang nằm trong Modal
+  data: WritingItem | null;
+  onStart?: () => void;
+  isModal?: boolean;
 }
 
-export default function InstructionCard({ onStart, isModal }: InstructionCardProps) {
+export default function InstructionCard({ data, onStart, isModal }: InstructionCardProps) {
+  if (!data) return null;
+
   return (
     <View style={[styles.cardContainer, isModal && styles.cardModal]}>
       <View style={styles.headerRow}>
         <StarFourIcon size={24} color={Color.main} weight="fill" />
-        <Text style={styles.title}>Chạy theo xu hướng</Text>
+        <Text style={styles.title}>{data.title}</Text>
       </View>
       
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollArea}>
         <Text style={[styles.summaryText, { marginBottom: Gap.gap_15 }]}>
-          Đề bài: Hãy viết một bài luận (500-700 chữ) bày tỏ quan điểm của bạn về việc giới trẻ chạy theo xu hướng hiện nay.
+          Đề bài: {data.prompt}
         </Text>
 
-        <Text style={styles.sectionTitle}>Câu hỏi gợi ý</Text>
-        <Text style={styles.bodyText}>
-          1. Tại sao giới trẻ ngày nay lại thích chạy theo xu hướng?{"\n"}
-          2. Việc chạy theo xu hướng mang lại lợi ích và tác hại gì?{"\n"}
-          3. Quan điểm của bạn về vấn đề này là gì?
-        </Text>
+        {data.instruction && (
+          <>
+            <Text style={styles.sectionTitle}>Yêu cầu</Text>
+            <Text style={styles.bodyText}>{data.instruction}</Text>
+          </>
+        )}
 
-        <Text style={styles.sectionTitle}>Ngữ pháp nên dùng</Text>
-        <Text style={styles.bodyText}>
-          • -(으)ㄹ 뿐만 아니라 (Không những... mà còn){"\n"}
-          • -기 마련이다 (Đương nhiên là...){"\n"}
-          • -(으)로 인해 (Do, vì...)
-        </Text>
+        {data.hints?.grammar && data.hints.grammar.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Ngữ pháp nên dùng</Text>
+            <Text style={styles.bodyText}>
+              {data.hints.grammar.map(g => `• ${g}`).join('\n')}
+            </Text>
+          </>
+        )}
 
-        <Text style={styles.sectionTitle}>Trường từ vựng</Text>
-        <Text style={styles.bodyText}>
-          • 유행을 따르다 (Theo xu hướng){"\n"}
-          • 개성을 잃다 (Đánh mất cá tính){"\n"}
-          • 소속감 (Cảm giác thuộc về){"\n"}
-          • 무분별하다 (Thiếu suy nghĩ, bừa bãi)
-        </Text>
+        {data.hints?.vocabulary && data.hints.vocabulary.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Trường từ vựng</Text>
+            <Text style={styles.bodyText}>
+              {data.hints.vocabulary.map(v => `• ${v}`).join('\n')}
+            </Text>
+          </>
+        )}
 
-        {/* Nút bắt đầu chỉ hiển thị khi ở màn hình Intro (không phải Modal) */}
         {!isModal && onStart && (
           <TouchableOpacity style={styles.startButton} onPress={onStart}>
             <Text style={styles.startButtonText}>Bắt đầu viết</Text>
@@ -53,6 +59,7 @@ export default function InstructionCard({ onStart, isModal }: InstructionCardPro
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -74,8 +81,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Gap.gap_10,
-    marginBottom: Gap.gap_20,
+    
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,

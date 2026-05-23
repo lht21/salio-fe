@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useRouter, useSegments, useRootNavigationState } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useUser } from '../../contexts/UserContext';
 import { AuthEventEmitter } from '../client';
 
@@ -47,7 +48,9 @@ export function useAuth() {
       }, 3000);
     });
 
-    return () => unsubscribe(); // Dọn dẹp listener khi unmount
+    return () => {
+      unsubscribe();
+    }; // Dọn dẹp listener khi unmount
   }, [logout, setUser, router]);
 
   useEffect(() => {
@@ -62,7 +65,19 @@ export function useAuth() {
       router.replace('/(auth)/sign-in');
     } else if (user && inAuthGroup) {
       // Nếu đã đăng nhập mà lại đang ở trang auth -> Đẩy vào app chính
-      router.replace('/(tabs)');
+      SecureStore.getItemAsync('pendingPlacementTest')
+        .then(async (pendingPlacementTest) => {
+          if (pendingPlacementTest === 'true') {
+            await SecureStore.deleteItemAsync('pendingPlacementTest');
+            router.replace('/placement-test/intro');
+            return;
+          }
+
+          router.replace('/(tabs)');
+        })
+        .catch(() => {
+          router.replace('/(tabs)');
+        });
     }
   }, [user, isLoading, segments, router]);
 

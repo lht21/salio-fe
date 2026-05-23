@@ -10,6 +10,7 @@ export interface WhiteboardQuestion {
   sentenceLeft?: string;
   sentenceRight?: string;
   vietnameseMeaning?: string;
+  correctAnswerStr?: string; 
   maxLength?: number;
   placeholder?: string;
 }
@@ -21,8 +22,15 @@ export interface WhiteboardAreaProps {
 }
 
 const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) => {
-  const resolvedPlaceholder = question.placeholder || '_____';
-  const resolvedMaxLength = resolvedPlaceholder.length || question.maxLength || 10;
+  
+  //Tính toán số lượng dấu gạch dựa trên đáp án đúng
+  const answerLength = question.correctAnswerStr?.length || 3;
+  
+  // Tạo chuỗi gạch dưới (ví dụ: "___" nếu đáp án có 3 ký tự)
+  const resolvedPlaceholder = "_".repeat(answerLength);
+  
+  // Giới hạn nhập đúng bằng số lượng ký tự của đáp án
+  const resolvedMaxLength = answerLength;
 
   return (
     <View style={styles.whiteboardContainer}>
@@ -39,7 +47,7 @@ const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) =>
           <TextInput
             style={[
               styles.input,
-              { borderBottomColor: answer ? Color.main : Color.stroke }
+              { borderBottomColor: answer ? Color.color : Color.stroke }
             ]}
             value={answer}
             onChangeText={setAnswer}
@@ -99,18 +107,18 @@ const styles = StyleSheet.create({
   },
   input: {
     fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 20,
-    color: Color.color,
-    textAlign: 'left',
-    textAlignVertical: 'center',
+    fontSize: 20, 
+    color: Color.color, 
+    textAlign: 'center',
     paddingTop: 0,
-    paddingBottom: 0,
+    paddingBottom: 2,
+    marginHorizontal: 4,
   },
   vietnameseMeaning: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
     color: Color.gray,
-    marginTop: Gap.gap_5,
+    marginTop: Gap.gap_15, 
     textAlign: 'center',
     width: '100%',
   },

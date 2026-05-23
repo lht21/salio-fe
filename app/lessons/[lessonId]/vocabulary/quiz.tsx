@@ -1,57 +1,171 @@
 ﻿import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Animated,
+  Easing,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import VocabularyService from '../../../../api/services/vocabulary.service';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
 import { AnswerOption, QuizHeader, type OptionStatus } from '../../../../components/Modals/Question';
-import { Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
-import { NOTEBOOK_TRAVEL } from '../../../../constants/mockVocabularyNotebook';
+import { Color, FontFamily, FontSize, Gap, Padding, Border } from '../../../../constants/GlobalStyles';
+import LessonService from '../../../../api/services/lesson.service';
+import { LessonModules } from '../../../../api/types/lesson.types';
 
-// --- MOCK DATA - Generate from NOTEBOOK_TRAVEL ---
-const generateQuizData = () => {
-  const words = NOTEBOOK_TRAVEL.words;
-  return words.map((word, index) => {
-    const incorrectWords = words.filter((w) => w.id !== word.id).slice(0, 3);
-    const options = [
-      { id: 'opt1', text: word.word },
-      ...incorrectWords.map((w, idx) => ({ id: `opt${idx + 2}`, text: w.word })),
-    ];
-    return {
-      id: `q${index}`,
-      question: word.meaning,
-      options: options.sort(() => Math.random() - 0.5),
-      correctOptionId: 'opt1',
-    };
-  });
-};
-
-const QUIZ_DATA = generateQuizData();
+// Định nghĩa Interface cho câu hỏi trên Frontend
+interface FrontendQuizQuestion {
+  id: string;
+  question: string;
+  options: { id: string; text: string }[];
+  correctAnswer: string;
+  type: 'single_choice' | 'short_answer';
+}
 
 export default function VocabularyQuizScreen() {
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
 
   // --- STATES ---
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
+  const [session, setSession] = useState<any>(null);
+  const [loadingQuiz, setLoadingQuiz] = useState(true);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [inputText, setInputText] = useState(''); // Lưu nội dung gõ tự luận
   const [isAnswered, setIsAnswered] = useState(false);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [feedbackState, setFeedbackState] = useState<'hidden' | 'success' | 'failure'>('hidden');
-
-  // STATE HIỂN THỊ MODAL THOÁT
   const [showExitModal, setShowExitModal] = useState(false);
-  const feedbackOpacity = React.useRef(new Animated.Value(0)).current;
-  const feedbackTranslateY = React.useRef(new Animated.Value(150)).current;
 
-  const currentQuestion = QUIZ_DATA[currentIndex];
-  const isCorrect = selectedAnswerId === currentQuestion.correctOptionId;
+  const startTimeRef = useRef<number>(Date.now());
+  const feedbackOpacity = useRef(new Animated.Value(0)).current;
+  const feedbackTranslateY = useRef(new Animated.Value(150)).current;
+
+  // --- EFFECTS ---
+  useEffect(() => {
+    if (lessonId) {
+      startQuiz();
+    }
+  }, [lessonId]);
+
+  const startQuiz = async () => {
+    setLoadingQuiz(true);
+    try {
+      const modulesResponse = await LessonService.getModules(lessonId as string);
+      const modules = modulesResponse.data as LessonModules;
+      const vocabularyQuizzes = modules.vocabularyQuizzes || [];
+
+      if (vocabularyQuizzes.length === 0) {
+        setLoadingQuiz(false);
+        return;
+      }
+
+      const quizId = typeof vocabularyQuizzes[0] === 'object' ? vocabularyQuizzes[0]._id : vocabularyQuizzes[0];
+
+      const startResponse = await VocabularyService.startVocabularyQuiz({ quizId });
+
+      const sessionData = await VocabularyService.getVocabularyQuizSession(startResponse.sessionId);
+      setSession(sessionData);
+    } catch (error) {
+      console.error('Lỗi khởi tạo quiz:', error);
+    } finally {
+      setLoadingQuiz(false);
+    }
+  };
+
+// Hàm chuẩn hóa cực mạnh (Xử lý cả Unicode NFD/NFC và các ký tự trắng đặc biệt)
+const normalizeString = (str: any) => {
+  if (!str) return '';
+  return String(str)
+    .trim()
+    .normalize('NFC') // Ép về chuẩn dựng sẵn của tiếng Hàn
+    .replace(/\u200B/g, '') 
+    .toLowerCase();
+};
+
+const transformQuestion = (questionItem: any): FrontendQuizQuestion => {
+    if (!questionItem || !questionItem.question)
+      return { id: '', question: '', options: [], correctAnswer: '', type: 'single_choice' };
+
+    const data = questionItem.question;
+    
+    const cAnswer = 
+      data.correctAnswer || 
+      data.questions?.[0]?.correctAnswer || 
+      data.metadata?.correctAnswer || 
+      '';
+
+    const qType = 
+      data.type || 
+      data.questions?.[0]?.type || 
+      'single_choice';
+
+    const options = 
+      data.metadata?.options || 
+      data.questions?.[0]?.metadata?.options || 
+      data.options || 
+      [];
+
+    return {
+      id: questionItem._id,
+      question: data.questionText || data.questions?.[0]?.questionText || "Chọn đáp án đúng",
+      options: options.map((text: string, idx: number) => ({ id: `opt_${idx}`, text: text })),
+      correctAnswer: String(cAnswer), 
+      type: qType
+    };
+};
+
+const handleSubmitAnswer = async (answer: string) => {
+  if (isAnswered || !answer.trim()) return;
+
+  Keyboard.dismiss();
+
+  const userAns = normalizeString(answer);
+  const correctAns = normalizeString(currentQuestion.correctAnswer);
+  
+  // LOG ĐỂ KIỂM TRA TẠI SAO SAI
+  // console.log('--- SO SÁNH ĐÁP ÁN ---');
+  // console.log('Người dùng chọn:', `"${userAns}" (độ dài: ${userAns.length})`);
+  // console.log('Đáp án đúng:', `"${correctAns}" (độ dài: ${correctAns.length})`);
+
+  const isCorrect = userAns === correctAns;
+
+  setSelectedAnswer(answer);
+  setIsAnswered(true);
+
+  if (isCorrect) {
+    showFeedback('success');
+  } else {
+    setIncorrectCount((prev) => prev + 1);
+    showFeedback('failure');
+  }
+
+  // Gửi lên server (Server đã chấm đúng nên phần này giữ nguyên)
+  try {
+    await VocabularyService.saveVocabularyQuizAnswer(session._id, {
+      questionId: currentQuestionData._id,
+      answer: answer,
+    });
+  } catch (error) {
+    console.error('Lỗi lưu đáp án:', error);
+  }
+};
 
   const showFeedback = (type: 'success' | 'failure') => {
     setFeedbackState(type);
     feedbackOpacity.setValue(0);
-    feedbackTranslateY.setValue(type === 'success' ? 150 : 40);
+    feedbackTranslateY.setValue(150);
 
     Animated.parallel([
       Animated.timing(feedbackOpacity, { toValue: 1, duration: 240, useNativeDriver: true }),
@@ -68,7 +182,7 @@ export default function VocabularyQuizScreen() {
     Animated.parallel([
       Animated.timing(feedbackOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
       Animated.timing(feedbackTranslateY, {
-        toValue: feedbackState === 'success' ? 150 : 40,
+        toValue: 150,
         duration: 200,
         useNativeDriver: true,
       }),
@@ -78,148 +192,171 @@ export default function VocabularyQuizScreen() {
     });
   };
 
-  // --- HANDLERS ---
-  const handleSelectOption = (optionId: string) => {
-    if (isAnswered) return; // Khóa không cho chọn lại
-
-    setSelectedAnswerId(optionId);
-    setIsAnswered(true);
-
-    const isAnswerCorrect = optionId === currentQuestion.correctOptionId;
-
-    if (isAnswerCorrect) {
-      showFeedback('success');
-    } else {
-      // Nếu SAI: Tăng biến đếm, đợi người dùng tự bấm nút
-      setIncorrectCount(prev => prev + 1);
-      showFeedback('failure');
-    }
-  };
-
   const handleNextQuestion = () => {
-    const moveNext = () => {
-      if (currentIndex < QUIZ_DATA.length - 1) {
-        setCurrentIndex(prev => prev + 1);
-        setSelectedAnswerId(null);
+    const moveNext = async () => {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+        setSelectedAnswer(null);
+        setInputText('');
         setIsAnswered(false);
       } else {
-        router.replace(`/lessons/${lessonId}/vocabulary/result`);
+        try {
+          const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          await VocabularyService.submitVocabularyQuiz(session._id, { timeSpent });
+          router.replace(`/lessons/${lessonId}/vocabulary/result?sessionId=${session._id}`);
+        } catch (error) {
+          router.replace(`/lessons/${lessonId}/vocabulary/result?sessionId=${session._id}`);
+        }
       }
     };
-
-    if (feedbackState !== 'hidden') {
-      hideFeedback(moveNext);
-      return;
-    }
-
-    moveNext();
+    hideFeedback(moveNext);
   };
 
-  // Hàm xác định trạng thái UI cho từng Option
-  const getOptionStatus = (optionId: string): OptionStatus => {
-    if (!isAnswered) return 'default';
+  if (loadingQuiz || !session) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Color.main} />
+          <Text style={styles.loadingText}>Đang chuẩn bị câu hỏi...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
-    const isThisOptionSelected = selectedAnswerId === optionId;
-    const isThisOptionCorrect = currentQuestion.correctOptionId === optionId;
+  const questions = session?.questions || [];
+  if (questions.length === 0) return null;
 
-    if (isThisOptionSelected && isThisOptionCorrect) return 'correct';
-    if (isThisOptionSelected && !isThisOptionCorrect) return 'incorrect';
-    if (!isThisOptionSelected && isThisOptionCorrect) return 'missed-correct'; // Gợi ý đáp án đúng
-
-    return 'disabled'; // Làm mờ các đáp án sai không được chọn
-  };
+  const currentQuestionData = questions[currentQuestionIndex];
+  const currentQuestion = transformQuestion(currentQuestionData);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-
-      {/* HEADER */}
-      <QuizHeader
-        current={currentIndex + 1}
-        total={QUIZ_DATA.length}
-        incorrectCount={incorrectCount}
-        onClose={() => setShowExitModal(true)}
-      />
-
-      {/* BODY CONTENT (Scrollable để bị đẩy lên khi có BottomSheet) */}
-      <ScrollView
-        key={currentQuestion.id}
-        style={styles.scrollArea}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
-        {/* Câu hỏi */}
-        <Text style={styles.questionText}>{currentQuestion.question}</Text>
+        <QuizHeader
+          current={currentQuestionIndex + 1}
+          total={questions.length}
+          incorrectCount={incorrectCount}
+          onClose={() => setShowExitModal(true)}
+        />
 
-        {/* Danh sách 4 đáp án */}
-        <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((opt, idx) => (
-            <AnswerOption
-              key={`${currentQuestion.id}-${opt.id}`}
-              index={idx}
-              text={opt.text}
-              status={getOptionStatus(opt.id)}
-              onPress={() => handleSelectOption(opt.id)}
-            />
-          ))}
-        </View>
-      </ScrollView>
-      <FeedbackPopup
-        visible={feedbackState !== 'hidden'}
-        type={feedbackState === 'failure' ? 'failure' : 'success'}
-        onNext={handleNextQuestion}
-        onOutsidePress={feedbackState === 'failure' ? () => hideFeedback() : undefined}
-        translateY={feedbackTranslateY}
-        opacity={feedbackOpacity}
-        imageSource={
-          feedbackState === 'failure'
+        <ScrollView
+          style={styles.scrollArea}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+
+          {currentQuestion.type === 'short_answer' ? (
+            /* --- GIAO DIỆN TỰ LUẬN (SHORT ANSWER) --- */
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  isAnswered && (normalizeString(inputText) === normalizeString(currentQuestion.correctAnswer)
+                    ? styles.inputSuccess
+                    : styles.inputError)
+                ]}
+                placeholder="Nhập đáp án..."
+                value={inputText}
+                onChangeText={setInputText}
+                editable={!isAnswered}
+                autoFocus={true}
+                autoCapitalize="none"
+                autoCorrect={false}
+                spellCheck={false}
+              />
+              {!isAnswered && (
+                <TouchableOpacity
+                  style={styles.submitBtn}
+                  onPress={() => handleSubmitAnswer(inputText)}
+                >
+                  <Text style={styles.submitBtnText}>Kiểm tra</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : (
+            /* --- GIAO DIỆN TRẮC NGHIỆM (SINGLE CHOICE) --- */
+            <View style={styles.optionsContainer}>
+              {currentQuestion.options.map((opt, idx) => (
+                <AnswerOption
+                  key={opt.id}
+                  index={idx}
+                  text={opt.text}
+                  status={
+                    !isAnswered ? 'default' :
+                      selectedAnswer === opt.text ? (normalizeString(opt.text) === normalizeString(currentQuestion.correctAnswer) ? 'correct' : 'incorrect') :
+                        normalizeString(opt.text) === normalizeString(currentQuestion.correctAnswer) ? 'missed-correct' : 'disabled'
+                  }
+                  onPress={() => handleSubmitAnswer(opt.text)}
+                />
+              ))}
+            </View>
+          )}
+        </ScrollView>
+
+        <FeedbackPopup
+          visible={feedbackState !== 'hidden'}
+          type={feedbackState === 'failure' ? 'failure' : 'success'}
+          onNext={handleNextQuestion}
+          onOutsidePress={feedbackState === 'failure' ? () => hideFeedback() : undefined}
+          translateY={feedbackTranslateY}
+          opacity={feedbackOpacity}
+          imageSource={feedbackState === 'failure'
             ? require('../../../../assets/images/horani/failure.png')
-            : require('../../../../assets/images/horani/success.png')
-        }
-      />
+            : require('../../../../assets/images/horani/success.png')}
+        />
 
-      <ConfirmModal
-        isVisible={showExitModal}
-        title="Đang học dở mà"
-        subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"
-        cancelText="Vẫn rời đi"
-        confirmText="Học tiếp"
-        onCancel={() => {
-          setShowExitModal(false);
-          router.back();
-        }}
-        onConfirm={() => setShowExitModal(false)}
-      />
-
-
+        <ConfirmModal
+          isVisible={showExitModal}
+          title="Đang học dở mà"
+          subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"
+          cancelText="Vẫn rời đi"
+          confirmText="Học tiếp"
+          onCancel={() => { setShowExitModal(false); router.back(); }}
+          onConfirm={() => setShowExitModal(false)}
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-// --- STYLES ---
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  scrollArea: {
-    flex: 1,
+  safeArea: { flex: 1, backgroundColor: Color.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.text, marginTop: Gap.gap_10 },
+  scrollArea: { flex: 1 },
+  scrollContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_30, paddingBottom: 40 },
+  questionText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.text, marginBottom: Gap.gap_20 },
+  optionsContainer: { width: '100%' },
 
-  },
-  scrollContent: {
-    flexGrow: 1, // BẮT BUỘC: Cho phép nội dung giãn ra lấp đầy toàn bộ chiều cao của ScrollView
-    justifyContent: 'space-between', // Đẩy Cụm trên (Câu hỏi) lên Top và Cụm dưới (Đáp án) xuống Bottom
-    paddingHorizontal: Padding.padding_20,
-    paddingTop: Padding.padding_30,
-    paddingBottom: 40,
-  },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_24,
+  /* Style cho Short Answer */
+  inputContainer: { width: '100%', marginTop: Gap.gap_20 },
+  textInput: {
+    borderWidth: 2,
+    borderColor: Color.colorBlack,
+    borderRadius: 20,
+    padding: Padding.padding_15,
+    fontSize: 18,
+    fontFamily: FontFamily.lexendDecaMedium,
     color: Color.text,
-    marginBottom: Gap.gap_20,
-    textAlign: 'left',
+    minHeight: 60,
   },
-  optionsContainer: {
-    width: '100%',
+  inputSuccess: { borderColor: Color.main },
+  inputError: { borderColor: Color.red },
+  submitBtn: {
+    backgroundColor: Color.main,
+    paddingVertical: Padding.padding_15,
+    borderRadius: 12,
+    marginTop: Gap.gap_20,
+    alignItems: 'center',
   },
+  submitBtnText: {
+    color: Color.whiteText,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 18,
+  },
+  errorText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.red, textAlign: 'center' },
 });

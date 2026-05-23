@@ -8,6 +8,7 @@ import {
 } from 'phosphor-react-native';
 import { StyleSheet, View, Platform } from 'react-native';
 import { MotiView } from 'moti';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -24,9 +25,9 @@ const AnimatedTabIcon = ({ focused, children }: { focused: boolean; children: Re
       }}
       transition={{
         type: 'spring',
-        stiffness: 300, // Độ căng của lò xo
-        damping: 15,    // Lực hãm để tạo độ nảy mượt mà
-      }}
+        stiffness: 300,
+        damping: 15,
+      } as any} 
     >
       {children}
     </MotiView>
@@ -36,6 +37,7 @@ const AnimatedTabIcon = ({ focused, children }: { focused: boolean; children: Re
 export default function TabLayout() {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
@@ -51,17 +53,17 @@ export default function TabLayout() {
           marginTop: 4,
           },
           tabBarStyle: {
-          height: Platform.OS === 'ios' ? 90 : 70, // Tăng chiều cao thêm một chút
-          paddingTop: 15, // Tăng khoảng cách phía trên icon cho thoáng
-          paddingBottom: Platform.OS === 'ios' ? 25 : 10, // Tối ưu vùng vuốt cho Home Indicator của iOS
+            height: Platform.OS === 'ios' ? 64 + insets.bottom : 64 + Math.max(insets.bottom, 16),
+            paddingTop: 10,
+            paddingBottom: Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 16),
             backgroundColor: colors.bg,
-          borderTopWidth: 1,
-          borderTopColor: colors.stroke,
-          shadowColor: colors.shadow,
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
-          elevation: 10, // Đổ bóng nhẹ phân tách với nội dung
+            borderTopWidth: 1,
+            borderTopColor: colors.stroke,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.05,
+            shadowRadius: 10,
+            elevation: 10,
           },
         }}
       >

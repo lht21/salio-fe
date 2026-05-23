@@ -67,7 +67,7 @@ export default function ResultSummaryScreen({
   }, [metricAnimations, screenOpacity, screenTranslateY]);
 
   return (
-    <LinearGradient colors={['#E7FFD0', '#FFFFFF', '#FFFFFF', '#FFFFFF']} style={styles.gradientScreen}>
+    <LinearGradient colors={['#E7FFD0', '#FFFFFF', '#FFFFFF', '#fff']} style={styles.gradientScreen}>
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
           style={[

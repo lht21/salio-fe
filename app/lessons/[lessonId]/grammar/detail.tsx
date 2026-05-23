@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowBendUpLeftIcon, ArrowBendUpRightIcon, CaretRight, SpeakerHigh, X } from 'phosphor-react-native';
-import { Pressable, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { ArrowBendUpLeftIcon, ArrowBendUpRightIcon, CaretRight, SpeakerHigh } from 'phosphor-react-native';
+import * as Speech from 'expo-speech';
+import { GestureResponderEvent, Pressable, StyleSheet, Text, View, Dimensions, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -18,6 +19,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import CloseButton from '@/components/CloseButton';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
+import GrammarService from '@/api/services/grammar.service';
+import type { Grammar } from '@/api/types/lesson.types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.28;
@@ -25,7 +28,7 @@ const CARD_WIDTH = SCREEN_WIDTH * 0.86;
 const CARD_HEIGHT = SCREEN_WIDTH * 1.16;
 
 type GrammarFlashcardData = {
-  id: number;
+  id: string;
   structure: string;
   meaning: string;
   description: string;
@@ -34,47 +37,18 @@ type GrammarFlashcardData = {
   exampleVi: string;
 };
 
-const GRAMMAR_FLASHCARDS: GrammarFlashcardData[] = [
-  {
-    id: 1,
-    structure: 'N + 입니다',
-    meaning: 'Là N',
-    description: 'Mẫu câu khẳng định trang trọng dùng để giới thiệu bản thân, nghề nghiệp hoặc xác định một danh từ.',
-    rules: [
-      'Gắn trực tiếp "입니다" vào sau danh từ để tạo câu khẳng định lịch sự.',
-      'Thường dùng trong các tình huống trang trọng như lần đầu gặp mặt, phỏng vấn hoặc thuyết trình.',
-      'Ví dụ: 저는 학생입니다 (Tôi là học sinh).',
-    ],
-    exampleKo: '저는 학생입니다.',
-    exampleVi: 'Tôi là học sinh.',
-  },
-  {
-    id: 2,
-    structure: 'N + 입니까?',
-    meaning: 'Có phải là N không?',
-    description: 'Dạng nghi vấn (câu hỏi) trang trọng của "입니다", dùng khi hỏi về tên gọi, nghề nghiệp, quốc tịch.',
-    rules: [
-      'Thay đuôi "입니다" bằng "입니까?" để chuyển câu khẳng định thành câu hỏi.',
-      'Câu trả lời thường bắt đầu bằng "네" (Vâng) hoặc "아니요" (Không).',
-      'Ví dụ: 저 분은 의사입니까? (Vị kia có phải là bác sĩ không?)',
-    ],
-    exampleKo: '저 분은 의사입니까?',
-    exampleVi: 'Vị kia có phải là bác sĩ không?',
-  },
-  {
-    id: 3,
-    structure: 'N은/는 B입니다',
-    meaning: 'N là B',
-    description: 'Mẫu câu hoàn chỉnh kết hợp giữa trợ từ chủ đề và đuôi câu khẳng định để mô tả đối tượng.',
-    rules: [
-      'Sử dụng "은" khi danh từ đứng trước có phụ âm cuối (patchim).',
-      'Sử dụng "는" khi danh từ đứng trước không có phụ âm cuối (không patchim).',
-      'Dùng để nhấn mạnh chủ đề đang được nói đến trong câu.',
-    ],
-    exampleKo: '이것은 책입니다.',
-    exampleVi: 'Cái này là quyển sách.',
-  },
-];
+const mapGrammarToFlashcard = (grammar: Grammar): GrammarFlashcardData => {
+  const usageLines = grammar.usage?.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  return {
+    id: grammar._id,
+    structure: grammar.structure,
+    meaning: grammar.meaning,
+    description: grammar.usage || grammar.explanation || 'Không có mô tả ngữ pháp.',
+    rules: usageLines && usageLines.length > 0 ? usageLines : grammar.explanation ? [grammar.explanation] : [],
+    exampleKo: grammar.exampleSentences?.[0]?.korean || '',
+    exampleVi: grammar.exampleSentences?.[0]?.vietnamese || '',
+  };
+};
 
 function GrammarStudyCard({
   card,
@@ -180,10 +154,24 @@ function GrammarStudyCard({
                 <View style={styles.stepContent}>
                   <Text style={styles.exampleKo}>{card.exampleKo}</Text>
                   <Text style={styles.exampleVi}>{card.exampleVi}</Text>
-                  <View style={styles.exampleBadge}>
+                  <Pressable
+                    onPress={(event: GestureResponderEvent) => {
+                      event.stopPropagation();
+                      if (card.exampleKo) {
+                        Speech.stop();
+                        Speech.speak(card.exampleKo, {
+                          language: 'ko-KR',
+                          rate: 0.85,
+                          pitch: 1.0,
+                        });
+                      }
+                    }}
+                    style={styles.exampleBadge}
+                    disabled={!card.exampleKo}
+                  >
                     <SpeakerHigh size={18} color="#FFFFFF" weight="fill" />
                     <Text style={styles.exampleBadgeText}>Ví dụ</Text>
-                  </View>
+                  </Pressable>
                 </View>
               )}
             </View>
@@ -206,9 +194,37 @@ export default function GrammarDetailScreen() {
   const [knownCount, setKnownCount] = useState(0);
   const [learnCount, setLearnCount] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [grammarCards, setGrammarCards] = useState<GrammarFlashcardData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const totalCards = GRAMMAR_FLASHCARDS.length;
-  const currentCard = GRAMMAR_FLASHCARDS[currentIndex];
+  useEffect(() => {
+    const loadGrammar = async () => {
+      const lessonIdValue = String(lessonId ?? '');
+      if (!lessonIdValue) {
+        setErrorMessage('Không tìm thấy lessonId.');
+        return;
+      }
+
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      try {
+        const grammars = await GrammarService.getLessonGrammar(lessonIdValue);
+        setGrammarCards(grammars.map(mapGrammarToFlashcard));
+        setCurrentIndex(0);
+      } catch (error: any) {
+        setErrorMessage(error?.response?.data?.message || error?.message || 'Lỗi khi tải nội dung ngữ pháp.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadGrammar();
+  }, [lessonId]);
+
+  const totalCards = grammarCards.length;
+  const currentCard = grammarCards[currentIndex];
 
   const handleClose = () => {
     if (currentIndex > 0) {
@@ -228,13 +244,27 @@ export default function GrammarDetailScreen() {
     router.replace(`/lessons/${lessonId}/grammar/exercise` as any);
   };
 
-  const onSwipedLeft = () => {
+  const onSwipedLeft = async () => {
+    const cardId = currentCard.id;
     setLearnCount((prev) => prev + 1);
+    try {
+      await GrammarService.updateGrammarProgress(String(lessonId), cardId, 'learning');
+    } catch (error) {
+      console.error("Lỗi cập nhật trạng thái learning ngữ pháp:", error);
+    }
+
     handleNextCard();
   };
 
-  const onSwipedRight = () => {
+  const onSwipedRight = async () => {
+    const cardId = currentCard.id;
     setKnownCount((prev) => prev + 1);
+    try {
+      await GrammarService.updateGrammarProgress(String(lessonId), cardId, 'completed');
+    } catch (error) {
+      console.error("Lỗi cập nhật trạng thái completed ngữ pháp:", error);
+    }
+
     handleNextCard();
   };
 
@@ -259,26 +289,41 @@ export default function GrammarDetailScreen() {
       </View>
 
       <View style={styles.flashcardArea}>
-        {currentCard ? (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Color.main} />
+            <Text style={styles.loadingText}>Đang tải ngữ pháp...</Text>
+          </View>
+        ) : errorMessage ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        ) : totalCards > 0 ? (
           <GrammarStudyCard
             key={currentCard.id}
             card={currentCard}
             onSwipedLeft={onSwipedLeft}
             onSwipedRight={onSwipedRight}
           />
-        ) : null}
+        ) : (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.emptyText}>Không có nội dung ngữ pháp cho bài này.</Text>
+          </View>
+        )}
       </View>
 
-      <View style={styles.swipeHints}>
-        <View style={styles.hintColumn}>
-          <ArrowBendUpLeftIcon size={40} color={Color.cam} weight="bold" />
-          <Text style={styles.hintLearn}>Chưa nhớ</Text>
+      {totalCards > 0 && !isLoading && !errorMessage ? (
+        <View style={styles.swipeHints}>
+          <View style={styles.hintColumn}>
+            <ArrowBendUpLeftIcon size={40} color={Color.cam} weight="bold" />
+            <Text style={styles.hintLearn}>Chưa nhớ</Text>
+          </View>
+          <View style={styles.hintColumn}>
+            <ArrowBendUpRightIcon size={40} color={Color.main} weight="bold" />
+            <Text style={styles.hintKnown}>Nhớ</Text>
+          </View>
         </View>
-        <View style={styles.hintColumn}>
-          <ArrowBendUpRightIcon size={40} color={Color.main} weight="bold" />
-          <Text style={styles.hintKnown}>Nhớ</Text>
-        </View>
-      </View>
+      ) : null}
 
       <ConfirmModal
         isVisible={showExitModal}
@@ -519,5 +564,28 @@ const styles = StyleSheet.create({
     color: Color.main,
     fontFamily: FontFamily.lexendDecaBold,
     marginTop: Gap.gap_5,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: CARD_HEIGHT,
+  },
+  loadingText: {
+    marginTop: Gap.gap_12,
+    color: Color.text,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+  },
+  errorText: {
+    textAlign: 'center',
+    color: Color.main,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: Color.text,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
   },
 });

@@ -10,6 +10,15 @@ export interface LessonItem {
   id: string;
   unit: string;
   title: string;
+  lessonType?: 'standard' | 'hangul';
+  hangul?: Array<{
+    _id: string;
+    glyph: string;
+    label: string;
+    order: number;
+    group: string;
+    romanization?: string;
+  }>;
   status: 'completed' | 'current' | 'locked';
   points?: number;
   mascotPos: 'left' | 'right';

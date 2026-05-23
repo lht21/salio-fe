@@ -5,34 +5,38 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity, 
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-  Modal
+  KeyboardAvoidingView, 
+  Platform, 
+  Keyboard, 
+  Modal, 
+  ActivityIndicator 
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BookOpenIcon, CaretDownIcon, XIcon } from 'phosphor-react-native';
+import { 
+  BookOpenIcon, 
+  CaretDownIcon, 
+  XIcon, 
+  ArrowRightIcon 
+} from 'phosphor-react-native';
 
-// Import Components & Constants
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
 import TimerHeader from '../../../../components/TimerHeader';
 import InstructionCard from '../../../../components/InstructionCard';
 import WonGoJiGrid from '../../../../components/WonGoJiGrid';
 import CloseButton from '@/components/CloseButton';
-// Kéo ConfirmModal vào
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
 import PracticeService from '../../../../api/services/practice.service';
+import LessonService from '../../../../api/services/lesson.service';
+import { WritingItem } from '../../../../api/types/lesson.types';
 
-const MAX_CHARS = 700;
-
-// --- DỮ LIỆU QUY TẮC VIẾT BÀI ---
+// DANH SÁCH QUY TẮC VIẾT
 const WRITING_RULES = [
   "Đầu đoạn hoặc chuyển đoạn thì bỏ ô đầu tiên, mỗi ô chỉ viết một chữ cái tiếng Hàn",
   "Hai chữ số có thể viết trong một ô, nếu là số lẻ thì một chữ số trong một ô",
   "Các dấu câu như: . , ! ? phải được viết riêng trong một ô.",
   "Sau khi viết dấu chấm hoặc dấu phẩy phải chừa một ô trống trước khi viết tiếp.",
-  "Nếu viết sai có thể gạch nhẹ và viết lại, nhưng nên hạn chế lỗi vì bài thi TOPIK viết sẽ bị trừ điểm nếu trình bày xấu.",
+  "Nếu viết sai có thể gạch nhẹ và viết lại, nhưng nên hạn chế lỗi vì sẽ bị trừ điểm trình bày.",
   "Số La mã thì mỗi số 1 ô."
 ];
 
@@ -40,15 +44,17 @@ export default function WritingPracticeScreen() {
   const router = useRouter();
   const { lessonId, attemptId } = useLocalSearchParams();
   
-  const [isStarted, setIsStarted] = useState(false);
-  const [text, setText] = useState('');
-  const [timeLeft, setTimeLeft] = useState(45 * 60); 
+  const [writingItems, setWritingItems] = useState<WritingItem[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [allAnswers, setAllAnswers] = useState<Record<string, string>>({}); 
   
-  // States quản lý Modal (BottomSheet)
+  const [loading, setLoading] = useState(true);
+  const [isStarted, setIsStarted] = useState(false);
+  const [text, setText] = useState(''); 
+  const [timeLeft, setTimeLeft] = useState(0); 
+  
   const [showInstructionModal, setShowInstructionModal] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false); 
-
-  // States quản lý Confirm Modal (Hộp thoại xác nhận)
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
@@ -98,6 +104,37 @@ export default function WritingPracticeScreen() {
   }, [text, attemptId, isStarted]);
 
   useEffect(() => {
+    const fetchAllWriting = async () => {
+      try {
+        const modules = await LessonService.getModules(lessonId as string);
+        const items = modules.data.writing || [];
+        setWritingItems(items);
+        const totalTime = items.reduce((acc, item) => acc + (item.timeLimit || 600), 0);
+        setTimeLeft(totalTime);
+      } catch (error) {
+        console.error("Lỗi load danh sách bài tập:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllWriting();
+  }, [lessonId]);
+
+  const saveCurrentText = () => {
+    const currentItemId = writingItems[currentIndex]?._id;
+    if (currentItemId) {
+      setAllAnswers(prev => ({ ...prev, [currentItemId]: text }));
+    }
+  };
+
+  useEffect(() => {
+    const itemId = writingItems[currentIndex]?._id;
+    if (itemId) {
+      setText(allAnswers[itemId] || '');
+    }
+  }, [currentIndex, writingItems]);
+
+  useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
     if (isStarted && timeLeft > 0) {
       timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
@@ -105,151 +142,122 @@ export default function WritingPracticeScreen() {
     return () => clearInterval(timer);
   }, [isStarted, timeLeft]);
 
-  // --- HANDLERS CHO NÚT BẤM HEADER ---
-  const requestClose = () => {
-    Keyboard.dismiss();
-    // Nếu chưa làm bài, có thể thoát thẳng không cần hỏi
-    if (!isStarted || text.length === 0) {
-      router.back();
-    } else {
-      // Đã làm bài thì hiện popup cảnh báo mất dữ liệu
-      setShowExitConfirm(true); 
+  const handleNext = () => {
+    saveCurrentText();
+    if (currentIndex < writingItems.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      Keyboard.dismiss();
     }
   };
 
-  const requestSubmit = () => {
-    Keyboard.dismiss();
-    setShowSubmitConfirm(true); // Mở hộp thoại xác nhận nộp bài
-  };
-
-  // --- HANDLERS CHO HÀNH ĐỘNG THỰC SỰ (XÁC NHẬN) ---
-  const confirmExit = () => {
-    setShowExitConfirm(false);
-    router.back();
+  const handlePrev = () => {
+    saveCurrentText();
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      Keyboard.dismiss();
+    }
   };
 
   const confirmSubmit = async () => {
     setShowSubmitConfirm(false);
-
-    const timeUsed = (45 * 60) - timeLeft; 
-        
-    // Điều hướng NGAY LẬP TỨC sang trang Kết quả và truyền bài viết sang đó
+    const finalAnswers = { ...allAnswers, [writingItems[currentIndex]._id]: text };
+    
     router.replace({
-      pathname: `/lessons/${lessonId}/writing/result`,
+      pathname: `/lessons/${lessonId}/writing/result` as any,
       params: { 
-        userText: text,
-        charCount: text.length,
-        timeUsed: timeUsed
+        lessonId,
+        payload: JSON.stringify(finalAnswers), 
+        timeUsed: (writingItems.reduce((acc, i) => acc + (i.timeLimit || 600), 0)) - timeLeft
       }
     });
   };
 
+  if (loading) return <View style={[styles.safeArea, { justifyContent: 'center' }]}><ActivityIndicator size="large" color={Color.main} /></View>;
+  if (writingItems.length === 0) return <View style={styles.safeArea}><Text>Không có bài tập nào.</Text></View>;
+
+  const currentItem = writingItems[currentIndex];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <KeyboardAvoidingView style={styles.keyboardAvoid} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TimerHeader 
           timeLeft={timeLeft} 
           isStarted={isStarted} 
-          onClose={requestClose} // Đã đổi thành hàm request
-          onSubmit={requestSubmit} // Đã đổi thành hàm request
+          onClose={() => setShowExitConfirm(true)} 
+          onSubmit={() => {
+            saveCurrentText();
+            setShowSubmitConfirm(true);
+          }} 
         />
 
-        {/* --- TRẠNG THÁI 1: CHƯA BẮT ĐẦU --- */}
         {!isStarted ? (
           <View style={styles.introWrapper}>
-            <InstructionCard onStart={() => setIsStarted(true)} />
+            <InstructionCard data={currentItem} onStart={() => setIsStarted(true)} />
           </View>
         ) : (
-          
-          /* --- TRẠNG THÁI 2: TRONG KHI VIẾT --- */
           <View style={styles.editorContainer}>
-            
-            {/* 1. Dải Banner Đề Bài */}
-            <TouchableOpacity 
-              style={styles.topicBanner} 
-              activeOpacity={0.7}
-              onPress={() => {
-                Keyboard.dismiss(); 
-                setShowInstructionModal(true);
-              }}
-            >
-              <Text style={styles.topicTitle} numberOfLines={2}>
-                Đề bài: Hãy viết một bài luận (500-700 chữ) bày tỏ quan điểm của bạn về việc giới trẻ chạy theo xu hướng hiện nay.
-              </Text>
-              <View style={styles.openModalBtn}>
-                <Text style={styles.openModalText}>Chi tiết</Text>
-                <CaretDownIcon size={16} color={Color.text} />
-              </View>
-            </TouchableOpacity>
-
-            {/* 2. Lưới viết bài */}
-            <ScrollView 
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 40 }}
-              keyboardShouldPersistTaps="handled"
-            >
-              <WonGoJiGrid text={text} setText={setText} maxChars={MAX_CHARS} />
-            </ScrollView>
-
-            {/* 3. Bottom Bar */}
-            <View style={styles.bottomBar}>
-              <View style={styles.charCountPill}>
-                <Text style={styles.charCountText}>
-                  {text.length}/{MAX_CHARS} 글자
-                </Text>
-              </View>
-
-              {/* Nút Quy tắc viết bài - Bật Modal */}
-              <TouchableOpacity 
-                style={styles.rulesButton} 
-                activeOpacity={0.7}
-                onPress={() => {
-                  Keyboard.dismiss();
-                  setShowRulesModal(true);
-                }}
-              >
-                <BookOpenIcon size={18} color={Color.color} weight="fill" />
-                <Text style={styles.rulesText}>Quy tắc viết bài</Text>
-              </TouchableOpacity>
+            <View style={styles.stepIndicator}>
+                <Text style={styles.stepText}>Câu hỏi {currentIndex + 1} / {writingItems.length}</Text>
             </View>
 
+            <TouchableOpacity style={styles.topicBanner} onPress={() => {
+                Keyboard.dismiss();
+                setShowInstructionModal(true);
+            }}>
+              <Text style={styles.topicTitle} numberOfLines={2}>Đề bài: {currentItem?.prompt}</Text>
+              <CaretDownIcon size={16} color={Color.text} />
+            </TouchableOpacity>
+
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <WonGoJiGrid text={text} setText={setText} maxChars={currentItem?.wordLimit?.max || 700} />
+              
+              <View style={styles.navigationButtons}>
+                {currentIndex > 0 ? (
+                  <TouchableOpacity style={styles.navBtn} onPress={handlePrev}>
+                    <Text style={styles.navBtnText}>Câu trước</Text>
+                  </TouchableOpacity>
+                ) : <View />}
+
+                {currentIndex < writingItems.length - 1 && (
+                  <TouchableOpacity style={[styles.navBtn, styles.nextBtn]} onPress={handleNext}>
+                    <Text style={styles.nextBtnText}>Câu tiếp theo</Text>
+                    <ArrowRightIcon size={18} color={Color.bg} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </ScrollView>
+
+            <View style={styles.bottomBar}>
+              <View style={styles.charCountPill}>
+                <Text style={styles.charCountText}>{text.length}/{currentItem?.wordLimit?.max || 700} 글자</Text>
+              </View>
+              <TouchableOpacity style={styles.rulesButton} onPress={() => {
+                  Keyboard.dismiss();
+                  setShowRulesModal(true);
+              }}>
+                <BookOpenIcon size={18} color={Color.color} weight="fill" />
+                <Text style={styles.rulesText}>Quy tắc viết</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </KeyboardAvoidingView>
 
-      {/* ==================================================== */}
-      {/* CÁC BOTTOM SHEET MODAL (HƯỚNG DẪN / QUY TẮC) */}
-      {/* ==================================================== */}
-      <Modal
-        visible={showInstructionModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowInstructionModal(false)} 
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalHeaderTitle}>Hướng dẫn làm bài</Text>
-              <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setShowInstructionModal(false)}>
-                <XIcon size={20} color={Color.text} weight="bold" />
-              </TouchableOpacity>
+      {/* MODAL ĐỀ BÀI CHI TIẾT */}
+      <Modal visible={showInstructionModal} animationType="slide" transparent={true}>
+         <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+               <View style={styles.modalHeader}>
+                  <Text style={styles.modalHeaderTitle}>Đề bài chi tiết</Text>
+                  <TouchableOpacity onPress={() => setShowInstructionModal(false)}><XIcon size={20} color={Color.text} /></TouchableOpacity>
+               </View>
+               <InstructionCard data={currentItem} isModal={true} />
             </View>
-            <View style={{ flex: 1 }}>
-              <InstructionCard isModal={true} />
-            </View>
-          </View>
-        </View>
+         </View>
       </Modal>
 
-      <Modal
-        visible={showRulesModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowRulesModal(false)}
-      >
+      {/* MODAL QUY TẮC VIẾT BÀI - ĐÃ THÊM LẠI Ở ĐÂY */}
+      <Modal visible={showRulesModal} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { height: '80%' }]}> 
             <View style={styles.modalHeader}>
@@ -257,7 +265,7 @@ export default function WritingPracticeScreen() {
               <CloseButton variant="Stroke" onPress={() => setShowRulesModal(false)} />
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+            <ScrollView showsVerticalScrollIndicator={false}>
               {WRITING_RULES.map((rule, index) => (
                 <View key={index} style={styles.ruleItem}>
                   <View style={styles.ruleBadge}>
@@ -271,134 +279,38 @@ export default function WritingPracticeScreen() {
         </View>
       </Modal>
 
-      {/* ==================================================== */}
-      {/* CÁC CONFIRM MODAL (HỘP THOẠI XÁC NHẬN) */}
-      {/* ==================================================== */}
-      
-      {/* Modal Cảnh báo Thoát bài */}
-      <ConfirmModal
-        isVisible={showExitConfirm}
-        title="Dừng bài viết tại đây?"
-        subtitle="Bài làm của bạn sẽ không được lưu lại đâu nhé!"
-        confirmText="Thoát bài"
-        cancelText="Ở lại làm tiếp"
-        isDestructive={true} // Nút Xác nhận sẽ màu Đỏ
-        onConfirm={confirmExit}
-        onCancel={() => setShowExitConfirm(false)}
-      />
-
-      {/* Modal Cảnh báo Nộp bài */}
-      <ConfirmModal
-        isVisible={showSubmitConfirm}
-        title="Nộp bài ngay?"
-        subtitle="Bạn vẫn chưa dùng hết thời gian. Bạn có chắc chắn muốn nộp bài luôn không?"
-        confirmText="Nộp bài"
-        cancelText="Kiểm tra lại"
-        isDestructive={false} // Nút Xác nhận sẽ màu Xanh lá
-        onConfirm={confirmSubmit}
-        onCancel={() => setShowSubmitConfirm(false)}
-      />
-
+      <ConfirmModal isVisible={showExitConfirm} title="Thoát luyện tập?" confirmText="Thoát" onConfirm={() => router.back()} onCancel={() => setShowExitConfirm(false)} />
+      <ConfirmModal isVisible={showSubmitConfirm} title="Nộp toàn bộ bài làm?" onConfirm={confirmSubmit} onCancel={() => setShowSubmitConfirm(false)} />
     </SafeAreaView>
   );
 }
-// ... CÁC STYLES CŨ GIỮ NGUYÊN BÊN DƯỚI ...
+
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
   keyboardAvoid: { flex: 1 },
   introWrapper: { flex: 1, padding: Padding.padding_15 },
   editorContainer: { flex: 1 },
-
-  topicBanner: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: Color.bg, padding: Padding.padding_15, marginHorizontal: Padding.padding_15,
-    borderRadius: Border.br_15, marginBottom: Gap.gap_15, borderWidth: 2, borderColor: '#C8E6C9',
-  },
-  topicTitle: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.color, lineHeight: 20, marginRight: Gap.gap_10 },
-  openModalBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Color.vang, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
-  openModalText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.text },
-
-  bottomBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Padding.padding_15, paddingVertical: Padding.padding_10,
-    backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke,
-  },
-  charCountPill: { backgroundColor: Color.main, paddingHorizontal: 16, paddingVertical: 8, borderRadius: Border.br_20 },
-  charCountText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: Color.color },
-  rulesButton: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_8, paddingHorizontal: Padding.padding_10 },
-  rulesText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.color },
-
-  // --- MODAL STYLES CHUNG ---
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'flex-end', 
-  },
-  modalContent: {
-    backgroundColor: Color.bg,
-    borderTopLeftRadius: Border.br_30,
-    borderTopRightRadius: Border.br_30,
-    height: '75%', 
-    padding: Padding.padding_15,
-    paddingBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Gap.gap_20,
-  },
-  modalHeaderTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold, // Font đậm cho tiêu đề Modal
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-  modalCloseBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Color.stroke,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  // --- STYLES RIÊNG CHO MODAL QUY TẮC ---
-  divider: {
-    height: 1,
-    backgroundColor: Color.stroke,
-    marginBottom: Gap.gap_20,
-    opacity: 0.6,
-  },
-  ruleItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start', // Căn trên cùng để text dài rơi xuống dưới
-    marginBottom: Gap.gap_20,
-  },
-  ruleBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18, // Tròn xoe
-    backgroundColor: Color.greenLight, // Xám sáng giống ảnh
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Gap.gap_15,
-    marginTop: 2, // Đẩy xuống một xíu để căn giữa với dòng text đầu tiên
-  },
-  ruleBadgeText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.color, // Đen đậm
-  },
-  ruleText: {
-    flex: 1, // Để text chiếm hết phần còn lại và tự xuống dòng
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: '#64748B', // Xám xanh hơi trầm giống ảnh
-    lineHeight: 22,
-  },
+  stepIndicator: { paddingHorizontal: 20, paddingTop: 10 },
+  stepText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 14, color: Color.main },
+  topicBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: Color.bg, padding: 15, margin: 15, borderRadius: 15, borderWidth: 1, borderColor: Color.stroke },
+  topicTitle: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.color },
+  bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke },
+  charCountPill: { backgroundColor: Color.main, paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20 },
+  charCountText: { color: Color.color, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 12 },
+  rulesButton: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rulesText: { color: Color.color, fontSize: 12, fontFamily: FontFamily.lexendDecaMedium },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: Color.bg, borderTopLeftRadius: 30, borderTopRightRadius: 30, height: '70%', padding: 20 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  modalHeaderTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16 },
+  navigationButtons: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' },
+  navBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, backgroundColor: Color.stroke, justifyContent: 'center' },
+  nextBtn: { backgroundColor: Color.color, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  navBtnText: { fontFamily: FontFamily.lexendDecaMedium, color: Color.text },
+  nextBtnText: { fontFamily: FontFamily.lexendDecaMedium, color: Color.bg },
+  // Styles cho Rule Item
+  ruleItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
+  ruleBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  ruleBadgeText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.color },
+  ruleText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: '#64748B', lineHeight: 22 },
 });

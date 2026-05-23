@@ -30,6 +30,8 @@ export interface Vocabulary {
   _id: string;
   word: string;
   meaning: string;
+  type: string;
+  exampleSentences: string[];
   pronunciationText?: string;
   imageUrl?: string;
   level?: string;
@@ -119,3 +121,86 @@ export type FlashcardSetDetailResponse = BaseResponse<FlashcardSet>;
 export type FlashcardSetMutationResponse = BaseResponse<FlashcardSet>;
 export type DeleteFlashcardSetResponse = BaseResponse<null>;
 export type CardMutationResponse = BaseResponse<FlashcardSet | null>;
+
+// --- 5. Flashcard Quiz Types ---
+
+/**
+ * Câu hỏi trong flashcard quiz
+ */
+export interface FlashcardQuestion {
+  _id: string;
+  type: 'single_choice' | 'multiple_choice' | 'fill_in_blank' | 'matching';
+  points: number;
+  questionText: string;  // Nội dung câu hỏi
+  metadata?: any;
+  options: string[];  // Mảng các string đáp án (["학생", "선생님", ...])
+  matchingPairs?: any[];
+  correctAnswer: string;  // Đáp án đúng (ví dụ: "학생")
+  scripts?: any[];
+  level?: string;
+  difficulty?: string;
+  tags?: string[];
+  vocabulary: string | Vocabulary;  // ID hoặc object Vocabulary
+  createdBy?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  isCorrect?: boolean; // Trường tạm thời để lưu trạng thái đúng/sai khi trả về quiz session
+}
+
+/**
+ * Phiên làm flashcard quiz
+ */
+export interface FlashcardQuizSession {
+  _id: string;
+  user: string;
+  flashcardSet: string | FlashcardSet;
+  status: 'in_progress' | 'completed' | 'abandoned';
+  questions: FlashcardQuestion[];
+  totalScore: number;
+  maxScore: number;
+  percentage: number;
+  timeSpent: number;
+  startedAt: string;
+  submittedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * Request để start flashcard quiz
+ * POST /api/v1/flashcard-quiz/start
+ */
+export interface StartFlashcardQuizRequest {
+  flashcardSetId: string;
+  numberOfQuestions?: number; // Default: tất cả từ trong set
+}
+
+/**
+ * Request để lưu đáp án
+ * POST /api/v1/flashcard-quiz/session/:sessionId/save-answer
+ */
+export interface SaveFlashcardAnswerRequest {
+  questionId: string;
+  answer: any;
+  timeSpent?: number;
+}
+
+/**
+ * Response từ API start quiz
+ */
+export type StartFlashcardQuizResponse = BaseResponse<FlashcardQuizSession>;
+
+/**
+ * Response từ API save answer
+ */
+export type SaveFlashcardAnswerResponse = BaseResponse<FlashcardQuizSession>;
+
+/**
+ * Response từ API submit quiz
+ */
+export type SubmitFlashcardQuizResponse = BaseResponse<FlashcardQuizSession>;
+
+/**
+ * Response từ API get result
+ */
+export type GetFlashcardResultResponse = BaseResponse<FlashcardQuizSession>;

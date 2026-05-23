@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowBendUpLeftIcon, ArrowBendUpRightIcon } from 'phosphor-react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,70 +10,130 @@ import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../c
 // Import Component Thẻ đã tách
 import CloseButton from '@/components/CloseButton';
 import SwipableFlashcard, { FlashcardData } from '../../../../components/SwipableFlashcard';
-import { NOTEBOOK_SCHOOL } from '../../../../constants/mockVocabularyNotebook';
+import LessonService from '../../../../api/services/lesson.service';
+import { Vocabulary } from '../../../../api/types/vocabulary.types';
+import VocabularyService from '../../../../api/services/vocabulary.service';
 
-// --- MOCK DATA - Convert from NOTEBOOK_SCHOOL ---
-const FLASHCARDS: FlashcardData[] = NOTEBOOK_SCHOOL.words.map((word, index) => ({
-  id: index,
-  word: word.word,
-  phonetic: word.phonetic,
-  meaning: word.meaning,
-  type: word.pos,
-  hanja: word.hanja || [],
-  example: word.example || '',
-  highlight: word.word,
-  image: word.image || 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=400'
-}));
+// Hàm chuyển đổi từ Vocabulary sang FlashcardData
+const convertToFlashcardData = (vocab: Vocabulary): FlashcardData => ({
+  id: vocab._id,
+  word: vocab.word,
+  phonetic: vocab.pronunciationText || '',
+  meaning: vocab.meaning,
+  type: vocab.type || '',
+  hanja: vocab.hanja ? [vocab.hanja] : [],
+  example: vocab.examples && vocab.examples.length > 0 ? vocab.examples[0].korean : '',
+  highlight: vocab.word,
+  image: vocab.imageUrl || 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=400',
+  sinoVietnamese: vocab.sinoVietnamese || '',
+});
 
 export default function FlashcardScreen() {
   const router = useRouter();
-  // Lấy lessonId từ params để truyền đi tiếp
   const { lessonId } = useLocalSearchParams();
 
+  // --- STATES ---
+  const [vocabularyCards, setVocabularyCards] = useState<Vocabulary[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [knownCount, setKnownCount] = useState(0);
   const [learnCount, setLearnCount] = useState(0);
-
-  // STATE HIỂN THỊ MODAL THOÁT
   const [showExitModal, setShowExitModal] = useState(false);
 
-  const totalCards = FLASHCARDS.length;
-  const currentCard = FLASHCARDS[currentIndex];
+  // --- EFFECTS ---
+  useEffect(() => {
+    loadLessonVocabulary();
+  }, [lessonId]);
+
+  const loadLessonVocabulary = async () => {
+    try {
+      setLoading(true);
+      const response = await LessonService.getModules(lessonId as string);
+      const lessonVocabularies = (response.data as any).vocabulary as Vocabulary[];
+      setVocabularyCards(lessonVocabularies || []);
+    } catch (error) {
+      console.error('Lỗi khi tải vocabulary của lesson:', error);
+      // TODO: Handle error, có thể hiển thị thông báo lỗi
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Chuyển đổi vocabulary của lesson thành FlashcardData[]
+  const flashcards: FlashcardData[] = vocabularyCards.map(convertToFlashcardData);
+
+  const totalCards = flashcards.length;
+  const currentCard = flashcards[currentIndex];
 
   const handleClose = () => {
     if (currentIndex > 0) {
-      // Đã học từ thẻ thứ 2 trở đi -> Hiện Modal cảnh báo
       setShowExitModal(true);
     } else {
-      // Vẫn ở thẻ đầu tiên -> Cho phép thoát luôn
       router.back();
     }
   };
 
   const handleNextCard = () => {
     if (currentIndex < totalCards - 1) {
-      // Nếu chưa phải thẻ cuối cùng -> Chuyển sang thẻ tiếp theo
       setCurrentIndex(prev => prev + 1);
     } else {
-      // NẾU ĐÃ HẾT THẺ -> ĐIỀU HƯỚNG SANG MÀN HÌNH QUIZ INTRO
-      // Truyền theo lessonId và các params cần thiết cho Vòng 2
-      router.replace(`/lessons/${lessonId}/vocabulary/quiz-intro`); // Dùng replace để không cho
+      // Đã hết thẻ -> Chuyển sang màn hình quiz intro
+      router.replace(`/lessons/${lessonId}/vocabulary/quiz-intro`);
     }
   };
 
-  const onSwipedLeft = () => {
+  const onSwipedLeft = async () => {
+    const cardId = currentCard.id;
     setLearnCount(prev => prev + 1);
+    
+    try {
+      await VocabularyService.markStatus(cardId.toString(), { status: 'learning' });
+    } catch (error) {
+      console.error('Lỗi cập nhật trạng thái learning:', error);
+    }
+    
     handleNextCard();
   };
 
-  const onSwipedRight = () => {
+  const onSwipedRight = async () => {
+    const cardId = currentCard.id;
     setKnownCount(prev => prev + 1);
+    
+    try {
+      await VocabularyService.markStatus(cardId.toString(), { status: 'remembered' });
+    } catch (error) {
+      console.error('Lỗi cập nhật trạng thái remembered:', error);
+    }
+    
     handleNextCard();
   };
+
+
+  // Hiển thị loading
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Đang tải từ vựng...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Hiển thị lỗi nếu không có dữ liệu
+  if (!loading && flashcards.length === 0) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.errorText}>Không có dữ liệu từ vựng cho bài học này</Text>
+          <CloseButton onPress={() => router.back()} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-
       {/* HEADER SECTION */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
@@ -98,7 +158,6 @@ export default function FlashcardScreen() {
       {/* FLASHCARD SECTION */}
       <View style={styles.flashcardArea}>
         {currentCard ? (
-          // Dùng ID làm key để Reanimated reset hoàn toàn khi chuyển sang thẻ mới
           <SwipableFlashcard
             key={currentCard.id}
             card={currentCard}
@@ -106,7 +165,9 @@ export default function FlashcardScreen() {
             onSwipedRight={onSwipedRight}
           />
         ) : (
-          <Text style={{ fontFamily: FontFamily.lexendDecaMedium }}>Đang tải vòng tiếp theo...</Text>
+          <Text style={{ fontFamily: FontFamily.lexendDecaMedium }}>
+            Đang tải vòng tiếp theo...
+          </Text>
         )}
       </View>
 
@@ -126,15 +187,14 @@ export default function FlashcardScreen() {
         isVisible={showExitModal}
         title="Đang học dở mà"
         subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"
-        cancelText="Vẫn rời đi" // Nút phụ (Outline)
-        confirmText="Học tiếp" // Nút chính (Màu Xanh)
+        cancelText="Vẫn rời đi"
+        confirmText="Học tiếp"
         onCancel={() => {
           setShowExitModal(false);
           router.back();
         }}
         onConfirm={() => setShowExitModal(false)}
       />
-
     </SafeAreaView>
   );
 }
@@ -165,14 +225,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: FontSize.fs_14,
   },
-  closeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Color.stroke, // Xám nhạt
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   progressBarBg: {
     height: 4,
     backgroundColor: Color.stroke,
@@ -188,21 +240,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  counterLearn: { color: Color.cam, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
-  counterKnown: { color: Color.main, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
-
+  counterLearn: {
+    color: Color.cam,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_16,
+  },
+  counterKnown: {
+    color: Color.main,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_16,
+  },
   flashcardArea: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   swipeHints: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: Padding.padding_30,
     paddingBottom: Padding.padding_30,
   },
-  hintColumn: { alignItems: 'center' },
-  hintText: { color: Color.gray, fontFamily: FontFamily.lexendDecaBold, marginTop: Gap.gap_5 }
+  hintColumn: {
+    alignItems: 'center',
+  },
+  hintText: {
+    color: Color.gray,
+    fontFamily: FontFamily.lexendDecaBold,
+    marginTop: Gap.gap_5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: Color.text,
+  },
+  errorText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: Color.red,
+    marginBottom: Gap.gap_20,
+  },
 });

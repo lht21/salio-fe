@@ -27,7 +27,7 @@ export default function PlacementTestIntro() {
             <View style={styles.mascotContainer}>
               <View style={styles.mascotHalo}>
                 <Image
-                  source={require("../../assets/images/horani/sc1_b2.png")}
+                  source={require("../../assets/images/horani/intro-placement.png")}
                   style={styles.mascotImage}
                   contentFit="contain"
                 />

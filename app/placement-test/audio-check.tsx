@@ -3,7 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { SpeakerHigh, Warning } from "phosphor-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import Animated, {
   Easing,
@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/Button";
 import CloseButton from "@/components/CloseButton";
+import PlacementTestService from "@/api/services/placement-test.service";
 import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
 
 const { width } = Dimensions.get("window");
@@ -25,6 +26,7 @@ export default function AudioCheckScreen() {
   const router = useRouter();
   const soundRef = useRef<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const shakeAnim = useSharedValue(0);
 
   // Hàm phát âm thanh test
@@ -67,13 +69,28 @@ export default function AudioCheckScreen() {
 
   // Hàm xử lý khi nhấn nút bắt đầu kiểm tra
   const handleStartExam = async () => {
-    if (soundRef.current) {
-      await soundRef.current.stopAsync().catch(() => {});
-      await soundRef.current.unloadAsync().catch(() => {});
-      soundRef.current = null;
-      setIsPlaying(false);
+    if (isStarting) return;
+    try {
+      setIsStarting(true);
+      if (soundRef.current) {
+        await soundRef.current.stopAsync().catch(() => {});
+        await soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+        setIsPlaying(false);
+      }
+      const response = await PlacementTestService.start();
+      router.push({
+        pathname: "/placement-test/exam",
+        params: { sessionId: response.data.sessionId }
+      });
+    } catch (error: any) {
+      Alert.alert(
+        "Không thể bắt đầu bài kiểm tra",
+        error.response?.data?.message || "Vui lòng thử lại sau."
+      );
+    } finally {
+      setIsStarting(false);
     }
-    router.push("/placement-test/exam"); // Chuyển trang
   };
 
   useEffect(() => {
@@ -129,31 +146,33 @@ export default function AudioCheckScreen() {
           <View style={styles.content}>
             {/* Top Cards Section */}
             <View style={styles.cardsRow}>
+              {/* Bên trái - check-audio1.png (run rẩy) */}
               <Animated.View style={[styles.sideCard, animatedLeftStyle]}>
-                <SpeakerHigh
-                  size={40}
-                  color={isPlaying ? (Color.cam || "#FF6B00") : (Color.text || "#1E1E1E")}
-                  weight="fill"
+                <Image
+                  source={require("../../assets/images/horani/check-audio1.png")}
+                  style={styles.sideImage}
+                  contentFit="contain"
                 />
               </Animated.View>
 
+              {/* Ở giữa - check-audio2.png (KHÔNG run rẩy) */}
               <View style={styles.middleCard}>
                 <Image
-                  source={require("../../assets/images/horani/sc1_b2.png")}
+                  source={require("../../assets/images/horani/check-audio2.png")}
                   style={styles.mascotImage}
                   contentFit="contain"
                 />
               </View>
 
+              {/* Bên phải - check-audio3.png (run rẩy) */}
               <Animated.View style={[styles.sideCard, animatedRightStyle]}>
-                <SpeakerHigh
-                  size={40}
-                  color={isPlaying ? (Color.cam || "#FF6B00") : (Color.text || "#1E1E1E")}
-                  weight="fill"
+                <Image
+                  source={require("../../assets/images/horani/check-audio3.png")}
+                  style={styles.sideImage}
+                  contentFit="contain"
                 />
               </Animated.View>
             </View>
-
             {/* Alert Banner */}
             <View style={styles.alertBanner}>
               <Warning size={40} color={Color.cam || "#FF6B00"} weight="fill" />
@@ -174,9 +193,10 @@ export default function AudioCheckScreen() {
             {/* Buttons Group */}
             <View style={styles.buttonGroup}>
               <Button
-                title="Tôi nghe rõ, chiến thôi!"
+                title={isStarting ? "Đang tạo bài kiểm tra..." : "Tôi nghe rõ, chiến thôi!"}
                 variant="Green"
                 onPress={handleStartExam}
+                disabled={isStarting}
                 style={styles.primaryButton}
                 textStyle={styles.primaryButtonText}
               />
@@ -244,6 +264,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "rgba(255, 255, 255, 0.5)", // Viền mờ đồng bộ
     zIndex: 1
+  },
+  sideImage:{
+    width: 100,
+    height: 100
   },
   middleCard: {
     width: 150, // Nới rộng thành hình vuông để bo tròn

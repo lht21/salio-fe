@@ -20,10 +20,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { MotiView } from 'moti';
 import { SpeakerHighIcon, CaretRightIcon } from 'phosphor-react-native';
+import * as Speech from 'expo-speech';
 
 import { Color, FontFamily, FontSize } from '../constants/GlobalStyles';
 import ShieldBackground from '../components/BackgroundSVG/ShieldBackground'; 
-import * as Speech from 'expo-speech';
 import { useUser } from '../contexts/UserContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -32,15 +32,16 @@ const CARD_WIDTH = SCREEN_WIDTH * 0.85;
 const CARD_HEIGHT = SCREEN_WIDTH * 1.15;
 
 export interface FlashcardData {
-  id: number;
+  id: string | number;
   word: string;
-  phonetic: string;
+  phonetic: string; 
   meaning: string;
   type: string;
   hanja: string[];
   example: string;
   highlight: string;
   image: string;
+  sinoVietnamese?: string;
 }
 
 interface SwipableFlashcardProps {
@@ -50,6 +51,7 @@ interface SwipableFlashcardProps {
 }
 
 export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }: SwipableFlashcardProps) {
+  const { user } = useUser();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   
   const translateX = useSharedValue(0);
@@ -97,6 +99,18 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
   };
 
   // --- LOGIC LẬT THẺ (FLIP) ---
+  const handleSpeak = (text: string) => {
+    const voiceGender = user?.preferences?.voiceGender || 'male';
+    const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
+
+    Speech.stop();
+    Speech.speak(text, {
+      language: 'ko-KR',
+      rate: 0.8,
+      pitch: currentPitch,
+    });
+  };
+
   const handleTap = () => {
     if (step === 1) {
       rotateY.value = withTiming(180, { duration: 400 });
@@ -205,25 +219,13 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
 
                 <View style={styles.frontBottomActions}>
                   <TouchableOpacity 
-                    style={styles.audioBtn} 
-                    onPress={handleSpeakWord} 
-                    activeOpacity={0.7}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.audioBtn}
+                    onPress={(e) => {
+                      e.stopPropagation(); // Ngăn việc lật thẻ khi bấm loa
+                      handleSpeak(card.word);
+                    }}
                   >
-                    {isSpeakingWord && (
-                      <MotiView
-                        from={{ opacity: 0.5, scale: 1 }}
-                        animate={{ opacity: 0, scale: 1.8 }}
-                        transition={{
-                          type: 'timing',
-                          duration: 1000,
-                          loop: true,
-                          repeatReverse: false,
-                        }}
-                        style={styles.wordSpeakerRipple}
-                      />
-                    )}
-                    <SpeakerHighIcon size={28} color={isSpeakingWord ? Color.cam || '#F97316' : Color.bg} weight="fill" />
+                    <SpeakerHighIcon size={28} color={Color.bg} weight="fill" />
                   </TouchableOpacity>
                   {/* Đã xóa ArrowsClockwiseIcon ở đây */}
                 </View>
@@ -263,6 +265,12 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
                           </TouchableOpacity>
                         ))}
                       </View>
+                      {card.sinoVietnamese && (
+                        <View style={styles.sinoVietnameseSection}>
+                          <Text style={styles.sinoVietnameseLabel}>Sino-Vietnamese:</Text>
+                          <Text style={styles.sinoVietnameseText}>{card.sinoVietnamese}</Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                 )}
@@ -271,25 +279,8 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
                 {step === 3 && (
                   <View style={styles.stepContainer}>
                     <Image source={{ uri: card.image }} style={styles.exampleImage} />
-                    <TouchableOpacity 
-                      onPress={handleSpeakSentence} 
-                      activeOpacity={0.7} 
-                      style={styles.sentenceAudioBtn}
-                    >
-                      {isSpeakingSentence && (
-                        <MotiView
-                          from={{ opacity: 0.5, scale: 1 }}
-                          animate={{ opacity: 0, scale: 1.8 }}
-                          transition={{
-                            type: 'timing',
-                            duration: 1000,
-                            loop: true,
-                            repeatReverse: false,
-                          }}
-                          style={styles.sentenceSpeakerRipple}
-                        />
-                      )}
-                      <SpeakerHighIcon size={24} color={isSpeakingSentence ? Color.cam || '#F97316' : Color.main2} weight="fill" />
+                    <TouchableOpacity onPress={() => handleSpeak(card.example)}>
+                      <SpeakerHighIcon size={24} color={Color.main2} weight="fill" style={{ marginTop: 20 }} />
                     </TouchableOpacity>
                     {renderHighlightedExample(card.example, card.highlight)}
                   </View>
@@ -399,6 +390,9 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: '#B45309'
   },
   hanjaBtnText: { fontFamily: FontFamily.lexendDecaRegular, color: Color.text },
+  sinoVietnameseSection: { marginTop: 15, alignItems: 'center' },
+  sinoVietnameseLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: Color.gray, marginBottom: 5 },
+  sinoVietnameseText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.main2 },
   exampleImage: {
     width: '100%', height: 180, borderRadius: 15, borderWidth: 1, borderColor: '#CBD5E1',
   },

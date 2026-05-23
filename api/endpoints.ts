@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
     LEARNING_PROGRESS: '/api/v1/vocabularies/learning-progress',
     MARK_STATUS: (id: string) => `/api/v1/vocabularies/${id}/mark`,
     
+    
     // Admin
     IMPORT: '/api/v1/vocabularies/import',
     BULK_IMAGES: '/api/v1/vocabularies/bulk-images',
@@ -38,12 +39,11 @@ export const API_ENDPOINTS = {
     QUIZ_PUBLISH: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/publish`,
 
     // Quiz Sessions (Student)
-    QUIZ_START: '/api/v1/vocabularies/quiz/start',
-    QUIZ_RESULTS: '/api/v1/vocabularies/quiz/results',
-    QUIZ_SESSION: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}`,
-    QUIZ_SAVE_ANSWER: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/save-answer`,
-    QUIZ_SUBMIT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/submit`,
-    QUIZ_SESSION_RESULT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/result`,
+    QUIZ_START: '/api/v1/vocabularies/quiz/start', 
+    QUIZ_SESSION: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}`,  
+    QUIZ_SAVE_ANSWER: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/save-answer`, 
+    QUIZ_SUBMIT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/submit`, 
+    QUIZ_SESSION_RESULT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/result`, 
   },
 
   GAMIFICATION: {
@@ -77,6 +77,12 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/api/v1/flashcard-sets/${id}`,
     ADD_CARDS: (id: string) => `/api/v1/flashcard-sets/${id}/cards`,
     REMOVE_CARD: (id: string, vocabId: string) => `/api/v1/flashcard-sets/${id}/cards/${vocabId}`,
+    // Quiz
+    QUIZ_START: '/api/v1/flashcard-quiz/start',
+    QUIZ_SESSION: (sessionId: string) => `/api/v1/flashcard-quiz/session/${sessionId}`,
+    QUIZ_SAVE_ANSWER: (sessionId: string) => `/api/v1/flashcard-quiz/session/${sessionId}/save-answer`,
+    QUIZ_SUBMIT: (sessionId: string) => `/api/v1/flashcard-quiz/session/${sessionId}/submit`,
+    QUIZ_RESULT: (sessionId: string) => `/api/v1/flashcard-quiz/session/${sessionId}/result`,
   },
 
   PAYMENT: {
@@ -109,6 +115,19 @@ export const API_ENDPOINTS = {
     GET_SETS_BY_TYPE: (type: string) => `/api/v1/practice/${type}/sets`,
     GET_SET_BY_ID: (type: string, setId: string) => `/api/v1/practice/${type}/sets/${setId}`,
     START_ATTEMPT: (type: string, setId: string) => `/api/v1/practice/${type}/sets/${setId}/start`,
+  },
+
+  LESSON: {
+    GET_ALL: '/api/v1/lessons',
+    GET_BY_ID: (id: string) => `/api/v1/lessons/${id}`, 
+    GET_PROGRESS: (lessonId: string) => `/api/v1/lessons/${lessonId}/progress`,
+    GET_MODULES: (id: string) => `/api/v1/lessons/${id}/modules`, 
+    START: (lessonId: string) => `/api/v1/lessons/${lessonId}/start`,
+    COMPLETE: (lessonId: string) => `/api/v1/lessons/${lessonId}/complete`,
+    UPDATE_SECTION_ITEM: (lessonId: string, sectionType: string, itemId: string) =>
+      `/api/v1/lessons/${lessonId}/progress/sections/${sectionType}/items/${itemId}`,
+    GET_SKILL_ITEM: (lessonId: string, sectionType: string, itemId: string) =>
+      `/api/v1/lessons/${lessonId}/skills/${sectionType}/${itemId}`,
   },
 
   QUESTION_BANK: {

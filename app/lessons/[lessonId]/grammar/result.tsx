@@ -1,87 +1,89 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { CheckCircleIcon, XCircleIcon, LockIcon } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
 import CloseButton from '../../../../components/CloseButton';
 import Button from '../../../../components/Button';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
+import GrammarService from '@/api/services/grammar.service';
+import LessonService from '../../../../api/services/lesson.service';
 
-// --- MOCK DATA ---
-// Dữ liệu giả lập cho kết quả bài tập ngữ pháp
-const GRAMMAR_RESULTS = [
-  { 
-    id: '1', 
-    question: 'Điền từ còn thiếu vào chỗ trống:\n저는 학생_____', 
-    userAnswer: '입니다', 
-    correctAnswer: '입니다', 
-    isCorrect: true, 
-    explanation: 'Dùng "입니다" ở dạng khẳng định để kết thúc câu giới thiệu bản thân.' 
-  },
-  { 
-    id: '2', 
-    question: 'Sắp xếp thành câu hoàn chỉnh:\n이것은 / 책 / 입니다.', 
-    userAnswer: '이것은 입니다 책.', 
-    correctAnswer: '이것은 책 입니다.', 
-    isCorrect: false, 
-    explanation: 'Trật tự câu chuẩn trong tiếng Hàn là: Chủ ngữ (이것은) + Tân ngữ (책) + Động/Tính từ (입니다).' 
-  },
-  { 
-    id: '3', 
-    question: 'Điền từ còn thiếu vào chỗ trống:\n저 사람은 의사_____', 
-    userAnswer: '입니까', 
-    correctAnswer: '입니까', 
-    isCorrect: true, 
-    explanation: 'Dùng "입니까" cho câu hỏi nghi vấn trang trọng.' 
-  },
-];
+type TabType = 'review' | 'list';
 
 export default function GrammarResultScreen() {
   const router = useRouter();
-  const { lessonId, correctCount, totalCount, score, timeTaken, hasNextGrammar, nextGrammarIndex } = useLocalSearchParams();
+  const { lessonId, sessionId } = useLocalSearchParams();
   
-  // Chuyển đổi dữ liệu từ chuỗi (string) trên URL thành số (number) kèm giá trị mặc định dự phòng
-  const parsedCorrect = parseInt(correctCount as string) || 0;
-  const parsedTotal = parseInt(totalCount as string) || 5;
-  const parsedScore = parseInt(score as string) || 0;
-  const parsedTime = parseInt(timeTaken as string) || 0;
+  // --- STATES ---
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<any>(null); // Kết quả Quiz
+  const [lessonGrammars, setLessonGrammars] = useState<any[]>([]); // Danh sách cấu trúc trong bài
+  const [activeTab, setActiveTab] = useState<TabType>('review');
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [lessonProgress, setLessonProgress] = useState<any>(null);
 
-  // Hàm định dạng thời gian (giây -> mm:ss)
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    if (m > 0) {
-      return `${m} phút ${s < 10 ? '0' : ''}${s} giây`;
+  const PASS_SCORE = 80;
+
+  useEffect(() => {
+    if (sessionId) fetchData();
+  }, [sessionId, lessonId]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [quizResult, progressData] = await Promise.all([
+        GrammarService.getGrammarQuizResult(sessionId as string),
+        LessonService.getLessonProgress(lessonId as string)
+      ]);
+      setSession(quizResult);
+      setLessonProgress(progressData);
+    } catch (error) {
+      console.error("Lỗi khi tải kết quả:", error);
+    } finally {
+      setLoading(false);
     }
-    return `${s} giây`;
   };
 
-  // STATE HIỂN THỊ MODAL THOÁT
-  const [showExitModal, setShowExitModal] = useState(false);
-
-  // Kiểm tra xem còn ngữ pháp tiếp theo không (dựa vào params truyền từ màn trước)
-  const isHasNext = hasNextGrammar === 'true';
+  // ĐIỀU KIỆN PASS NGỮ PHÁP
+  const quizScore = session?.percentage || 0;
+  const completionRate = lessonProgress?.sections?.grammar?.progress || 0;
+  const isPassed = quizScore >= 80 && completionRate >= 80;
 
   const handleNext = () => {
-    if (isHasNext) {
-      // Chuyển sang học ngữ pháp tiếp theo
-      router.push(`/lessons/${lessonId}/grammar/intro?grammarIndex=${nextGrammarIndex || 2}` as any);
-    } else {
-      // Đã hết ngữ pháp -> Điều hướng sang phần tiếp theo (Nói)
-      router.push(`/lessons/${lessonId}/speaking/intro` as any);
+    if (!isPassed) {
+      const msg = completionRate < 80 
+        ? "Bạn phải hoàn thành ít nhất 80% bài tập và bài học ngữ pháp mới được đi tiếp." 
+        : "Điểm Quiz của bạn phải từ 80 trở lên.";
+      Alert.alert("Chưa mở khóa", msg);
+      return;
     }
+    router.push(`/lessons/${lessonId}/listening/intro` as any);
   };
 
   const handleRetry = () => {
-    // Cho phép học lại vòng thực hành ngữ pháp
-    router.replace(`/lessons/${lessonId}/grammar/exercise` as any);
+    router.replace(`/lessons/${lessonId}/grammar/quiz` as any);
   };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? `${m}p ${s}s` : `${s} giây`;
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Color.main} />
+        <Text style={styles.loadingText}>Đang tổng hợp kết quả...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
-      {/* 1. HEADER */}
       <View style={styles.header}>
         <CloseButton variant="Stroke" onPress={() => setShowExitModal(true)} />
       </View>
@@ -91,123 +93,85 @@ export default function GrammarResultScreen() {
         contentContainerStyle={styles.scrollContent} 
         showsVerticalScrollIndicator={false}
       >
-        
-        {/* 2. CELEBRATION */}
         <View style={styles.celebrationSection}>
           <Image 
-            source={require('../../../../assets/images/horani/result-levelup.png')} 
+            source={isPassed ? require('../../../../assets/images/horani/result-levelup.png') : require('../../../../assets/images/horani/failure.png')} 
             style={styles.illustration} 
             resizeMode="contain" 
           />
-          <Text style={styles.titleText}>Hoàn thành!</Text>
+          <Text style={[styles.titleText, !isPassed && { color: Color.red }]}>
+            {isPassed ? 'Hoàn thành!' : 'Chưa đạt yêu cầu'}
+          </Text>
         </View>
 
-        {/* 3. SCORE BANNER */}
-        <View style={styles.scoreBanner}>
+        <View style={[styles.scoreBanner, !isPassed && { backgroundColor: '#FFEBEB' }]}>
           <View>
-            <Text style={styles.scoreText}>Đúng {parsedCorrect}/{parsedTotal}</Text>
-            <Text style={styles.timeText}>Thời gian: {formatTime(parsedTime)}</Text>
+            <Text style={[styles.scoreText, !isPassed && { color: Color.red }]}>Đúng {session?.totalScore / (session?.questions?.[0]?.question?.points || 1)}/{session?.questions?.length}</Text>
+            <Text style={[styles.timeText, !isPassed && { color: Color.red }]}>Thời gian: {formatTime(session?.timeSpent || 0)}</Text>
           </View>
           <View style={styles.scoreRight}>
-            <Text style={styles.scoreNumber}>{parsedScore}</Text>
-            <Text style={styles.scoreLabel}>điểm</Text>
+            <Text style={[styles.scoreNumber, !isPassed && { color: Color.red }]}>{session?.percentage}</Text>
+            <Text style={[styles.scoreLabel, !isPassed && { color: Color.red }]}>điểm</Text>
           </View>
         </View>
 
-        {/* 4. RESULT LIST */}
-        <View style={styles.listSection}>
-          {GRAMMAR_RESULTS.map((item, index) => (
-            <View 
-              key={item.id} 
-              style={[
-                styles.card, 
-                item.isCorrect ? styles.cardCorrect : styles.cardIncorrect
-              ]}
-            >
-              {/* Header của thẻ chứa Badge Đúng/Sai */}
+                <View style={styles.listSection}>
+          {session?.questions?.map((item: any, index: number) => (
+            <View key={index} style={[styles.card, item.isCorrect ? styles.cardCorrect : styles.cardIncorrect]}>
               <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>Câu {index + 1}</Text>
-                <View style={[
-                  styles.typeBadge, 
-                  item.isCorrect ? styles.badgeBgCorrect : styles.badgeBgIncorrect
-                ]}>
-                  <Text style={[
-                    styles.typeText, 
-                    item.isCorrect ? styles.badgeTextCorrect : styles.badgeTextIncorrect
-                  ]}>
-                    {item.isCorrect ? 'Chính xác' : 'Sai'}
-                  </Text>
-                </View>
+                {item.isCorrect ? <CheckCircleIcon size={20} color={Color.main} weight="fill" /> : <XCircleIcon size={20} color={Color.red} weight="fill" />}
               </View>
-
-              {/* Nội dung chính của câu hỏi */}
               <View style={styles.cardBody}>
-                <Text style={styles.questionText}>{item.question}</Text>
-                
+                <Text style={styles.questionText}>{item.question?.questionText || item.question?.question}</Text>
                 <View style={styles.answerArea}>
                   {!item.isCorrect && (
-                    <Text style={styles.wrongAnswerText}>
-                      Của bạn: <Text style={styles.strikeThrough}>{item.userAnswer}</Text>
-                    </Text>
+                    <Text style={styles.wrongAnswerText}>Của bạn: <Text style={styles.strikeThrough}>{item.userAnswer || '(Trống)'}</Text></Text>
                   )}
-                  <Text style={styles.rightAnswerText}>
-                    Đáp án: {item.correctAnswer}
-                  </Text>
+                  <Text style={styles.rightAnswerText}>Đáp án đúng: {item.question?.correctAnswer}</Text>
                 </View>
-
-                <Text style={styles.explanationText}>
-                  💡 {item.explanation}
-                </Text>
+                {item.question?.explanation && <Text style={styles.explanationText}>💡 {item.question.explanation}</Text>}
               </View>
             </View>
           ))}
         </View>
-
       </ScrollView>
 
-      {/* 5. ACTION BUTTONS */}
       <View style={styles.footer}>
-        <Button 
-          title={isHasNext ? "Học ngữ pháp tiếp theo" : "Tiếp tục học Nói"} 
-          variant="Green" 
-          onPress={handleNext} 
-        />
-        <Button 
-          title="Luyện tập lại Ngữ pháp" 
-          variant="Outline" 
-          onPress={handleRetry} 
-          style={{ marginTop: Gap.gap_10 }}
-        />
+        <TouchableOpacity 
+          activeOpacity={0.8}
+          onPress={handleNext}
+          style={[styles.nextBtn, !isPassed && styles.nextBtnDisabled]}
+        >
+          <Text style={styles.nextBtnText}>Tiếp tục học Nghe</Text>
+          {!isPassed && <LockIcon size={20} color="#FFF" weight="bold" />}
+        </TouchableOpacity>
+
+        <Button title="Làm lại Quiz Ngữ pháp" variant="Outline" onPress={handleRetry} style={{ marginTop: Gap.gap_10 }} />
       </View>
 
       <ConfirmModal 
         isVisible={showExitModal}
         title="Trở về trang chủ?"
-        subtitle="Bạn đã hoàn thành vòng này, bạn có chắc muốn thoát ra không?"
-        cancelText="Ở lại"
-        confirmText="Trở về"
+        subtitle="Hệ thống đã lưu kết quả, bạn có muốn quay về màn hình chính?"
+        cancelText="Ở lại" confirmText="Trở về"
         onCancel={() => setShowExitModal(false)}
-        onConfirm={() => {
-          setShowExitModal(false);
-          router.push('/(tabs)');
-        }}
+        onConfirm={() => { setShowExitModal(false); router.push('/(tabs)'); }}
       />
-
     </SafeAreaView>
   );
 }
 
-// --- STYLES ---
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Color.bg },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 10, fontFamily: FontFamily.lexendDecaMedium, color: Color.gray },
   header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
   scrollArea: { flex: 1 },
   scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
-  
   celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
-  illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
+  illustration: { width: 140, height: 140, marginBottom: Gap.gap_10 },
   titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.xanh },
-
   scoreBanner: {
     flexDirection: 'row', justifyContent: 'space-between',
     backgroundColor: Color.greenLight, padding: Padding.padding_15,
@@ -219,63 +183,43 @@ const styles = StyleSheet.create({
   scoreNumber: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.main2, lineHeight: 28 },
   scoreLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.main2 },
   
-  listSection: { width: '100%' },
+  tabBar: { flexDirection: 'row', marginBottom: Gap.gap_20, borderBottomWidth: 1, borderBottomColor: Color.stroke },
+  tabItem: { flex: 1, paddingVertical: 12, alignItems: 'center' },
+  tabItemActive: { borderBottomWidth: 3, borderBottomColor: Color.main },
+  tabText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.gray },
+  tabTextActive: { color: Color.main, fontFamily: FontFamily.lexendDecaBold },
 
-  // --- STYLES CHO CARD (Grammar Result) ---
-  card: {
-    backgroundColor: Color.bg, borderRadius: Border.br_15,
-    borderWidth: 2, padding: Padding.padding_15, marginBottom: 12,
-  },
+  listSection: { width: '100%' },
+  card: { backgroundColor: Color.bg, borderRadius: Border.br_15, borderWidth: 2, padding: Padding.padding_15, marginBottom: 12 },
   cardCorrect: { borderColor: Color.main },
   cardIncorrect: { borderColor: Color.red },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Gap.gap_10 },
-  cardTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_14, color: Color.gray, marginRight: Gap.gap_10 },
-  
-  typeBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  badgeBgCorrect: { backgroundColor: Color.greenLight },
-  badgeBgIncorrect: { backgroundColor: '#FFEBEB' },
-  typeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 },
-  badgeTextCorrect: { color: Color.main2 },
-  badgeTextIncorrect: { color: Color.red },
-  
-  cardBody: { flexDirection: 'column' },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-    lineHeight: 24,
-    marginBottom: Gap.gap_10,
-  },
-  answerArea: {
-    backgroundColor: '#F8FAFC',
-    padding: Padding.padding_10,
-    borderRadius: Border.br_10,
-    marginBottom: Gap.gap_10,
-  },
-  wrongAnswerText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    marginBottom: 4,
-  },
-  strikeThrough: {
-    textDecorationLine: 'line-through',
-    color: Color.red,
-  },
-  rightAnswerText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: Color.main2,
-  },
-  explanationText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    lineHeight: 22,
-  },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_10 },
+  cardTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 14, color: Color.gray },
+  questionText: { fontFamily: FontFamily.lexendDecaBold, fontSize: 16, color: Color.text, marginBottom: Gap.gap_10 },
+  answerArea: { backgroundColor: '#F8FAFC', padding: 10, borderRadius: 10, marginBottom: 10 },
+  wrongAnswerText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.gray },
+  strikeThrough: { textDecorationLine: 'line-through', color: Color.red },
+  rightAnswerText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 14, color: Color.main2 },
+  explanationText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 13, color: Color.text, opacity: 0.8 },
 
-  footer: {
-    paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
-    backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke,
-  }
+  grammarItemCard: { backgroundColor: Color.whiteText, padding: 16, borderRadius: 15, marginBottom: 10, borderWidth: 1, borderColor: Color.stroke },
+  grammarStructure: { fontFamily: FontFamily.lexendDecaBold, fontSize: 18, color: Color.main },
+  grammarMeaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.text, marginTop: 4 },
+
+  footer: { paddingHorizontal: Padding.padding_20, paddingVertical: 20, backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke },
+  nextBtn: {
+    backgroundColor: Color.main,
+    paddingVertical: 16,
+    borderRadius: Border.br_30,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10
+  },
+  cardBody: {
+    flexDirection: 'column',
+    marginTop: 4,
+  },
+  nextBtnDisabled: { backgroundColor: Color.gray },
+  nextBtnText: { color: '#FFF', fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16 },
 });

@@ -1,11 +1,12 @@
-﻿import React from 'react';
-import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
+﻿import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, ActivityIndicator, Alert, Animated, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 
+import LessonService from '../../../../api/services/lesson.service';
 import Button from '../../../../components/Button';
 import TimerHeader from '../../../../components/TimerHeader';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
@@ -17,737 +18,518 @@ import {
   ReadingPassageCard,
   ShortAnswerQuestionCard,
 } from '../../../../components/Modals/Question';
-
-type ExamQuestion =
-  | {
-      id: string;
-      section: 'listening';
-      type: 'multiple-choice';
-      sectionTitle: string;
-      instruction: string;
-      audioSource: number;
-      question: string;
-      options: { id: string; label: string }[];
-    }
-  | {
-      id: string;
-      section: 'listening';
-      type: 'ox';
-      sectionTitle: string;
-      instruction: string;
-      audioSource: number;
-      question: string;
-      trueLabel: string;
-      falseLabel: string;
-    }
-  | {
-      id: string;
-      section: 'listening';
-      type: 'short-answer';
-      sectionTitle: string;
-      instruction: string;
-      audioSource: number;
-      question: string;
-      placeholder?: string;
-    }
-  | {
-      id: string;
-      section: 'reading';
-      type: 'multiple-choice';
-      sectionTitle: string;
-      lessonLabel: string;
-      instruction: string;
-      passage: string;
-      question: string;
-      options: { id: string; label: string }[];
-    }
-  | {
-      id: string;
-      section: 'reading';
-      type: 'ox';
-      sectionTitle: string;
-      lessonLabel: string;
-      instruction: string;
-      passage: string;
-      question: string;
-      trueLabel: string;
-      falseLabel: string;
-    }
-  | {
-      id: string;
-      section: 'reading';
-      type: 'short-answer';
-      sectionTitle: string;
-      lessonLabel: string;
-      instruction: string;
-      passage: string;
-      question: string;
-      placeholder?: string;
-    };
+import { Color } from '../../../../constants/GlobalStyles';
 
 const SPEED_OPTIONS = [
-  { label: 'x0.5', value: 0.5 },
   { label: 'x0.75', value: 0.75 },
   { label: 'x1.0', value: 1 },
   { label: 'x1.25', value: 1.25 },
   { label: 'x1.5', value: 1.5 },
-  { label: 'x2', value: 2 },
+  { label: 'x2.0', value: 2 },
 ];
-
-const EXAM_QUESTIONS: Record<string, ExamQuestion[]> = {
-  '1': [
-    {
-      id: 'l1-e1-ox-1',
-      section: 'listening',
-      type: 'ox',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '1 - 대화를 잘 듣고 맞는 것에 고르십시오.',
-      audioSource: require('../../../../assets/audio/1.mp3'),
-      question: '남 씨는 학생입니다.',
-      trueLabel: '같은',
-      falseLabel: '다른',
-    },
-    {
-      id: 'l1-e1-ox-2',
-      section: 'listening',
-      type: 'ox',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '1 - 대화를 잘 듣고 맞는 것에 고르십시오.',
-      audioSource: require('../../../../assets/audio/1.mp3'),
-      question: '이지훈 씨는 회사원입니다.',
-      trueLabel: '같은',
-      falseLabel: '다른',
-    },
-    {
-      id: 'l1-e1-ox-3',
-      section: 'listening',
-      type: 'ox',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '1 - 대화를 잘 듣고 맞는 것에 고르십시오.',
-      audioSource: require('../../../../assets/audio/1.mp3'),
-      question: '조현우 씨는 공무원입니다.',
-      trueLabel: '같은',
-      falseLabel: '다른',
-    },
-    {
-      id: 'l1-e1-ox-4',
-      section: 'listening',
-      type: 'ox',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '1 - 대화를 잘 듣고 맞는 것에 고르십시오.',
-      audioSource: require('../../../../assets/audio/1.mp3'),
-      question: '와완 씨는 의사입니다.',
-      trueLabel: '같은',
-      falseLabel: '다른',
-    },
-    {
-      id: 'l2-e1-sa-1',
-      section: 'listening',
-      type: 'short-answer',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '2 - 다음 빈칸에 알맞은 말을 쓰십시오.',
-      audioSource: require('../../../../assets/audio/2.1.mp3'),
-      question: '수빈: _____? 박수빈입니다.',
-      placeholder: 'Nhập kết quả của bạn',
-    },
-    {
-      id: 'l2-e1-sa-2',
-      section: 'listening',
-      type: 'short-answer',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '2 - 다음 빈칸에 알맞은 말을 쓰십시오.',
-      audioSource: require('../../../../assets/audio/2.1.mp3'),
-      question: '화: __ 화입니다. 반갑습니다.',
-      placeholder: 'Nhập kết quả của bạn',
-    },
-    {
-      id: 'l2-e1-sa-3',
-      section: 'listening',
-      type: 'short-answer',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '2 - 다음 빈칸에 알맞은 말을 쓰십시오.',
-      audioSource: require('../../../../assets/audio/2.1.mp3'),
-      question: '수빈: 화 씨는 ___입니까?',
-      placeholder: 'Nhập kết quả của bạn',
-    },
-    {
-      id: 'l2-e1-sa-4',
-      section: 'listening',
-      type: 'short-answer',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '2 - 다음 빈칸에 알맞은 말을 쓰십시오.',
-      audioSource: require('../../../../assets/audio/2.1.mp3'),
-      question: '화: ___, 의사입니다. 박수빈 씨는 ___입니까?',
-      placeholder: 'Nhập kết quả của bạn',
-    },
-    {
-      id: 'l2-e1-sa-5',
-      section: 'listening',
-      type: 'short-answer',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '2 - 다음 빈칸에 알맞은 말을 쓰십시오.',
-      audioSource: require('../../../../assets/audio/2.1.mp3'),
-      question: '수빈: _, 한국어 ___입니다.',
-      placeholder: 'Nhập kết quả của bạn',
-    },
-    {
-      id: 'l2-e1-mc-1',
-      section: 'listening',
-      type: 'multiple-choice',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '3 - 대화를 잘 듣고 맞는 것에 고르십시오.',
-      audioSource: require('../../../../assets/audio/3.mp3'),
-      question: '남 씨는 누구를 찾고 있습니까?',
-      options: [
-        { id: 'a', label: '박준영 씨' },
-        { id: 'b', label: '최정우 씨' },
-        { id: 'c', label: '이지훈 씨' },
-      ],
-    },
-    {
-      id: 'l2-e1-mc-2',
-      section: 'listening',
-      type: 'multiple-choice',
-      sectionTitle: 'Phần 1 - Listening',
-      instruction: '3 - 대화를 잘 듣고 맞는 것에 고르십시오.',
-      audioSource: require('../../../../assets/audio/3.mp3'),
-      question: '남 씨의 직업은 무엇입니까?',
-      options: [
-        { id: 'a', label: '의사' },
-        { id: 'b', label: '학생' },
-        { id: 'c', label: '회사원' },
-      ],
-    },
-    {
-      id: 'reading-1',
-      section: 'reading',
-      type: 'ox',
-      sectionTitle: 'Phần 2 - Reading',
-      lessonLabel: 'Bài 1',
-      instruction: '다음 글을 읽고 물음에 답하세요.',
-      passage:
-        '박수진: 안녕하세요? 제 이름은 박수진입니다. 한국 사람입니다. 저는 회사원입니다.\n\n최유진: 안녕하세요? 제 이름은 최유진입니다. 한국 사람입니다. 한국대학교 학생입니다. 반갑습니다.\n\n리양: 안녕하십니까? 저는 리양입니다. 중국 사람입니다. 은행원입니다.',
-      question: '박수진 씨는 의사입니다.',
-      trueLabel: '다른',
-      falseLabel: '같은',
-    },
-    {
-      id: 'reading-2',
-      section: 'reading',
-      type: 'ox',
-      sectionTitle: 'Phần 2 - Reading',
-      lessonLabel: 'Bài 1',
-      instruction: '다음 글을 읽고 물음에 답하세요.',
-      passage:
-        '박수진: 안녕하세요? 제 이름은 박수진입니다. 한국 사람입니다. 저는 회사원입니다.\n\n최유진: 안녕하세요? 제 이름은 최유진입니다. 한국 사람입니다. 한국대학교 학생입니다. 반갑습니다.\n\n리양: 안녕하십니까? 저는 리양입니다. 중국 사람입니다. 은행원입니다.',
-      question: '최유진 씨는 한국대학교 학생입니다.',
-      trueLabel: '같은',
-      falseLabel: '다른',
-    },
-    {
-      id: 'reading-3',
-      section: 'reading',
-      type: 'ox',
-      sectionTitle: 'Phần 2 - Reading',
-      lessonLabel: 'Bài 1',
-      instruction: '다음 글을 읽고 물음에 답하세요.',
-      passage:
-        '박수진: 안녕하세요? 제 이름은 박수진입니다. 한국 사람입니다. 저는 회사원입니다.\n\n최유진: 안녕하세요? 제 이름은 최유진입니다. 한국 사람입니다. 한국대학교 학생입니다. 반갑습니다.\n\n리양: 안녕하십니까? 저는 리양입니다. 중국 사람입니다. 은행원입니다.',
-      question: '리양 씨는 의사입니다.',
-      trueLabel: '같은',
-      falseLabel: '다른',
-    },
-    {
-      id: 'reading-4',
-      section: 'reading',
-      type: 'multiple-choice',
-      sectionTitle: 'Phần 2 - Reading',
-      lessonLabel: 'Bài 2',
-      instruction: '다음 글을 읽고 물음에 답하세요.',
-      passage:
-        '안녕하세요? 제 이름은 리양입니다. 중국 사람입니다. 저는 공무원입니다.',
-      question: '이 사람은 리양입니까?',
-      options: [
-        { id: 'a', label: '네' },
-        { id: 'b', label: '아니요' },
-      ],
-    },
-    {
-      id: 'reading-5',
-      section: 'reading',
-      type: 'short-answer',
-      sectionTitle: 'Phần 2 - Reading',
-      lessonLabel: 'Bài 2',
-      instruction: '다음 글을 읽고 물음에 답하세요.',
-      passage:
-        '안녕하세요? 제 이름은 리양입니다. 중국 사람입니다. 저는 공무원입니다.',
-      question: '이 사람은 중국 학생입니까?',
-      placeholder: 'Nhập câu trả lời của bạn',
-    },
-    {
-      id: 'reading-6',
-      section: 'reading',
-      type: 'short-answer',
-      sectionTitle: 'Phần 2 - Reading',
-      lessonLabel: 'Bài 2',
-      instruction: '다음 글을 읽고 물음에 답하세요.',
-      passage:
-        '안녕하세요? 제 이름은 리양입니다. 중국 사람입니다. 저는 공무원입니다.',
-      question: '이 사람은 관광 가이드입니까?',
-      placeholder: 'Nhập câu trả lời của bạn',
-    },
-  ],
-};
 
 export default function FinalTestExamScreen() {
   const router = useRouter();
-  const { lessonId } = useLocalSearchParams<{ lessonId?: string }>();
-  const resolvedLessonId = lessonId ?? '1';
-  const questions = EXAM_QUESTIONS[resolvedLessonId] ?? EXAM_QUESTIONS['1'];
+  const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
 
-  const [showIntroModal, setShowIntroModal] = React.useState(true);
-  const [isStarted, setIsStarted] = React.useState(false);
-  const [showSubmitConfirm, setShowSubmitConfirm] = React.useState(false);
-  const [showLockedExitModal, setShowLockedExitModal] = React.useState(false);
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [expanded, setExpanded] = React.useState(true);
-  const [selectedAnswer, setSelectedAnswer] = React.useState<string | undefined>(undefined);
-  const [typedAnswer, setTypedAnswer] = React.useState('');
-  const [timeLeft, setTimeLeft] = React.useState(20 * 60);
-  const [selectedSpeed, setSelectedSpeed] = React.useState(1);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const [playbackProgress, setPlaybackProgress] = React.useState(0);
-  const [durationMs, setDurationMs] = React.useState(0);
-  const [positionMs, setPositionMs] = React.useState(0);
-  const [audioReady, setAudioReady] = React.useState(false);
+  // Data states
+  const [isLoading, setIsLoading] = useState(true);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [flatQuestions, setFlatQuestions] = useState<any[]>([]);
+  const [quizData, setQuizData] = useState<any>(null);
+  
+  // UI states
+  const [showIntroModal, setShowIntroModal] = useState(true);
+  const [isStarted, setIsStarted] = useState(false);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [expanded, setExpanded] = useState(true);
+  const [selectedAnswer, setSelectedAnswer] = useState<any>(undefined);
+  const [typedAnswer, setTypedAnswer] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Timer states
+  const [timeLeft, setTimeLeft] = useState(900);
+  const startTimeRef = useRef<number>(Date.now());
+  const timerIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Audio states
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [positionMs, setPositionMs] = useState(0);
+  const [durationMs, setDurationMs] = useState(0);
+  const [playbackProgress, setPlaybackProgress] = useState(0);
+  const [selectedSpeed, setSelectedSpeed] = useState(1);
+  
+  // Animation refs
+  const questionOpacity = useRef(new Animated.Value(1)).current;
+  const questionTranslateY = useRef(new Animated.Value(0)).current;
 
-  const audioRef = React.useRef<Audio.Sound | null>(null);
-  const questionOpacity = React.useRef(new Animated.Value(1)).current;
-  const questionTranslateY = React.useRef(new Animated.Value(0)).current;
-  const progressAnimation = React.useRef(new Animated.Value(1 / questions.length)).current;
+  const formatTime = (ms: number) => {
+    const totalSec = Math.floor(ms / 1000);
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
-  const currentQuestion = questions[currentIndex];
-  const progress = (currentIndex + 1) / questions.length;
-  const progressLabel = `${currentIndex + 1}/${questions.length}`;
-  const listeningSource = currentQuestion.section === 'listening' ? currentQuestion.audioSource : null;
-  const canProceed =
-    currentQuestion.type === 'short-answer' ? typedAnswer.trim().length > 0 : Boolean(selectedAnswer);
-
-  React.useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | undefined;
-    if (isStarted && timeLeft > 0) {
-      timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+  // Load audio
+  useEffect(() => {
+    if (!isStarted) return;
+    
+    const currentQuestion = flatQuestions[currentIndex];
+    if (currentQuestion?.sectionType === 'listening' && currentQuestion?.audioUrl) {
+      loadAudio(currentQuestion.audioUrl);
     }
+    
     return () => {
-      if (timer) {
-        clearInterval(timer);
+      if (sound) {
+        sound.unloadAsync();
       }
     };
-  }, [isStarted, timeLeft]);
+  }, [currentIndex, isStarted]);
 
-  React.useEffect(() => {
-    if (isStarted && timeLeft === 0) {
-      router.replace(`/lessons/${resolvedLessonId}/final-test/result` as any);
+  const onPlaybackStatusUpdate = (status: any) => {
+    if (status.isLoaded) {
+      setIsPlaying(status.isPlaying);
+      setPositionMs(status.positionMillis);
+      setDurationMs(status.durationMillis);
+      setPlaybackProgress(status.positionMillis / status.durationMillis);
+      
+      if (status.didJustFinish) {
+        setIsPlaying(false);
+        setPositionMs(0);
+        setPlaybackProgress(0);
+      }
     }
-  }, [isStarted, resolvedLessonId, router, timeLeft]);
+  };
 
-  React.useEffect(() => {
-    questionOpacity.setValue(0);
-    questionTranslateY.setValue(18);
+  const loadAudio = async (uri: string) => {
+    try {
+      if (sound) {
+        await sound.unloadAsync();
+      }
+      
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        shouldDuckAndroid: true,
+      });
+      
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri },
+        { shouldPlay: false, rate: selectedSpeed },
+        onPlaybackStatusUpdate
+      );
+      setSound(newSound);
+    } catch (error) {
+      console.error('Error loading audio:', error);
+    }
+  };
 
+  const handlePlayPause = async () => {
+    if (sound) {
+      if (isPlaying) {
+        await sound.pauseAsync();
+      } else {
+        await sound.playAsync();
+      }
+    }
+  };
+
+  const handleSpeedChange = async (speed: number) => {
+    setSelectedSpeed(speed);
+    if (sound) {
+      await sound.setRateAsync(speed, true);
+    }
+  };
+
+  // Timer effect
+  useEffect(() => {
+    if (isStarted && !showSubmitConfirm && flatQuestions.length > 0) {
+      startTimeRef.current = Date.now();
+      timerIntervalRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        const remaining = Math.max(0, 900 - elapsed);
+        setTimeLeft(remaining);
+        
+        if (remaining === 0) {
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+          }
+          handleAutoSubmit();
+        }
+      }, 1000);
+    }
+    
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [isStarted, showSubmitConfirm, flatQuestions.length]);
+
+  const handleAutoSubmit = async () => {
+    Alert.alert(
+      "Hết giờ", 
+      "Bài thi đã hết thời gian, hệ thống sẽ tự động nộp bài.",
+      [{ text: "OK", onPress: async () => {
+        try {
+          setIsLoading(true);
+          await LessonService.submitFinalTest(lessonId as string, sessionId!, { 
+            timeSpent: 900 
+          });
+          router.replace({
+            pathname: `/lessons/${lessonId}/final-test/result` as any,
+            params: { sessionId }
+          });
+        } catch (error) {
+          Alert.alert("Lỗi", "Không thể nộp bài. Vui lòng thử lại.");
+        } finally {
+          setIsLoading(false);
+        }
+      }}]
+    );
+  };
+
+  const animateTransition = (callback: () => void) => {
     Animated.parallel([
       Animated.timing(questionOpacity, {
-        toValue: 1,
-        duration: 240,
-        easing: Easing.out(Easing.cubic),
+        toValue: 0,
+        duration: 200,
         useNativeDriver: true,
       }),
       Animated.timing(questionTranslateY, {
-        toValue: 0,
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
+        toValue: -20,
+        duration: 200,
         useNativeDriver: true,
       }),
-      Animated.timing(progressAnimation, {
-        toValue: progress,
-        duration: 360,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [currentIndex, progress, progressAnimation, questionOpacity, questionTranslateY]);
+    ]).start(() => {
+      callback();
+      Animated.parallel([
+        Animated.timing(questionOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(questionTranslateY, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
 
-  React.useEffect(() => {
-    const setup = async () => {
-      if (!listeningSource) {
-        if (audioRef.current) {
-          await audioRef.current.unloadAsync();
-          audioRef.current = null;
-        }
-        setAudioReady(false);
-        setIsPlaying(false);
-        setPlaybackProgress(0);
-        setDurationMs(0);
-        setPositionMs(0);
+  // Initialize test
+  useEffect(() => {
+    const initTest = async () => {
+      console.log("LOG: lessonId hiện tại là:", lessonId);
+
+      if (!lessonId || lessonId.length < 20) {
+        Alert.alert("Lỗi dữ liệu", `ID bài học không hợp lệ: ${lessonId}.`);
+        router.back();
         return;
       }
 
       try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-          interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false,
+        const startRes = await LessonService.startFinalTest(lessonId);
+        const { quiz } = await LessonService.getFinalTestSession(lessonId, startRes.sessionId);
+        
+        console.log('Quiz sections:', {
+          listening: quiz.sections?.listening?.length,
+          reading: quiz.sections?.reading?.length,
+          listeningQuestions: quiz.sections?.listening?.reduce((sum, item) => sum + (item.questions?.length || 0), 0),
+          readingQuestions: quiz.sections?.reading?.reduce((sum, item) => sum + (item.questions?.length || 0), 0)
         });
 
-        if (audioRef.current) {
-          await audioRef.current.unloadAsync();
+        setSessionId(startRes.sessionId);
+        setQuizData(quiz);
+
+        const tempFlat: any[] = [];
+
+        if (quiz.sections?.listening) {
+          quiz.sections.listening.forEach((item: any) => {
+            if (item.questions && item.questions.length > 0) {
+              item.questions.forEach((q: any) => {
+                tempFlat.push({
+                  ...q,
+                  sectionType: 'listening',
+                  itemId: item._id,
+                  passage: item.content,
+                  audioUrl: item.audioUrl,
+                  duration: item.duration,
+                  scripts: item.scripts,
+                  instruction: item.title || q.questionText,
+                  sectionTitle: 'Listening'
+                });
+              });
+            }
+          });
         }
 
-        const { sound } = await Audio.Sound.createAsync(
-          listeningSource,
-          { shouldPlay: false, rate: selectedSpeed, shouldCorrectPitch: true },
-          (status) => {
-            if (!status.isLoaded) {
-              return;
+        if (quiz.sections?.reading) {
+          quiz.sections.reading.forEach((item: any) => {
+            if (item.questions && item.questions.length > 0) {
+              item.questions.forEach((q: any) => {
+                tempFlat.push({
+                  ...q,
+                  sectionType: 'reading',
+                  itemId: item._id,
+                  passage: item.content,
+                  translation: item.translation,
+                  instruction: item.title || q.questionText,
+                  sectionTitle: 'Reading'
+                });
+              });
             }
+          });
+        }
 
-            setIsPlaying(status.isPlaying);
-            setDurationMs(status.durationMillis ?? 0);
-            setPositionMs(status.positionMillis ?? 0);
-            setPlaybackProgress(
-              status.durationMillis ? (status.positionMillis ?? 0) / status.durationMillis : 0
-            );
-          }
-        );
+        console.log(`Đã flatten ${tempFlat.length} câu hỏi`);
 
-        audioRef.current = sound;
-        setAudioReady(true);
-      } catch {
-        setAudioReady(false);
+        if (tempFlat.length === 0) {
+          Alert.alert("Thông báo", "Bài thi này chưa có câu hỏi nào.");
+          router.back();
+        } else {
+          setFlatQuestions(tempFlat);
+        }
+
+      } catch (error: any) {
+        console.log(`LOG: Lỗi - ${error.message}`);
+        Alert.alert("Lỗi", "Không thể bắt đầu bài thi. Vui lòng thử lại.");
+        router.back();
+      } finally {
+        setIsLoading(false);
       }
     };
+    
+    initTest();
+  }, [lessonId]);
 
-    void setup();
+  const currentQuestion = flatQuestions[currentIndex];
 
-    return () => {
-      if (audioRef.current) {
-        void audioRef.current.unloadAsync();
-        audioRef.current = null;
-      }
-    };
-  }, [listeningSource, selectedSpeed]);
-
-  React.useEffect(() => {
-    if (!audioRef.current) {
+  const handleNext = async () => {
+    if (isSubmitting) return;
+    
+    const answer = currentQuestion.type === 'short_answer' ? typedAnswer : selectedAnswer;
+    
+    if (currentQuestion.type !== 'short_answer' && !answer) {
+      Alert.alert("Thông báo", "Vui lòng chọn đáp án trước khi tiếp tục.");
       return;
     }
+    
+    if (currentQuestion.type === 'short_answer' && (!answer || answer.trim() === '')) {
+      Alert.alert("Thông báo", "Vui lòng nhập câu trả lời trước khi tiếp tục.");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      await LessonService.saveFinalTestAnswer(lessonId as string, sessionId!, {
+        sectionType: currentQuestion.sectionType,
+        itemId: currentQuestion.itemId,
+        questionId: currentQuestion._id,
+        userAnswer: answer,
+        timeSpent: Math.floor((Date.now() - startTimeRef.current) / 1000),
+      });
 
-    void audioRef.current.setRateAsync(selectedSpeed, true);
-  }, [selectedSpeed]);
-
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      if (currentIndex < flatQuestions.length - 1) {
+        animateTransition(() => {
+          setCurrentIndex(prev => prev + 1);
+          setSelectedAnswer(undefined);
+          setTypedAnswer('');
+          setExpanded(true);
+        });
+      } else {
+        setShowSubmitConfirm(true);
+      }
+    } catch (err: any) {
+      console.error('Save answer error:', err.response?.data);
+      Alert.alert("Lỗi", err.response?.data?.message || "Không thể lưu đáp án.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const resetQuestionState = React.useCallback(() => {
-    setSelectedAnswer(undefined);
-    setTypedAnswer('');
-    setExpanded(true);
-  }, []);
-
-  const handlePlayPress = React.useCallback(() => {
-    const run = async () => {
-      if (!audioRef.current || !audioReady) {
-        return;
-      }
-
-      if (isPlaying) {
-        await audioRef.current.pauseAsync();
-        return;
-      }
-
-      if (durationMs > 0 && positionMs >= durationMs) {
-        await audioRef.current.setPositionAsync(0);
-      }
-
-      await audioRef.current.playAsync();
+  const renderQuestion = () => {
+    if (!currentQuestion) return null;
+    
+    const common = {
+      progressLabel: `${currentIndex + 1}/${flatQuestions.length}`,
+      progress: (currentIndex + 1) / flatQuestions.length,
+      question: currentQuestion.questionText,
+      expanded,
+      onToggleExpand: () => setExpanded(!expanded),
+      footer: (
+        <Button 
+          title={currentIndex === flatQuestions.length - 1 ? "Nộp bài" : "Tiếp theo"} 
+          onPress={handleNext}
+          disabled={isSubmitting}
+        />
+      )
     };
 
-    void run();
-  }, [audioReady, durationMs, isPlaying, positionMs]);
-
-  const animateToNext = React.useCallback(
-    (onDone: () => void) => {
-      Animated.parallel([
-        Animated.timing(questionOpacity, {
-          toValue: 0,
-          duration: 180,
-          easing: Easing.in(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(questionTranslateY, {
-          toValue: -10,
-          duration: 180,
-          easing: Easing.in(Easing.cubic),
-          useNativeDriver: true,
-        }),
-      ]).start(({ finished }) => {
-        if (finished) {
-          onDone();
-        }
-      });
-    },
-    [questionOpacity, questionTranslateY]
-  );
-
-  const goNext = React.useCallback(() => {
-    if (!canProceed) {
-      return;
+    if (currentQuestion.type === 'single_choice') {
+      return (
+        <MultipleChoiceQuestionCard 
+          {...common} 
+          options={currentQuestion.metadata?.options?.map((o: any) => ({ 
+            id: o, 
+            label: o, 
+            state: selectedAnswer === o ? 'selected' : 'default' 
+          }))} 
+          onSelectOption={setSelectedAnswer}
+        />
+      );
     }
+    
+    if (currentQuestion.type === 'true_false') {
+      return (
+        <OXQuestionAccordion 
+          {...common} 
+          selectedValue={selectedAnswer} 
+          trueLabel="Đúng" 
+          falseLabel="Sai" 
+          onSelect={setSelectedAnswer}
+        />
+      );
+    }
+    
+    if (currentQuestion.type === 'short_answer') {
+      return (
+        <ShortAnswerQuestionCard 
+          {...common} 
+          value={typedAnswer} 
+          onChangeText={setTypedAnswer} 
+          onSubmit={handleNext}
+        />
+      );
+    }
+    
+    if (currentQuestion.type === 'multiple_choice') {
+      return (
+        <MultipleChoiceQuestionCard 
+          {...common} 
+          options={currentQuestion.metadata?.options?.map((o: any) => ({ 
+            id: o, 
+            label: o, 
+            state: selectedAnswer === o ? 'selected' : 'default' 
+          }))} 
+          onSelectOption={setSelectedAnswer}
+        />
+      );
+    }
+    
+    return null;
+  };
 
-    animateToNext(() => {
-      if (currentIndex >= questions.length - 1) {
-        setShowSubmitConfirm(true);
-        resetQuestionState();
-        return;
-      }
-
-      resetQuestionState();
-      setCurrentIndex((value) => value + 1);
-    });
-  }, [animateToNext, canProceed, currentIndex, questions.length, resetQuestionState]);
-
-  const submitExam = React.useCallback(() => {
-    setShowSubmitConfirm(false);
-    router.replace(`/lessons/${resolvedLessonId}/final-test/explanation` as any);
-  }, [resolvedLessonId, router]);
-
-  const footerButton = (
-    <Button
-      title={currentIndex >= questions.length - 1 ? 'Nộp bài' : 'Chốt và sang câu tiếp theo'}
-      onPress={currentIndex >= questions.length - 1 ? () => setShowSubmitConfirm(true) : goNext}
-      disabled={!canProceed}
-      style={styles.nextButton}
-    />
-  );
-
-  const questionCard =
-    currentQuestion.type === 'multiple-choice' ? (
-      <MultipleChoiceQuestionCard
-        progressLabel={progressLabel}
-        progress={progress}
-        animatedProgress={progressAnimation}
-        question={currentQuestion.question}
-        options={currentQuestion.options.map((option) => ({
-          id: option.id,
-          label: option.label,
-          state: selectedAnswer === option.id ? 'selected' : 'default',
-        }))}
-        expanded={expanded}
-        onToggleExpand={() => setExpanded((value) => !value)}
-        onSelectOption={setSelectedAnswer}
-        footer={footerButton}
-      />
-    ) : currentQuestion.type === 'ox' ? (
-      <OXQuestionAccordion
-        progressLabel={progressLabel}
-        progress={progress}
-        animatedProgress={progressAnimation}
-        question={currentQuestion.question}
-        expanded={expanded}
-        selectedValue={(selectedAnswer as 'O' | 'X' | undefined) ?? undefined}
-        trueLabel={currentQuestion.trueLabel}
-        falseLabel={currentQuestion.falseLabel}
-        onToggleExpand={() => setExpanded((value) => !value)}
-        onSelect={setSelectedAnswer}
-        footer={footerButton}
-      />
-    ) : (
-      <ShortAnswerQuestionCard
-        progressLabel={progressLabel}
-        progress={progress}
-        animatedProgress={progressAnimation}
-        question={currentQuestion.question}
-        value={typedAnswer}
-        expanded={expanded}
-        answerState="default"
-        placeholder={currentQuestion.placeholder}
-        submitLabel={currentIndex >= questions.length - 1 ? 'Nộp bài' : 'Chốt và sang câu tiếp theo'}
-        onToggleExpand={() => setExpanded((value) => !value)}
-        onChangeText={setTypedAnswer}
-        onSubmit={currentIndex >= questions.length - 1 ? () => setShowSubmitConfirm(true) : goNext}
-      />
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={Color.main} />
+      </View>
     );
+  }
 
   return (
-    <LinearGradient colors={['#DFF8C6',  '#FFFFFF','#FFFFFF','#FFFFFF','#FFFFFF',]} style={styles.screen}>
-      <SafeAreaView style={styles.safeArea}>
-        <TimerHeader
-          timeLeft={timeLeft}
-          isStarted={isStarted}
-          onClose={() => setShowLockedExitModal(true)}
-          onSubmit={() => setShowSubmitConfirm(true)}
+    <LinearGradient colors={['#DFF8C6', '#FFFFFF']} style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <TimerHeader 
+          timeLeft={timeLeft} 
+          isStarted={isStarted} 
+          onClose={() => {
+            if (timerIntervalRef.current) {
+              clearInterval(timerIntervalRef.current);
+            }
+            router.back();
+          }} 
+          onSubmit={() => setShowSubmitConfirm(true)} 
         />
 
-        {!isStarted ? <View style={styles.placeholder} /> : null}
-
-        {isStarted ? (
-          currentQuestion.type === 'short-answer' ? (
-            <KeyboardAwareScrollView
-              enableOnAndroid
-              extraScrollHeight={Platform.OS === 'ios' ? 90 : 70}
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.keyboardContent}
+        {isStarted && currentQuestion && (
+          <KeyboardAwareScrollView 
+            contentContainerStyle={styles.scrollContent}
+            enableOnAndroid={true}
+            extraScrollHeight={Platform.OS === 'android' ? 120 : 80}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Animated.View
+              style={[
+                styles.questionContainer,
+                {
+                  opacity: questionOpacity,
+                  transform: [{ translateY: questionTranslateY }],
+                }
+              ]}
             >
-              {currentQuestion.section === 'listening' ? (
-                <View style={styles.sheet}>
-                  <ListeningPromptCard
-                    lessonLabel={currentQuestion.sectionTitle}
-                    instruction={currentQuestion.instruction}
-                    currentTimeLabel={formatTime(positionMs)}
-                    durationLabel={formatTime(durationMs)}
-                    progress={playbackProgress}
-                    isPlaying={isPlaying}
-                    speedOptions={SPEED_OPTIONS}
-                    selectedSpeed={selectedSpeed}
-                    onPlayPress={handlePlayPress}
-                    onSpeedSelect={setSelectedSpeed}
-                    showTranscript={false}
-                    showTranscriptButton={false}
-                    showShadowingButton={false}
-                    onToggleTranscript={() => {}}
-                    onPressShadowing={() => {}}
-                    footer={
-                      <View style={styles.footerWrap}>
-                        <Animated.View
-                          key={`q-${currentQuestion.id}`}
-                          style={[
-                            styles.questionWrap,
-                            { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] },
-                          ]}
-                        >
-                          {questionCard}
-                        </Animated.View>
-                      </View>
-                    }
-                  />
-                </View>
+              {currentQuestion.sectionType === 'listening' ? (
+                <ListeningPromptCard
+                  lessonLabel={currentQuestion.sectionTitle}
+                  instruction={currentQuestion.instruction}
+                  currentTimeLabel={formatTime(positionMs)}
+                  durationLabel={formatTime(durationMs)}
+                  progress={playbackProgress}
+                  isPlaying={isPlaying}
+                  speedOptions={SPEED_OPTIONS}
+                  selectedSpeed={selectedSpeed}
+                  onPlayPress={handlePlayPause}
+                  onSpeedSelect={handleSpeedChange}
+                  showTranscript={false}
+                  onToggleTranscript={() => {}}
+                  footer={renderQuestion()}
+                />
               ) : (
-                <View style={styles.sheet}>
-                  <ReadingPassageCard
-                    lessonLabel={currentQuestion.lessonLabel}
-                    instruction={currentQuestion.instruction}
-                    passage={currentQuestion.passage}
-                    footer={
-                      <View style={styles.footerWrap}>
-                        <Animated.View
-                          key={`q-${currentQuestion.id}`}
-                          style={[
-                            styles.questionWrap,
-                            { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] },
-                          ]}
-                        >
-                          {questionCard}
-                        </Animated.View>
-                      </View>
-                    }
-                  />
-                </View>
+                <ReadingPassageCard
+                  lessonLabel={currentQuestion.sectionTitle}
+                  instruction={currentQuestion.instruction}
+                  passage={currentQuestion.passage || currentQuestion.content}
+                  footer={renderQuestion()}
+                />
               )}
-            </KeyboardAwareScrollView>
-          ) : currentQuestion.section === 'listening' ? (
-            <View style={styles.sheet}>
-              <ListeningPromptCard
-                lessonLabel={currentQuestion.sectionTitle}
-                instruction={currentQuestion.instruction}
-                currentTimeLabel={formatTime(positionMs)}
-                durationLabel={formatTime(durationMs)}
-                progress={playbackProgress}
-                isPlaying={isPlaying}
-                speedOptions={SPEED_OPTIONS}
-                selectedSpeed={selectedSpeed}
-                onPlayPress={handlePlayPress}
-                onSpeedSelect={setSelectedSpeed}
-                showTranscript={false}
-                showTranscriptButton={false}
-                showShadowingButton={false}
-                onToggleTranscript={() => {}}
-                onPressShadowing={() => {}}
-                footer={
-                  <View style={styles.footerWrap}>
-                    <Animated.View
-                      key={`q-${currentQuestion.id}`}
-                      style={[
-                        styles.questionWrap,
-                        { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] },
-                      ]}
-                    >
-                      {questionCard}
-                    </Animated.View>
-                  </View>
-                }
-              />
-            </View>
-          ) : (
-            <View style={styles.sheet}>
-              <ReadingPassageCard
-                lessonLabel={currentQuestion.lessonLabel}
-                instruction={currentQuestion.instruction}
-                passage={currentQuestion.passage}
-                footer={
-                  <View style={styles.footerWrap}>
-                    <Animated.View
-                      key={`q-${currentQuestion.id}`}
-                      style={[
-                        styles.questionWrap,
-                        { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] },
-                      ]}
-                    >
-                      {questionCard}
-                    </Animated.View>
-                  </View>
-                }
-              />
-            </View>
-          )
-        ) : null}
+            </Animated.View>
+          </KeyboardAwareScrollView>
+        )}
 
         <IntroPopup
           visible={showIntroModal}
-          title="Mini Test"
-          description="Khi vào bài thi, bạn sẽ không thể thoát ra trừ khi nộp bài. Hãy chuẩn bị trước khi bắt đầu nhé!"
-          buttonLabel="Bắt đầu thi"
-          mascotSources={[require('../../../../assets/images/horani/sc1_b1.png')]}
-          onClose={() => {
-            setShowIntroModal(false);
+          title={quizData?.title || "Mini Test"}
+          description={quizData?.description || `Làm bài thi để hoàn thành khóa học.\n\n• Thời gian: 15 phút\n• Số câu hỏi: ${flatQuestions.length}\n• Bạn cần đạt 80% để vượt qua`}
+          buttonLabel="Bắt đầu ngay"
+          onClose={() => { 
+            setShowIntroModal(false); 
             setIsStarted(true);
+            startTimeRef.current = Date.now();
           }}
         />
 
         <ConfirmModal
-          isVisible={showLockedExitModal}
-          title="Không thể thoát giữa bài thi"
-          subtitle="Bạn chỉ có thể tiếp tục làm bài hoặc nộp bài để kết thúc."
-          confirmText="Nộp bài"
-          cancelText="Tiếp tục làm bài"
-          onConfirm={submitExam}
-          onCancel={() => setShowLockedExitModal(false)}
-        />
-
-        <ConfirmModal
           isVisible={showSubmitConfirm}
-          title="Nộp bài ngay?"
-          subtitle="Sau khi nộp bài, bạn sẽ kết thúc mini test của unit này."
+          title="Kết thúc bài thi?"
           confirmText="Nộp bài"
-          cancelText="Kiểm tra lại"
-          onConfirm={submitExam}
+          cancelText="Tiếp tục"
+          onConfirm={async () => {
+            try {
+              setIsLoading(true);
+              if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+              }
+              await LessonService.submitFinalTest(lessonId as string, sessionId!, { 
+                timeSpent: Math.floor((Date.now() - startTimeRef.current) / 1000)
+              });
+              router.replace({
+                pathname: `/lessons/${lessonId}/final-test/result` as any,
+                params: { sessionId }
+              });
+            } catch (error) {
+              console.error('Submit error:', error);
+              Alert.alert("Lỗi", "Không thể nộp bài. Vui lòng thử lại.");
+              setIsLoading(false);
+            }
+          }}
           onCancel={() => setShowSubmitConfirm(false)}
         />
       </SafeAreaView>
@@ -755,33 +537,16 @@ export default function FinalTestExamScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
+const styles = StyleSheet.create({ 
+  center: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
-  safeArea: {
-    flex: 1,
-  },
-  placeholder: {
-    flex: 1,
-  },
-  sheet: {
-    flex: 1,
-    paddingTop: 10,
-  },
-  keyboardContent: {
+  scrollContent: {
     flexGrow: 1,
   },
-  questionWrap: {
-    minHeight: 260,
-    justifyContent: 'flex-end',
-  },
-  footerWrap: {
-    marginTop: 8,
-    marginHorizontal: -14,
-    marginBottom: -12,
-  },
-  nextButton: {
-    marginVertical: 0,
-  },
+  questionContainer: {
+    flex: 1,
+  }
 });

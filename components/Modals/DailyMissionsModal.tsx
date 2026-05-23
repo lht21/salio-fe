@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, FlatList, ActivityIndicator, Alert, Pressable, Animated, PanResponder } from 'react-native';
-import { CheckCircleIcon } from 'phosphor-react-native';
+import { SealCheckIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Gap, Border, Padding } from '../../constants/GlobalStyles';
 import GamificationService from '../../api/services/gamification.service';
 import Button from '../Button';
@@ -136,7 +136,7 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
 
         <View style={styles.missionAction}>
           {item.isClaimed ? (
-            <CheckCircleIcon size={32} color={Color.main} weight="fill" />
+            <SealCheckIcon size={32} color={Color.main} weight="fill" />
           ) : item.isCompleted ? (
             <Button 
               title="Nhận" 
@@ -240,6 +240,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Gap.gap_15,
+    backgroundColor: Color.main,
+    padding: Padding.padding_15,
+    borderRadius: Border.br_20,
   },
   modalTitle: {
     fontSize: 18,
@@ -249,7 +252,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: FontSize.fs_12,
     fontFamily: FontFamily.lexendDecaMedium,
-    color: Color.orange || '#F59E0B',
+    color: Color.bg || '#F59E0B',
     marginTop: 2,
   },
   listContent: {
@@ -260,8 +263,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Color.bg2 || '#F1F5F9', // Xám siêu nhạt tạo cảm giác khối
     padding: Padding.padding_15,
-    borderRadius: Border.br_15,
+    borderRadius: Border.br_20,
     gap: Gap.gap_10,
+    borderBottomWidth: 5,
+    borderBottomColor: Color.color,
+    borderLeftWidth: 2,
+    borderLeftColor: Color.color, // Tạo hiệu ứng phân tách giữa các nhiệm vụ
   },
   missionInfo: { flex: 1 },
   missionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.text, marginBottom: 4 },
@@ -276,6 +283,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginVertical: 0,
   },
-  rewardBadge: { backgroundColor: '#E0F2FE', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Border.br_10 },
+  rewardBadge: { backgroundColor: '#E0F2FE', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Border.br_30 },
   rewardText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#0284C7' }
 });

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { SpeakerHighIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -12,6 +11,7 @@ import Button from '../../components/Button';
 import SaveToFolderModal from '../../components/ModalOption/SaveToFolderModal';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
+import VocabularyCard from '../../components/VocabularyCard';
 
 export default function FlashcardStudyResultScreen() {
   const router = useRouter();
@@ -110,38 +110,14 @@ export default function FlashcardStudyResultScreen() {
           {words.map((item) => {
             const isKnown = historyMap[item.id] ?? false; 
             return (
-              <View 
-                key={item.id} 
-                style={[
-                  styles.card, 
-                  isKnown ? styles.cardKnown : styles.cardLearning
-                ]}
-              >
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.cardTitle, isKnown ? styles.textKnown : styles.textLearning]}>
-                    {isKnown ? t('vocabulary.remembered_count', 'Đã thuộc') : t('vocabulary.learn_again', 'Cần học lại')}
-                  </Text>
-                  <View style={styles.typeBadge}>
-                    <Text style={styles.typeText}>{item.type}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.cardBody}>
-                  <View style={styles.wordInfo}>
-                    <Text style={styles.wordText}>{item.word}</Text>
-                    {!!item.phonetic && <Text style={styles.phoneticText}>[{item.phonetic}]</Text>}
-                    <Text style={styles.meaningText}>{item.meaning}</Text>
-                  </View>
-                  
-                  <View style={styles.actionGroup}>
-                    <TouchableOpacity style={styles.iconBtn}>
-                      <SpeakerHighIcon size={24} color={colors.text} weight="fill" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.iconBtn} onPress={() => handleBookmark(item)}>
-                      <BookmarkSimpleIcon size={24} color={colors.text} weight="bold" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
+              <View key={item.id}>
+                <Text style={[styles.resultLabel, isKnown ? styles.textKnown : styles.textLearning]}>
+                  {isKnown ? t('vocabulary.remembered_count', 'Đã thuộc') : t('vocabulary.learn_again', 'Cần học lại')}
+                </Text>
+                <VocabularyCard 
+                  item={{ ...item, pos: item.type }} 
+                  onToggleFavorite={() => handleBookmark(item)} 
+                />
               </View>
             );
           })}
@@ -204,31 +180,15 @@ const createStyles = (colors: any) => StyleSheet.create({
   
   listSection: { width: '100%' },
 
-  card: {
-    backgroundColor: colors.bg, borderRadius: Border.br_15, borderWidth: 2,
-    padding: Padding.padding_15, marginBottom: 12,
+  resultLabel: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_14,
+    marginBottom: 8,
+    marginLeft: 4,
   },
-  cardKnown: { borderColor: colors.main }, // Viền xanh lá
-  cardLearning: { borderColor: colors.cam }, // Viền cam (Cần học lại)
-  
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Gap.gap_10 },
-  cardTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_14, marginRight: Gap.gap_10 },
   textKnown: { color: colors.main2 },
   textLearning: { color: colors.cam },
   
-  typeBadge: { backgroundColor: colors.greenLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  typeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: colors.main2 },
-  
-  cardBody: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  wordInfo: { flex: 1 },
-  
-  wordText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: colors.text, marginBottom: 4 },
-  phoneticText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: colors.gray, marginBottom: 4 },
-  meaningText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.text },
-  
-  actionGroup: { flexDirection: 'row', gap: Gap.gap_10 },
-  iconBtn: { padding: 4 },
-
   footer: {
     paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
     backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke,

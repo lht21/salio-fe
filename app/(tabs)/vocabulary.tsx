@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { CardsIcon, PlusCircleIcon, PlusIcon } from 'phosphor-react-native';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { ActivityIndicator, Alert, FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import Animated, { 
@@ -22,6 +22,8 @@ import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import SearchBar from '../../components/SearchBar';
 import VocabularyCard from '../../components/VocabularyCard';
 import FlashcardService from '../../api/services/flashcard.service';
+import apiClient from '../../api/client';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 type VocabularyItem = {
   id: string;
@@ -53,20 +55,27 @@ export default function VocabularyScreen() {
 
   const [activeTab, setActiveTab] = useState('all');
   const [searchText, setSearchText] = useState('');
-  const [isNewSetModalVisible, setIsNewSetModalVisible] = useState(false);
-  const [isSearchVocaModalVisible, setIsSearchVocaModalVisible] = useState(false);
+  const newSetSheetRef = useRef<BottomSheetModal>(null);
+  const searchVocaSheetRef = useRef<BottomSheetModal>(null);
   
   const [vocabularyItems, setVocabularyItems] = useState<VocabularyItem[]>([]);
   const [flashcardSets, setFlashcardSets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [missionD2, setMissionD2] = useState<any>(null);
 
   const fetchData = async () => {
     try {
-      const [setsRes, favoriteRes] = await Promise.all([
+      const [setsRes, favoriteRes, missionsRes] = await Promise.all([
         FlashcardService.getAllSets('my_sets'),
-        FlashcardService.getSetById('favorite')
+        FlashcardService.getSetById('favorite'),
+        apiClient.get('/api/v1/gamification/daily-missions').catch(() => null)
       ]);
+
+      if (missionsRes?.data?.success) {
+        const d2 = missionsRes.data.data.find((m: any) => m.id === 'D2');
+        setMissionD2(d2);
+      }
 
       if (setsRes.success) {
         const images = [
@@ -156,7 +165,7 @@ export default function VocabularyScreen() {
           await FlashcardService.addCardsToSet(newSetId, { vocabIds });
         }
 
-        setIsNewSetModalVisible(false);
+        newSetSheetRef.current?.dismiss();
         await fetchData(); 
       }
     } catch (error) {
@@ -218,11 +227,19 @@ export default function VocabularyScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('vocabulary.notebook', 'Sổ tay từ vựng')}</Text>
         <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity onPress={() => setIsNewSetModalVisible(true)}>
+          <TouchableOpacity onPress={() => newSetSheetRef.current?.present()}>
             <PlusIcon size={24} color={colors.text} weight="bold" />
           </TouchableOpacity>
         </View>
       </View>
+
+      {missionD2 && !missionD2.isCompleted && (
+        <View style={styles.missionBanner}>
+          <Text style={styles.missionBannerText}>
+            🎯 Nhiệm vụ hôm nay: Hãy học thêm {10 - missionD2.progress} từ vựng nữa để nhận mây nhé!
+          </Text>
+        </View>
+      )}
 
       <View style={styles.bannerContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bannerScroll}>
@@ -285,7 +302,7 @@ export default function VocabularyScreen() {
       />
       <TouchableOpacity
         style={styles.emptyCardButton}
-        onPress={() => setIsSearchVocaModalVisible(true)}
+        onPress={() => searchVocaSheetRef.current?.present()}
         activeOpacity={0.7}
       >
         <PlusCircleIcon size={20} color={colors.main2} weight="fill" />
@@ -307,7 +324,7 @@ export default function VocabularyScreen() {
         />
         <TouchableOpacity
           style={styles.stickyAddButton}
-          onPress={() => setIsSearchVocaModalVisible(true)}
+          onPress={() => searchVocaSheetRef.current?.present()}
           activeOpacity={0.7}
         >
           <PlusIcon size={24} color={colors.text} weight="bold" />
@@ -357,14 +374,14 @@ export default function VocabularyScreen() {
       />
 
       <NewFlashCardSetModal
-        isVisible={isNewSetModalVisible}
-        onClose={() => setIsNewSetModalVisible(false)}
+        ref={newSetSheetRef}
+        onClose={() => newSetSheetRef.current?.dismiss()}
         onCreateSet={handleCreateNewSet}
       />
 
       <SearchVocaModal
-        isVisible={isSearchVocaModalVisible}
-        onClose={() => setIsSearchVocaModalVisible(false)}
+        ref={searchVocaSheetRef}
+        onClose={() => searchVocaSheetRef.current?.dismiss()}
       />
     </View>
   );
@@ -464,5 +481,19 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: FontSize.fs_12,
     color: colors.gray,
     textAlign: 'center',
+  },
+  missionBanner: {
+    backgroundColor: colors.historyYellowBg || '#FEF3C7',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  missionBannerText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    color: colors.text,
+    flex: 1
   }
 });

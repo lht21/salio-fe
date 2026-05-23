@@ -1,24 +1,38 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, View, Modal, Pressable, Text, TouchableOpacity } from 'react-native';
+import React, { useMemo, useCallback, forwardRef } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { CheckCircleIcon, CircleIcon } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 import CloseButton from '../CloseButton';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 export type VoiceType = 'male' | 'female';
 
 export type ChangeVoiceModalProps = {
-  visible: boolean;
   voice: VoiceType;
   onSelectVoice: (voice: VoiceType) => void;
   onClose: () => void;
 };
 
-const ChangeVoiceModal = ({ visible, voice, onSelectVoice, onClose }: ChangeVoiceModalProps) => {
+const ChangeVoiceModal = forwardRef<BottomSheetModal, ChangeVoiceModalProps>(({ voice, onSelectVoice, onClose }, ref) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const snapPoints = useMemo(() => ['40%'], []);
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
 
   const VOICES: { id: VoiceType; label: string }[] = [
     { id: 'male', label: t('settings.maleVoice', 'Giọng Nam') },
@@ -26,63 +40,54 @@ const ChangeVoiceModal = ({ visible, voice, onSelectVoice, onClose }: ChangeVoic
   ];
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
+    <BottomSheetModal
+      ref={ref}
+      snapPoints={snapPoints}
+      backdropComponent={renderBackdrop}
+      enablePanDownToClose={true}
+      backgroundStyle={{ 
+        backgroundColor: colors.bg,
+        borderTopLeftRadius: Border.br_30,
+        borderTopRightRadius: Border.br_30 
+      }}
+      handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
-      <View style={styles.overlay}>
-        <Pressable style={styles.backgroundTouchable} onPress={onClose} />
-        <View style={styles.sheetContent}>
-          <View style={styles.dragHandle} />
-
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('settings.chooseVoice', 'Chọn Giọng Đọc')}</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
-          </View>
-
-          <View style={styles.body}>
-            {VOICES.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.optionRow}
-                onPress={() => onSelectVoice(item.id)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.optionText}>{item.label}</Text>
-                {voice === item.id ? (
-                  <CheckCircleIcon size={24} color={colors.main2} weight="fill" />
-                ) : (
-                  <CircleIcon size={24} color={colors.gray} weight="regular" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
+      <BottomSheetView style={styles.sheetContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('settings.chooseVoice', 'Chọn Giọng Đọc')}</Text>
+          <CloseButton variant="Stroke" onPress={onClose} />
         </View>
-      </View>
-    </Modal>
+
+        <View style={styles.body}>
+          {VOICES.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.optionRow}
+              onPress={() => {
+                onSelectVoice(item.id);
+                onClose();
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.optionText}>{item.label}</Text>
+              {voice === item.id ? (
+                <CheckCircleIcon size={24} color={colors.main2} weight="fill" />
+              ) : (
+                <CircleIcon size={24} color={colors.gray} weight="regular" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </BottomSheetView>
+    </BottomSheetModal>
   );
-};
+});
 
 const createStyles = (colors: any) => StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg || 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
-  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
   sheetContent: {
-    backgroundColor: colors.bg,
-    borderTopLeftRadius: Border.br_30,
-    borderTopRightRadius: Border.br_30,
     paddingHorizontal: Padding.padding_20,
     paddingTop: Padding.padding_15,
     paddingBottom: 40,
-  },
-  dragHandle: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: colors.dragHandleBg || '#CBD5E1',
-    alignSelf: 'center',
-    marginBottom: Gap.gap_15,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
   headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },

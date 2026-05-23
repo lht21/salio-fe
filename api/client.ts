@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from './endpoints';
  * Thay đổi EXPO_PUBLIC_API_URL trong file .env của dự án Expo để trỏ đúng server
  */
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.93:5000',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.59:5000',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',

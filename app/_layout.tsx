@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import "react-native-reanimated";
 
 import { UserProvider } from "../contexts/UserContext";
@@ -47,7 +48,9 @@ export default function RootLayout() {
       <UserProvider>
         <ThemeProvider>
           <ModalProvider>
-            <RootLayoutNav />
+            <BottomSheetModalProvider>
+              <RootLayoutNav />
+            </BottomSheetModalProvider>
           </ModalProvider>
         </ThemeProvider>
       </UserProvider>

@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, forwardRef } from 'react';
 import {
-    Modal,
-    KeyboardAvoidingView,
     Pressable,
     View,
     Text,
     StyleSheet,
     Platform,
     Keyboard,
-    ScrollView,
     TouchableOpacity,
     ActivityIndicator
 } from 'react-native';
@@ -25,6 +22,7 @@ import FlashcardService from '../../api/services/flashcard.service';
 import VocabularyService from '../../api/services/vocabulary.service';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 export interface VocabularyItem {
     id: string;
@@ -35,16 +33,14 @@ export interface VocabularyItem {
 }
 
 export interface NewFlashCardSetModalProps {
-    isVisible: boolean;
     onClose: () => void;
     onCreateSet?: (setName: string, selectedWords: VocabularyItem[]) => void;
 }
 
-export default function NewFlashCardSetModal({
-    isVisible,
+const NewFlashCardSetModal = forwardRef<BottomSheetModal, NewFlashCardSetModalProps>(({
     onClose,
     onCreateSet,
-}: NewFlashCardSetModalProps) {
+}, ref) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
@@ -62,16 +58,28 @@ export default function NewFlashCardSetModal({
     const [isLoadingFavs, setIsLoadingFavs] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
 
-    // Reset state & Load Favorites khi Modal mở/đóng
-    useEffect(() => {
-        if (!isVisible) {
+    const snapPoints = useMemo(() => ['90%'], []);
+
+    const renderBackdrop = useCallback(
+        (props: any) => (
+            <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                pressBehavior="close"
+            />
+        ),
+        []
+    );
+
+    const handleSheetChanges = useCallback((index: number) => {
+        if (index === -1) {
             setSetName('');
             setSearchText('');
             setSelectedWordsMap({});
             setSearchResults([]);
-            return;
-        }
-
+            Keyboard.dismiss();
+        } else if (index === 0) {
         const fetchFavorites = async () => {
             setIsLoadingFavs(true);
             try {
@@ -95,12 +103,11 @@ export default function NewFlashCardSetModal({
         };
 
         fetchFavorites();
-    }, [isVisible]);
+        }
+    }, []);
 
     // Logic tìm kiếm toàn cục với Debounce
     useEffect(() => {
-        if (!isVisible) return;
-
         const keyword = searchText.trim().normalize('NFC'); // Chuẩn hóa Unicode tiếng Hàn
         if (!keyword) {
             setSearchResults([]);
@@ -132,7 +139,7 @@ export default function NewFlashCardSetModal({
         }, 500); // 500ms Debounce
 
         return () => clearTimeout(timeoutId);
-    }, [searchText, isVisible]);
+    }, [searchText]);
 
     const toggleWordSelection = (item: VocabularyItem) => {
         setSelectedWordsMap(prev => {
@@ -164,20 +171,18 @@ export default function NewFlashCardSetModal({
     const hasSelections = Object.keys(selectedWordsMap).length > 0;
 
     return (
-        <Modal
-            visible={isVisible}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={handleClose}
+        <BottomSheetModal
+            ref={ref}
+            snapPoints={snapPoints}
+            backdropComponent={renderBackdrop}
+            onChange={handleSheetChanges}
+            enablePanDownToClose={true}
+            keyboardBehavior="interactive"
+            keyboardBlurBehavior="restore"
+            backgroundStyle={{ backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30 }}
+            handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
         >
-            <KeyboardAvoidingView
-                style={styles.overlay}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-                <Pressable style={styles.backgroundTouchable} onPress={handleClose} />
-                <View style={styles.sheetContent}>
-                    <View style={styles.dragHandle} />
-
+            <BottomSheetView style={styles.sheetContent}>
                     <View style={styles.header}>
                         <Text style={styles.headerTitle}>Bộ từ vựng mới</Text>
                         <CloseButton variant="Stroke" onPress={handleClose} />
@@ -205,7 +210,7 @@ export default function NewFlashCardSetModal({
                             {isSearching || isLoadingFavs ? (
                             <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 20 }} />
                             ) : displayList.length > 0 ? (
-                                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                                <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                                     {displayList.map((item) => {
                                         const isSelected = !!selectedWordsMap[item.id];
                                         return (
@@ -239,7 +244,7 @@ export default function NewFlashCardSetModal({
                                             />
                                         );
                                     })}
-                                </ScrollView>
+                                </BottomSheetScrollView>
                             ) : (
                             <Text style={styles.emptyText}>{t('vocabulary.no_words_found', 'Không tìm thấy từ vựng')}</Text>
                             )}
@@ -253,31 +258,19 @@ export default function NewFlashCardSetModal({
                             disabled={!setName.trim() || !hasSelections}
                         />
                     </View>
-                </View>
-            </KeyboardAvoidingView>
-        </Modal>
+            </BottomSheetView>
+        </BottomSheetModal>
     );
-}
+});
+
+export default NewFlashCardSetModal;
 
 const createStyles = (colors: any) => StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'flex-end' },
-    backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
     sheetContent: {
-        backgroundColor: colors.bg,
-        borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30,
+        flex: 1,
         paddingHorizontal: Padding.padding_20,
         paddingTop: Padding.padding_15,
         paddingBottom: 40,
-        maxHeight: '90%', // Giới hạn chiều cao để không bị tràn khi bàn phím mở
-    },
-    dragHandle: {
-        width: 40,
-        height: 5,
-        borderRadius: 3,
-        backgroundColor: colors.dragHandleBg,
-        alignSelf: 'center',
-        marginBottom: Gap.gap_15,
     },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
     headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },

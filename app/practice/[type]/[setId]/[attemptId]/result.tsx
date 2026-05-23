@@ -37,7 +37,7 @@ export default function PracticeResultScreen() {
   }, [attemptId]);
 
   const handleHomePress = () => {
-    router.replace('/(tabs)');
+    router.replace(`/practice/${type}` as any);
   };
 
   const handleReviewPress = () => {

@@ -124,6 +124,25 @@ export const lightTheme = {
   searchKeywordBg: '#D5DCE6',
   chipActiveBg: '#1E1E1E', // Trùng với màu text ở Light Mode
   chipActiveText: '#FFFFFF', // Trùng với màu bg ở Light Mode
+
+  textDarkGreen: '#064E3B',
+  blackActionBg: '#0F172A',
+  blackActionText: '#FFFFFF',
+  addBtnBg: '#22C55E',
+  toastBg: '#1E293B',
+  toastText: '#FFFFFF',
+  whiteActionBg: '#FFFFFF',
+  whiteActionText: '#0F172A',
+
+  textGreenSuccess: '#15803D',
+  textRedError: '#B91C1C',
+  badgeYellowBg: '#FDE68A',
+  badgeYellowText: '#92400E',
+  bgLightBlue: '#F8FAFC',
+  aiButtonBg: '#A855F7',
+  aiButtonDisabledBg: '#D8B4FE',
+  feedbackCorrectBorder: '#BBF7D0',
+  feedbackIncorrectBorder: '#FECACA',
 };
 
 export const darkTheme = {
@@ -233,6 +252,25 @@ export const darkTheme = {
   searchKeywordBg: '#334155',
   chipActiveBg: lightTheme.main, // Trùng với màu main ở Dark Mode
   chipActiveText: '#121212', // Trùng với màu bg ở Dark Mode
+
+  textDarkGreen: '#A7F3D0',
+  blackActionBg: '#F8FAFC',
+  blackActionText: '#0F172A',
+  addBtnBg: '#15803D',
+  toastBg: '#0F172A',
+  toastText: '#F8FAFC',
+  whiteActionBg: '#1E293B',
+  whiteActionText: '#F8FAFC',
+
+  textGreenSuccess: '#4ADE80',
+  textRedError: '#FCA5A5',
+  badgeYellowBg: '#78350F',
+  badgeYellowText: '#FDE68A',
+  bgLightBlue: '#1E293B',
+  aiButtonBg: '#9333EA',
+  aiButtonDisabledBg: '#6B21A8',
+  feedbackCorrectBorder: '#14532D',
+  feedbackIncorrectBorder: '#7F1D1D',
 };
 
 // Giữ lại export Color trỏ đến lightTheme để tương thích ngược với các components hiện tại

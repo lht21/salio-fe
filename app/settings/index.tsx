@@ -22,9 +22,10 @@ import {
   UserIcon,
   UsersIcon,
 } from 'phosphor-react-native';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import ChangeAvatarModal from '@/components/Modals/ChangeAvatarModal';
 import ChangeDisplayModeModal, {
@@ -74,15 +75,17 @@ export default function SettingsScreen() {
     return 'none';
   });
 
-  const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
-  const [isDisplayModeModalVisible, setDisplayModeModalVisible] = useState(false);
-  const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
-  const [isUserNameModalVisible, setUserNameModalVisible] = useState(false);
-  const [isEmailModalVisible, setEmailModalVisible] = useState(false);
-  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
-  const [isVoiceModalVisible, setVoiceModalVisible] = useState(false);
-  const [isReminderModalVisible, setReminderModalVisible] = useState(false);
+
+  // Cách chuẩn: Quản lý bằng Ref thay vì Boolean state
+  const avatarSheetRef = useRef<BottomSheetModal>(null);
+  const displayModeSheetRef = useRef<BottomSheetModal>(null);
+  const languageSheetRef = useRef<BottomSheetModal>(null);
+  const emailSheetRef = useRef<BottomSheetModal>(null);
+  const voiceSheetRef = useRef<BottomSheetModal>(null);
+  const userNameSheetRef = useRef<BottomSheetModal>(null);
+  const passwordSheetRef = useRef<BottomSheetModal>(null);
+  const reminderSheetRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
     if (user) {
@@ -139,7 +142,7 @@ export default function SettingsScreen() {
     try {
       await UserService.updateProfile({ avatarUrl: avatar.id });
       setSelectedAvatar(avatar);
-      setAvatarModalVisible(false);
+      avatarSheetRef.current?.dismiss();
       await refreshUser();
     } catch (error) {
       console.error('Lỗi cập nhật avatar:', error);
@@ -166,7 +169,7 @@ export default function SettingsScreen() {
         formData.append('avatar', { uri: asset.uri, name: filename, type } as any);
 
         await UserService.updateAvatar(formData);
-        setAvatarModalVisible(false);
+        avatarSheetRef.current?.dismiss();
         await refreshUser(); // Cập nhật lại context để tự động đồng bộ ảnh mới trên toàn app
       }
     } catch (error) {
@@ -178,7 +181,7 @@ export default function SettingsScreen() {
     try {
       await UserService.updatePreferences({ preferences: { theme: mode } });
       setDisplayMode(mode);
-      setDisplayModeModalVisible(false);
+      displayModeSheetRef.current?.dismiss();
       await refreshUser();
     } catch (error) {
       console.error('Lỗi cập nhật giao diện:', error);
@@ -189,7 +192,7 @@ export default function SettingsScreen() {
     try {
       await UserService.updatePreferences({ preferences: { language: value } });
       setLanguage(value);
-      setLanguageModalVisible(false);
+      languageSheetRef.current?.dismiss();
       await refreshUser();
     } catch (error) {
       console.error('Lỗi cập nhật ngôn ngữ:', error);
@@ -200,7 +203,7 @@ export default function SettingsScreen() {
     try {
       await UserService.updateProfile({ username: newUserName });
       setUserName(newUserName);
-      setUserNameModalVisible(false);
+      userNameSheetRef.current?.dismiss();
       await refreshUser();
     } catch (error) {
       console.error('Lỗi cập nhật tên người dùng:', error);
@@ -211,7 +214,7 @@ export default function SettingsScreen() {
     try {
       await UserService.updatePreferences({ preferences: { voiceGender: selectedVoice } });
       setVoice(selectedVoice);
-      setVoiceModalVisible(false);
+      voiceSheetRef.current?.dismiss(); // Tắt sheet sau khi chọn
       await refreshUser();
     } catch (error) {
       console.error('Lỗi cập nhật giọng đọc:', error);
@@ -233,7 +236,7 @@ export default function SettingsScreen() {
         preferences: { notifications: { enabled, dailyReminderTime: time } } 
       });
       setReminder(selectedReminder);
-      setReminderModalVisible(false);
+      reminderSheetRef.current?.dismiss();
       await refreshUser();
     } catch (error) {
       console.error('Lỗi cập nhật nhắc nhở:', error);
@@ -254,7 +257,7 @@ export default function SettingsScreen() {
         <TouchableOpacity
           style={styles.section}
           activeOpacity={0.82}
-          onPress={() => setAvatarModalVisible(true)}
+          onPress={() => avatarSheetRef.current?.present()}
         >
           <View style={styles.avatarRow}>
             <Image source={selectedAvatar.imageSource} style={styles.avatarImage} />
@@ -272,20 +275,20 @@ export default function SettingsScreen() {
               icon={<UserIcon size={24} color={colors.main2} weight="regular" />}
               label={t('settings.username')}
               value={userName}
-              onPress={() => setUserNameModalVisible(true)}
+              onPress={() => userNameSheetRef.current?.present()}
             />
             <SettingsRow
               icon={<EnvelopeSimpleIcon size={24} color={colors.main2} weight="regular" />}
               label={t('settings.email')}
               value={user?.email || t('settings.notUpdated')}
-              onPress={() => setEmailModalVisible(true)}
+              onPress={() => emailSheetRef.current?.present()}
             />
             <SettingsRow
               icon={<PasswordIcon size={24} color={colors.main2} weight="regular" />}
               label={t('settings.password')}
               value={t('settings.changePassword')}
               isLast
-              onPress={() => setPasswordModalVisible(true)}
+              onPress={() => passwordSheetRef.current?.present()}
             />
           </View>
         </View>
@@ -308,7 +311,7 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={[styles.gridItem, styles.gridItemButton]}
               activeOpacity={0.8}
-              onPress={() => setDisplayModeModalVisible(true)}
+              onPress={() => displayModeSheetRef.current?.present()}
             >
               {displayMode === 'light' ? (
                 <SunIcon size={28} color={colors.cam} weight="fill" />
@@ -321,7 +324,7 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={[styles.gridItem, styles.gridItemButton]}
               activeOpacity={0.8}
-              onPress={() => setLanguageModalVisible(true)}
+              onPress={() => languageSheetRef.current?.present()}
             >
               <TranslateIcon size={28} color={colors.cam} weight="fill" />
               <Text style={styles.gridText}>{languageLabel}</Text>
@@ -330,7 +333,7 @@ export default function SettingsScreen() {
             <TouchableOpacity 
               style={[styles.gridItem, styles.gridItemButton]}
               activeOpacity={0.8}
-              onPress={() => setReminderModalVisible(true)}
+              onPress={() => reminderSheetRef.current?.present()}
             >
               <BellIcon size={28} color={colors.cam} weight="fill" />
               <Text style={styles.gridText}>{reminderLabel}</Text>
@@ -339,7 +342,7 @@ export default function SettingsScreen() {
             <TouchableOpacity 
               style={[styles.gridItem, styles.gridItemButton]}
               activeOpacity={0.8}
-              onPress={() => setVoiceModalVisible(true)}
+              onPress={() => voiceSheetRef.current?.present()} // Bật sheet
             >
               <SpeakerHighIcon size={28} color={colors.cam} weight="fill" />
               <Text style={styles.gridText}>{voiceLabel}</Text>
@@ -406,62 +409,62 @@ export default function SettingsScreen() {
       </ScrollView>
 
       <ChangeAvatarModal
-        visible={isAvatarModalVisible}
+        ref={avatarSheetRef}
         selectedAvatarId={selectedAvatar.id}
         avatarOptions={AVATAR_PRESETS}
         onSelectAvatar={handleSelectAvatar}
-        onClose={() => setAvatarModalVisible(false)}
+        onClose={() => avatarSheetRef.current?.dismiss()}
         onUploadPress={handleUploadAvatar}
       />
 
       <ChangeDisplayModeModal
-        visible={isDisplayModeModalVisible}
+        ref={displayModeSheetRef}
         mode={displayMode}
         onSelectMode={handleSelectDisplayMode}
-        onClose={() => setDisplayModeModalVisible(false)}
+        onClose={() => displayModeSheetRef.current?.dismiss()}
       />
 
       <ChangeLanguageModal
-        visible={isLanguageModalVisible}
+        ref={languageSheetRef}
         language={language}
         onSelectLanguage={handleSelectLanguage}
-        onClose={() => setLanguageModalVisible(false)}
+        onClose={() => languageSheetRef.current?.dismiss()}
       />
 
       <ChangeUserNameModal
-        visible={isUserNameModalVisible}
+        ref={userNameSheetRef}
         currentUserName={userName}
         onChangeUserName={handleChangeUserName}
-        onClose={() => setUserNameModalVisible(false)}
+        onClose={() => userNameSheetRef.current?.dismiss()}
       />
 
       <EmailSettingsModal
-        visible={isEmailModalVisible}
+        ref={emailSheetRef}
         email={user?.email || ''}
-        onClose={() => setEmailModalVisible(false)}
+        onClose={() => emailSheetRef.current?.dismiss()}
         onDeleteAccount={() => {
           console.log('Xóa tài khoản đã được yêu cầu');
-          setEmailModalVisible(false);
+          emailSheetRef.current?.dismiss();
         }}
       />
 
       <ChangePasswordModal
-        visible={isPasswordModalVisible}
-        onClose={() => setPasswordModalVisible(false)}
+        ref={passwordSheetRef}
+        onClose={() => passwordSheetRef.current?.dismiss()}
       />
 
       <ChangeVoiceModal
-        visible={isVoiceModalVisible}
+        ref={voiceSheetRef}
         voice={voice}
         onSelectVoice={handleSelectVoice}
-        onClose={() => setVoiceModalVisible(false)}
+        onClose={() => voiceSheetRef.current?.dismiss()}
       />
 
       <ChangeReminderModal
-        visible={isReminderModalVisible}
+        ref={reminderSheetRef}
         reminder={reminder}
         onSelectReminder={handleSelectReminder}
-        onClose={() => setReminderModalVisible(false)}
+        onClose={() => reminderSheetRef.current?.dismiss()}
       />
 
       <ConfirmModal

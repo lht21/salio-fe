@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Modal, Image } from 'react-native';
 import Animated, { 
   useSharedValue, 
@@ -18,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { FireIcon, CloudIcon } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import HeaderSection from '../../components/HeaderSection';
 import WindingPath from '../../components/WindingPath';
@@ -186,11 +187,26 @@ export default function HomeScreen() {
   });
 
   // --- STATE CHO POPUP THÔNG TIN ---
-  const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [infoContent, setInfoContent] = useState<{title: string, desc: string, icon: React.ReactNode | null}>({ title: '', desc: '', icon: null });
 
   const currentStreak = stats?.gamification?.currentStreak || 0;
   const currentStreakImage = getStreakImage(currentStreak);
+
+  // --- CẤU HÌNH BOTTOM SHEET ---
+  const infoSheetRef = useRef<BottomSheet>(null);
+  const infoSnapPoints = useMemo(() => ['40%'], []); // Chiếm 40% chiều cao màn hình
+
+  const renderInfoBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
 
   const handleShowFireInfo = () => {
     setInfoContent({
@@ -198,7 +214,7 @@ export default function HomeScreen() {
       desc: 'Mỗi ngày bạn hoàn thành ít nhất một bài học, ngọn lửa sẽ cháy thêm 1 ngày. Giữ lửa liên tục để nhận thưởng lớn nhé!',
       icon: <Image source={currentStreakImage} style={{ width: 48, height: 48 }} resizeMode="contain" />
     });
-    setInfoModalVisible(true);
+    infoSheetRef.current?.expand();
   };
 
   const handleShowCloudInfo = () => {
@@ -207,7 +223,7 @@ export default function HomeScreen() {
       desc: 'Tích lũy đám mây sau mỗi bài học để đổi lấy các phần quà hấp dẫn hoặc mở khóa tính năng đặc biệt trong cửa hàng.',
       icon: <Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 48, height: 48 }} resizeMode="contain" />
     });
-    setInfoModalVisible(true);
+    infoSheetRef.current?.expand();
   };
 
   // --- CUSTOM TOAST ANIMATION ---
@@ -308,23 +324,24 @@ export default function HomeScreen() {
         </View>
       </Animated.ScrollView>
 
-      {/* --- POPUP MODAL --- */}
-      <Modal
-        transparent={true}
-        visible={infoModalVisible}
-        animationType="fade"
-        onRequestClose={() => setInfoModalVisible(false)}
+      {/* --- BOTTOM SHEET THÔNG TIN LỬA/MÂY --- */}
+      <BottomSheet
+        ref={infoSheetRef}
+        index={-1} // Ẩn sheet lúc đầu
+        snapPoints={infoSnapPoints}
+        backdropComponent={renderInfoBackdrop}
+        enablePanDownToClose={true}
+        backgroundStyle={{ backgroundColor: Color.bg }}
+        handleIndicatorStyle={{ backgroundColor: Color.stroke }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            {infoContent.icon}
-            <Text style={styles.modalTitle}>{infoContent.title}</Text>
-            <Text style={styles.modalDesc}>{infoContent.desc}</Text>
-            
-            <Button title="Đã hiểu" variant="Green" onPress={() => setInfoModalVisible(false)} style={{ width: '100%', marginTop: 10 }} />
-          </View>
-        </View>
-      </Modal>
+        <BottomSheetView style={styles.sheetContent}>
+          {infoContent.icon}
+          <Text style={styles.sheetTitle}>{infoContent.title}</Text>
+          <Text style={styles.sheetDesc}>{infoContent.desc}</Text>
+          
+          <Button title="Đã hiểu" variant="Green" onPress={() => infoSheetRef.current?.close()} style={{ width: '100%', marginTop: 10 }} />
+        </BottomSheetView>
+      </BottomSheet>
 
       {/* --- CUSTOM TOAST --- */}
       {toastMessage && (
@@ -380,22 +397,14 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   
-  // --- STYLES CHO MODAL ---
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
+  // --- STYLES CHO BOTTOM SHEET ---
+  sheetContent: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
     alignItems: 'center',
-    padding: 20,
   },
-  modalBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 24,
-    alignItems: 'center',
-    width: '85%',
-  },
-  modalTitle: {
+  sheetTitle: {
     fontSize: 18,
     fontFamily: FontFamily.lexendDecaSemiBold,
     color: Color.text,
@@ -403,7 +412,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
-  modalDesc: {
+  sheetDesc: {
     fontSize: 14,
     fontFamily: FontFamily.lexendDecaRegular,
     color: Color.gray,

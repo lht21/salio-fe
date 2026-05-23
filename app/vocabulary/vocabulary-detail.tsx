@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -24,8 +24,10 @@ import {
 } from 'phosphor-react-native';
 import { MotiView } from 'moti';
 import * as Speech from 'expo-speech';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import VocabularyService from '../../api/services/vocabulary.service';
 import { Vocabulary } from '../../api/types/vocabulary.types';
 import { useUser } from '../../contexts/UserContext';
@@ -59,15 +61,19 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
   isLoading,
   aiResult,
 }) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.footerContainer}>
-      <Text style={styles.footerTitle}>Luyện tập đặt câu với từ này</Text>
+      <Text style={styles.footerTitle}>{t('vocabulary.practice_sentence_title', 'Luyện tập đặt câu với từ này')}</Text>
       
       {/* Ô nhập liệu dạng khung vẽ tay */}
       <TextInput
         style={styles.handDrawnInput}
-        placeholder={`Hãy thử đặt một câu với từ "${word}"...`}
-        placeholderTextColor={Color.gray || '#94A3B8'}
+        placeholder={t('vocabulary.practice_sentence_placeholder', { word, defaultValue: `Hãy thử đặt một câu với từ "${word}"...` })}
+        placeholderTextColor={colors.gray}
         value={sentence}
         onChangeText={setSentence}
         multiline
@@ -82,11 +88,11 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
         disabled={!sentence.trim() || isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator color="#FFFFFF" size="small" />
+          <ActivityIndicator color={colors.whiteText} size="small" />
         ) : (
           <>
-            <MagicWandIcon size={20} color="#FFFFFF" weight="fill" />
-            <Text style={styles.aiButtonText}>AI Chấm điểm</Text>
+            <MagicWandIcon size={20} color={colors.whiteText} weight="fill" />
+            <Text style={styles.aiButtonText}>{t('vocabulary.ai_grade', 'AI Chấm điểm')}</Text>
           </>
         )}
       </TouchableOpacity>
@@ -98,13 +104,13 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
           aiResult.isCorrect ? styles.feedbackCorrect : styles.feedbackIncorrect
         ]}>
           {aiResult.isCorrect ? (
-            <CheckCircleIcon size={20} color="#16A34A" weight="fill" />
+            <CheckCircleIcon size={20} color={colors.picVocabText} weight="fill" />
           ) : (
-            <WarningIcon size={20} color="#DC2626" weight="fill" />
+            <WarningIcon size={20} color={colors.safetyIcon} weight="fill" />
           )}
           <Text style={[
             styles.feedbackText,
-            aiResult.isCorrect ? { color: '#15803D' } : { color: '#B91C1C' }
+            aiResult.isCorrect ? { color: colors.textGreenSuccess } : { color: colors.textRedError }
           ]}>
             {aiResult.feedback}
           </Text>
@@ -122,6 +128,9 @@ export default function VocabularyDetailScreen() {
   // Mock Params (Thực tế sẽ lấy từ params truyền qua Router)
   const { wordId } = useLocalSearchParams();
   const { user } = useUser();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   // State AI Practice
   const [sentence, setSentence] = useState('');
@@ -171,12 +180,12 @@ export default function VocabularyDetailScreen() {
       if (vocabData && sentence.includes(vocabData.word)) {
         setAiResult({
           isCorrect: true,
-          feedback: 'Câu của bạn rất tự nhiên! Ngữ pháp và từ vựng đều được sử dụng hoàn toàn chính xác.',
+          feedback: t('vocabulary.ai_feedback_correct', 'Câu của bạn rất tự nhiên! Ngữ pháp và từ vựng đều được sử dụng hoàn toàn chính xác.'),
         });
       } else {
         setAiResult({
           isCorrect: false,
-          feedback: `Bạn chưa sử dụng từ "${vocabData?.word}" trong câu. Hãy thử viết lại nhé!`,
+          feedback: t('vocabulary.ai_feedback_incorrect', { word: vocabData?.word, defaultValue: `Bạn chưa sử dụng từ "${vocabData?.word}" trong câu. Hãy thử viết lại nhé!` }),
         });
       }
       setIsLoading(false);
@@ -235,11 +244,24 @@ export default function VocabularyDetailScreen() {
 
   const translateType = (type: string) => {
     const lowerType = type.toLowerCase();
-    if (lowerType === 'noun') return 'Danh từ';
-    if (lowerType === 'verb') return 'Động từ';
-    if (lowerType === 'adjective') return 'Tính từ';
-    if (lowerType === 'adverb') return 'Phó từ';
+    if (lowerType === 'noun') return t('vocabulary.pos_noun', 'Danh từ');
+    if (lowerType === 'verb') return t('vocabulary.pos_verb', 'Động từ');
+    if (lowerType === 'adjective') return t('vocabulary.pos_adjective', 'Tính từ');
+    if (lowerType === 'adverb') return t('vocabulary.pos_adverb', 'Phó từ');
     return type;
+  };
+
+  const getGradientColors = (type?: string) => {
+    if (!type) return [colors.cardGreenBg, colors.main];
+    const lowerType = type.toLowerCase();
+    
+    if (lowerType === 'noun' || lowerType === 'danh từ') return [colors.picVocabBg || colors.cardGreenBg, colors.main];
+    if (lowerType === 'verb' || lowerType === 'động từ') return [colors.badgePurpleBg || '#F3E8FF', colors.badgePurpleText || '#A855F7'];
+    if (lowerType === 'adjective' || lowerType === 'tính từ') return [colors.orangePastel || '#FFEDD5', colors.cam || '#F97316'];
+    if (lowerType === 'adverb' || lowerType === 'phó từ') return [colors.bluePastel || '#DBEAFE', colors.blue || '#3B82F6'];
+    
+    // Mặc định
+    return [colors.cardGreenBg, colors.main];
   };
 
   return (
@@ -251,20 +273,20 @@ export default function VocabularyDetailScreen() {
         {/* --- HEADER SECTION --- */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <CaretLeftIcon size={24} color={Color.main2 || '#1E1E1E'} weight="bold" />
+            <CaretLeftIcon size={24} color={colors.text} weight="bold" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Chi tiết từ vựng</Text>
+          <Text style={styles.headerTitle}>{t('vocabulary.detail_title', 'Chi tiết từ vựng')}</Text>
           {/* Spacer để căn giữa title */}
           <View style={{ width: 40 }} />
         </View>
 
         {isScreenLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color={Color.main || '#98F291'} />
+            <ActivityIndicator size="large" color={colors.main} />
           </View>
         ) : !vocabData ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontFamily: FontFamily.lexendDecaMedium, color: Color.gray }}>Không tìm thấy dữ liệu từ vựng</Text>
+            <Text style={{ fontFamily: FontFamily.lexendDecaMedium, color: colors.gray }}>{t('vocabulary.not_found', 'Không tìm thấy dữ liệu từ vựng')}</Text>
           </View>
         ) : (
           <>
@@ -275,7 +297,7 @@ export default function VocabularyDetailScreen() {
             >
               {/* PHẦN 1: THÔNG TIN TỪ VỰNG CHÍNH (TOP CARD) */}
               <LinearGradient
-                colors={['#CEF9B4', Color.main || '#98F291']}
+                colors={getGradientColors(vocabData.type)}
                 style={styles.topCard}
               >
                 {/* Nút thao tác góc phải */}
@@ -296,14 +318,14 @@ export default function VocabularyDetailScreen() {
                     )}
                     <SpeakerHighIcon 
                       size={24} 
-                      color={isSpeaking ? (Color.main2 || '#22C55E') : (Color.color || '#0C5F35')} 
+                      color={isSpeaking ? colors.addBtnBg : colors.color} 
                       weight="fill" 
                     />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionBtn} onPress={handleToggleBookmark}>
                     <BookmarkSimpleIcon
                       size={24} 
-                      color={Color.color || '#0C5F35'} 
+                      color={colors.color} 
                       weight={isBookmarked ? "fill" : "regular"} 
                     />
                   </TouchableOpacity>
@@ -321,8 +343,8 @@ export default function VocabularyDetailScreen() {
                     </View>
                   )}
                   {vocabData.sinoVietnamese && (
-                    <View style={[styles.badge, { backgroundColor: '#FDE68A' }]}>
-                      <Text style={[styles.badgeText, { color: '#92400E' }]}>{vocabData.sinoVietnamese}</Text>
+                    <View style={[styles.badge, { backgroundColor: colors.badgeYellowBg }]}>
+                      <Text style={[styles.badgeText, { color: colors.badgeYellowText }]}>{vocabData.sinoVietnamese}</Text>
                     </View>
                   )}
                 </View>
@@ -341,13 +363,13 @@ export default function VocabularyDetailScreen() {
 
               {/* PHẦN 2: Ý NGHĨA & VÍ DỤ (BODY) */}
               <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Nghĩa tiếng Việt</Text>
+                <Text style={styles.sectionTitle}>{t('vocabulary.vietnamese_meaning', 'Nghĩa tiếng Việt')}</Text>
                 <Text style={styles.meaningText}>{vocabData.meaning}</Text>
               </View>
 
               {vocabData.examples && vocabData.examples.length > 0 && (
                 <View style={styles.sectionCard}>
-                  <Text style={styles.sectionTitle}>Ví dụ mẫu</Text>
+                  <Text style={styles.sectionTitle}>{t('vocabulary.example', 'Ví dụ mẫu')}</Text>
                   
                   <View style={styles.exampleContainer}>
                     {/* Mascot Image */}
@@ -364,7 +386,7 @@ export default function VocabularyDetailScreen() {
                             onPress={() => handleSpeakSentence(ex.korean)}
                             activeOpacity={0.7}
                           >
-                            <SpeakerHighIcon size={18} color={Color.main2 || '#22C55E'} weight="fill" style={{ marginTop: 2 }} />
+                            <SpeakerHighIcon size={18} color={colors.addBtnBg} weight="fill" style={{ marginTop: 2 }} />
                             <Text style={[styles.exKr, { flex: 1 }]}>{ex.korean}</Text>
                           </TouchableOpacity>
                           <Text style={styles.exVi}>{ex.vietnamese}</Text>
@@ -393,10 +415,10 @@ export default function VocabularyDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Color.bg2,
+    backgroundColor: colors.bg2,
   },
   keyboardAvoid: {
     flex: 1,
@@ -408,7 +430,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Padding.padding_15,
     paddingVertical: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.bgLightBlue,
   },
   backButton: {
     padding: 8,
@@ -417,7 +439,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.text,
+    color: colors.text,
   },
   // --- BODY SCROLL ---
   scrollContent: {
@@ -432,7 +454,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 24,
     position: 'relative',
-    shadowColor: Color.main || '#98F291',
+    shadowColor: colors.main,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
@@ -449,7 +471,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: colors.bg + '99', // 0.6 opacity
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -458,18 +480,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Color.main2 || '#22C55E',
+    backgroundColor: colors.addBtnBg,
   },
   bigWord: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 40, // Font siêu to
-    color: Color.color || '#0C5F35',
+    color: colors.color,
     marginTop: 20,
   },
   phoneticText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16 || 16,
-    color: '#064E3B',
+    color: colors.textDarkGreen,
     opacity: 0.8,
     marginTop: 4,
     marginBottom: 20,
@@ -479,7 +501,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   badge: {
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: colors.bg + 'CC', // 0.8 opacity
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -487,7 +509,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_12 || 12,
-    color: '#064E3B',
+    color: colors.textDarkGreen,
   },
   // --- SECTIONS ---
   imageWrapper: {
@@ -496,32 +518,32 @@ const styles = StyleSheet.create({
     borderRadius: Border.br_20 || 20,
     marginBottom: Gap.gap_20 || 20,
     overflow: 'hidden',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.bgLightBlue,
     borderWidth: 1,
-    borderColor: Color.stroke || '#E2E8F0',
+    borderColor: colors.stroke,
   },
   vocabImage: {
     width: '100%',
     height: '100%',
   },
   sectionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bg,
     borderRadius: Border.br_20 || 20,
     padding: Padding.padding_20 || 20,
     marginBottom: Gap.gap_10 || 20,
     borderWidth: 1,
-    borderColor: Color.greenLight || '#E2E8F0',
+    borderColor: colors.greenLight,
   },
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.main2 || '#22C55E',
+    color: colors.main2,
     marginBottom: 10,
   },
   meaningText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16 || 16,
-    color: Color.text,
+    color: colors.text,
     lineHeight: 24,
   },
   exampleContainer: {
@@ -538,7 +560,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   exampleItem: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.bgLightBlue,
     padding: 12,
     borderRadius: 12,
     gap: 4,
@@ -546,22 +568,22 @@ const styles = StyleSheet.create({
   exKr: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14 || 14,
-    color: Color.text,
+    color: colors.text,
   },
   exVi: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14 || 14,
-    color: Color.gray,
+    color: colors.gray,
   },
   // --- FOOTER AI PRACTICE ---
   footerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bg,
     paddingHorizontal: Padding.padding_15 || 15,
     paddingTop: 16,
     paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     borderTopWidth: 1,
-    borderTopColor: Color.stroke || '#E2E8F0',
-    shadowColor: '#000',
+    borderTopColor: colors.stroke,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -570,26 +592,26 @@ const styles = StyleSheet.create({
   footerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14 || 14,
-    color: Color.text,
+    color: colors.text,
     marginBottom: 12,
   },
   handDrawnInput: {
     minHeight: 80,
     maxHeight: 120,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.bgLightBlue,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.stroke,
     borderRadius: 16,
     padding: 16,
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14 || 14,
-    color: Color.text,
+    color: colors.text,
     textAlignVertical: 'top',
     marginBottom: 12,
   },
   aiButton: {
     flexDirection: 'row',
-    backgroundColor: '#A855F7', // Color.purpleLight (Màu tím AI đặc trưng)
+    backgroundColor: colors.aiButtonBg,
     height: 48,
     borderRadius: 24, // Bo góc mạnh
     alignItems: 'center',
@@ -597,12 +619,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   aiButtonDisabled: {
-    backgroundColor: '#D8B4FE', // Tím nhạt khi disable
+    backgroundColor: colors.aiButtonDisabledBg, // Tím nhạt khi disable
   },
   aiButtonText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14 || 14,
-    color: '#FFFFFF',
+    color: colors.whiteText,
   },
   feedbackContainer: {
     flexDirection: 'row',
@@ -613,14 +635,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   feedbackCorrect: {
-    backgroundColor: '#F0FDF4', // Xanh nhạt
+    backgroundColor: colors.historySelectedBg, // Xanh nhạt
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: colors.feedbackCorrectBorder,
   },
   feedbackIncorrect: {
-    backgroundColor: '#FEF2F2', // Đỏ nhạt
+    backgroundColor: colors.historyRedBg, // Đỏ nhạt
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: colors.feedbackIncorrectBorder,
   },
   feedbackText: {
     flex: 1,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   View, 
   Text, 
@@ -13,9 +13,10 @@ import {
   ClockCounterClockwiseIcon, 
   UsersIcon
 } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 
 // Import Design System
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border, Color } from '../../../constants/GlobalStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../components/ScreenHeader';
 import TopicItem from '../../../components/TopicItem';
@@ -26,6 +27,7 @@ import FeaturedAICard from '../../../components/ExamComponent/FeaturedAICard';
 import PracticeService from '../../../api/services/practice.service';
 import { PracticeType } from '../../../api/types/practice.types';
 import { useUser } from '../../../contexts/UserContext';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 // --- CUSTOM HOOK FETCH DATA ---
 const usePracticeData = (type: string, examType?: string) => {
@@ -53,24 +55,30 @@ const usePracticeData = (type: string, examType?: string) => {
 
 // --- COMPONENTS CON ---
 
-const FeaturedCard = ({ topic, onPress }: { topic: any; onPress: () => void }) => (
-  <View style={styles.featuredContainer}>
-    <Pressable style={styles.featuredCard} onPress={onPress}>
-      <View style={styles.featuredTextContent}>
-        <Text style={styles.featuredTitle} numberOfLines={2}>{topic.title}</Text>
-        <Text style={styles.featuredDesc} numberOfLines={3}>{topic.prompt || topic.instruction || 'Không có mô tả'}</Text>
-      </View>
-      <View>
-        <Image source={topic.image} style={styles.featuredImage} resizeMode="cover" />
-        {(topic.level || (topic.tags && topic.tags.length > 0)) && (
-          <View style={styles.badgeContainer}>
-            <Text style={styles.badgeText}>{topic.level || topic.tags[0]}</Text>
-          </View>
-        )}
-      </View>
-    </Pressable>
-  </View>
-);
+const FeaturedCard = ({ topic, onPress }: { topic: any; onPress: () => void }) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  return (
+    <View style={styles.featuredContainer}>
+      <Pressable style={styles.featuredCard} onPress={onPress}>
+        <View style={styles.featuredTextContent}>
+          <Text style={styles.featuredTitle} numberOfLines={2}>{topic.title}</Text>
+          <Text style={styles.featuredDesc} numberOfLines={3}>{topic.prompt || topic.instruction || t('practice.no_description', 'Không có mô tả')}</Text>
+        </View>
+        <View>
+          <Image source={topic.image} style={styles.featuredImage} resizeMode="cover" />
+          {(topic.level || (topic.tags && topic.tags.length > 0)) && (
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>{topic.level || topic.tags[0]}</Text>
+            </View>
+          )}
+        </View>
+      </Pressable>
+    </View>
+  );
+};
 
 // --- HELPER KIỂM TRA MỞ KHÓA ĐỀ THI ---
 const checkIsUnlocked = (exam: any, user: any) => {
@@ -91,6 +99,9 @@ const FullExamView = ({ examType }: { examType?: string }) => {
   const type = 'full';
   const { data, isLoading } = usePracticeData(type, examType);
   const { user } = useUser();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const featuredExams = data.slice(0, 2);
   const otherExams = data.slice(2);
@@ -106,10 +117,10 @@ const FullExamView = ({ examType }: { examType?: string }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader
-        title="Chọn đề TOPIK II"
+        title={t('practice.choose_topik2_exam', "Chọn đề TOPIK II")}
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
-            <ClockCounterClockwiseIcon size={24} color={Color.text} weight="bold" />
+            <ClockCounterClockwiseIcon size={24} color={colors.text} weight="bold" />
           </Pressable>
         }
       />
@@ -121,19 +132,19 @@ const FullExamView = ({ examType }: { examType?: string }) => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* AI Section */}
-        <SectionHeader title="Để tổng hợp theo trình độ của bạn" />
+        <SectionHeader title={t('practice.ai_generated_desc', "Để tổng hợp theo trình độ của bạn")} />
         <FeaturedAICard onPress={() => handleStartExam('ai-generated', false)} />
 
         {isLoading ? (
-          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
         ) : data.length === 0 ? (
-          <Text style={styles.emptyText}>Chưa có bài tập nào</Text>
+          <Text style={styles.emptyText}>{t('practice.empty_practice', 'Chưa có bài tập nào')}</Text>
         ) : (
           <>
             {/* Featured Exams Section */}
             {featuredExams.length > 0 && (
               <>
-                <SectionHeader title="Đề nổi bật" />
+                <SectionHeader title={t('practice.featured_exams', "Đề nổi bật")} />
                 <View style={styles.listContainer}>
                   {featuredExams.map(exam => (
                     <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: checkIsUnlocked(exam, user) }} onPress={() => handleStartExam(exam._id, !checkIsUnlocked(exam, user))} />
@@ -145,7 +156,7 @@ const FullExamView = ({ examType }: { examType?: string }) => {
             {/* Other Exams Section */}
             {otherExams.length > 0 && (
               <>
-                <SectionHeader title="Các đề khác" />
+                <SectionHeader title={t('practice.other_exams', "Các đề khác")} />
                 <View style={styles.gridContainer}>
                   {otherExams.map(exam => (
                     <View key={exam._id} style={styles.gridItem}>
@@ -167,7 +178,10 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
   const router = useRouter();
   const { data, isLoading } = usePracticeData(type, examType);
   const { user } = useUser();
-  const title = type === 'reading' ? 'Luyện đọc' : 'Luyện nghe';
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const title = type === 'reading' ? t('practice.reading', 'Luyện đọc') : t('practice.listening', 'Luyện nghe');
 
   const featuredExams = data.slice(0, 1);
   const otherExams = data.slice(1);
@@ -178,21 +192,21 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
         title={title} 
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
-            <ClockCounterClockwiseIcon size={24} color={Color.text} weight="bold" />
+            <ClockCounterClockwiseIcon size={24} color={colors.text} weight="bold" />
           </Pressable>
         }
       />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {isLoading ? (
-          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
         ) : data.length === 0 ? (
-          <Text style={styles.emptyText}>Chưa có bài tập nào</Text>
+          <Text style={styles.emptyText}>{t('practice.empty_practice', 'Chưa có bài tập nào')}</Text>
         ) : (
           <>
             {/* Featured Exams Section */}
             {featuredExams.length > 0 && (
               <>
-                <SectionHeader title="Đề nổi bật" />
+                <SectionHeader title={t('practice.featured_exams', "Đề nổi bật")} />
                 <View style={styles.listContainer}>
                   {featuredExams.map(exam => (
                     <ExamCard key={exam._id} exam={{ ...exam, id: exam._id, isUnlocked: checkIsUnlocked(exam, user) }} onPress={() => checkIsUnlocked(exam, user) ? router.push({ pathname: `/practice/${type}/${exam._id}/intro` as any }) : router.push('/subscription')} />
@@ -204,7 +218,7 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
             {/* Other Exams Section */}
             {otherExams.length > 0 && (
               <>
-                <SectionHeader title="Các đề khác" />
+                <SectionHeader title={t('practice.other_exams', "Các đề khác")} />
                 <View style={styles.gridContainer}>
                   {otherExams.map(exam => (
                     <View key={exam._id} style={styles.gridItem}>
@@ -225,6 +239,9 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
 const WritingSpeakingView = ({ type, examType }: { type: string; examType?: string }) => {
   const router = useRouter();
   const { data, isLoading } = usePracticeData(type, examType);
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const featuredTopic = data.length > 0 ? data[0] : null;
   const otherTopics = data.length > 1 ? data.slice(1) : [];
@@ -241,10 +258,10 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <ScreenHeader 
-        title={type === 'writing' ? "Luyện viết" : "Luyện nói"} 
+        title={type === 'writing' ? t('practice.writing', "Luyện viết") : t('practice.speaking', "Luyện nói")} 
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
-            <ClockCounterClockwiseIcon size={24} color={Color.text} weight="bold" />
+            <ClockCounterClockwiseIcon size={24} color={colors.text} weight="bold" />
           </Pressable>
         }
       />
@@ -254,15 +271,15 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
-          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
         ) : data.length === 0 ? (
-          <Text style={styles.emptyText}>Chưa có bài tập nào</Text>
+          <Text style={styles.emptyText}>{t('practice.empty_practice', 'Chưa có bài tập nào')}</Text>
         ) : (
           <>
             {/* Phần 1: Chủ đề nổi bật */}
             {featuredTopic && (
               <View style={styles.section}>
-                <SectionHeader title="Chủ đề nổi bật" />
+                <SectionHeader title={t('practice.featured_topics', "Chủ đề nổi bật")} />
                 <FeaturedCard 
                   topic={{
                     ...featuredTopic,
@@ -277,7 +294,7 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
             {/* Phần 2: Các chủ đề khác */}
             {otherTopics.length > 0 && (
               <View style={styles.section}>
-                <SectionHeader title="Các chủ đề khác" />
+                <SectionHeader title={t('practice.other_topics', "Các chủ đề khác")} />
                 <View style={styles.listContainer}>
                   {otherTopics.map((topic) => (
                     <TopicItem 
@@ -320,10 +337,10 @@ export default function PracticeListScreen() {
 
 // --- STYLES ---
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.bg, // Chuyển từ trắng tinh sang xám nhạt để làm dịu mắt
+    backgroundColor: colors.bg,
   },
   iconButton: {
     padding: Padding.padding_5,
@@ -333,7 +350,7 @@ const styles = StyleSheet.create({
     padding: Padding.padding_20,
     paddingTop: 0,
     paddingBottom: 40,
-    backgroundColor: Color.bg2, // Thêm nền cho phần scroll để phân tách rõ ràng với header
+    backgroundColor: colors.bg2,
   },
   section: {
     marginBottom: Gap.gap_20,
@@ -363,13 +380,13 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: FontSize.fs_16,
-    color: Color.text,
+    color: colors.text,
     marginBottom: Gap.gap_5,
   },
   featuredDesc: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.color, // Chữ xanh đậm để nổi bật trên nền xanh nhạt
+    color: colors.color, 
     lineHeight: 20,
   },
   featuredImage: {
@@ -381,7 +398,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -8,
     right: -8,
-    backgroundColor: Color.vang,
+    backgroundColor: colors.vang,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: Border.br_10,
@@ -389,7 +406,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 10,
-    color: Color.text,
+    color: colors.text,
   },
 
   // --- Topic Item Styles ---
@@ -408,7 +425,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.gray,
+    color: colors.gray,
     textAlign: 'center',
     marginTop: 40,
   }

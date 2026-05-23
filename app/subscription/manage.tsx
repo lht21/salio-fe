@@ -12,29 +12,45 @@ import Button from '../../components/Button';
 import CancelAutoRenewModal from '../../components/Modals/CancelAutoRenewModal';
 import ScreenHeader from '../../components/ScreenHeader';
 import SubscriptionService from '../../api/services/subscription.service';
-import { UserSubscription } from '../../api/types/subscription.types';
+import { UserSubscription, SubscriptionPlan } from '../../api/types/subscription.types';
 
-// Mock Data: Danh sách quyền lợi
-const BENEFITS = [
-  'Học tất cả các lộ trình',
-  'Thi thử không giới hạn',
-  'Không bị làm phiền bởi quảng cáo'
+// Danh sách quyền lợi mặc định dự phòng (nếu không lấy được từ API)
+const FALLBACK_BENEFITS = [
+  'Mở khóa toàn bộ lộ trình bài học',
+  'Thi thử TOPIK/EPS không giới hạn',
+  'Không quảng cáo làm phiền'
 ];
 
 export default function ManageSubscriptionScreen() {
   const router = useRouter();
 
   const [currentSub, setCurrentSub] = useState<UserSubscription | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<SubscriptionPlan | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCancelModalVisible, setCancelModalVisible] = useState(false);
 
   useEffect(() => {
-    const fetchCurrentSub = async () => {
+    const fetchCurrentSubAndPlan = async () => {
       try {
         setIsLoading(true);
         const response = await SubscriptionService.getCurrentSubscription();
         if (response.success && response.data) {
           setCurrentSub(response.data);
+
+          // Nếu có gói premium đang active, lấy lịch sử thanh toán để biết đang dùng gói nào
+          if (response.data.isActive && response.data.type === 'premium') {
+            const historyRes = await SubscriptionService.getPaymentHistory();
+            if (historyRes.success && historyRes.data && historyRes.data.length > 0) {
+              const latestPayment = historyRes.data[0];
+              if (latestPayment.plan && latestPayment.plan._id) {
+                // Lấy chi tiết gói cước để hiển thị quyền lợi (featuresList)
+                const planRes = await SubscriptionService.getPlanById(latestPayment.plan._id);
+                if (planRes.success && planRes.data) {
+                  setCurrentPlan(planRes.data);
+                }
+              }
+            }
+          }
         }
       } catch (error) {
         Alert.alert('Lỗi', 'Không thể lấy thông tin gói cước hiện tại.');
@@ -42,7 +58,7 @@ export default function ManageSubscriptionScreen() {
         setIsLoading(false);
       }
     };
-    fetchCurrentSub();
+    fetchCurrentSubAndPlan();
   }, []);
 
   // Logic xử lý khi bấm nút "Hủy tự động gia hạn"
@@ -90,7 +106,7 @@ export default function ManageSubscriptionScreen() {
               {/* Lớp phủ mờ để tăng độ tương phản cho chữ */}
               <View style={styles.cardOverlay} />
 
-              <Text style={styles.planTitle}>Salio Master TOPIK</Text>
+              <Text style={styles.planTitle}>{currentPlan?.name || 'Salio Premium'}</Text>
               
               <View style={styles.statusRow}>
                 <View style={styles.statusDot} />
@@ -120,7 +136,7 @@ export default function ManageSubscriptionScreen() {
               <Text style={styles.sectionTitle}>Lợi ích hiện tại</Text>
               
               <View style={styles.benefitsList}>
-                {BENEFITS.map((benefit, index) => (
+                {(currentPlan?.featuresList?.length ? currentPlan.featuresList : FALLBACK_BENEFITS).map((benefit, index) => (
                   <View key={index} style={styles.benefitItem}>
                     <CheckCircleIcon size={24} color="#5E6D7E" weight="fill" />
                     <Text style={styles.benefitText}>{benefit}</Text>

@@ -1,13 +1,10 @@
 import { XIcon, CheckIcon, PlusIcon } from 'phosphor-react-native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, forwardRef } from 'react';
 import {
     ActivityIndicator,
     Keyboard,
-    KeyboardAvoidingView,
-    Modal,
     Platform,
     Pressable,
-    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -24,9 +21,9 @@ import VocabularyService from '../../api/services/vocabulary.service';
 import FlashcardService from '../../api/services/flashcard.service';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 type SearchVocaModalProps = {
-    isVisible: boolean;
     onClose: () => void;
     setId?: string; // Hỗ trợ truyền ID bộ từ vựng cụ thể (Mặc định: 'favorite')
 };
@@ -42,7 +39,7 @@ export type SearchVocaItem = {
 
 const RECENT_KEYWORDS = ['호텔', '선생님', '학교'];
 
-export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVocaModalProps) {
+const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ onClose, setId }, ref) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
@@ -60,13 +57,26 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
     // State lưu danh sách ID từ vựng yêu thích (để hiển thị đúng trạng thái tim)
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
-    // Reset data & fetch favorite list khi mở Modal
-    useEffect(() => {
-        if (!isVisible) {
+    const snapPoints = useMemo(() => ['90%'], []);
+
+    const renderBackdrop = useCallback(
+        (props: any) => (
+            <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                pressBehavior="close"
+            />
+        ),
+        []
+    );
+
+    const handleSheetChanges = useCallback((index: number) => {
+        if (index === -1) {
             setSearchText('');
             setSearchResults([]);
-            return;
-        }
+            Keyboard.dismiss();
+        } else if (index === 0) {
 
         const fetchFavorites = async () => {
             try {
@@ -80,12 +90,11 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
             }
         };
         fetchFavorites();
-    }, [isVisible, targetSetId]);
+        }
+    }, [targetSetId]);
 
     // Debounce Tìm kiếm qua API
     useEffect(() => {
-        if (!isVisible) return;
-
         const keyword = searchText.trim().normalize('NFC'); // Chuẩn hóa Unicode tiếng Hàn
         if (!keyword) {
             setSearchResults([]);
@@ -116,7 +125,7 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
         }, 500); // Debounce 500ms
 
         return () => clearTimeout(timeoutId);
-    }, [searchText, isVisible, favoriteIds]);
+    }, [searchText, favoriteIds]);
 
     const visibleKeywords = useMemo(
         () => keywords.filter((keyword) => keyword.toLowerCase().includes(searchText.toLowerCase())),
@@ -173,20 +182,18 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
     };
 
     return (
-        <Modal
-            visible={isVisible}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={handleClose}
+        <BottomSheetModal
+            ref={ref}
+            snapPoints={snapPoints}
+            backdropComponent={renderBackdrop}
+            onChange={handleSheetChanges}
+            enablePanDownToClose={true}
+            keyboardBehavior="fillParent"
+            keyboardBlurBehavior="restore"
+            backgroundStyle={{ backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30 }}
+            handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
         >
-            <KeyboardAvoidingView
-                style={styles.overlay}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-                <Pressable style={styles.backgroundTouchable} onPress={handleClose} />
-                <View style={styles.sheetContent}>
-                    <View style={styles.dragHandle} />
-
+            <BottomSheetView style={styles.sheetContent}>
                     <View style={styles.header}>
                     <Text style={styles.headerTitle}>{t('vocabulary.search_title', 'Tìm kiếm từ vựng')}</Text>
                         <CloseButton variant="Stroke" onPress={handleClose} />
@@ -209,7 +216,7 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                             {isSearching ? (
                             <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 20 }} />
                             ) : searchText.trim().length > 0 ? (
-                                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                                <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                                     {searchResults.length > 0 ? (
                                         searchResults.map((item) => (
                                             <VocabularyCard
@@ -246,7 +253,7 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                                     ) : (
                                     <Text style={styles.emptyText}>{t('vocabulary.no_words_found', 'Không tìm thấy từ vựng')}</Text>
                                     )}
-                                </ScrollView>
+                                </BottomSheetScrollView>
                             ) : (
                                 <View style={styles.keywordWrap}>
                                     {visibleKeywords.map((keyword) => (
@@ -270,31 +277,19 @@ export default function SearchVocaModal({ isVisible, onClose, setId }: SearchVoc
                             )}
                         </View>
                     </View>
-                </View>
-            </KeyboardAvoidingView>
-        </Modal>
+            </BottomSheetView>
+        </BottomSheetModal>
     );
-}
+});
+
+export default SearchVocaModal;
 
 const createStyles = (colors: any) => StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'flex-end' },
-    backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
     sheetContent: {
-        backgroundColor: colors.bg,
-        borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30,
+        flex: 1,
         paddingHorizontal: Padding.padding_20,
         paddingTop: Padding.padding_15,
         paddingBottom: 40,
-        maxHeight: '90%', // Giới hạn chiều cao
-    },
-    dragHandle: {
-        width: 40,
-        height: 5,
-        borderRadius: 3,
-        backgroundColor: colors.dragHandleBg,
-        alignSelf: 'center',
-        marginBottom: Gap.gap_15,
     },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
     headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },

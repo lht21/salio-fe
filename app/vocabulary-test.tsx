@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { CaretRightIcon } from 'phosphor-react-native';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
     SafeAreaView,
     ScrollView,
@@ -21,15 +22,15 @@ import {
 
 export default function VocabularyTestScreen() {
     const router = useRouter();
-    const [isNewSetModalVisible, setIsNewSetModalVisible] = useState(false);
-    const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+    const newSetSheetRef = useRef<BottomSheetModal>(null);
+    const searchVocaSheetRef = useRef<BottomSheetModal>(null);
     const [createdSets, setCreatedSets] = useState<
         Array<{ setName: string; wordCount: number }>
     >([]);
 
     const handleCreateSet = (setName: string, selectedWords: any[]) => {
         setCreatedSets([...createdSets, { setName, wordCount: selectedWords.length }]);
-        setIsNewSetModalVisible(false);
+        newSetSheetRef.current?.dismiss();
         alert(`✅ Đã tạo bộ từ vựng: "${setName}" với ${selectedWords.length} từ`);
     };
 
@@ -134,7 +135,7 @@ export default function VocabularyTestScreen() {
 
                     <TouchableOpacity
                         style={styles.featureButton}
-                        onPress={() => setIsNewSetModalVisible(true)}
+                        onPress={() => newSetSheetRef.current?.present()}
                     >
                         <Text style={styles.featureButtonText}>✏️ Tạo Flashcard Set</Text>
                         <CaretRightIcon size={20} color={Color.bg} />
@@ -142,7 +143,7 @@ export default function VocabularyTestScreen() {
 
                     <TouchableOpacity
                         style={styles.featureButton}
-                        onPress={() => setIsSearchModalVisible(true)}
+                        onPress={() => searchVocaSheetRef.current?.present()}
                     >
                         <Text style={styles.featureButtonText}>🔍 Search Từ vựng</Text>
                         <CaretRightIcon size={20} color={Color.bg} />
@@ -194,14 +195,14 @@ export default function VocabularyTestScreen() {
 
             {/* Modals */}
             <NewFlashCardSetModal
-                isVisible={isNewSetModalVisible}
-                onClose={() => setIsNewSetModalVisible(false)}
+                ref={newSetSheetRef}
+                onClose={() => newSetSheetRef.current?.dismiss()}
                 onCreateSet={handleCreateSet}
             />
 
             <SearchVocaModal
-                isVisible={isSearchModalVisible}
-                onClose={() => setIsSearchModalVisible(false)}
+                ref={searchVocaSheetRef}
+                onClose={() => searchVocaSheetRef.current?.dismiss()}
             />
         </SafeAreaView>
     );

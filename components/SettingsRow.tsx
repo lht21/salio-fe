@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CaretRightIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SettingsRowProps {
   icon: ReactNode;
@@ -18,12 +19,15 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
   icon,
   label,
   value,
-  labelColor = Color.gray,
-  valueColor = Color.text,
+  labelColor,
+  valueColor,
   showArrow = true,
   onPress,
   isLast = false,
 }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <TouchableOpacity 
       style={[styles.container, !isLast && styles.borderBottom]} 
@@ -32,18 +36,18 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
     >
       <View style={styles.leftContent}>
         <View style={styles.iconContainer}>{icon}</View>
-        <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+        <Text style={[styles.label, { color: labelColor || colors.gray }]}>{label}</Text>
       </View>
       
       <View style={styles.rightContent}>
-        {value && <Text style={[styles.value, { color: valueColor }]}>{value}</Text>}
-        {showArrow && <CaretRightIcon size={16} color={Color.gray} weight="regular" />}
+        {value && <Text style={[styles.value, { color: valueColor || colors.text }]}>{value}</Text>}
+        {showArrow && <CaretRightIcon size={16} color={colors.gray} weight="regular" />}
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -52,7 +56,7 @@ const styles = StyleSheet.create({
   },
   borderBottom: {
     borderBottomWidth: 1,
-    borderBottomColor: Color.stroke + '40', // Thêm độ trong suốt cho viền mờ
+    borderBottomColor: colors.stroke + '40', // Thêm độ trong suốt cho viền mờ
   },
   leftContent: {
     flexDirection: 'row',

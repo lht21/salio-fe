@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Keyboard, StyleSheet, View, Modal, Pressable, Text, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useMemo, useCallback, forwardRef } from 'react';
+import { Keyboard, StyleSheet, View, Text, Platform, TouchableOpacity, Alert } from 'react-native';
 import { Eye, EyeSlash } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -9,19 +9,30 @@ import { CustomInput } from '../CustomInput';
 import CloseButton from '../CloseButton';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import UserService from '../../api/services/user.service';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 export type ChangePasswordModalProps = {
-  visible: boolean;
   onClose: () => void;
 };
 
-const ChangePasswordModal = ({
-  visible,
-  onClose,
-}: ChangePasswordModalProps) => {
+const ChangePasswordModal = forwardRef<BottomSheetModal, ChangePasswordModalProps>(({ onClose }, ref) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const snapPoints = useMemo(() => ['50%'], []);
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -89,20 +100,21 @@ const ChangePasswordModal = ({
   );
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={handleClose}
+    <BottomSheetModal
+      ref={ref}
+      snapPoints={snapPoints}
+      backdropComponent={renderBackdrop}
+      enablePanDownToClose={true}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
+      backgroundStyle={{ 
+        backgroundColor: colors.bg,
+        borderTopLeftRadius: Border.br_30,
+        borderTopRightRadius: Border.br_30 
+      }}
+      handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
-      <KeyboardAvoidingView 
-        style={styles.overlay} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <Pressable style={styles.backgroundTouchable} onPress={handleClose} />
-        <View style={styles.sheetContent}>
-          <View style={styles.dragHandle} />
-
+      <BottomSheetView style={styles.sheetContent}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('settings.changePassword', 'Đổi mật khẩu')}</Text>
             <CloseButton variant="Stroke" onPress={handleClose} />
@@ -160,17 +172,13 @@ const ChangePasswordModal = ({
               disabled={!isFormValid || isLoading}
             />
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+      </BottomSheetView>
+    </BottomSheetModal>
   );
-};
+});
 
 const createStyles = (colors: any) => StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg || 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
-  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
-  sheetContent: { backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
-  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: colors.dragHandleBg || '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+  sheetContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
   headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
   body: {

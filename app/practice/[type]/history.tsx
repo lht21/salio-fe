@@ -5,8 +5,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MotiView } from 'moti';
 import { TrashIcon, ExamIcon, TrophyIcon } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
-import { Color, Padding, Gap, FontFamily, FontSize, Border } from '../../../constants/GlobalStyles';
+import { Padding, Gap, FontFamily, FontSize, Border } from '../../../constants/GlobalStyles';
 import ScreenHeader from '../../../components/ScreenHeader';
 import Button from '../../../components/Button';
 import TopicItem, { TopicItemData } from '../../../components/TopicItem';
@@ -14,6 +15,7 @@ import HistoryCard from '../../../components/ExamComponent/HistoryCard';
 import HistoryActionModal from '../../../components/Modals/HistoryActionModal';
 import PracticeService from '../../../api/services/practice.service';
 import { AttemptResult } from '../../../api/types/practice.types';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 const formatTimeAgo = (dateString?: string) => {
   if (!dateString) return '';
@@ -25,6 +27,9 @@ const formatTimeAgo = (dateString?: string) => {
 export default function PracticeHistoryScreen() {
   const { type } = useLocalSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   
   const typeString = (type as string) || 'full';
   const isExamType = ['reading', 'listening', 'full'].includes(typeString);
@@ -86,7 +91,7 @@ export default function PracticeHistoryScreen() {
         }
       } catch (error) {
         console.error('Lỗi lấy lịch sử:', error);
-        Alert.alert('Lỗi', 'Không thể tải lịch sử làm bài');
+        Alert.alert(t('common.error', 'Lỗi'), t('history.error_load', 'Không thể tải lịch sử làm bài'));
       } finally {
         setIsLoading(false);
       }
@@ -108,16 +113,38 @@ export default function PracticeHistoryScreen() {
       if (isExamType) {
         const setId = item.exam?._id;
         if (setId) {
-          router.push(`/practice/${typeString}/${setId}/${item._id}/review` as any);
+          if (item.status === 'in_progress') {
+            Alert.alert(
+              t('history.resume_title', 'Tiếp tục làm bài'),
+              t('history.resume_desc', 'Bạn có bài làm đang dang dở. Bạn có muốn tiếp tục không?'),
+              [
+                { text: t('common.cancel', 'Hủy'), style: 'cancel' },
+                { text: t('common.confirm', 'Tiếp tục'), onPress: () => router.push(`/practice/${typeString}/${setId}/intro` as any) }
+              ]
+            );
+          } else {
+            router.push(`/practice/${typeString}/${setId}/${item._id}/review` as any);
+          }
         } else {
-          Alert.alert('Lỗi', 'Không tìm thấy thông tin đề thi gốc của bài làm này.');
+          Alert.alert(t('common.error', 'Lỗi'), t('history.error_exam_not_found', 'Không tìm thấy thông tin đề thi gốc của bài làm này.'));
         }
       } else {
         const setId = item.writing?._id || (item as any).speaking?._id;
         if (setId) {
-          router.push(`/practice/${typeString}/${setId}/${item._id}/result` as any);
+          if (item.status === 'draft') {
+            Alert.alert(
+              t('history.resume_title', 'Tiếp tục làm bài'),
+              t('history.resume_desc', 'Bạn có bài viết đang dang dở. Bạn có muốn tiếp tục không?'),
+              [
+                { text: t('common.cancel', 'Hủy'), style: 'cancel' },
+                { text: t('common.confirm', 'Tiếp tục'), onPress: () => router.push(`/practice/${typeString}/${setId}/intro` as any) }
+              ]
+            );
+          } else {
+            router.push(`/practice/${typeString}/${setId}/${item._id}/result` as any);
+          }
         } else {
-          Alert.alert('Lỗi', 'Không tìm thấy thông tin bài tập gốc của bài làm này.');
+          Alert.alert(t('common.error', 'Lỗi'), t('history.error_exercise_not_found', 'Không tìm thấy thông tin bài tập gốc của bài làm này.'));
         }
       }
     }
@@ -152,13 +179,13 @@ export default function PracticeHistoryScreen() {
       const res = await PracticeService.deleteAttempt(selectedItem._id);
       if (res.success) {
         setIsActionMenuVisible(false);
-        Alert.alert("Thành công", "Đã xóa bài làm khỏi lịch sử");
+        Alert.alert(t('common.success', 'Thành công'), t('history.success_delete_single', 'Đã xóa bài làm khỏi lịch sử'));
         setHistoryData(prev => prev.filter(item => item._id !== selectedItem._id));
       } else {
-        Alert.alert("Lỗi", res.message || "Không thể xóa bài làm");
+        Alert.alert(t('common.error', 'Lỗi'), res.message || t('history.error_delete_single', 'Không thể xóa bài làm'));
       }
     } catch (error: any) {
-      Alert.alert("Lỗi", error.message || "Đã xảy ra lỗi khi xóa");
+      Alert.alert(t('common.error', 'Lỗi'), error.message || t('history.error_delete_occurred', 'Đã xảy ra lỗi khi xóa'));
     } finally {
       setIsDeletingSingle(false);
     }
@@ -168,26 +195,26 @@ export default function PracticeHistoryScreen() {
     if (isDeletingBatch || selectedIds.length === 0) return;
     
     Alert.alert(
-      "Xác nhận xóa",
-      `Bạn có chắc muốn xóa ${selectedIds.length} bài làm đã chọn?`,
+      t('history.confirm_delete', "Xác nhận xóa"),
+      t('history.confirm_delete_desc', { count: selectedIds.length, defaultValue: `Bạn có chắc muốn xóa ${selectedIds.length} bài làm đã chọn?` }),
       [
-        { text: "Hủy", style: "cancel" },
+        { text: t('common.cancel', "Hủy"), style: "cancel" },
         {
-          text: "Xóa",
+          text: t('common.delete', "Xóa"),
           style: "destructive",
           onPress: async () => {
             try {
               setIsDeletingBatch(true);
               const res = await PracticeService.deleteMultipleAttempts(selectedIds);
               if (res.success) {
-                Alert.alert("Thành công", `Đã xóa ${res.data.deletedCount} bài làm.`);
+                Alert.alert(t('common.success', "Thành công"), t('history.success_delete_batch', { count: res.data.deletedCount, defaultValue: `Đã xóa ${res.data.deletedCount} bài làm.` }));
                 setHistoryData(prev => prev.filter(item => !selectedIds.includes(item._id)));
                 toggleSelectionMode(); // Exit selection mode
               } else {
-                Alert.alert("Lỗi", res.message || "Không thể xóa các bài làm đã chọn.");
+                Alert.alert(t('common.error', "Lỗi"), res.message || t('history.error_delete_batch', "Không thể xóa các bài làm đã chọn."));
               }
             } catch (error: any) {
-              Alert.alert("Lỗi", error.message || "Đã xảy ra lỗi khi xóa.");
+              Alert.alert(t('common.error', "Lỗi"), error.message || t('history.error_delete_batch_occurred', "Đã xảy ra lỗi khi xóa."));
             } finally {
               setIsDeletingBatch(false);
             }
@@ -205,37 +232,37 @@ export default function PracticeHistoryScreen() {
     if (setId) {
       router.push(`/practice/${typeString}/${setId}/intro` as any);
     } else {
-      Alert.alert('Lỗi', 'Không tìm thấy thông tin đề bài.');
+      Alert.alert(t('common.error', 'Lỗi'), t('history.error_topic_not_found', 'Không tìm thấy thông tin đề bài.'));
     }
   };
 
   const handleShare = () => {
     setIsActionMenuVisible(false);
-    Alert.alert("Chia sẻ", "Mở tính năng chia sẻ kết quả...");
+    Alert.alert(t('common.share', "Chia sẻ"), t('history.share_desc', "Mở tính năng chia sẻ kết quả..."));
   };
 
   // --- UI Renderers ---
 
   const getHeaderTitle = () => {
-    if (typeString === 'full') return 'Lịch sử thi thử';
-    if (typeString === 'reading') return 'Lịch sử luyện đọc';
-    if (typeString === 'listening') return 'Lịch sử luyện nghe';
-    if (typeString === 'writing') return 'Lịch sử luyện viết';
-    if (typeString === 'speaking') return 'Lịch sử luyện nói';
-    return 'Lịch sử làm bài';
+    if (typeString === 'full') return t('history.mocktest_history', 'Lịch sử thi thử');
+    if (typeString === 'reading') return t('history.reading_history', 'Lịch sử luyện đọc');
+    if (typeString === 'listening') return t('history.listening_history', 'Lịch sử luyện nghe');
+    if (typeString === 'writing') return t('history.writing_history', 'Lịch sử luyện viết');
+    if (typeString === 'speaking') return t('history.speaking_history', 'Lịch sử luyện nói');
+    return t('history.title', 'Lịch sử làm bài');
   };
 
   const renderList = () => {
     if (isLoading) {
-      return <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 20 }} />;
+      return <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 20 }} />;
     }
     if (historyData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <ExamIcon size={100} color={Color.main2} weight="fill" style={{ marginBottom: 12 }} opacity={0.6} />
-          <Text style={styles.emptyText}>Chưa có lịch sử làm bài</Text>
+          <ExamIcon size={100} color={colors.main2} weight="fill" style={{ marginBottom: 12 }} opacity={0.6} />
+          <Text style={styles.emptyText}>{t('history.empty', 'Chưa có lịch sử làm bài')}</Text>
           <Button 
-            title="Luyện tập ngay"
+            title={t('history.practice_now', "Luyện tập ngay")}
             variant="Green"
             onPress={() => router.push(`/practice/${typeString}` as any)}
             style={{ marginTop: 24, minWidth: 200 }}
@@ -252,21 +279,21 @@ export default function PracticeHistoryScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient 
-              colors={['#1E293B', '#0F172A']} 
+              colors={[colors.upgradeBannerGradientStart || '#1E293B', colors.upgradeBannerGradientEnd || '#0F172A']} 
               start={{x:0, y:0}} 
               end={{x:1, y:1}} 
               style={styles.highestScoreGradient}
             >
               <View style={styles.highestScoreWatermark}>
-                <TrophyIcon size={120} color="#FBBF24" weight="fill" opacity={0.1} />
+                <TrophyIcon size={120} color={colors.vang || "#FBBF24"} weight="fill" opacity={0.1} />
               </View>
               <View style={styles.highestScoreContent}>
                 <View style={styles.highestScoreTextWrapper}>
-                  <Text style={styles.highestScoreValue}>{highestScoreData.score}<Text style={styles.highestScoreUnit}> điểm</Text></Text>
-                  <Text style={styles.highestScoreLabel}>Kỷ lục hiện tại</Text>
+                  <Text style={styles.highestScoreValue}>{highestScoreData.score}<Text style={styles.highestScoreUnit}>{t('history.score_unit', ' điểm')}</Text></Text>
+                  <Text style={styles.highestScoreLabel}>{t('history.current_record', 'Kỷ lục hiện tại')}</Text>
                 </View>
                 <View style={styles.highestScoreIconWrapper}>
-                  <TrophyIcon size={32} color="#FBBF24" weight="fill" />
+                  <TrophyIcon size={32} color={colors.vang || "#FBBF24"} weight="fill" />
                 </View>
               </View>
             </LinearGradient>
@@ -277,11 +304,14 @@ export default function PracticeHistoryScreen() {
             const isSelected = selectedIds.includes(item._id);
 
             if (isExamType) {
+              const isExamInProgress = item.status === 'in_progress';
+              const displayScore = isExamInProgress ? t('history.in_progress', 'Đang làm') : `${item.totalScore || 0}/${item.exam?.totalScore || 'N/A'}`;
+
               return (
                 <View key={item._id} onLayout={(e) => { itemLayouts.current[item._id] = e.nativeEvent.layout.y; }}>
                   <HistoryCard 
-                    title={item.exam?.title || 'Đề thi không xác định'}
-                    score={`${item.totalScore || 0}/${item.exam?.totalScore || 'N/A'}`}
+                    title={item.exam?.title || t('history.unknown_exam', 'Đề thi không xác định')}
+                    score={displayScore}
                     time={formatTimeAgo(item.completedAt || item.startedAt || (item as any).createdAt)}
                     type={typeString}
                     style={{ width: '100%' }}
@@ -293,8 +323,16 @@ export default function PracticeHistoryScreen() {
                 </View>
               );
             } else {
-              const titleStr = item.writing?.title || (item as any).speaking?.title || 'Chủ đề không xác định';
-            const scoreStr = item.status === 'evaluated' ? `${item.evaluation?.totalScore || 0}/100` : 'Đang chấm';
+              const titleStr = item.writing?.title || (item as any).speaking?.title || t('history.unknown', 'Không xác định');
+            
+            let scoreStr = '';
+            if (item.status === 'draft') {
+              scoreStr = t('history.in_progress', 'Đang làm');
+            } else if (item.status === 'evaluated') {
+              scoreStr = `${item.evaluation?.totalScore || 0}/100`;
+            } else {
+              scoreStr = t('history.grading', 'Đang chấm');
+            }
             
             const topicData: TopicItemData = {
               id: item._id,
@@ -329,7 +367,7 @@ export default function PracticeHistoryScreen() {
         rightContent={
           historyData.length > 0 && (
             <TouchableOpacity onPress={toggleSelectionMode} style={styles.headerButton}>
-              <Text style={styles.headerButtonText}>{isSelectionMode ? 'Hủy' : 'Chọn'}</Text>
+              <Text style={styles.headerButtonText}>{isSelectionMode ? t('common.cancel', 'Hủy') : t('common.select', 'Chọn')}</Text>
             </TouchableOpacity>
           )
         }
@@ -350,17 +388,17 @@ export default function PracticeHistoryScreen() {
           transition={{ type: 'timing', duration: 300 }}
           style={styles.bottomBar}
         >
-          <Text style={styles.bottomBarText}>Đã chọn {selectedIds.length} bài</Text>
+          <Text style={styles.bottomBarText}>{t('history.selected_count', { count: selectedIds.length, defaultValue: `Đã chọn ${selectedIds.length} bài` })}</Text>
           <TouchableOpacity 
             style={styles.deleteButton} 
             onPress={handleBatchDelete} 
             disabled={isDeletingBatch}
           >
             {isDeletingBatch 
-              ? <ActivityIndicator color="#FFF" /> 
+              ? <ActivityIndicator color={colors.whiteText || '#FFF'} /> 
               : <>
-                  <TrashIcon size={18} color="#FFF" weight="bold" />
-                  <Text style={styles.deleteButtonText}>Xóa</Text>
+                  <TrashIcon size={18} color={colors.whiteText || '#FFF'} weight="bold" />
+                  <Text style={styles.deleteButtonText}>{t('common.delete', 'Xóa')}</Text>
                 </>
             }
           </TouchableOpacity>
@@ -379,16 +417,16 @@ export default function PracticeHistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.bg,
+    backgroundColor: colors.bg,
   },
   scrollContent: {
     flexGrow: 1,
     padding: Padding.padding_20,
     paddingBottom: 40,
-    backgroundColor: Color.bg2,
+    backgroundColor: colors.bg2,
   },
   listContainer: {
     gap: Gap.gap_12,
@@ -401,7 +439,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.gray,
+    color: colors.gray,
     textAlign: 'center',
   },
   headerButton: {
@@ -411,7 +449,7 @@ const styles = StyleSheet.create({
   headerButtonText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: Color.main2,
+    color: colors.main2,
   },
   bottomBar: {
     position: 'absolute',
@@ -421,22 +459,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Color.text,
+    backgroundColor: colors.text,
     borderRadius: 16,
     padding: 12,
     paddingHorizontal: 20,
-    shadowColor: '#000',
+    shadowColor: colors.shadow || '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
   },
-  bottomBarText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: '#FFF' },
-  deleteButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#DC2626', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, gap: 8 },
-  deleteButtonText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: '#FFF' },
+  bottomBarText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.bg },
+  deleteButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.red || '#DC2626', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, gap: 8 },
+  deleteButtonText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.whiteText || '#FFF' },
   highestScoreWrapper: {
     marginBottom: Gap.gap_20 || 20,
-    shadowColor: '#000',
+    shadowColor: colors.shadow || '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -462,14 +500,14 @@ const styles = StyleSheet.create({
   highestScoreTextWrapper: {
     flex: 1,
   },
-  highestScoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 54, color: Color.main || '#98F291', marginBottom: 4 },
+  highestScoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 54, color: colors.main || '#98F291', marginBottom: 4 },
   highestScoreUnit: { fontSize: FontSize.fs_14 || 14, fontFamily: FontFamily.lexendDecaMedium },
-  highestScoreLabel: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14 || 14, color: '#CBD5E1' },
+  highestScoreLabel: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14 || 14, color: colors.upgradeBannerDesc || '#CBD5E1' },
   highestScoreIconWrapper: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.upgradeBannerIconBg || 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -18,10 +18,13 @@ import Animated, {
   Extrapolation, 
   runOnJS
 } from 'react-native-reanimated';
+import { MotiView } from 'moti';
 import { SpeakerHighIcon, CaretRightIcon } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize } from '../constants/GlobalStyles';
 import ShieldBackground from '../components/BackgroundSVG/ShieldBackground'; 
+import * as Speech from 'expo-speech';
+import { useUser } from '../contexts/UserContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
@@ -52,6 +55,46 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const rotateY = useSharedValue(0); 
+
+  const { user } = useUser();
+  const [isSpeakingWord, setIsSpeakingWord] = useState(false);
+  const [isSpeakingSentence, setIsSpeakingSentence] = useState(false);
+
+  const handleSpeakWord = () => {
+    if (!card.word) return;
+    
+    const voiceGender = user?.preferences?.voiceGender || 'male';
+    const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
+
+    Speech.stop();
+    Speech.speak(card.word, {
+      language: 'ko-KR',
+      rate: 0.8,
+      pitch: currentPitch,
+      onStart: () => setIsSpeakingWord(true),
+      onDone: () => setIsSpeakingWord(false),
+      onStopped: () => setIsSpeakingWord(false),
+      onError: () => setIsSpeakingWord(false),
+    });
+  };
+
+  const handleSpeakSentence = () => {
+    if (!card.example) return;
+
+    const voiceGender = user?.preferences?.voiceGender || 'male';
+    const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
+
+    Speech.stop();
+    Speech.speak(card.example, {
+      language: 'ko-KR',
+      rate: 0.8,
+      pitch: currentPitch,
+      onStart: () => setIsSpeakingSentence(true),
+      onDone: () => setIsSpeakingSentence(false),
+      onStopped: () => setIsSpeakingSentence(false),
+      onError: () => setIsSpeakingSentence(false),
+    });
+  };
 
   // --- LOGIC LẬT THẺ (FLIP) ---
   const handleTap = () => {
@@ -161,9 +204,27 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
                 </View>
 
                 <View style={styles.frontBottomActions}>
-                  <View style={styles.audioBtn}>
-                    <SpeakerHighIcon size={28} color={Color.bg} weight="fill" />
-                  </View>
+                  <TouchableOpacity 
+                    style={styles.audioBtn} 
+                    onPress={handleSpeakWord} 
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    {isSpeakingWord && (
+                      <MotiView
+                        from={{ opacity: 0.5, scale: 1 }}
+                        animate={{ opacity: 0, scale: 1.8 }}
+                        transition={{
+                          type: 'timing',
+                          duration: 1000,
+                          loop: true,
+                          repeatReverse: false,
+                        }}
+                        style={styles.wordSpeakerRipple}
+                      />
+                    )}
+                    <SpeakerHighIcon size={28} color={isSpeakingWord ? Color.cam || '#F97316' : Color.bg} weight="fill" />
+                  </TouchableOpacity>
                   {/* Đã xóa ArrowsClockwiseIcon ở đây */}
                 </View>
               </View>
@@ -210,7 +271,26 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
                 {step === 3 && (
                   <View style={styles.stepContainer}>
                     <Image source={{ uri: card.image }} style={styles.exampleImage} />
-                    <SpeakerHighIcon size={24} color={Color.main2} weight="fill" style={{ marginTop: 20 }} />
+                    <TouchableOpacity 
+                      onPress={handleSpeakSentence} 
+                      activeOpacity={0.7} 
+                      style={styles.sentenceAudioBtn}
+                    >
+                      {isSpeakingSentence && (
+                        <MotiView
+                          from={{ opacity: 0.5, scale: 1 }}
+                          animate={{ opacity: 0, scale: 1.8 }}
+                          transition={{
+                            type: 'timing',
+                            duration: 1000,
+                            loop: true,
+                            repeatReverse: false,
+                          }}
+                          style={styles.sentenceSpeakerRipple}
+                        />
+                      )}
+                      <SpeakerHighIcon size={24} color={isSpeakingSentence ? Color.cam || '#F97316' : Color.main2} weight="fill" />
+                    </TouchableOpacity>
                     {renderHighlightedExample(card.example, card.highlight)}
                   </View>
                 )}
@@ -290,6 +370,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
     borderWidth: 2, borderColor: '#166534'
   },
+  wordSpeakerRipple: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Color.cam || '#F97316',
+  },
   
   // --- MẶT SAU ---
   stepContainer: {
@@ -317,6 +404,21 @@ const styles = StyleSheet.create({
   },
   exampleText: {
     fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 22, color: Color.text, marginTop: 15, textAlign: 'center'
+  },
+  sentenceAudioBtn: {
+    marginTop: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sentenceSpeakerRipple: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Color.cam || '#F97316',
   },
   highlightText: {
     color: '#166534', 

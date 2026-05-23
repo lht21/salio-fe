@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { SpeakerHighIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
+import ConfettiCannon from 'react-native-confetti-cannon';
+import { Audio } from 'expo-av';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import CloseButton from '../../components/CloseButton';
@@ -10,6 +11,8 @@ import Button from '../../components/Button';
 import SaveToFolderModal from '../../components/ModalOption/SaveToFolderModal';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
+import VocabularyCard from '../../components/VocabularyCard';
+import apiClient from '../../api/client';
 
 export default function FlashcardQuizResultScreen() {
   const router = useRouter();
@@ -21,6 +24,8 @@ export default function FlashcardQuizResultScreen() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [selectedWord, setSelectedWord] = useState<any>(null);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [missionD2, setMissionD2] = useState<any>(null);
 
   // Parse lịch sử đáp án đúng/sai từ quiz (Format: { [wordId]: boolean })
   const historyMap = history ? JSON.parse(history as string) : {};
@@ -31,7 +36,11 @@ export default function FlashcardQuizResultScreen() {
       if (!setId) return;
       try {
         setIsLoading(true);
-        const res = await FlashcardService.getSetById(setId as string);
+        const [res, missionsRes] = await Promise.all([
+          FlashcardService.getSetById(setId as string),
+          apiClient.get('/api/v1/gamification/daily-missions').catch(() => null)
+        ]);
+
         if (res.success && res.data) {
           const mappedWords = (res.data.cards || []).map((card: any) => ({
             id: card._id,
@@ -42,14 +51,59 @@ export default function FlashcardQuizResultScreen() {
           }));
           setWords(mappedWords);
         }
+
+        if (missionsRes?.data?.success) {
+          const d2 = missionsRes.data.data.find((m: any) => m.id === 'D2');
+          setMissionD2(d2);
+        }
       } catch (error) {
-        console.error('Lỗi lấy chi tiết bộ flashcard:', error);
+        console.error('Lỗi lấy chi tiết bộ flashcard hoặc nhiệm vụ:', error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchSetDetail();
   }, [setId]);
+
+  // Chơi âm thanh và hiện pháo giấy khi load xong dữ liệu
+  useEffect(() => {
+    // Dựa theo logic của ExamResultUI.tsx
+    // Chỉ chạy khi đã load xong dữ liệu
+    if (isLoading) {
+      return;
+    }
+
+    let sound: Audio.Sound | null = null;
+
+    // Chỉ bắn pháo giấy nếu điểm lớn hơn hoặc bằng 80
+    if (score >= 80) {
+      setShowConfetti(true);
+    }
+
+    const playSound = async () => {
+      try {
+        const audioUri = score < 50 
+          ? 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_c6ccf3232f.mp3?filename=negative_beeps-6008.mp3' // Âm thanh thất bại / buồn
+          : 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=success-1-6297.mp3'; // Âm thanh chúc mừng
+
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: audioUri }
+        );
+        sound = newSound;
+        await sound.playAsync();
+      } catch (error) {
+        console.log('Lỗi phát âm thanh chúc mừng:', error);
+      }
+    };
+
+    playSound();
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [isLoading, score]);
 
   const handleBookmark = (item: any) => {
     setSelectedWord(item);
@@ -89,11 +143,15 @@ export default function FlashcardQuizResultScreen() {
         {/* 2. CELEBRATION */}
         <View style={styles.celebrationSection}>
           <Image 
-            source={require('../../assets/images/horani/result-levelup.png')} 
+            source={
+              score < 50 
+                ? require('../../assets/images/horani/failure.png') 
+                : require('../../assets/images/horani/result-levelup.png')
+            } 
             style={styles.illustration} 
             resizeMode="contain" 
           />
-          <Text style={styles.titleText}>Hoàn thành!</Text>
+          <Text style={styles.titleText}>{score < 50 ? 'Cần cố gắng hơn!' : 'Hoàn thành!'}</Text>
         </View>
 
         {/* 3. SCORE BANNER */}
@@ -102,41 +160,30 @@ export default function FlashcardQuizResultScreen() {
           <Text style={styles.scoreText}>{score} điểm</Text>
         </View>
 
+        {/* MISSION D2 BANNER */}
+        {missionD2 && (
+          <View style={[styles.scoreBanner, { backgroundColor: missionD2.isCompleted ? Color.greenLight : Color.bg2, marginTop: -10 }]}>
+            <Text style={[styles.scoreText, { color: missionD2.isCompleted ? Color.main2 : Color.text }]}>
+              {missionD2.isCompleted 
+                ? '🎉 Đã hoàn thành nhiệm vụ D2: Học 10 từ vựng!' 
+                : `Nhiệm vụ D2: Học từ vựng (${missionD2.progress}/10)`}
+            </Text>
+          </View>
+        )}
+
         {/* 4. RESULT LIST */}
         <View style={styles.listSection}>
           {words.map((item) => {
             const isCorrect = historyMap[item.id] ?? false; // Tra cứu trạng thái từ lịch sử
             return (
-              <View 
-                key={item.id} 
-                style={[
-                  styles.card, 
-                  isCorrect ? styles.cardCorrect : styles.cardIncorrect
-                ]}
-              >
-                <View style={styles.cardHeader}>
-                  <Text style={styles.cardTitle}>Đáp án</Text>
-                  <View style={styles.typeBadge}>
-                    <Text style={styles.typeText}>{item.type}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.cardBody}>
-                  <View style={styles.wordInfo}>
-                    <Text style={styles.wordText}>{item.word}</Text>
-                    {!!item.phonetic && <Text style={styles.phoneticText}>[{item.phonetic}]</Text>}
-                    <Text style={styles.meaningText}>{item.meaning}</Text>
-                  </View>
-                  
-                  <View style={styles.actionGroup}>
-                    <TouchableOpacity style={styles.iconBtn}>
-                      <SpeakerHighIcon size={24} color={Color.text} weight="fill" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.iconBtn} onPress={() => handleBookmark(item)}>
-                      <BookmarkSimpleIcon size={24} color={Color.text} weight="bold" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
+              <View key={item.id}>
+                <Text style={[styles.resultLabel, isCorrect ? styles.textCorrect : styles.textIncorrect]}>
+                  {isCorrect ? 'Đúng' : 'Sai'}
+                </Text>
+                <VocabularyCard 
+                  item={{ ...item, pos: item.type }} 
+                  onToggleFavorite={() => handleBookmark(item)} 
+                />
               </View>
             );
           })}
@@ -177,6 +224,12 @@ export default function FlashcardQuizResultScreen() {
           handleDone();
         }}
       />
+
+      {showConfetti && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, elevation: 9999 }} pointerEvents="none">
+          <ConfettiCannon count={150} origin={{ x: -10, y: 0 }} fadeOut={true} />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -200,29 +253,14 @@ const styles = StyleSheet.create({
   
   listSection: { width: '100%' },
 
-  // --- STYLES CHO CARD ---
-  card: {
-    backgroundColor: Color.bg, borderRadius: Border.br_15, borderWidth: 2,
-    padding: Padding.padding_15, marginBottom: 12,
+  resultLabel: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_14,
+    marginBottom: 8,
+    marginLeft: 4,
   },
-  cardCorrect: { borderColor: Color.main },
-  cardIncorrect: { borderColor: Color.red },
-  
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Gap.gap_10 },
-  cardTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_14, color: Color.gray, marginRight: Gap.gap_10 },
-  
-  typeBadge: { backgroundColor: Color.greenLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  typeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.main2 },
-  
-  cardBody: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  wordInfo: { flex: 1 },
-  
-  wordText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: Color.text, marginBottom: 4 },
-  phoneticText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.gray, marginBottom: 4 },
-  meaningText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.text },
-  
-  actionGroup: { flexDirection: 'row', gap: Gap.gap_10 },
-  iconBtn: { padding: 4 },
+  textCorrect: { color: Color.main2 },
+  textIncorrect: { color: Color.red },
 
   footer: {
     paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,

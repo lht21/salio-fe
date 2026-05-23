@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { CardsIcon, ListChecksIcon, PlusIcon, ArrowLeftIcon, TrashIcon, PencilSimpleIcon } from 'phosphor-react-native';
@@ -16,6 +16,8 @@ import Animated, {
   withSpring,
   runOnJS
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../contexts/ThemeContext';
 
 import VocabularyCard from '../../components/VocabularyCard';
 import ActionMenuItem from '../../components/ActionMenuItem';
@@ -27,9 +29,12 @@ import FlashcardService from '../../api/services/flashcard.service';
 export default function FlashcardSetDetailScreen() {
   const { id, title } = useLocalSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   
   const [isLoading, setIsLoading] = useState(true);
-  const [displayTitle, setDisplayTitle] = useState((title as string) || 'Không có tên');
+  const [displayTitle, setDisplayTitle] = useState((title as string) || t('vocabulary.no_name', 'Không có tên'));
 
   // State cho chức năng sửa tên bộ từ vựng
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -169,7 +174,7 @@ export default function FlashcardSetDetailScreen() {
       }
     } catch (error) {
       console.error('Lỗi khi cập nhật tên bộ từ vựng:', error);
-      Alert.alert('Lỗi', 'Không thể cập nhật tên bộ từ vựng.');
+      Alert.alert(t('common.error', 'Lỗi'), t('vocabulary.update_name_error', 'Không thể cập nhật tên bộ từ vựng.'));
     } finally {
       setIsUpdatingTitle(false);
     }
@@ -189,7 +194,7 @@ export default function FlashcardSetDetailScreen() {
       }
     } catch (error) {
       console.error('Lỗi khi xóa bộ từ vựng:', error);
-      Alert.alert('Lỗi', 'Không thể xóa bộ từ vựng.');
+      Alert.alert(t('common.error', 'Lỗi'), t('vocabulary.delete_set_error', 'Không thể xóa bộ từ vựng.'));
     }
   };
 
@@ -243,14 +248,14 @@ export default function FlashcardSetDetailScreen() {
   // --- HANDLER CHO NÚT HỌC FLASHCARD VÀ TRẮC NGHIỆM ---
   const handleStudyFlashcard = () => {
     if (words.length === 0) {
-      return Alert.alert("Thông báo", "Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi học nhé!");
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_study', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi học nhé!'));
     }
     router.push({ pathname: '/vocabulary/flashcard-study', params: { setId: id } });
   };
 
   const handleQuiz = () => {
     if (words.length === 0) {
-      return Alert.alert("Thông báo", "Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi kiểm tra nhé!");
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_quiz', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi kiểm tra nhé!'));
     }
     router.push({ pathname: '/vocabulary/flashcard-quiz', params: { setId: id } });
   };
@@ -265,7 +270,7 @@ export default function FlashcardSetDetailScreen() {
       {/* Custom Header */}
       <View style={styles.customHeader}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
+          <ArrowLeftIcon size={24} color={colors.text} weight="bold" />
         </TouchableOpacity>
           <Animated.Text style={[styles.headerTitle, headerTitleStyle]}>
             {displayTitle}
@@ -276,10 +281,10 @@ export default function FlashcardSetDetailScreen() {
               setEditTitleText(displayTitle);
               setIsEditModalVisible(true);
             }}>
-              <PencilSimpleIcon size={24} color={Color.text} weight="fill" />
+              <PencilSimpleIcon size={24} color={colors.text} weight="fill" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={handleDeleteSet}>
-              <TrashIcon size={24} color={Color.text} weight="fill" />
+              <TrashIcon size={24} color={colors.text} weight="fill" />
             </TouchableOpacity>
           </View>
         ) : (
@@ -293,7 +298,7 @@ export default function FlashcardSetDetailScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        <LinearGradient colors={['#CEF9B4', Color.main || '#98F291']} style={styles.gradientSection}>
+        <LinearGradient colors={[colors.cardGreenBg, colors.main]} style={styles.gradientSection}>
           <View style={styles.titleWrapper}>
             <Text style={styles.bigTitle}>{displayTitle}</Text>
           </View>
@@ -302,8 +307,8 @@ export default function FlashcardSetDetailScreen() {
           {words.length > 0 && (
             <View style={styles.progressContainer}>
               <View style={styles.progressStats}>
-                <Text style={styles.progressText}>Đã thuộc: <Text style={{color: Color.main2 || '#16A34A'}}>{rememberedCount}</Text></Text>
-                <Text style={styles.progressText}>Cần học: <Text style={{color: Color.cam || '#F97316'}}>{forgottenCount}</Text></Text>
+                <Text style={styles.progressText}>{t('vocabulary.remembered_count_label', 'Đã thuộc: ')}<Text style={{color: colors.picVocabText}}>{rememberedCount}</Text></Text>
+                <Text style={styles.progressText}>{t('vocabulary.learn_again_label', 'Cần học: ')}<Text style={{color: colors.cam}}>{forgottenCount}</Text></Text>
               </View>
               <View style={styles.progressBarBgDetail}>
                 <View style={[styles.progressBarFillDetail, { width: `${progressPercent}%` }]} />
@@ -313,25 +318,25 @@ export default function FlashcardSetDetailScreen() {
           
           {/* Thống kê / Nút Hành động */}
           <View style={styles.actionContainer}>
-            <Text style={styles.countText}>Tổng cộng: {words.length} từ vựng</Text>
+            <Text style={styles.countText}>{t('vocabulary.total_words', { count: words.length, defaultValue: `Tổng cộng: ${words.length} từ vựng` })}</Text>
             
             <View style={styles.buttonRow}>
               <TouchableOpacity 
-                style={[styles.actionBtn, { backgroundColor: '#0F172A', borderBottomColor: '#000000' }]} 
+                style={[styles.actionBtn, { backgroundColor: colors.blackActionBg, borderBottomColor: colors.colorBlack }]} 
                 activeOpacity={0.8}
                 onPress={handleStudyFlashcard}
               >
-                <CardsIcon size={24} color={Color.main || '#98F291'} weight="fill" />
-                <Text style={[styles.actionBtnText, { color: Color.main || '#98F291' }]}>Học Flashcard</Text>
+                <CardsIcon size={24} color={colors.main} weight="fill" />
+                <Text style={[styles.actionBtnText, { color: colors.main }]}>{t('vocabulary.study_flashcard', 'Học Flashcard')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.actionBtn, { backgroundColor: '#FFFFFF', borderBottomColor: '#E2E8F0' }]} 
+                style={[styles.actionBtn, { backgroundColor: colors.whiteActionBg, borderBottomColor: colors.stroke }]} 
                 activeOpacity={0.8}
                 onPress={handleQuiz}
               >
-                <ListChecksIcon size={24} color="#0F172A" weight="bold" />
-                <Text style={[styles.actionBtnText, { color: '#0F172A' }]}>Trắc nghiệm</Text>
+                <ListChecksIcon size={24} color={colors.whiteActionText} weight="bold" />
+                <Text style={[styles.actionBtnText, { color: colors.whiteActionText }]}>{t('vocabulary.quiz_mode', 'Chế độ Trắc nghiệm')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -340,25 +345,25 @@ export default function FlashcardSetDetailScreen() {
         <View style={styles.bottomSection}>
           {/* Header Danh sách */}
           <View style={styles.listHeader}>
-            <Text style={styles.listTitle}>Danh sách từ vựng</Text>
+            <Text style={styles.listTitle}>{t('vocabulary.word_list', 'Danh sách từ vựng')}</Text>
             <TouchableOpacity 
               style={styles.addBtn}
               onPress={() => setIsSearchModalVisible(true)}
             >
-              <PlusIcon size={18} color="#FFFFFF" weight="bold" />
-              <Text style={styles.addBtnText}>Thêm từ</Text>
+              <PlusIcon size={18} color={colors.blackActionText} weight="bold" />
+              <Text style={styles.addBtnText}>{t('vocabulary.add_word', 'Thêm từ')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Danh sách từ vựng */}
           <View style={styles.listContainer}>
             {isLoading ? (
-              <ActivityIndicator size="large" color={Color.main || '#98F291'} style={{ marginTop: 40 }} />
+              <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
             ) : words.length === 0 ? (
               <View style={styles.emptyContainer}>
-                <CardsIcon size={48} color={Color.stroke || '#E2E8F0'} weight="fill" style={{ marginBottom: 12 }} />
+                <CardsIcon size={48} color={colors.stroke} weight="fill" style={{ marginBottom: 12 }} />
                 <Text style={styles.emptyText}>
-                  Chưa có từ vựng nào trong bộ này.
+                  {t('vocabulary.empty_set_list', 'Chưa có từ vựng nào trong bộ này.')}
                 </Text>
               </View>
             ) : words.map((item) => (
@@ -392,9 +397,9 @@ export default function FlashcardSetDetailScreen() {
             <View style={styles.dragHandle} />
             
             <ActionMenuItem 
-              label="Xóa khỏi bộ từ vựng" 
+              label={t('vocabulary.remove_from_set', 'Xóa khỏi bộ từ vựng')} 
               variant="danger" 
-              icon={<TrashIcon size={24} color={Color.red || '#EF4444'} weight="bold" />} 
+              icon={<TrashIcon size={24} color={colors.red} weight="bold" />} 
               onPress={handleRemoveWord} 
             />
           </View>
@@ -410,13 +415,13 @@ export default function FlashcardSetDetailScreen() {
       >
         <View style={styles.editModalOverlay}>
           <View style={styles.editModalContent}>
-            <Text style={styles.editModalTitle}>Sửa tên bộ từ vựng</Text>
+            <Text style={styles.editModalTitle}>{t('vocabulary.edit_set_name', 'Sửa tên bộ từ vựng')}</Text>
             <TextInput
               style={styles.editModalInput}
               value={editTitleText}
               onChangeText={setEditTitleText}
-              placeholder="Nhập tên mới..."
-              placeholderTextColor={Color.gray}
+              placeholder={t('vocabulary.enter_new_name', 'Nhập tên mới...')}
+              placeholderTextColor={colors.gray}
               autoFocus
             />
             <View style={styles.editModalActions}>
@@ -425,7 +430,7 @@ export default function FlashcardSetDetailScreen() {
                 onPress={() => setIsEditModalVisible(false)}
                 disabled={isUpdatingTitle}
               >
-                <Text style={styles.editModalCancelText}>Hủy</Text>
+                <Text style={styles.editModalCancelText}>{t('common.cancel', 'Hủy')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.editModalBtn, styles.editModalSaveBtn]}
@@ -433,9 +438,9 @@ export default function FlashcardSetDetailScreen() {
                 disabled={isUpdatingTitle || !editTitleText.trim()}
               >
                 {isUpdatingTitle ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color={colors.blackActionText} />
                 ) : (
-                  <Text style={styles.editModalSaveText}>Lưu</Text>
+                  <Text style={styles.editModalSaveText}>{t('common.save', 'Lưu')}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -446,9 +451,9 @@ export default function FlashcardSetDetailScreen() {
       {/* --- TOAST THÔNG BÁO HOÀN TÁC --- */}
       {deletedWord && (
         <Animated.View style={[styles.toastContainer, toastStyle]}>
-          <Text style={styles.toastText}>Đã xóa 1 từ vựng</Text>
+          <Text style={styles.toastText}>{t('vocabulary.deleted_one_word', 'Đã xóa 1 từ vựng')}</Text>
           <TouchableOpacity onPress={handleUndo} style={styles.undoBtn}>
-            <Text style={styles.undoText}>Hoàn tác</Text>
+            <Text style={styles.undoText}>{t('common.undo', 'Hoàn tác')}</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -466,10 +471,10 @@ export default function FlashcardSetDetailScreen() {
       {/* --- MODAL XÁC NHẬN XÓA BỘ TỪ VỰNG --- */}
       <ConfirmModal
         isVisible={isDeleteConfirmVisible}
-        title="Xóa bộ từ vựng"
-        subtitle="Bạn có chắc chắn muốn xóa bộ từ vựng này không? Hành động này không thể hoàn tác."
-        confirmText="Xóa"
-        cancelText="Hủy"
+        title={t('vocabulary.delete_set', 'Xóa bộ từ vựng')}
+        subtitle={t('vocabulary.delete_set_confirm', 'Bạn có chắc chắn muốn xóa bộ từ vựng này không? Hành động này không thể hoàn tác.')}
+        confirmText={t('common.delete', 'Xóa')}
+        cancelText={t('common.cancel', 'Hủy')}
         isDestructive={true}
         onConfirm={executeDeleteSet}
         onCancel={() => setIsDeleteConfirmVisible(false)}
@@ -478,15 +483,15 @@ export default function FlashcardSetDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#CEF9B4' },
+const createStyles = (colors: any) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.cardGreenBg },
   customHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Padding.padding_15,
     paddingVertical: 12,
-    backgroundColor: '#CEF9B4',
+    backgroundColor: colors.cardGreenBg,
   },
   backButton: { padding: 4 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -494,16 +499,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: Color.text,
+    color: colors.text,
   },
-  content: { flexGrow: 1, backgroundColor: Color.bg, paddingBottom: 40 },
+  content: { flexGrow: 1, backgroundColor: colors.bg, paddingBottom: 40 },
   gradientSection: {
     paddingHorizontal: Padding.padding_15,
     paddingTop: Padding.padding_10,
     paddingBottom: Gap.gap_20,
     borderBottomLeftRadius: Border.br_30 || 30,
     borderBottomRightRadius: Border.br_30 || 30,
-    shadowColor: Color.main || '#98F291',
+    shadowColor: colors.main,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
@@ -511,72 +516,72 @@ const styles = StyleSheet.create({
     marginBottom: Gap.gap_20,
   },
   titleWrapper: { marginBottom: Gap.gap_15 },
-  bigTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: '#0C5F35' },
+  bigTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: colors.color },
   actionContainer: { marginBottom: Gap.gap_20 },
-  countText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: '#064E3B', opacity: 0.8, marginBottom: Gap.gap_15 },
-  progressContainer: { backgroundColor: '#FFFFFF', borderRadius: Border.br_20, padding: Padding.padding_15, marginBottom: Gap.gap_15, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
+  countText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textDarkGreen, opacity: 0.8, marginBottom: Gap.gap_15 },
+  progressContainer: { backgroundColor: colors.bg, borderRadius: Border.br_20, padding: Padding.padding_15, marginBottom: Gap.gap_15, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
   progressStats: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  progressText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.text },
-  progressBarBgDetail: { height: 8, backgroundColor: Color.stroke, borderRadius: 4, overflow: 'hidden' },
-  progressBarFillDetail: { height: 8, backgroundColor: Color.main, borderRadius: 4 },
+  progressText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.text },
+  progressBarBgDetail: { height: 8, backgroundColor: colors.stroke, borderRadius: 4, overflow: 'hidden' },
+  progressBarFillDetail: { height: 8, backgroundColor: colors.main, borderRadius: 4 },
   buttonRow: { flexDirection: 'row', gap: Gap.gap_15 },
   actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: Border.br_20 || 20, gap: Gap.gap_8, borderBottomWidth: 4 },
   actionBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14 },
   bottomSection: { paddingHorizontal: Padding.padding_15 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },
-  listTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
+  listTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
   addBtn: { 
     flexDirection: 'row', alignItems: 'center', gap: 4, 
-    backgroundColor: Color.main2 || '#22C55E', 
+    backgroundColor: colors.addBtnBg, 
     paddingHorizontal: 16, paddingVertical: 8, borderRadius: Border.br_20,
-    shadowColor: '#22C55E', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
+    shadowColor: colors.addBtnBg, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },
-  addBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#FFFFFF' },
+  addBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: colors.blackActionText },
   listContainer: { gap: 0 }, // Khoảng cách giữa các card đã được VocabularyCard tự xử lý qua marginBottom
   emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
-  emptyText: { textAlign: 'center', color: Color.gray, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 },
+  emptyText: { textAlign: 'center', color: colors.gray, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 },
 
   // --- STYLES CHO BOTTOM SHEET MODAL ---
-  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'flex-end' },
   backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
   sheetContent: {
-    backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
+    backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
     paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
   },
   dragHandle: {
-    width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_20,
+    width: 40, height: 5, borderRadius: 3, backgroundColor: colors.dragHandleBg, alignSelf: 'center', marginBottom: Gap.gap_20,
   },
   favoriteHintText: {
-    fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.gray, textAlign: 'center', lineHeight: 22,
+    fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: colors.gray, textAlign: 'center', lineHeight: 22,
   },
 
   // --- STYLES CHO TOAST UNDO ---
   toastContainer: {
     position: 'absolute', bottom: 40, alignSelf: 'center',
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#1E293B', // Màu nền xám đậm
+    backgroundColor: colors.toastBg, // Màu nền xám đậm
     paddingVertical: 14, paddingHorizontal: 20,
     borderRadius: Border.br_30, width: '90%',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
+    shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
     zIndex: 9999,
   },
   toastText: {
-    color: '#FFFFFF', fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14,
+    color: colors.toastText, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14,
   },
   undoBtn: { paddingHorizontal: 8, paddingVertical: 4 },
   undoText: {
-    color: Color.main || '#98F291', fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14,
+    color: colors.main, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14,
   },
   
   // --- STYLES CHO MODAL EDIT ---
-  editModalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center', padding: Padding.padding_20 },
-  editModalContent: { backgroundColor: Color.bg, borderRadius: Border.br_20, padding: Padding.padding_20, width: '100%', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
-  editModalTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_15 },
-  editModalInput: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.text, borderWidth: 1, borderColor: Color.stroke, borderRadius: Border.br_10, paddingHorizontal: Padding.padding_15, paddingVertical: 12, marginBottom: Gap.gap_20 },
+  editModalOverlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'center', alignItems: 'center', padding: Padding.padding_20 },
+  editModalContent: { backgroundColor: colors.bg, borderRadius: Border.br_20, padding: Padding.padding_20, width: '100%', shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
+  editModalTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_15 },
+  editModalInput: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: colors.text, borderWidth: 1, borderColor: colors.stroke, borderRadius: Border.br_10, paddingHorizontal: Padding.padding_15, paddingVertical: 12, marginBottom: Gap.gap_20 },
   editModalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: Gap.gap_10 },
   editModalBtn: { paddingHorizontal: Padding.padding_20, paddingVertical: 10, borderRadius: Border.br_10, justifyContent: 'center', alignItems: 'center' },
-  editModalCancelBtn: { backgroundColor: Color.stroke },
-  editModalSaveBtn: { backgroundColor: Color.main2 || '#22C55E' },
-  editModalCancelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
-  editModalSaveText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: '#FFFFFF' },
+  editModalCancelBtn: { backgroundColor: colors.stroke },
+  editModalSaveBtn: { backgroundColor: colors.addBtnBg },
+  editModalCancelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
+  editModalSaveText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.blackActionText },
 });

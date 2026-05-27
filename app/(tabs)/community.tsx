@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { PlusIcon, MagnifyingGlassIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
 
@@ -88,12 +87,6 @@ export default function CommunityScreen() {
 
   return (
     <View style={styles.safeArea}>
-      {/* Absolute Background Gradient ở phía trên */}
-      <LinearGradient
-        colors={[Color.main || '#98F291', '#D4F5C9', Color.bg]}
-        style={styles.backgroundGradient}
-      />
-
       <FlatList
         data={MOCK_POSTS}
         keyExtractor={(item) => item.id}
@@ -124,14 +117,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Color.bg,
     paddingTop: 50,
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 320, // Chiếm khoảng 25% màn hình và mờ dần xuống màu trắng
-    zIndex: 0,
   },
   listContent: {
     paddingHorizontal: Padding.padding_15 || 15,

@@ -58,7 +58,6 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
   const translateY = useSharedValue(0);
   const rotateY = useSharedValue(0); 
 
-  const { user } = useUser();
   const [isSpeakingWord, setIsSpeakingWord] = useState(false);
   const [isSpeakingSentence, setIsSpeakingSentence] = useState(false);
 

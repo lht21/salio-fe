@@ -71,6 +71,10 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="certificate/certificate" options={{ headerShown: false }} />
         <Stack.Screen name="streak/streak" options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="lesson-modal" 
+          options={{ presentation: 'transparentModal', animation: 'fade', headerShown: false }} 
+        />
         <Stack.Screen name="+not-found" options={{ title: "Oops!" }} />
       </Stack>
     </NavThemeProvider>

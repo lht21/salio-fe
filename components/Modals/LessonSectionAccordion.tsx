@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
-import { BookmarkSimpleIcon, CaretDownIcon, CaretUpIcon, CheckCircleIcon } from 'phosphor-react-native';
+import { CaretDownIcon, CaretUpIcon, CheckCircleIcon } from 'phosphor-react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Stroke } from '../../constants/GlobalStyles';
 
@@ -9,7 +9,6 @@ export type LessonSectionDetailItem = {
   id: string;
   left: string;
   right: string;
-  status: 'learning' | 'done' | 'todo';
 };
 
 export type LessonSectionAccordionProps = {
@@ -25,29 +24,8 @@ export type LessonSectionAccordionProps = {
   expandable?: boolean;
   initiallyExpanded?: boolean;
   details?: LessonSectionDetailItem[];
-  footerBadges?: string[];
   onPress?: () => void;
 };
-
-const STATUS_STYLES = {
-  learning: {
-    textColor: Color.xanh,
-    iconColor: Color.xanh,
-    label: 'Đang học',
-  },
-  done: {
-    textColor: Color.green,
-    iconColor: Color.green,
-    label: 'Thành thạo',
-  },
-  todo: {
-    textColor: Color.cam,
-    iconColor: Color.gray,
-    label: 'Chưa học',
-  },
-};
-
-const BADGE_COLORS = ['#FFA45A', '#3B82F6', '#65A30D'];
 
 const LessonSectionAccordion = ({
   delay = 0,
@@ -62,7 +40,6 @@ const LessonSectionAccordion = ({
   expandable = false,
   initiallyExpanded = false,
   details = [],
-  footerBadges = [],
   onPress,
 }: LessonSectionAccordionProps) => {
   const [expanded, setExpanded] = React.useState(initiallyExpanded);
@@ -116,8 +93,6 @@ const LessonSectionAccordion = ({
           >
             <Pressable style={styles.body} onPress={onPress} disabled={!onPress}>
               {details.map((item, index) => {
-                const statusTone = STATUS_STYLES[item.status];
-
                 return (
                   <MotiView
                     key={item.id}
@@ -128,34 +103,9 @@ const LessonSectionAccordion = ({
                   >
                     <Text style={styles.detailLeft}>{item.left}</Text>
                     <Text style={styles.detailRight}>{item.right}</Text>
-
-                    <View style={styles.statusWrap}>
-                      <Text style={[styles.statusText, { color: statusTone.textColor }]}>
-                        {statusTone.label}
-                      </Text>
-                      <BookmarkSimpleIcon size={15} color={statusTone.iconColor} weight="regular" />
-                    </View>
                   </MotiView>
                 );
               })}
-
-              {footerBadges.length > 0 ? (
-                <MotiView
-                  from={{ opacity: 0, translateY: 8 }}
-                  animate={{ opacity: 1, translateY: 0 }}
-                  transition={{ type: 'timing', duration: 220, delay: details.length * 45 }}
-                  style={styles.badgeRow}
-                >
-                  {footerBadges.map((badge, index) => (
-                    <View
-                      key={`${badge}-${index}`}
-                      style={[styles.badge, { backgroundColor: BADGE_COLORS[index % BADGE_COLORS.length] }]}
-                    >
-                      <Text style={styles.badgeText}>{badge}</Text>
-                    </View>
-                  ))}
-                </MotiView>
-              ) : null}
             </Pressable>
           </MotiView>
         ) : null}
@@ -257,31 +207,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
     color: Color.gray,
-  },
-  statusWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  statusText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Gap.gap_8,
-    paddingTop: 2,
-  },
-  badge: {
-    borderRadius: Border.br_5,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  badgeText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    color: Color.bg,
   },
   footer: {
     gap: Gap.gap_8,

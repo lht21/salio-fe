@@ -10,6 +10,7 @@ import FeedbackSheet from '../../../../components/Modals/Popup/FeedbackPopup';
 import WhiteboardArea from '../../../../components/QuizComponent/WhiteboardArea';
 import WordMatchArea from '../../../../components/QuizComponent/WordMatchArea';
 import GrammarService from '@/api/services/grammar.service';
+import LessonService from '@/api/services/lesson.service';
 
 export default function GrammarExerciseScreen() {
   const { lessonId } = useLocalSearchParams();
@@ -42,13 +43,13 @@ export default function GrammarExerciseScreen() {
 
       const allExercisesPromises = grammars.map(g => 
         GrammarService.getGrammarExercises(g._id).catch(err => {
-          console.error(`Lỗi tại Grammar ID ${g._id}:`, err.config.url);
-          return { questions: [] }; 
+          console.error(`Lỗi tại Grammar ID ${g._id}:`, err?.config?.url || err);
+          return { data: { questions: [] } }; 
         })
       );
       
       const results = await Promise.all(allExercisesPromises);
-      const combinedQuestions = results.flatMap(res => res?.questions || []);
+      const combinedQuestions = results.flatMap(res => res?.data?.questions || res?.questions || []);
       
       setQuestions(combinedQuestions.sort(() => Math.random() - 0.5));
     } catch (error) {
@@ -120,6 +121,19 @@ const handleContinue = () => {
         } else {
           console.log("Đã xong Exercise, đang chuyển hướng tới Quiz Intro...");
           
+          // 1. Tính điểm % Bài tập (Dựa trên số câu không bị sai lần nào)
+          const correctCount = Math.max(0, questions.length - incorrectCount);
+          const percentage = Math.round((correctCount / questions.length) * 100);
+
+          // 2. Gửi API lưu tiến độ
+          if (LessonService.updateLessonSectionProgress) {
+            LessonService.updateLessonSectionProgress(String(lessonId), 'grammar', String(lessonId), {
+              status: 'completed',
+              percentage: percentage,
+              title: 'Bài tập thực hành Ngữ pháp'
+            }).catch((err: any) => console.error("Lỗi lưu điểm bài tập:", err));
+          }
+
           router.push({
             pathname: '/lessons/[lessonId]/grammar/quiz-intro',
             params: { lessonId: String(lessonId) }
@@ -176,6 +190,7 @@ const handleContinue = () => {
           <View style={{ width: '100%', alignItems: 'center' }}>
             {currentQuestion.type === 'whiteboard' ? (
               <WhiteboardArea 
+                key={currentQuestion.clientId || currentIndex}
                 question={currentQuestion} 
                 answer={answerWB} 
                 setAnswer={setAnswerWB} 

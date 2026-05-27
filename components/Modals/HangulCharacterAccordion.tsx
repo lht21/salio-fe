@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { CaretDownIcon, CaretUpIcon, SpeakerHighIcon } from 'phosphor-react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
-import { closeLessonBottomSheet } from './lessonBottomSheetBus';
 import HangulTracingGlyph from './HangulTracingGlyph';
 import { getHangulWritingIndex } from './hangulWritingSequence';
 
@@ -28,8 +27,8 @@ const HangulCharacterAccordion = ({
   const router = useRouter();
 
   const handleOpenWritingScreen = React.useCallback(() => {
-    closeLessonBottomSheet();
-    router.push({
+    router.back();
+    setTimeout(() => router.push({
       pathname: '/lessons/[lessonId]/writing/practiceHangul',
       params: {
         lessonId,
@@ -37,7 +36,7 @@ const HangulCharacterAccordion = ({
         label,
         sequenceIndex: String(getHangulWritingIndex(glyph, label)),
       },
-    });
+    }), 100);
   }, [glyph, label, router]);
 
   return (

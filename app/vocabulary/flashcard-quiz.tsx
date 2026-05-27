@@ -237,7 +237,6 @@ export default function FlashcardQuizScreen() {
         visible={feedbackState !== 'hidden'}
         type={feedbackState === 'failure' ? 'failure' : 'success'}
         onNext={handleNextQuestion}
-        onOutsidePress={feedbackState === 'failure' ? () => hideFeedback() : undefined}
         translateY={feedbackTranslateY}
         opacity={feedbackOpacity}
         imageSource={

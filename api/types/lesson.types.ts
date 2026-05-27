@@ -1,4 +1,5 @@
 import { BaseResponse } from './auth.types';
+import { Vocabulary, VocabularyQuiz } from './vocabulary.types';
 
 export type LessonType = 'standard' | 'hangul';
 export type LessonStatus = 'completed' | 'current' | 'locked';
@@ -14,46 +15,6 @@ export interface HangulCharacter {
   order: number;
   audioUrl?: string;
   strokeDataKey?: string;
-}
-
-// --- Vocabulary Types ---
-export interface VocabularyExample {
-  korean: string;
-  vietnamese: string;
-  _id?: string;
-}
-
-export interface Vocabulary {
-  _id: string;
-  word: string;
-  meaning: string;
-  pronunciationText?: string;
-  type?: string;
-  isSinoKorean?: boolean;
-  hanja?: string;
-  sinoVietnamese?: string;
-  imageUrl?: string;
-  level?: string;
-  category?: string;
-  isActive?: boolean;
-  examples?: VocabularyExample[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// --- Vocabulary Quiz Types ---
-export interface VocabularyQuiz {
-  _id: string;
-  title: string;
-  level?: string;
-  category?: string;
-  items?: string[];
-  timeLimit?: number;
-  passingScore?: number;
-  createdBy?: string;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // --- Grammar Types ---
@@ -392,32 +353,195 @@ export interface LessonListData {
 export type LessonListResponse = BaseResponse<LessonListData>;
 export type LessonModulesResponse = BaseResponse<LessonModules>;
 export type LessonDetailResponse = BaseResponse<Lesson>;
+export type LessonMutationResponse = BaseResponse<Lesson>;
+export type LessonFinalTestResponse = BaseResponse<FinalTestResponse>;
+export type LessonFinalTestSessionResponse = BaseResponse<QuizSession>;
+
+export interface ProgressResultRef {
+  kind: 'VocabularyQuizSession' | 'GrammarQuizSession' | 'QuizSession' | 'SpeakingSubmission' | 'WritingSubmission' | 'Manual';
+  refId: string;
+}
+
+export interface SectionItemProgress {
+  moduleType: 'hangul' | 'vocabulary' | 'vocabularyQuiz' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing';
+  itemId: string;
+  status: 'locked' | 'learning' | 'completed';
+  score: number;
+  maxScore: number;
+  percentage: number;
+  attempts: number;
+  resultRef?: ProgressResultRef;
+  breakdown?: any;
+  completedAt?: string;
+  lastAccessed?: string;
+}
+
+export interface SectionProgress {
+  isUnlocked: boolean;
+  isCompleted: boolean;
+  progress: number;
+  totalItems: number;
+  completedCount: number;
+  isRewardClaimed: boolean;
+  items: SectionItemProgress[];
+  averageScore?: number;
+  highestScore?: number;
+}
+
+export interface FinalTestStatus {
+  isUnlocked: boolean;
+  isPassed: boolean;
+  passingScore: number;
+  highestScore: number;
+  attempts: number;
+  isRewardClaimed: boolean;
+}
+
+export interface ResumePoint {
+  section?: 'hangul' | 'vocabulary' | 'grammar' | 'listening' | 'speaking' | 'reading' | 'writing';
+  moduleType?: 'hangul' | 'vocabulary' | 'vocabularyQuiz' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing';
+  itemId?: string;
+  title?: string;
+}
 
 export interface LessonProgress {
   _id: string;
+  user: string;
   lesson: string | Lesson;
+  isUnlocked: boolean;
+  requiresFinalTest: boolean;
+  finalTestStatus: FinalTestStatus;
   overallProgress: number;
   isCompleted: boolean;
-  requiresFinalTest?: boolean;
-  sections?: Record<string, unknown>;
-  finalTestStatus?: {
-    isUnlocked: boolean;
-    score?: number;
-    isPassed?: boolean;
-    sessionId?: string;
+  resumePoint?: ResumePoint;
+  sections: {
+    hangul: SectionProgress;
+    vocabulary: SectionProgress;
+    grammar: SectionProgress;
+    listening: SectionProgress;
+    speaking: SectionProgress;
+    reading: SectionProgress;
+    writing: SectionProgress;
   };
+  lastAccessed: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type LessonProgressResponse = BaseResponse<LessonProgress>;
 
-export interface UpdateLessonProgressRequest {
-  moduleType?: string;
+// --- Request Params & Body ---
+
+export interface GetLessonsParams {
+  search?: string;
+  level?: string;
+  isPublished?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateLessonRequest {
+  code: string;
+  title: string;
+  level: string;
+  description?: string;
+  thumbnail?: string;
+  order?: number;
+  isPremium?: boolean;
+  estimatedDuration?: number;
+  isPublished?: boolean;
+}
+
+export interface UpdateLessonRequest extends Partial<CreateLessonRequest> {}
+
+export interface ReorderLessonsRequest {
+  lessons: Array<{
+    lessonId: string;
+    order: number;
+  }>;
+}
+
+export interface CreateLessonFinalTestRequest {
+  title?: string;
+  description?: string;
+  passingScore?: number;
+  timeLimit?: number;
+  isActive?: boolean;
+}
+
+export interface AssembleLessonFinalTestRequest {
+  sectionType: 'listening' | 'reading' | 'writing' | 'speaking';
+  itemIds: string[];
+  mode?: 'append' | 'replace';
+}
+
+export interface ReorderLessonFinalTestItemsRequest {
+  sectionType: 'listening' | 'reading' | 'writing' | 'speaking';
+  itemIds: string[];
+}
+
+export interface RemoveLessonFinalTestItemsRequest {
+  sectionType: 'listening' | 'reading' | 'writing' | 'speaking';
+  itemIds: string[];
+}
+
+export interface SaveLessonFinalTestAnswerRequest {
+  sectionType: 'quiz' | 'listening' | 'reading' | 'writing' | 'speaking';
+  itemId?: string;
+  questionId: string;
+  answer: any;
+  timeSpent?: number;
+}
+
+export interface SubmitLessonFinalTestSessionRequest {
+  timeSpent?: number;
+}
+
+export interface UpdateLessonSectionProgressRequest {
   status?: 'learning' | 'completed';
   score?: number;
   maxScore?: number;
   percentage?: number;
-  resultKind?: 'Manual' | 'VocabularyQuizSession' | 'GrammarQuizSession' | 'QuizSession' | 'SpeakingSubmission' | 'WritingSubmission';
+  resultKind?: 'VocabularyQuizSession' | 'GrammarQuizSession' | 'QuizSession' | 'SpeakingSubmission' | 'WritingSubmission' | 'Manual';
   resultId?: string;
-  breakdown?: Record<string, unknown>;
+  breakdown?: any;
   title?: string;
+}
+
+export interface SubmitLessonSkillItemRequest {
+  answers?: Array<{
+    questionId: string;
+    answer: any;
+  }>;
+  content?: string;
+  timeSpent?: number;
+  audioUrl?: string;
+  recordingDuration?: number;
+  fileSize?: number;
+  aiEvaluation?: {
+    pronunciation?: number;
+    intonation?: number;
+    accuracy?: number;
+    fluency?: number;
+    percentage?: number;
+    transcript?: string;
+  };
+}
+
+export interface EvaluateLessonSpeakingSubmissionRequest {
+  pronunciation?: number;
+  intonation?: number;
+  accuracy?: number;
+  fluency?: number;
+  percentage?: number;
+  transcript?: string;
+  feedback?: string;
+  suggestions?: string;
+  provider?: string;
+}
+
+export interface AddLessonModuleRequest {
+  moduleType: 'vocabulary' | 'vocabularyQuiz' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing' | 'finalTest';
+  moduleId?: string;
+  moduleIds?: string[];
 }

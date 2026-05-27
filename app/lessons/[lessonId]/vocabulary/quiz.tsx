@@ -1,4 +1,4 @@
-﻿import { useLocalSearchParams, useRouter } from 'expo-router';
+﻿﻿﻿﻿import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Animated,
@@ -8,159 +8,96 @@ import {
   Text,
   View,
   ActivityIndicator,
-  TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Keyboard
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import VocabularyService from '../../../../api/services/vocabulary.service';
+import { GetVocabulariesRequest, Vocabulary } from '../../../../api/types/vocabulary.types';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
 import { AnswerOption, QuizHeader, type OptionStatus } from '../../../../components/Modals/Question';
-import { Color, FontFamily, FontSize, Gap, Padding, Border } from '../../../../constants/GlobalStyles';
-import LessonService from '../../../../api/services/lesson.service';
-import { LessonModules } from '../../../../api/types/lesson.types';
+import { Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
 
-// Định nghĩa Interface cho câu hỏi trên Frontend
-interface FrontendQuizQuestion {
+// Quiz Question Type
+type QuizQuestion = {
   id: string;
   question: string;
   options: { id: string; text: string }[];
-  correctAnswer: string;
-  type: 'single_choice' | 'short_answer';
-}
+  correctOptionId: string;
+};
 
 export default function VocabularyQuizScreen() {
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
 
   // --- STATES ---
-  const [session, setSession] = useState<any>(null);
-  const [loadingQuiz, setLoadingQuiz] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [inputText, setInputText] = useState(''); // Lưu nội dung gõ tự luận
+  const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [feedbackState, setFeedbackState] = useState<'hidden' | 'success' | 'failure'>('hidden');
   const [showExitModal, setShowExitModal] = useState(false);
 
-  const startTimeRef = useRef<number>(Date.now());
   const feedbackOpacity = useRef(new Animated.Value(0)).current;
   const feedbackTranslateY = useRef(new Animated.Value(150)).current;
 
   // --- EFFECTS ---
   useEffect(() => {
-    if (lessonId) {
-      startQuiz();
-    }
+    const fetchAndGenerateQuiz = async () => {
+      if (!lessonId) return;
+      try {
+        setIsLoading(true);
+        // Lấy danh sách từ vựng theo lessonId
+        const res = await VocabularyService.getAll({ lessonId: lessonId as string, limit: 100 } as GetVocabulariesRequest);
+        const vocabularies = res.data?.vocabularies || [];
+
+        if (vocabularies.length < 4) {
+          Alert.alert('Không đủ từ vựng', 'Cần ít nhất 4 từ vựng trong bài học để làm trắc nghiệm.', [
+            { text: 'Trở về', onPress: () => router.back() }
+          ]);
+          return;
+        }
+
+        // Trộn danh sách từ vựng
+        const shuffledVocabs = [...vocabularies].sort(() => Math.random() - 0.5);
+
+        // Tạo câu hỏi trắc nghiệm
+        const generatedQuiz: QuizQuestion[] = shuffledVocabs.map((vocab: Vocabulary, index: number) => {
+          const wrongVocabs = vocabularies.filter((v: Vocabulary) => v._id !== vocab._id);
+          // Chọn ngẫu nhiên 3 đáp án sai
+          const shuffledWrongVocabs = wrongVocabs.sort(() => Math.random() - 0.5).slice(0, 3);
+          
+          const options = [
+            { id: vocab._id, text: vocab.meaning },
+            ...shuffledWrongVocabs.map((w: Vocabulary) => ({ id: w._id, text: w.meaning }))
+          ];
+
+          return {
+            id: `q${index}`,
+            question: `${vocab.word}`,
+            options: options.sort(() => Math.random() - 0.5),
+            correctOptionId: vocab._id
+          };
+        });
+
+        setQuizData(generatedQuiz);
+      } catch (error) {
+        console.error('Lỗi khởi tạo quiz:', error);
+        Alert.alert('Lỗi', 'Không thể tải danh sách từ vựng.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAndGenerateQuiz();
   }, [lessonId]);
 
-  const startQuiz = async () => {
-    setLoadingQuiz(true);
-    try {
-      const modulesResponse = await LessonService.getModules(lessonId as string);
-      const modules = modulesResponse.data as LessonModules;
-      const vocabularyQuizzes = modules.vocabularyQuizzes || [];
-
-      if (vocabularyQuizzes.length === 0) {
-        setLoadingQuiz(false);
-        return;
-      }
-
-      const quizId = typeof vocabularyQuizzes[0] === 'object' ? vocabularyQuizzes[0]._id : vocabularyQuizzes[0];
-
-      const startResponse = await VocabularyService.startVocabularyQuiz({ quizId });
-
-      const sessionData = await VocabularyService.getVocabularyQuizSession(startResponse.sessionId);
-      setSession(sessionData);
-    } catch (error) {
-      console.error('Lỗi khởi tạo quiz:', error);
-    } finally {
-      setLoadingQuiz(false);
-    }
-  };
-
-// Hàm chuẩn hóa cực mạnh (Xử lý cả Unicode NFD/NFC và các ký tự trắng đặc biệt)
-const normalizeString = (str: any) => {
-  if (!str) return '';
-  return String(str)
-    .trim()
-    .normalize('NFC') // Ép về chuẩn dựng sẵn của tiếng Hàn
-    .replace(/\u200B/g, '') 
-    .toLowerCase();
-};
-
-const transformQuestion = (questionItem: any): FrontendQuizQuestion => {
-    if (!questionItem || !questionItem.question)
-      return { id: '', question: '', options: [], correctAnswer: '', type: 'single_choice' };
-
-    const data = questionItem.question;
-    
-    const cAnswer = 
-      data.correctAnswer || 
-      data.questions?.[0]?.correctAnswer || 
-      data.metadata?.correctAnswer || 
-      '';
-
-    const qType = 
-      data.type || 
-      data.questions?.[0]?.type || 
-      'single_choice';
-
-    const options = 
-      data.metadata?.options || 
-      data.questions?.[0]?.metadata?.options || 
-      data.options || 
-      [];
-
-    return {
-      id: questionItem._id,
-      question: data.questionText || data.questions?.[0]?.questionText || "Chọn đáp án đúng",
-      options: options.map((text: string, idx: number) => ({ id: `opt_${idx}`, text: text })),
-      correctAnswer: String(cAnswer), 
-      type: qType
-    };
-};
-
-const handleSubmitAnswer = async (answer: string) => {
-  if (isAnswered || !answer.trim()) return;
-
-  Keyboard.dismiss();
-
-  const userAns = normalizeString(answer);
-  const correctAns = normalizeString(currentQuestion.correctAnswer);
-  
-  // LOG ĐỂ KIỂM TRA TẠI SAO SAI
-  // console.log('--- SO SÁNH ĐÁP ÁN ---');
-  // console.log('Người dùng chọn:', `"${userAns}" (độ dài: ${userAns.length})`);
-  // console.log('Đáp án đúng:', `"${correctAns}" (độ dài: ${correctAns.length})`);
-
-  const isCorrect = userAns === correctAns;
-
-  setSelectedAnswer(answer);
-  setIsAnswered(true);
-
-  if (isCorrect) {
-    showFeedback('success');
-  } else {
-    setIncorrectCount((prev) => prev + 1);
-    showFeedback('failure');
-  }
-
-  // Gửi lên server (Server đã chấm đúng nên phần này giữ nguyên)
-  try {
-    await VocabularyService.saveVocabularyQuizAnswer(session._id, {
-      questionId: currentQuestionData._id,
-      answer: answer,
-    });
-  } catch (error) {
-    console.error('Lỗi lưu đáp án:', error);
-  }
-};
+  const currentQuestion = quizData[currentQuestionIndex];
 
   const showFeedback = (type: 'success' | 'failure') => {
     setFeedbackState(type);
@@ -192,27 +129,58 @@ const handleSubmitAnswer = async (answer: string) => {
     });
   };
 
+  const handleSubmitAnswer = async (optionId: string) => {
+    if (isAnswered) return;
+
+    setSelectedAnswerId(optionId);
+    setIsAnswered(true);
+
+    const isCorrect = optionId === currentQuestion.correctOptionId;
+
+    if (isCorrect) {
+      showFeedback('success');
+    } else {
+      setIncorrectCount((prev) => prev + 1);
+      showFeedback('failure');
+    }
+
+    // Gọi API cập nhật trạng thái từ vựng (chạy ngầm)
+    const status: 'remembered' | 'forgotten' = isCorrect ? 'remembered' : 'forgotten';
+    VocabularyService.markStatus(currentQuestion.correctOptionId, { status })
+      .catch((err: unknown) => console.error('Lỗi cập nhật tiến độ từ vựng:', err));
+  };
+
   const handleNextQuestion = () => {
     const moveNext = async () => {
-      if (currentQuestionIndex < questions.length - 1) {
+      if (currentQuestionIndex < quizData.length - 1) {
         setCurrentQuestionIndex((prev) => prev + 1);
-        setSelectedAnswer(null);
-        setInputText('');
+        setSelectedAnswerId(null);
         setIsAnswered(false);
       } else {
-        try {
-          const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
-          await VocabularyService.submitVocabularyQuiz(session._id, { timeSpent });
-          router.replace(`/lessons/${lessonId}/vocabulary/result?sessionId=${session._id}`);
-        } catch (error) {
-          router.replace(`/lessons/${lessonId}/vocabulary/result?sessionId=${session._id}`);
-        }
+        const correctCount = quizData.length - incorrectCount;
+        router.replace({
+          pathname: `/lessons/${lessonId}/vocabulary/result` as any,
+          params: { correctCount, totalCount: quizData.length }
+        });
       }
     };
     hideFeedback(moveNext);
   };
 
-  if (loadingQuiz || !session) {
+  const getOptionStatus = (optionId: string): OptionStatus => {
+    if (!isAnswered) return 'default';
+
+    const isThisOptionSelected = selectedAnswerId === optionId;
+    const isThisOptionCorrect = currentQuestion.correctOptionId === optionId;
+
+    if (isThisOptionSelected && isThisOptionCorrect) return 'correct';
+    if (isThisOptionSelected && !isThisOptionCorrect) return 'incorrect';
+    if (!isThisOptionSelected && isThisOptionCorrect) return 'missed-correct';
+
+    return 'disabled';
+  };
+
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
@@ -223,11 +191,7 @@ const handleSubmitAnswer = async (answer: string) => {
     );
   }
 
-  const questions = session?.questions || [];
-  if (questions.length === 0) return null;
-
-  const currentQuestionData = questions[currentQuestionIndex];
-  const currentQuestion = transformQuestion(currentQuestionData);
+  if (quizData.length === 0) return null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -237,7 +201,7 @@ const handleSubmitAnswer = async (answer: string) => {
       >
         <QuizHeader
           current={currentQuestionIndex + 1}
-          total={questions.length}
+          total={quizData.length}
           incorrectCount={incorrectCount}
           onClose={() => setShowExitModal(true)}
         />
@@ -249,59 +213,24 @@ const handleSubmitAnswer = async (answer: string) => {
         >
           <Text style={styles.questionText}>{currentQuestion.question}</Text>
 
-          {currentQuestion.type === 'short_answer' ? (
-            /* --- GIAO DIỆN TỰ LUẬN (SHORT ANSWER) --- */
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[
-                  styles.textInput,
-                  isAnswered && (normalizeString(inputText) === normalizeString(currentQuestion.correctAnswer)
-                    ? styles.inputSuccess
-                    : styles.inputError)
-                ]}
-                placeholder="Nhập đáp án..."
-                value={inputText}
-                onChangeText={setInputText}
-                editable={!isAnswered}
-                autoFocus={true}
-                autoCapitalize="none"
-                autoCorrect={false}
-                spellCheck={false}
+          {/* --- GIAO DIỆN TRẮC NGHIỆM (SINGLE CHOICE) --- */}
+          <View style={styles.optionsContainer}>
+            {currentQuestion.options.map((opt, idx) => (
+              <AnswerOption
+                key={`${currentQuestion.id}-${opt.id}`}
+                index={idx}
+                text={opt.text}
+                status={getOptionStatus(opt.id)}
+                onPress={() => handleSubmitAnswer(opt.id)}
               />
-              {!isAnswered && (
-                <TouchableOpacity
-                  style={styles.submitBtn}
-                  onPress={() => handleSubmitAnswer(inputText)}
-                >
-                  <Text style={styles.submitBtnText}>Kiểm tra</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          ) : (
-            /* --- GIAO DIỆN TRẮC NGHIỆM (SINGLE CHOICE) --- */
-            <View style={styles.optionsContainer}>
-              {currentQuestion.options.map((opt, idx) => (
-                <AnswerOption
-                  key={opt.id}
-                  index={idx}
-                  text={opt.text}
-                  status={
-                    !isAnswered ? 'default' :
-                      selectedAnswer === opt.text ? (normalizeString(opt.text) === normalizeString(currentQuestion.correctAnswer) ? 'correct' : 'incorrect') :
-                        normalizeString(opt.text) === normalizeString(currentQuestion.correctAnswer) ? 'missed-correct' : 'disabled'
-                  }
-                  onPress={() => handleSubmitAnswer(opt.text)}
-                />
-              ))}
-            </View>
-          )}
+            ))}
+          </View>
         </ScrollView>
 
         <FeedbackPopup
           visible={feedbackState !== 'hidden'}
           type={feedbackState === 'failure' ? 'failure' : 'success'}
           onNext={handleNextQuestion}
-          onOutsidePress={feedbackState === 'failure' ? () => hideFeedback() : undefined}
           translateY={feedbackTranslateY}
           opacity={feedbackOpacity}
           imageSource={feedbackState === 'failure'
@@ -331,32 +260,4 @@ const styles = StyleSheet.create({
   scrollContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_30, paddingBottom: 40 },
   questionText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.text, marginBottom: Gap.gap_20 },
   optionsContainer: { width: '100%' },
-
-  /* Style cho Short Answer */
-  inputContainer: { width: '100%', marginTop: Gap.gap_20 },
-  textInput: {
-    borderWidth: 2,
-    borderColor: Color.colorBlack,
-    borderRadius: 20,
-    padding: Padding.padding_15,
-    fontSize: 18,
-    fontFamily: FontFamily.lexendDecaMedium,
-    color: Color.text,
-    minHeight: 60,
-  },
-  inputSuccess: { borderColor: Color.main },
-  inputError: { borderColor: Color.red },
-  submitBtn: {
-    backgroundColor: Color.main,
-    paddingVertical: Padding.padding_15,
-    borderRadius: 12,
-    marginTop: Gap.gap_20,
-    alignItems: 'center',
-  },
-  submitBtnText: {
-    color: Color.whiteText,
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 18,
-  },
-  errorText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.red, textAlign: 'center' },
 });

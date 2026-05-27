@@ -18,13 +18,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { FireIcon, CloudIcon } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import HeaderSection from '../../components/HeaderSection';
 import WindingPath from '../../components/WindingPath';
 import LessonNode, { LessonItem } from '../../components/LessonNode';
-import { openLessonBottomSheet } from '../../components/Modals/lessonBottomSheetBus';
-import { Color, FontFamily } from '@/constants/GlobalStyles';
+import { Border, Color, FontFamily } from '@/constants/GlobalStyles';
 import { useRouter } from 'expo-router';
 import StatusBadge from '../../components/StatusBadge';
 import Button from '../../components/Button';
@@ -142,6 +141,61 @@ const mapLessonsWithProgress = async (sourceLessons: Lesson[]) => {
   });
 };
 
+const STREAK_MILESTONES = [
+  { id: 1, min: 0, max: 3, image: require('../../assets/images/streak/lv1.png') },
+  { id: 2, min: 4, max: 6, image: require('../../assets/images/streak/lv2.png') },
+  { id: 3, min: 7, max: 14, image: require('../../assets/images/streak/lv3.png') },
+  { id: 4, min: 15, max: 30, image: require('../../assets/images/streak/lv4.png') },
+  { id: 5, min: 31, max: 60, image: require('../../assets/images/streak/lv5.png') },
+  { id: 6, min: 61, max: 9999, image: require('../../assets/images/streak/lv6.png') },
+];
+
+const StreakFiresList = ({ currentStreak }: { currentStreak: number }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  
+  const currentLevelIndex = useMemo(() => {
+    let index = STREAK_MILESTONES.findIndex(m => currentStreak >= m.min && currentStreak <= m.max);
+    return index !== -1 ? index : 0;
+  }, [currentStreak]);
+
+  useEffect(() => {
+    // Chờ 300ms để Bottom Sheet kịp trượt lên trước khi thực hiện cuộn ngang
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ 
+        x: Math.max(0, currentLevelIndex * 80 - 100), // Căn giữa một chút
+        animated: true 
+      });
+    }, 300);
+  }, [currentLevelIndex]);
+
+  return (
+    <View style={{ width: '100%', marginBottom: 16 }}>
+      <ScrollView 
+        horizontal 
+        ref={scrollViewRef}
+        showsHorizontalScrollIndicator={false} 
+        contentContainerStyle={{ gap: 30, paddingHorizontal: 20 }}
+      >
+        {STREAK_MILESTONES.map((item, index) => {
+          const isCurrent = index === currentLevelIndex;
+          const isLocked = currentStreak < item.min;
+          
+          return (
+            <View key={item.id} style={{ alignItems: 'center', opacity: isLocked ? 0.3 : 1, width: 64 }}>
+              <View style={[styles.streakIconWrapper, isCurrent && styles.streakIconWrapperActive]}>
+                <Image source={item.image} style={{ width: 60, height: 60 }} resizeMode="contain" />
+              </View>
+              <Text style={[styles.streakDayText, isCurrent && styles.streakDayTextActive]}>
+                {item.min === 0 ? '1' : item.min} ngày
+              </Text>
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+};
+
 export default function HomeScreen() {
 
 
@@ -187,18 +241,14 @@ useEffect(() => {
       }
     };
 
-    const fetchStats = async () => {
+    const performCheckIn = async () => {
       try {
         const checkInRes = await GamificationService.dailyCheckIn();
         
         if (checkInRes.success) {
-          const claimRes = await GamificationService.claimMissionReward({ missionId: 'D1' });
-          
-          if (claimRes.success) {
-            setIsAutoConfetti(true);
-            setMissionsModalVisible(true);
-            fetchStats();
-          }
+          setIsAutoConfetti(true);
+          setMissionsModalVisible(true);
+          fetchStats(); // Làm mới thông tin (Streak, mây...) từ hàm gốc bên ngoài
         }
       } catch (error: any) {
         console.log('Auto Check-in message:', error.response?.data?.message || error.message);
@@ -206,7 +256,7 @@ useEffect(() => {
     };
 
     await fetchLessons();  
-    await fetchStats();   
+    await performCheckIn();   
   };  
 
   handleAutoCheckIn();  
@@ -251,13 +301,13 @@ useEffect(() => {
   });
 
   // --- STATE CHO POPUP THÔNG TIN ---
-  const [infoContent, setInfoContent] = useState<{title: string, desc: string, icon: React.ReactNode | null}>({ title: '', desc: '', icon: null });
+  const [infoContent, setInfoContent] = useState<{title: string, desc: string, icon: React.ReactNode | null, type?: 'streak' | 'cloud'}>({ title: '', desc: '', icon: null });
 
   const currentStreak = stats?.gamification?.currentStreak || 0;
   const currentStreakImage = getStreakImage(currentStreak);
 
   // --- CẤU HÌNH BOTTOM SHEET ---
-  const infoSheetRef = useRef<BottomSheet>(null);
+  const infoSheetRef = useRef<BottomSheetModal>(null);
   const infoSnapPoints = useMemo(() => ['40%'], []); // Chiếm 40% chiều cao màn hình
 
   const renderInfoBackdrop = useCallback(
@@ -276,18 +326,20 @@ useEffect(() => {
     setInfoContent({
       title: 'Chuỗi ngày học (Streak)',
       desc: 'Mỗi ngày bạn hoàn thành ít nhất một bài học, ngọn lửa sẽ cháy thêm 1 ngày. Giữ lửa liên tục để nhận thưởng lớn nhé!',
-      icon: <Image source={currentStreakImage} style={{ width: 48, height: 48 }} resizeMode="contain" />
+      icon: <StreakFiresList currentStreak={currentStreak} />,
+      type: 'streak'
     });
-    infoSheetRef.current?.expand();
+    infoSheetRef.current?.present();
   };
 
   const handleShowCloudInfo = () => {
     setInfoContent({
       title: 'Đám mây (Điểm thưởng)',
       desc: 'Tích lũy đám mây sau mỗi bài học để đổi lấy các phần quà hấp dẫn hoặc mở khóa tính năng đặc biệt trong cửa hàng.',
-      icon: <Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 48, height: 48 }} resizeMode="contain" />
+      icon: <Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 48, height: 48 }} resizeMode="contain" />,
+      type: 'cloud'
     });
-    infoSheetRef.current?.expand();
+    infoSheetRef.current?.present();
   };
 
   // --- CUSTOM TOAST ANIMATION ---
@@ -327,7 +379,17 @@ useEffect(() => {
     if (item.status === 'locked') {
       showToast('Vui lòng hoàn thành bài học trước đó để mở khóa!');
     } else {
-      openLessonBottomSheet(item as any);
+      router.push({
+        pathname: '/lesson-modal',
+        params: {
+          lessonId: item.id,
+          unit: item.unit,
+          title: item.title,
+          lessonType: item.lessonType,
+          // Chuyển object phức tạp thành chuỗi JSON để truyền qua URL params
+          hangul: item.hangul ? JSON.stringify(item.hangul) : undefined
+        }
+      });
     }
   };
 
@@ -364,7 +426,7 @@ useEffect(() => {
       >
         <HeaderSection 
           currentLesson={currentLesson} 
-          onCurrentLessonPress={openLessonBottomSheet} 
+          onCurrentLessonPress={() => handleLessonPress(currentLesson)} 
           onFirePress={handleShowFireInfo}
           onCloudPress={handleShowCloudInfo}
           streak={stats?.gamification?.currentStreak}
@@ -373,39 +435,68 @@ useEffect(() => {
         />
 
         <View style={styles.mapArea}>
-          <WindingPath />
 
           <View style={styles.nodesWrapper}>
-            {lessons.map((item, index) => (
-              <LessonNode 
-                key={item.id} 
-                item={item} 
-                index={index} 
-                onPress={() => handleLessonPress(item)} 
-              />
-            ))}
+            {lessons.map((item, index) => {
+              const isLast = index === lessons.length - 1;
+              
+              // Path nối từ Node hiện tại đến Node tiếp theo sẽ active (màu xanh)
+              // NẾU Node hiện tại đã hoàn thành. 
+              // Nếu Node hiện tại là 'current' thì Path đến Node sau sẽ màu xám (chưa mở khóa)
+              const isPathActive = item.status === 'completed';
+              const isLeftToRight = item.mascotPos === 'left';
+
+              return (
+                <React.Fragment key={item.id}>
+                  <LessonNode 
+                    item={item} 
+                    index={index} 
+                    onPress={() => handleLessonPress(item)} 
+                  />
+                  
+                  {/* Render đoạn đường nối xen kẽ, trừ Node cuối cùng */}
+                  {!isLast && (
+                    <WindingPath isActive={isPathActive} isLeftToRight={isLeftToRight} />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </View>
         </View>
       </Animated.ScrollView>
 
       {/* --- BOTTOM SHEET THÔNG TIN LỬA/MÂY --- */}
-      <BottomSheet
+      <BottomSheetModal
         ref={infoSheetRef}
-        index={-1} // Ẩn sheet lúc đầu
         snapPoints={infoSnapPoints}
         backdropComponent={renderInfoBackdrop}
-        enablePanDownToClose={true}
-        backgroundStyle={{ backgroundColor: Color.bg }}
+        backgroundStyle={{ backgroundColor: Color.bg, borderRadius: Border.br_30 }}
         handleIndicatorStyle={{ backgroundColor: Color.stroke }}
+        detached={true}
+        bottomInset={40} // Khoảng cách cách đáy (tùy chỉnh theo ý muốn)
+        style={styles.floatingSheet}
       >
         <BottomSheetView style={styles.sheetContent}>
           {infoContent.icon}
           <Text style={styles.sheetTitle}>{infoContent.title}</Text>
           <Text style={styles.sheetDesc}>{infoContent.desc}</Text>
           
-          <Button title="Đã hiểu" variant="Green" onPress={() => infoSheetRef.current?.close()} style={{ width: '100%', marginTop: 10 }} />
+          {infoContent.type && (
+            <Button 
+              title={infoContent.type === 'streak' ? 'Xem chi tiết chuỗi học' : 'Đến Cửa hàng đổi thưởng'} 
+              variant="Black" 
+              onPress={() => {
+                infoSheetRef.current?.dismiss();
+                setTimeout(() => {
+                  router.push(infoContent.type === 'streak' ? '/streak/streak' as any : '/cloud/' as any);
+                }, 300); // Chờ hiệu ứng đóng modal rồi mới chuyển trang cho mượt
+              }} 
+              style={{ width: '100%', marginTop: 10 }} 
+            />
+          )}
+          <Button title="Đã hiểu" variant="Gray" onPress={() => infoSheetRef.current?.dismiss()} style={{ width: '100%', marginTop: 10 }} />
         </BottomSheetView>
-      </BottomSheet>
+      </BottomSheetModal>
 
       {/* --- CUSTOM TOAST --- */}
       {toastMessage && (
@@ -457,8 +548,12 @@ const styles = StyleSheet.create({
   },
   nodesWrapper: {
     paddingTop: 80,
-    gap: 40,
+    paddingBottom: 60,
     zIndex: 2,
+  },
+  
+  floatingSheet: {
+    marginHorizontal: 15, // Khoảng cách 2 bên trái phải
   },
   
   // --- STYLES CHO BOTTOM SHEET ---
@@ -502,5 +597,31 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 14,
     textAlign: 'center',
-  }
+  },
+  
+  // --- STYLES CHO STREAK FIRES LIST ---
+  streakIconWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 35,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  streakIconWrapperActive: {
+    backgroundColor: '#F0FFF0',
+    borderColor: Color.main || '#98F291',
+  },
+  streakDayText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 12,
+    color: Color.gray,
+    textAlign: 'center',
+  },
+  streakDayTextActive: {
+    color: Color.color || '#0C5F35',
+  },
 });

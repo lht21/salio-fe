@@ -29,15 +29,16 @@ export default function WritingResultScreen() {
         // Nộp tất cả bài viết lên AI
         const responses = await Promise.all(
           itemIds.map(id => 
-            LessonService.submitWriting(lessonId as string, id, {
+            LessonService.submitSkillItem(lessonId as string, 'writing', id, {
+              answers: [{ questionId: id, answer: answers[id] }],
               content: answers[id],
               timeSpent: Math.round(Number(timeUsed) / itemIds.length)
             })
           )
         );
 
-        // Map lại đúng cấu trúc như DB bạn gửi: submission.evaluation
-        setResults(responses.map(res => res.submission));
+        // Dự phòng tương thích object trả về từ Backend (thường nằm trong `res.result`)
+        setResults(responses.map(res => res.result || res.submission || res));
       } catch (error) {
         console.error("Lỗi AI:", error);
         Alert.alert("Lỗi", "AI không thể phản hồi lúc này.");

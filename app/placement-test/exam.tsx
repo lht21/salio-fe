@@ -226,7 +226,7 @@ export default function PlacementTestExam() {
       hasSubmittedRef.current = false;
       Alert.alert(
         "Không thể nộp bài",
-        error.response?.data?.message || "Vui lòng thử lại."
+        error.message || "Vui lòng thử lại."
       );
     } finally {
       setIsSaving(false);
@@ -254,7 +254,7 @@ export default function PlacementTestExam() {
       } catch (error: any) {
         Alert.alert(
           "Không thể tải bài kiểm tra",
-          error.response?.data?.message || "Vui lòng thử lại sau.",
+          error.message || "Vui lòng thử lại sau.",
           [{ text: "OK", onPress: () => router.back() }]
         );
       } finally {
@@ -315,7 +315,7 @@ export default function PlacementTestExam() {
       if (selectedId) setSelectedOptionId(null);
       Alert.alert(
         "Không thể lưu đáp án",
-        error.response?.data?.message || "Vui lòng thử lại."
+        error.message || "Vui lòng thử lại."
       );
     } finally {
       setIsSaving(false);

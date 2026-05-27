@@ -20,30 +20,37 @@ export const API_ENDPOINTS = {
   VOCABULARY: {
     // Core
     GET_ALL: '/api/v1/vocabularies',
+    CREATE: '/api/v1/vocabularies',
     GET_BY_ID: (id: string) => `/api/v1/vocabularies/${id}`,
+    UPDATE: (id: string) => `/api/v1/vocabularies/${id}`,
+    DELETE: (id: string) => `/api/v1/vocabularies/${id}`,
+    TOGGLE_PUBLISH: (id: string) => `/api/v1/vocabularies/${id}/publish`,
+    MARK_STATUS: (id: string) => `/api/v1/vocabularies/${id}/mark`,
     STUDY_QUEUE: '/api/v1/vocabularies/study-queue',
     LEARNING_PROGRESS: '/api/v1/vocabularies/learning-progress',
-    MARK_STATUS: (id: string) => `/api/v1/vocabularies/${id}/mark`,
-    
-    
+
     // Admin
     IMPORT: '/api/v1/vocabularies/import',
     BULK_IMAGES: '/api/v1/vocabularies/bulk-images',
-    PUBLISH: (id: string) => `/api/v1/vocabularies/${id}/publish`,
 
     // Quizzes (Admin & Management)
-    QUIZZES: '/api/v1/vocabularies/quizzes',
-    QUIZ_BY_ID: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}`,
-    QUIZ_ITEMS: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/items`,
-    QUIZ_ITEMS_REORDER: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/items/reorder`,
-    QUIZ_PUBLISH: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/publish`,
+    GET_QUIZZES: '/api/v1/vocabularies/quizzes',
+    CREATE_QUIZ: '/api/v1/vocabularies/quizzes',
+    GET_QUIZ_BY_ID: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}`,
+    UPDATE_QUIZ: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}`,
+    DELETE_QUIZ: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}`,
+    ADD_QUIZ_ITEMS: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/items`,
+    REMOVE_QUIZ_ITEMS: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/items`,
+    REORDER_QUIZ_ITEMS: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/items/reorder`,
+    TOGGLE_PUBLISH_QUIZ: (quizId: string) => `/api/v1/vocabularies/quizzes/${quizId}/publish`,
 
     // Quiz Sessions (Student)
-    QUIZ_START: '/api/v1/vocabularies/quiz/start', 
-    QUIZ_SESSION: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}`,  
-    QUIZ_SAVE_ANSWER: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/save-answer`, 
-    QUIZ_SUBMIT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/submit`, 
-    QUIZ_SESSION_RESULT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/result`, 
+    START_QUIZ: '/api/v1/vocabularies/quiz/start',
+    GET_QUIZ_RESULTS: '/api/v1/vocabularies/quiz/results',
+    GET_QUIZ_SESSION: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}`,
+    SAVE_QUIZ_ANSWER: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/save-answer`,
+    SUBMIT_QUIZ: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/submit`,
+    GET_QUIZ_RESULT: (sessionId: string) => `/api/v1/vocabularies/quiz/session/${sessionId}/result`,
   },
 
   GAMIFICATION: {
@@ -106,8 +113,8 @@ export const API_ENDPOINTS = {
     ASSEMBLE: '/api/v1/admin/placement-test/assemble',
     REORDER_QUESTIONS: '/api/v1/admin/placement-test/questions/reorder',
     REMOVE_QUESTIONS: '/api/v1/admin/placement-test/questions/remove',
-    GET_ALL_SESSIONS: '/api/v1/placement-test/sessions',
-    GET_SESSION_BY_ID: (sessionId: string) => `/api/v1/placement-test/sessions/${sessionId}`,
+    SESSIONS: '/api/v1/placement-test/sessions',
+    SESSION_BY_ID: (sessionId: string) => `/api/v1/placement-test/sessions/${sessionId}`,
   },
 
   PRACTICE: {
@@ -119,15 +126,42 @@ export const API_ENDPOINTS = {
 
   LESSON: {
     GET_ALL: '/api/v1/lessons',
+    CREATE: '/api/v1/lessons',
+    REORDER: '/api/v1/lessons/reorder',
+    GET_FINAL_TEST: (lessonId: string) => `/api/v1/lessons/${lessonId}/final-test`,
+    CREATE_FINAL_TEST: (lessonId: string) => `/api/v1/lessons/${lessonId}/final-test`,
+    ASSEMBLE_FINAL_TEST: (lessonId: string) => `/api/v1/lessons/${lessonId}/final-test/assemble`,
+    REORDER_FINAL_TEST_ITEMS: (lessonId: string) => `/api/v1/lessons/${lessonId}/final-test/questions/reorder`,
+    REMOVE_FINAL_TEST_ITEMS: (lessonId: string) => `/api/v1/lessons/${lessonId}/final-test/questions/remove`,
+    START_FINAL_TEST: (lessonId: string) => `/api/v1/lessons/${lessonId}/final-test/start`,
+    GET_FINAL_TEST_SESSION: (lessonId: string, sessionId: string) => `/api/v1/lessons/${lessonId}/final-test/session/${sessionId}`,
+    SAVE_FINAL_TEST_ANSWER: (lessonId: string, sessionId: string) => `/api/v1/lessons/${lessonId}/final-test/session/${sessionId}/save-answer`,
+    SUBMIT_FINAL_TEST: (lessonId: string, sessionId: string) => `/api/v1/lessons/${lessonId}/final-test/session/${sessionId}/submit`,
+    GET_FINAL_TEST_RESULT: (lessonId: string, sessionId: string) => `/api/v1/lessons/${lessonId}/final-test/session/${sessionId}/result`,
     GET_BY_ID: (id: string) => `/api/v1/lessons/${id}`, 
+    UPDATE: (id: string) => `/api/v1/lessons/${id}`,
+    DELETE: (id: string) => `/api/v1/lessons/${id}`,
+    PUBLISH: (id: string) => `/api/v1/lessons/${id}/publish`,
+    UNPUBLISH: (id: string) => `/api/v1/lessons/${id}/unpublish`,
     GET_PROGRESS: (lessonId: string) => `/api/v1/lessons/${lessonId}/progress`,
-    GET_MODULES: (id: string) => `/api/v1/lessons/${id}/modules`, 
-    START: (lessonId: string) => `/api/v1/lessons/${lessonId}/start`,
-    COMPLETE: (lessonId: string) => `/api/v1/lessons/${lessonId}/complete`,
-    UPDATE_SECTION_ITEM: (lessonId: string, sectionType: string, itemId: string) =>
+    UPDATE_SECTION_PROGRESS: (lessonId: string, sectionType: string, itemId: string) =>
       `/api/v1/lessons/${lessonId}/progress/sections/${sectionType}/items/${itemId}`,
     GET_SKILL_ITEM: (lessonId: string, sectionType: string, itemId: string) =>
       `/api/v1/lessons/${lessonId}/skills/${sectionType}/${itemId}`,
+    SUBMIT_SKILL_ITEM: (lessonId: string, sectionType: string, itemId: string) =>
+      `/api/v1/lessons/${lessonId}/skills/${sectionType}/${itemId}/submit`,
+    SUBMIT_SPEAKING_AUDIO: (lessonId: string, itemId: string) =>
+      `/api/v1/lessons/${lessonId}/skills/speaking/${itemId}/submit-audio`,
+    EVALUATE_SPEAKING_SUBMISSION: (lessonId: string, itemId: string, submissionId: string) =>
+      `/api/v1/lessons/${lessonId}/skills/speaking/${itemId}/submissions/${submissionId}/evaluate`,
+    GET_SKILL_RESULT: (lessonId: string, sectionType: string, itemId: string) =>
+      `/api/v1/lessons/${lessonId}/skills/${sectionType}/${itemId}/result`,
+    START: (lessonId: string) => `/api/v1/lessons/${lessonId}/start`,
+    COMPLETE: (lessonId: string) => `/api/v1/lessons/${lessonId}/complete`,
+    GET_MODULES: (id: string) => `/api/v1/lessons/${id}/modules`, 
+    ADD_MODULE: (lessonId: string) => `/api/v1/lessons/${lessonId}/modules`,
+    REMOVE_MODULE: (lessonId: string, moduleType: string, moduleId: string) =>
+      `/api/v1/lessons/${lessonId}/modules/${moduleType}/${moduleId}`,
   },
 
   QUESTION_BANK: {
@@ -185,6 +219,36 @@ export const API_ENDPOINTS = {
     DELETE_USER: (userId: string) => `/api/v1/users/${userId}`,
     GET_USER_PROGRESS: (userId: string) => `/api/v1/users/${userId}/progress`,
     GET_USER_SUBSCRIPTION: (userId: string) => `/api/v1/users/${userId}/subscription`,
-  }
+  },
 
+  GRAMMAR: {
+    // Core
+    GET_ALL: '/api/v1/grammars',
+    CREATE: '/api/v1/grammars',
+    IMPORT: '/api/v1/grammars/import',
+    GET_BY_ID: (id: string) => `/api/v1/grammars/${id}`,
+    UPDATE: (id: string) => `/api/v1/grammars/${id}`,
+    DELETE: (id: string) => `/api/v1/grammars/${id}`,
+    PUBLISH: (id: string) => `/api/v1/grammars/${id}/publish`,
+    SIMILAR: (id: string) => `/api/v1/grammars/${id}/similar`,
+    DETAIL: (id: string) => `/api/v1/grammars/${id}/detail`,
+    EXERCISE: (id: string) => `/api/v1/grammars/${id}/exercise`,
+    EXERCISE_CHECK: (id: string) => `/api/v1/grammars/${id}/exercise/check`,
+
+    // Quizzes (Admin & Management)
+    QUIZZES: '/api/v1/grammars/quizzes',
+    CREATE_QUIZ: '/api/v1/grammars/quizzes',
+    QUIZ_BY_ID: (quizId: string) => `/api/v1/grammars/quizzes/${quizId}`,
+    UPDATE_QUIZ: (quizId: string) => `/api/v1/grammars/quizzes/${quizId}`,
+    QUIZ_ITEMS: (quizId: string) => `/api/v1/grammars/quizzes/${quizId}/items`,
+    QUIZ_ITEMS_REORDER: (quizId: string) => `/api/v1/grammars/quizzes/${quizId}/items/reorder`,
+    QUIZ_PUBLISH: (quizId: string) => `/api/v1/grammars/quizzes/${quizId}/publish`,
+
+    // Quiz Sessions (Student)
+    QUIZ_START: '/api/v1/grammars/quiz/start',
+    QUIZ_SESSION: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}`,
+    QUIZ_SAVE_ANSWER: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}/save-answer`,
+    QUIZ_SUBMIT: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}/submit`,
+    QUIZ_RESULT: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}/result`,
+  }
 };

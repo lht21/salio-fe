@@ -12,7 +12,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import LessonBottomSheetHost from '@/components/Modals/LessonBottomSheetHost';
 import { FontFamily } from '@/constants/GlobalStyles';
 
 // Component bọc Icon để tạo hiệu ứng Bounce khi được Focus
@@ -123,7 +122,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <LessonBottomSheetHost />
     </View>
   );
 }

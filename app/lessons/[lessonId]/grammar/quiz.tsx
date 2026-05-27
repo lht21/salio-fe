@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Animated, Easing, ScrollView, StyleSheet, Text, View, ActivityIndicator, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import GrammarService from '../../../../api/services/grammar.service';
-import LessonService from '../../../../api/services/lesson.service';
+import GrammarService from '@/api/services/grammar.service';
+import LessonService from '@/api/services/lesson.service';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
 import { AnswerOption, QuizHeader, type OptionStatus } from '../../../../components/Modals/Question';
@@ -36,7 +36,7 @@ export default function GrammarQuizScreen() {
     setLoading(true);
     try {
       const modulesResponse = await LessonService.getModules(lessonId as string);
-      const quizId = modulesResponse.data.grammarQuizzes?.[0];
+      const quizId = modulesResponse?.data?.data?.grammarQuizzes?.[0] || modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.grammarQuizzes?.[0];
 
       if (!quizId) {
           setLoading(false);
@@ -44,8 +44,9 @@ export default function GrammarQuizScreen() {
       }
 
       const startRes = await GrammarService.startGrammarQuiz({ quizId: typeof quizId === 'object' ? quizId._id : quizId });
-      const sessionData = await GrammarService.getGrammarQuizSession(startRes.sessionId);
-      setSession(sessionData);
+      const sessionId = startRes?.data?.sessionId || startRes?.sessionId;
+      const sessionData = await GrammarService.getGrammarQuizSession(sessionId);
+      setSession(sessionData?.data || sessionData);
     } catch (error) {
       console.error('Lỗi khởi tạo grammar quiz:', error);
     } finally {

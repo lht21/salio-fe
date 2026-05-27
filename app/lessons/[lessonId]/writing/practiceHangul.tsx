@@ -124,7 +124,7 @@ const WritingPracticeScreen = () => {
       return false;
     }
 
-    await LessonService.updateSectionItem(resolvedLessonId, 'hangul', currentHangulItem._id, {
+    await LessonService.updateSectionProgress(resolvedLessonId, 'hangul', currentHangulItem._id, {
       moduleType: 'hangul',
       status: 'completed',
       score: 100,

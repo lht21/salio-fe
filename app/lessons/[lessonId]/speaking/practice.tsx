@@ -129,8 +129,13 @@ export default function SpeakingPracticeScreen() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await LessonService.getSpeakingItems(resolvedLessonId);
-        setItems(data);
+        const modulesRes = await LessonService.getModules(resolvedLessonId);
+        const speakingItems = modulesRes.data.speaking;
+        const itemsRes = await Promise.all(
+          speakingItems.map((item: any) => LessonService.getSkillItem<BESpeakingItem>(resolvedLessonId, 'speaking', typeof item === 'string' ? item : item._id))
+        );
+        
+        setItems(itemsRes.map((res: any) => res.data || res));
         await initVoices(); // Khởi tạo giọng nói sau khi có data
       } catch (error) {
         Alert.alert('Lỗi', 'Không thể tải bài tập.');

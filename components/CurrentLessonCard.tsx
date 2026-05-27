@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
   },
   currentLessonCard: {
     backgroundColor: Color.bg || '#FFFFFF',
-    borderRadius: Border.br_20 || 20,
-    padding: Padding.padding_15 || 15,
+    borderRadius: Border.br_30 || 30,
+    padding: Padding.padding_20 || 20,
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000000',
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     backgroundColor: Color.main || '#98F291',
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: Border.br_15 || 15,
+    borderRadius: Border.br_30 || 30,
     alignSelf: 'flex-start',
   },
   continueBtnText: {

@@ -6,8 +6,10 @@ import { API_ENDPOINTS } from './endpoints';
  * Khởi tạo Axios Instance
  * Thay đổi EXPO_PUBLIC_API_URL trong file .env của dự án Expo để trỏ đúng server
  */
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.218:5000';
+
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.59:5000' || 'http://192.168.1.15:5000',
+  baseURL: BASE_URL,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -92,7 +94,7 @@ apiClient.interceptors.response.use(
 
           // Gọi API refresh token (Sử dụng 'axios' gốc thay vì 'apiClient' để tránh đi qua interceptor gây loop)
           const response = await axios.post(
-            `${apiClient.defaults.baseURL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
+            `${BASE_URL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
             { refreshToken }
           );
 

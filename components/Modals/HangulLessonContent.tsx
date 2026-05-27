@@ -6,7 +6,6 @@ import { CardsIcon, CaretLeftIcon, PenNibStraightIcon } from 'phosphor-react-nat
 
 import CategoryChip from '../CategoryChip';
 import HangulCharacterAccordion from './HangulCharacterAccordion';
-import { closeLessonBottomSheet } from './lessonBottomSheetBus';
 import { getHangulWritingIndex } from './hangulWritingSequence';
 import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 
@@ -147,8 +146,8 @@ const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => 
               return;
             }
 
-            closeLessonBottomSheet();
-            router.push({
+          router.back();
+          setTimeout(() => router.push({
               pathname: '/lessons/[lessonId]/writing/practiceHangul',
               params: {
                 lessonId,
@@ -157,7 +156,7 @@ const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => 
                 mode: 'sequence',
                 sequenceIndex: String(getHangulWritingIndex(firstSequenceItem?.glyph ?? firstItem.glyph, firstSequenceItem?.label ?? firstItem.label)),
               },
-            });
+          }), 100);
           }}
         >
           <View style={styles.actionIconWrap}>

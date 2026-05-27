@@ -13,7 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
-import { Eye, EyeSlash } from 'phosphor-react-native';
+import { LockKeyIcon, UserIcon } from 'phosphor-react-native';
 
 // --- Components ---
 import Button from '../../../components/Button';
@@ -33,10 +33,6 @@ export default function SetCredentialScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // State ẩn/hiện mật khẩu
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { showModal } = useModal();
   const { refreshUser } = useUser();
@@ -137,24 +133,16 @@ export default function SetCredentialScreen() {
                   autoCapitalize="words"
                   value={username}
                   onChangeText={setUsername}
+                  leftIcon={<UserIcon size={20} color={Color.gray} />}
                 />
 
-                {/* Ô nhập Mật khẩu có Icon Mắt */}
-                <View style={styles.inputWrapper}>
                   <CustomInput
                     placeholder="Mật khẩu"
-                    secureTextEntry={!showPassword}
+                    isPassword
                     value={password}
                     onChangeText={setPassword}
+                    leftIcon={<LockKeyIcon size={20} color={Color.gray} />}
                   />
-                  <TouchableOpacity 
-                    style={styles.eyeIcon} 
-                    onPress={() => setShowPassword(!showPassword)}
-                    activeOpacity={0.7}
-                  >
-                    {showPassword ? <Eye size={20} color={Color.gray} /> : <EyeSlash size={20} color={Color.gray} />}
-                  </TouchableOpacity>
-                </View>
 
                 {/* Gợi ý độ mạnh mật khẩu (Chỉ hiện khi bắt đầu gõ) */}
                 {password.length > 0 && (
@@ -171,22 +159,13 @@ export default function SetCredentialScreen() {
                   </View>
                 )}
 
-                {/* Ô Xác nhận mật khẩu có Icon Mắt */}
-                <View style={styles.inputWrapper}>
                   <CustomInput
                     placeholder="Xác nhận mật khẩu"
-                    secureTextEntry={!showConfirmPassword}
+                    isPassword
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
+                    leftIcon={<LockKeyIcon size={20} color={Color.gray} />}
                   />
-                  <TouchableOpacity 
-                    style={styles.eyeIcon} 
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                    activeOpacity={0.7}
-                  >
-                    {showConfirmPassword ? <Eye size={20} color={Color.gray} /> : <EyeSlash size={20} color={Color.gray} />}
-                  </TouchableOpacity>
-                </View>
               </View>
 
               <View style={styles.actionRow}>
@@ -269,17 +248,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // --- THÊM STYLE CHO ICON MẮT VÀ GỢI Ý MẬT KHẨU ---
-  inputWrapper: {
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: Padding.padding_15,
-    height: '100%',
-    justifyContent: 'center',
-  },
   criteriaContainer: {
     marginTop: -Gap.gap_5,
     paddingHorizontal: Padding.padding_5,

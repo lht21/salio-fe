@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import React, { useMemo, forwardRef, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { CheckCircleIcon } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -10,18 +11,16 @@ import CloseButton from '../CloseButton';
 export type Level = 'EPS' | 'TOPIK I' | 'TOPIK II';
 
 interface LevelFilterModalProps {
-  isVisible: boolean;
   currentLevel: Level;
   onClose: () => void;
   onSelectLevel: (level: Level) => void;
 }
 
-export default function LevelFilterModal({ 
-  isVisible,
+const LevelFilterModal = forwardRef<BottomSheetModal, LevelFilterModalProps>(({ 
   currentLevel,
   onClose,
   onSelectLevel
-}: LevelFilterModalProps) {
+}, ref) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -37,60 +36,68 @@ export default function LevelFilterModal({
     onClose();
   };
 
-  return (
-    <Modal
-      visible={isVisible}
-      animationType="slide" 
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        <Pressable style={styles.backgroundTouchable} onPress={onClose} />
-        
-        <View style={styles.sheetContent}>
-          <View style={styles.dragHandle} />
-
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('level.title', 'Chọn cấp độ đề')}</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
-          </View>
-
-          <View style={styles.menuContainer}>
-            {LEVELS.map((level) => {
-              const isSelected = level.id === currentLevel;
-              return (
-                <TouchableOpacity 
-                  key={level.id}
-                  style={[styles.optionItem, isSelected && styles.optionItemSelected]}
-                  onPress={() => handleSelect(level.id)}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.optionTextContainer}>
-                    <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>{level.title}</Text>
-                    <Text style={[styles.optionDesc, isSelected && styles.optionDescSelected]}>{level.description}</Text>
-                  </View>
-                  {isSelected && (
-                    <CheckCircleIcon size={24} color={colors.bg} weight="fill" />
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      </View>
-    </Modal>
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        pressBehavior="close"
+      />
+    ),
+    []
   );
-}
+
+  const snapPoints = useMemo(() => ['40%'], []);
+
+  return (
+    <BottomSheetModal
+      ref={ref}
+      snapPoints={snapPoints}
+      backdropComponent={renderBackdrop}
+      backgroundStyle={{ backgroundColor: colors.bg }}
+      handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
+    >
+      <BottomSheetView style={styles.sheetContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('level.title', 'Chọn cấp độ đề')}</Text>
+          <CloseButton variant="Stroke" onPress={onClose} />
+        </View>
+
+        <View style={styles.menuContainer}>
+          {LEVELS.map((level) => {
+            const isSelected = level.id === currentLevel;
+            return (
+              <TouchableOpacity 
+                key={level.id}
+                style={[styles.optionItem, isSelected && styles.optionItemSelected]}
+                onPress={() => handleSelect(level.id)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.optionTextContainer}>
+                  <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>{level.title}</Text>
+                  <Text style={[styles.optionDesc, isSelected && styles.optionDescSelected]}>{level.description}</Text>
+                </View>
+                {isSelected && (
+                  <CheckCircleIcon size={24} color={colors.bg} weight="fill" />
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </BottomSheetView>
+    </BottomSheetModal>
+  );
+});
+
+export default LevelFilterModal;
 
 const createStyles = (colors: any) => StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg || 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
-  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
   sheetContent: {
-    backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
-    paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
-    shadowColor: colors.shadow, shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10,
+    paddingHorizontal: Padding.padding_20, 
+    paddingTop: Padding.padding_10, 
+    paddingBottom: 40, 
   },
-  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: colors.dragHandleBg || '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
   headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
   menuContainer: { gap: Gap.gap_10 },

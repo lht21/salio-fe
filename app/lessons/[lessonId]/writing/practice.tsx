@@ -25,8 +25,7 @@ import TimerHeader from '../../../../components/TimerHeader';
 import InstructionCard from '../../../../components/InstructionCard';
 import WonGoJiGrid from '../../../../components/WonGoJiGrid';
 import CloseButton from '@/components/CloseButton';
-import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
-import PracticeService from '../../../../api/services/practice.service';
+import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import LessonService from '../../../../api/services/lesson.service';
 import { WritingItem } from '../../../../api/types/lesson.types';
 
@@ -57,51 +56,6 @@ export default function WritingPracticeScreen() {
   const [showRulesModal, setShowRulesModal] = useState(false); 
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-
-  // --- 1. GỌI API ĐỂ KHÔI PHỤC BÀI DANG DỞ ---
-  useEffect(() => {
-    const fetchAttemptData = async () => {
-      if (attemptId) {
-        try {
-          const res = await PracticeService.getAttemptStatus(attemptId as string);
-          if (res.data) {
-            if (res.data.content) setText(res.data.content);
-            if (res.data.timeSpent) setTimeLeft((45 * 60) - res.data.timeSpent);
-          }
-        } catch (error) {
-          console.error('Lỗi khi khôi phục bài viết:', error);
-        }
-      }
-    };
-    
-    fetchAttemptData();
-  }, [attemptId]);
-
-  // Dùng ref để giữ giá trị timeLeft mới nhất mà không làm trigger lại hàm auto-save
-  const timeLeftRef = useRef(timeLeft);
-  useEffect(() => {
-    timeLeftRef.current = timeLeft;
-  }, [timeLeft]);
-
-  // --- 2. TỰ ĐỘNG LƯU BẢN NHÁP (DEBOUNCE SAU 2 GIÂY) ---
-  useEffect(() => {
-    if (!isStarted || !attemptId || text.length === 0) return;
-
-    const timeoutId = setTimeout(async () => {
-      try {
-        const timeSpent = (45 * 60) - timeLeftRef.current;
-        await PracticeService.saveAnswer(attemptId as string, {
-          type: 'writing',
-          answer: text,
-          timeSpent: timeSpent
-        });
-      } catch (error) {
-        console.error('Lỗi khi lưu bản nháp:', error);
-      }
-    }, 2000); // Lưu tiến trình về backend khi người dùng ngừng gõ phím sau 2 giây
-
-    return () => clearTimeout(timeoutId);
-  }, [text, attemptId, isStarted]);
 
   useEffect(() => {
     const fetchAllWriting = async () => {

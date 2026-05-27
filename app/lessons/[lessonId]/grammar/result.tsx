@@ -9,7 +9,7 @@ import CloseButton from '../../../../components/CloseButton';
 import Button from '../../../../components/Button';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
 import GrammarService from '@/api/services/grammar.service';
-import LessonService from '../../../../api/services/lesson.service';
+import LessonService from '@/api/services/lesson.service';
 
 type TabType = 'review' | 'list';
 
@@ -36,10 +36,10 @@ export default function GrammarResultScreen() {
       setLoading(true);
       const [quizResult, progressData] = await Promise.all([
         GrammarService.getGrammarQuizResult(sessionId as string),
-        LessonService.getLessonProgress(lessonId as string)
+        LessonService.getProgress(lessonId as string)
       ]);
-      setSession(quizResult);
-      setLessonProgress(progressData);
+      setSession(quizResult?.data || quizResult);
+      setLessonProgress(progressData?.data || progressData);
     } catch (error) {
       console.error("Lỗi khi tải kết quả:", error);
     } finally {
@@ -115,6 +115,19 @@ export default function GrammarResultScreen() {
           </View>
         </View>
 
+        <View style={styles.progressCard}>
+          <Text style={styles.progressTitle}>Tiến độ học lý thuyết</Text>
+          <Text style={[styles.progressLargeValue, completionRate < 80 && { color: Color.red }]}>
+            {Math.round(completionRate)}%
+          </Text>
+          <View style={styles.progressBarBg}>
+            <View style={[styles.progressBarFill, { width: `${Math.min(completionRate, 100)}%`, backgroundColor: completionRate < 80 ? Color.red : Color.main }]} />
+          </View>
+          {!isPassed && (
+            <Text style={styles.progressMessage}>Hãy cố gắng thêm nữa để vượt qua phần này nhé!</Text>
+          )}
+        </View>
+
                 <View style={styles.listSection}>
           {session?.questions?.map((item: any, index: number) => (
             <View key={index} style={[styles.card, item.isCorrect ? styles.cardCorrect : styles.cardIncorrect]}>
@@ -183,6 +196,13 @@ const styles = StyleSheet.create({
   scoreNumber: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.main2, lineHeight: 28 },
   scoreLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.main2 },
   
+  progressCard: { backgroundColor: '#F8FAFC', padding: Padding.padding_20, borderRadius: Border.br_15, marginBottom: Gap.gap_20, borderWidth: 1, borderColor: Color.stroke, alignItems: 'center' },
+  progressTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: Color.gray, marginBottom: Gap.gap_10 },
+  progressLargeValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 40, color: Color.main, marginBottom: Gap.gap_15 },
+  progressBarBg: { width: '100%', height: 10, backgroundColor: Color.stroke, borderRadius: 5, marginBottom: Gap.gap_15 },
+  progressBarFill: { height: 10, borderRadius: 5 },
+  progressMessage: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.cam, textAlign: 'center' },
+
   tabBar: { flexDirection: 'row', marginBottom: Gap.gap_20, borderBottomWidth: 1, borderBottomColor: Color.stroke },
   tabItem: { flex: 1, paddingVertical: 12, alignItems: 'center' },
   tabItemActive: { borderBottomWidth: 3, borderBottomColor: Color.main },

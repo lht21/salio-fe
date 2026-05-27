@@ -34,7 +34,7 @@ export default function PlacementTestResult() {
       } catch (error: any) {
         Alert.alert(
           "Không thể tải kết quả",
-          error.response?.data?.message || "Vui lòng thử lại sau.",
+          error.message || "Vui lòng thử lại sau.",
           [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
         );
       } finally {

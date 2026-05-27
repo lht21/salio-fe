@@ -49,13 +49,13 @@ const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) =>
               styles.input,
               { borderBottomColor: answer ? Color.color : Color.stroke }
             ]}
-            value={answer}
+            defaultValue={answer}
             onChangeText={setAnswer}
             placeholder={resolvedPlaceholder}
             placeholderTextColor={Color.stroke}
             autoCapitalize="none"
             autoCorrect={false}
-            maxLength={resolvedMaxLength}
+            // Đã gỡ bỏ maxLength để tránh xung đột với bộ gõ tiếng Hàn (IME)
           />
 
           <Text style={styles.sentenceText}>{question.sentenceRight}</Text>

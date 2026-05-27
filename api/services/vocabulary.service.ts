@@ -1,207 +1,293 @@
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../endpoints';
+import { BaseResponse } from '../types/auth.types';
 import { 
-  GetVocabulariesRequest, 
-  MarkStatusRequest, 
-  PaginatedVocabulariesResponse, 
-  StudyQueueResponse, 
-  VocabularyDetailResponse, 
-  BaseResponse,
-  VocabularyQuizQuestion,
-  VocabularyQuizSession,
+  GetVocabulariesRequest,
+  GetStudyQueueParams,
+  GetLearningProgressParams,
+  MarkStatusRequest,
+  CreateVocabularyRequest,
+  UpdateVocabularyRequest,
+  BulkUpdateVocabularyImagesRequest,
+  PaginatedVocabulariesResponse,
+  StudyQueueResponse,
+  VocabularyDetailResponse,
+  VocabularyMutationResponse,
+  GetLearningProgressResponse,
+  ImportVocabulariesResponse,
+  BulkUpdateImagesResponse,
+  GetVocabularyQuizzesParams,
+  CreateVocabularyQuizRequest,
+  UpdateVocabularyQuizRequest,
+  ModifyVocabularyQuizItemsRequest,
+  GetVocabularyQuizResultsParams,
   StartVocabularyQuizRequest,
   SaveVocabularyAnswerRequest,
+  SubmitVocabularyQuizRequest,
+  PaginatedVocabularyQuizzesResponse,
+  VocabularyQuizDetailResponse,
+  VocabularyQuizMutationResponse,
+  PaginatedVocabularyQuizResultsResponse,
   StartVocabularyQuizResponse,
   GetVocabularyQuizSessionResponse,
   SaveVocabularyAnswerResponse,
   SubmitVocabularyQuizResponse,
-  PaginatedVocabulariesData
+  GetVocabularyQuizResultResponse,
 } from '../types/vocabulary.types';
 
-// Định nghĩa các kiểu dữ liệu cho phản hồi API quiz (nếu chưa có trong vocabulary.types.ts)
-export interface VocabularyQuizOption {
-  id: string;
-  text: string;
-}
-
-export interface VocabularyQuizSessionResponse {
-  _id: string;
-  quiz: {
-    _id: string;
-    title: string;
-    questions: VocabularyQuizQuestion[];
-  };
-  userAnswers: {
-    questionId: string;
-    answer: any;
-  }[];
-}
-
-export interface StartVocabularyQuizResponseData {
-  sessionId: string;
-}
-
 /**
- * Service xử lý các luồng gọi API liên quan đến Từ vựng (Vocabulary) dành cho Học viên.
+ * Service xử lý các luồng gọi API liên quan đến Từ vựng (Vocabulary).
  */
 class VocabularyService {
-  /**
-   * Lấy danh sách từ vựng (Có phân trang, filter level, category, keyword, isActive)
-   */
-static async getAll(params?: GetVocabulariesRequest): Promise<PaginatedVocabulariesData> {
-  try {
-    const response = await apiClient.get<PaginatedVocabulariesResponse>(
-      API_ENDPOINTS.VOCABULARY.GET_ALL, 
-      { params }
-    );
-    
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Lỗi khi gọi API getAll vocabularies:', error.response?.data || error.message);
-    throw error;
+  // ==========================================
+  // CORE VOCABULARY
+  // ==========================================
+  static async getAll(params?: GetVocabulariesRequest): Promise<PaginatedVocabulariesResponse> {
+    try {
+      const response = await apiClient.get<PaginatedVocabulariesResponse>(API_ENDPOINTS.VOCABULARY.GET_ALL, { params });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
   }
-}
-  /**
-   * Lấy chi tiết một từ vựng
-   */
+
+  static async create(data: CreateVocabularyRequest): Promise<VocabularyMutationResponse> {
+    try {
+      const response = await apiClient.post<VocabularyMutationResponse>(API_ENDPOINTS.VOCABULARY.CREATE, data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
   static async getById(id: string): Promise<VocabularyDetailResponse> {
     try {
       const response = await apiClient.get<VocabularyDetailResponse>(API_ENDPOINTS.VOCABULARY.GET_BY_ID(id));
       return response.data;
     } catch (error: any) {
-      console.error(`Lỗi khi gọi API getById (${id}):`, error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-  /**
-   * Lấy danh sách từ cần học/ôn tập hôm nay
-   */
-  static async getStudyQueue(params?: {
-    level?: string;
-    category?: string;
-    status?: 'learning' | 'remembered' | 'forgotten';
-    limit?: number;
-  }): Promise<StudyQueueResponse> {
+  static async update(id: string, data: UpdateVocabularyRequest): Promise<VocabularyMutationResponse> {
     try {
-      const response = await apiClient.get<StudyQueueResponse>(API_ENDPOINTS.VOCABULARY.STUDY_QUEUE, {
-        params,
+      const response = await apiClient.patch<VocabularyMutationResponse>(API_ENDPOINTS.VOCABULARY.UPDATE(id), data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async delete(id: string): Promise<BaseResponse<null>> {
+    try {
+      const response = await apiClient.delete<BaseResponse<null>>(API_ENDPOINTS.VOCABULARY.DELETE(id));
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async togglePublish(id: string): Promise<VocabularyMutationResponse> {
+    try {
+      const response = await apiClient.patch<VocabularyMutationResponse>(API_ENDPOINTS.VOCABULARY.TOGGLE_PUBLISH(id));
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async markStatus(id: string, data: MarkStatusRequest): Promise<BaseResponse<null>> {
+    try {
+      const response = await apiClient.post<BaseResponse<null>>(API_ENDPOINTS.VOCABULARY.MARK_STATUS(id), data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async getStudyQueue(params?: GetStudyQueueParams): Promise<StudyQueueResponse> {
+    try {
+      const response = await apiClient.get<StudyQueueResponse>(API_ENDPOINTS.VOCABULARY.STUDY_QUEUE, { params });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async getLearningProgress(params?: GetLearningProgressParams): Promise<GetLearningProgressResponse> {
+    try {
+      const response = await apiClient.get<GetLearningProgressResponse>(API_ENDPOINTS.VOCABULARY.LEARNING_PROGRESS, { params });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  // ==========================================
+  // ADMIN
+  // ==========================================
+  static async importVocabularies(data: FormData): Promise<ImportVocabulariesResponse> {
+    try {
+      const response = await apiClient.post<ImportVocabulariesResponse>(API_ENDPOINTS.VOCABULARY.IMPORT, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       return response.data;
     } catch (error: any) {
-      console.error('Lỗi khi gọi API getStudyQueue:', error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-  /**
-   * Xem tiến độ học từ vựng của user
-   */
-  static async getLearningProgress(params?: { status?: string; page?: number; limit?: number }): Promise<BaseResponse<any>> {
+  static async bulkUpdateImages(data: BulkUpdateVocabularyImagesRequest): Promise<BulkUpdateImagesResponse> {
     try {
-      const response = await apiClient.get<BaseResponse<any>>(API_ENDPOINTS.VOCABULARY.LEARNING_PROGRESS, {
-        params,
-      });
+      const response = await apiClient.patch<BulkUpdateImagesResponse>(API_ENDPOINTS.VOCABULARY.BULK_IMAGES, data);
       return response.data;
     } catch (error: any) {
-      console.error('Lỗi khi gọi API getLearningProgress:', error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-  /**
-   * Đánh dấu trạng thái học của một từ
-   */
-  static async markStatus(id: string, data: MarkStatusRequest): Promise<BaseResponse<any>> {
+  // ==========================================
+  // QUIZZES (ADMIN & MANAGEMENT)
+  // ==========================================
+  static async getQuizzes(params?: GetVocabularyQuizzesParams): Promise<PaginatedVocabularyQuizzesResponse> {
     try {
-      const response = await apiClient.post<BaseResponse<any>>(API_ENDPOINTS.VOCABULARY.MARK_STATUS(id), data);
+      const response = await apiClient.get<PaginatedVocabularyQuizzesResponse>(API_ENDPOINTS.VOCABULARY.GET_QUIZZES, { params });
       return response.data;
     } catch (error: any) {
-      console.error(`Lỗi khi gọi API markStatus (${id}):`, error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-  /**
-   * Bắt đầu vocabulary quiz
-   */
-  static async startVocabularyQuiz(payload: { quizId?: string; lessonId?: string; level?: string; category?: string; limit?: number }): Promise<{ sessionId: string }> {
-  try {
-    // Chỉ gửi quizId, level, category, limit - không gửi lessonId
-    const requestData: any = {};
-    if (payload.quizId) requestData.quizId = payload.quizId;
-    if (payload.level) requestData.level = payload.level;
-    if (payload.category) requestData.category = payload.category;
-    if (payload.limit) requestData.limit = payload.limit;
-    
-    const response = await apiClient.post(API_ENDPOINTS.VOCABULARY.QUIZ_START, requestData);
-    // Response structure: { success, message, data: { sessionId } }
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Lỗi startVocabularyQuiz:', error.response?.data || error.message);
-    throw error;
-  }
-}
-
-  /**
-   * Lưu đáp án vocabulary quiz
-   */
-  static async saveVocabularyQuizAnswer(sessionId: string, payload: SaveVocabularyAnswerRequest): Promise<void> {
+  static async createQuiz(data: CreateVocabularyQuizRequest): Promise<VocabularyQuizMutationResponse> {
     try {
-      await apiClient.post<SaveVocabularyAnswerResponse>(API_ENDPOINTS.VOCABULARY.QUIZ_SAVE_ANSWER(sessionId), payload);
+      const response = await apiClient.post<VocabularyQuizMutationResponse>(API_ENDPOINTS.VOCABULARY.CREATE_QUIZ, data);
+      return response.data;
     } catch (error: any) {
-      console.error(`Lỗi saveVocabularyQuizAnswer:`, error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-  /**
-   * Nộp bài vocabulary quiz
-   */
-  static async submitVocabularyQuiz(sessionId: string, payload?: { timeSpent?: number }): Promise<VocabularyQuizSession> {
+  static async getQuizById(quizId: string): Promise<VocabularyQuizDetailResponse> {
     try {
-      const response = await apiClient.post<SubmitVocabularyQuizResponse>(API_ENDPOINTS.VOCABULARY.QUIZ_SUBMIT(sessionId), payload);
-      return response.data.data;
+      const response = await apiClient.get<VocabularyQuizDetailResponse>(API_ENDPOINTS.VOCABULARY.GET_QUIZ_BY_ID(quizId));
+      return response.data;
     } catch (error: any) {
-      console.error(`Lỗi submitVocabularyQuiz:`, error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-/**
-   * Lấy chi tiết vocabulary quiz session (Log để xem cấu trúc câu hỏi)
-   */
-  static async getVocabularyQuizSession(sessionId: string): Promise<VocabularyQuizSession> {
+  static async updateQuiz(quizId: string, data: UpdateVocabularyQuizRequest): Promise<VocabularyQuizMutationResponse> {
     try {
-      const response = await apiClient.get<GetVocabularyQuizSessionResponse>(API_ENDPOINTS.VOCABULARY.QUIZ_SESSION(sessionId));
-      
-      // LOG DỮ LIỆU KHI ĐANG LÀM BÀI
-      console.log(`[LOG] Session ${sessionId} (InProgress):`, JSON.stringify(response.data.data, null, 2));
-      
-      return response.data.data;
+      const response = await apiClient.patch<VocabularyQuizMutationResponse>(API_ENDPOINTS.VOCABULARY.UPDATE_QUIZ(quizId), data);
+      return response.data;
     } catch (error: any) {
-      console.error(`Lỗi getVocabularyQuizSession ${sessionId}:`, error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
 
-  /**
-   * Xem kết quả vocabulary quiz (Log để xem đáp án đúng và userAnswer)
-   */
-  static async getVocabularyQuizResult(sessionId: string): Promise<VocabularyQuizSession> {
+  static async deleteQuiz(quizId: string): Promise<BaseResponse<null>> {
     try {
-      const response = await apiClient.get<BaseResponse<VocabularyQuizSession>>(API_ENDPOINTS.VOCABULARY.QUIZ_SESSION_RESULT(sessionId));
-      
-      // LOG DỮ LIỆU KẾT QUẢ CUỐI CÙNG
-      console.log(`[LOG] Result Session ${sessionId} (Completed):`, JSON.stringify(response.data.data, null, 2));
-      
-      return response.data.data;
+      const response = await apiClient.delete<BaseResponse<null>>(API_ENDPOINTS.VOCABULARY.DELETE_QUIZ(quizId));
+      return response.data;
     } catch (error: any) {
-      console.error(`Lỗi getVocabularyQuizResult ${sessionId}:`, error.response?.data || error.message);
-      throw error;
+      throw error.response?.data || error;
     }
   }
-  
+
+  static async addQuizItems(quizId: string, data: ModifyVocabularyQuizItemsRequest): Promise<VocabularyQuizMutationResponse> {
+    try {
+      const response = await apiClient.patch<VocabularyQuizMutationResponse>(API_ENDPOINTS.VOCABULARY.ADD_QUIZ_ITEMS(quizId), data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async removeQuizItems(quizId: string, data: ModifyVocabularyQuizItemsRequest): Promise<VocabularyQuizMutationResponse> {
+    try {
+      const response = await apiClient.delete<VocabularyQuizMutationResponse>(API_ENDPOINTS.VOCABULARY.REMOVE_QUIZ_ITEMS(quizId), { data });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async reorderQuizItems(quizId: string, data: ModifyVocabularyQuizItemsRequest): Promise<VocabularyQuizMutationResponse> {
+    try {
+      const response = await apiClient.patch<VocabularyQuizMutationResponse>(API_ENDPOINTS.VOCABULARY.REORDER_QUIZ_ITEMS(quizId), data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async togglePublishQuiz(quizId: string): Promise<VocabularyQuizMutationResponse> {
+    try {
+      const response = await apiClient.patch<VocabularyQuizMutationResponse>(API_ENDPOINTS.VOCABULARY.TOGGLE_PUBLISH_QUIZ(quizId));
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  // ==========================================
+  // QUIZ SESSIONS (STUDENT)
+  // ==========================================
+  static async startVocabularyQuiz(data: StartVocabularyQuizRequest): Promise<StartVocabularyQuizResponse> {
+    try {
+      const response = await apiClient.post<StartVocabularyQuizResponse>(API_ENDPOINTS.VOCABULARY.START_QUIZ, data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async getVocabularyQuizResults(params?: GetVocabularyQuizResultsParams): Promise<PaginatedVocabularyQuizResultsResponse> {
+    try {
+      const response = await apiClient.get<PaginatedVocabularyQuizResultsResponse>(API_ENDPOINTS.VOCABULARY.GET_QUIZ_RESULTS, { params });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async getVocabularyQuizSession(sessionId: string): Promise<GetVocabularyQuizSessionResponse> {
+    try {
+      const response = await apiClient.get<GetVocabularyQuizSessionResponse>(API_ENDPOINTS.VOCABULARY.GET_QUIZ_SESSION(sessionId));
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async saveVocabularyQuizAnswer(sessionId: string, data: SaveVocabularyAnswerRequest): Promise<SaveVocabularyAnswerResponse> {
+    try {
+      const response = await apiClient.post<SaveVocabularyAnswerResponse>(API_ENDPOINTS.VOCABULARY.SAVE_QUIZ_ANSWER(sessionId), data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async submitVocabularyQuiz(sessionId: string, data?: SubmitVocabularyQuizRequest): Promise<SubmitVocabularyQuizResponse> {
+    try {
+      const response = await apiClient.post<SubmitVocabularyQuizResponse>(API_ENDPOINTS.VOCABULARY.SUBMIT_QUIZ(sessionId), data);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
+
+  static async getVocabularyQuizResult(sessionId: string): Promise<GetVocabularyQuizResultResponse> {
+    try {
+      const response = await apiClient.get<GetVocabularyQuizResultResponse>(API_ENDPOINTS.VOCABULARY.GET_QUIZ_RESULT(sessionId));
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  }
 }
 
 export default VocabularyService;

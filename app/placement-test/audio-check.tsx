@@ -86,7 +86,7 @@ export default function AudioCheckScreen() {
     } catch (error: any) {
       Alert.alert(
         "Không thể bắt đầu bài kiểm tra",
-        error.response?.data?.message || "Vui lòng thử lại sau."
+        error.message || "Vui lòng thử lại sau."
       );
     } finally {
       setIsStarting(false);

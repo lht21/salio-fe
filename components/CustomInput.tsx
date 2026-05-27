@@ -1,66 +1,128 @@
-import React, { useState } from 'react';
-import { TextInput, TextInputProps, StyleSheet, View } from 'react-native';
-import { Color, FontFamily, FontSize, Padding, Border } from '../constants/GlobalStyles';
+import React, { useState, useEffect } from 'react';
+import { TextInput, TextInputProps, StyleSheet, View, TouchableOpacity, StyleProp, ViewStyle, TextStyle } from 'react-native';
+import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../constants/GlobalStyles';
+import { EyeIcon, EyeSlashIcon } from 'phosphor-react-native';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  withSpring, 
+  withSequence, 
+  interpolateColor 
+} from 'react-native-reanimated';
 
-interface CustomInputProps extends TextInputProps { }
+interface CustomInputProps extends Omit<TextInputProps, 'style'> {
+  leftIcon?: React.ReactNode;
+  isPassword?: boolean;
+  style?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
+}
 
-export const CustomInput = ({ style, onFocus, onBlur, ...props }: CustomInputProps) => {
-  // State theo dõi trạng thái focus của input
+export const CustomInput = ({ style, inputStyle, onFocus, onBlur, leftIcon, isPassword, ...props }: CustomInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [isSecure, setIsSecure] = useState(isPassword);
 
-  // Xử lý khi nhấn vào ô input
-  const handleFocus = (e: any) => {
-    setIsFocused(true);
-    if (onFocus) onFocus(e); // Gọi hàm onFocus từ props truyền vào (nếu có)
-  };
-
-  // Xử lý khi bấm ra ngoài (bỏ focus)
-  const handleBlur = (e: any) => {
-    setIsFocused(false);
-    if (onBlur) onBlur(e); // Gọi hàm onBlur từ props truyền vào (nếu có)
-  };
-
-  // Kiểm tra xem input đã có dữ liệu hay chưa
   const hasValue = props.value !== undefined && props.value !== null && props.value.toString().length > 0;
 
+  const focusAnim = useSharedValue(hasValue ? 1 : 0);
+  const scaleAnim = useSharedValue(1);
+
+  useEffect(() => {
+    if (isFocused || hasValue) {
+      focusAnim.value = withTiming(1, { duration: 300 });
+    } else {
+      focusAnim.value = withTiming(0, { duration: 300 });
+    }
+  }, [isFocused, hasValue]);
+
+  const handleFocus = (e: any) => {
+    setIsFocused(true);
+    // Hiệu ứng nảy (bounce) nhẹ khi focus
+    scaleAnim.value = withSequence(
+      withTiming(0.98, { duration: 100 }),
+      withSpring(1, { damping: 10, stiffness: 200 })
+    );
+    if (onFocus) onFocus(e);
+  };
+
+  const handleBlur = (e: any) => {
+    setIsFocused(false);
+    if (onBlur) onBlur(e);
+  };
+
+  // Nội suy màu sắc mượt mà dựa theo giá trị của focusAnim
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      focusAnim.value,
+      [0, 1],
+      [Color.stroke || '#F1F5F9', Color.bg || '#FFFFFF']
+    );
+    const borderColor = interpolateColor(
+      focusAnim.value,
+      [0, 1],
+      [Color.stroke || '#F1F5F9', Color.main || '#98F291']
+    );
+
+    return {
+      backgroundColor,
+      borderColor,
+      transform: [{ scale: scaleAnim.value }],
+    };
+  });
+
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        animatedContainerStyle,
+        style 
+      ]}
+    >
+      {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
       <TextInput
-        style={[
-          styles.input,
-          (isFocused || hasValue) && styles.inputFocused, // Giữ style focus khi đang focus HOẶC đã có dữ liệu
-          style // Ghi đè style từ props ở cuối cùng
-        ]}
+        style={[styles.input, inputStyle]}
         placeholderTextColor={Color.gray}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        secureTextEntry={isPassword ? isSecure : props.secureTextEntry}
         {...props}
       />
-    </View>
+      {isPassword && (
+        <TouchableOpacity
+          style={styles.rightIcon}
+          onPress={() => setIsSecure(!isSecure)}
+          activeOpacity={0.7}
+        >
+          {isSecure ? <EyeSlashIcon size={20} color={Color.gray} /> : <EyeIcon size={20} color={Color.gray} />}
+        </TouchableOpacity>
+      )}
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-  },
-  
-  // Trạng thái bình thường (Không focus)
-  input: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    backgroundColor: Color.stroke, // Nền xám
-    borderWidth: 1.5, // Tăng lên 1.5 để viền rõ nét hơn khi focus
-    borderColor: Color.stroke,     // Viền xám chìm vào nền
-    borderRadius: Border.br_15,
-    paddingHorizontal: Padding.padding_15,
-    paddingVertical: Padding.padding_15, // Dùng padding 15 cho ô input được cao và thoáng
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5, 
+    borderRadius: Border.br_20 || 20, // Tăng bo góc cho cảm giác mềm mại hơn
+    paddingHorizontal: Padding.padding_15 || 15,
   },
 
-  // Trạng thái khi được Focus
-  inputFocused: {
-    backgroundColor: Color.bg, // Nền trắng
-    borderColor: Color.main,   // Viền xanh lá cây
+  leftIcon: {
+    marginRight: Gap.gap_10 || 8,
+  },
+
+  rightIcon: {
+    marginLeft: Gap.gap_10 || 8,
+  },
+
+  input: {
+    flex: 1,
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14 || 14,
+    color: Color.text || '#1E1E1E',
+    paddingVertical: Padding.padding_15 || 15, 
   },
 });

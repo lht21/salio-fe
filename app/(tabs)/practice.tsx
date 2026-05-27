@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { 
   CaretDownIcon, 
@@ -10,6 +10,7 @@ import {
 } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { useRouter } from 'expo-router';
 
@@ -30,7 +31,7 @@ export default function PracticeScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const [isLevelModalVisible, setLevelModalVisible] = useState(false);
+  const levelSheetRef = useRef<BottomSheetModal>(null);
   const [selectedLevel, setSelectedLevel] = useState<Level>('TOPIK II');
   const [showAlert, setShowAlert] = useState(true);
 
@@ -190,7 +191,7 @@ export default function PracticeScreen() {
           
           <View style={styles.filterContainer}>
             <Text style={styles.filterLabel}>{t('practice.level', 'Cấp độ đề')}</Text>
-            <TouchableOpacity style={styles.filterDropdown} onPress={() => setLevelModalVisible(true)}>
+            <TouchableOpacity style={styles.filterDropdown} onPress={() => levelSheetRef.current?.present()}>
               <Text style={styles.filterText}>{selectedLevel}</Text>
               <CaretDownIcon size={14} color={colors.main} weight="bold" />
             </TouchableOpacity>
@@ -212,9 +213,9 @@ export default function PracticeScreen() {
       </ScrollView>
 
       <LevelFilterModal 
-        isVisible={isLevelModalVisible}
+        ref={levelSheetRef}
         currentLevel={selectedLevel}
-        onClose={() => setLevelModalVisible(false)}
+        onClose={() => levelSheetRef.current?.dismiss()}
         onSelectLevel={(level) => setSelectedLevel(level)}
       />
     </SafeAreaView>

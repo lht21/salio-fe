@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
-import { FireIcon, CloudIcon } from 'phosphor-react-native';
+import { FireIcon, CloudIcon, CaretCircleDoubleRightIcon } from 'phosphor-react-native';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useRouter } from 'expo-router';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -19,6 +21,7 @@ import { Color, Border, Gap, FontFamily, FontSize } from '../constants/GlobalSty
 import StatusBadge from './StatusBadge';
 import CurrentLessonCard from './CurrentLessonCard';
 import { LessonItem } from './LessonNode';
+import Button from './Button';
 
 type HeaderSectionProps = {
   currentLesson: LessonItem;
@@ -33,10 +36,35 @@ type HeaderSectionProps = {
 // Bọc LinearGradient để có thể nhận các giá trị Animation từ Reanimated
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
+const getStreakImage = (streak: number) => {
+  if (streak > 60) return require('../assets/images/streak/lv6.png');
+  if (streak >= 31) return require('../assets/images/streak/lv5.png');
+  if (streak >= 15) return require('../assets/images/streak/lv4.png');
+  if (streak >= 7) return require('../assets/images/streak/lv3.png');
+  if (streak >= 4) return require('../assets/images/streak/lv2.png');
+  return require('../assets/images/streak/lv1.png');
+};
+
 const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onCloudPress, streak = 0, clouds = 0, level }: HeaderSectionProps) => {
   // --- ANIMATION CHUYỂN ĐỘNG LƠ LỬNG ---
   const translateY = useSharedValue(0);
   const colorProgress = useSharedValue(0);
+
+  // --- SETUP ROUTER & BOTTOM SHEET ---
+  const router = useRouter();
+  const routeSheetRef = useRef<BottomSheetModal>(null);
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
 
   useEffect(() => {
     translateY.value = withRepeat(
@@ -96,7 +124,7 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
         <View style={styles.badgesRow}>
           <StatusBadge text={level || "Sơ cấp 1"} bgColor="#FFFFFF" />
           <StatusBadge 
-            icon={<Image source={require('../assets/images/streak/lv1.png')} style={{ width: 20, height: 20 }} contentFit="contain" />} 
+            icon={<Image source={getStreakImage(streak)} style={{ width: 20, height: 20 }} contentFit="contain" />} 
             text={streak.toString()} 
             bgColor="#FFFFFF" 
             onPress={onFirePress} // Giữ nguyên prop onPress có sẵn trong file của bạn
@@ -108,9 +136,46 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
             onPress={onCloudPress} // Giữ nguyên prop onPress có sẵn trong file của bạn
           />
         </View>
+
+        {/* Nút bấm Thay đổi lộ trình học */}
+        <TouchableOpacity 
+          style={styles.changeRouteBtn} 
+          activeOpacity={0.7}
+          onPress={() => routeSheetRef.current?.present()}
+        >
+          <Text style={styles.changeRouteText}>Thay đổi lộ trình học?</Text>
+          <CaretCircleDoubleRightIcon size={16} color={Color.color} weight="duotone" />
+        </TouchableOpacity>
+        
       </View>
 
       <CurrentLessonCard lesson={currentLesson} onPress={onCurrentLessonPress} />
+
+      {/* Bottom Sheet Hướng dẫn đổi lộ trình */}
+      <BottomSheetModal
+        ref={routeSheetRef}
+        snapPoints={['35%']}
+        backdropComponent={renderBackdrop}
+        backgroundStyle={{ backgroundColor: Color.bg }}
+        handleIndicatorStyle={{ backgroundColor: Color.stroke }}
+      >
+        <BottomSheetView style={styles.sheetContent}>
+          <Text style={styles.sheetTitle}>Thay đổi lộ trình học</Text>
+          <Text style={styles.sheetDesc}>
+            Để thay đổi lộ trình học phù hợp với trình độ hiện tại, bạn cần làm một bài kiểm tra đầu vào (Mocktest). Hệ thống sẽ tự động đánh giá và điều chỉnh lộ trình dựa trên kết quả của bạn.
+          </Text>
+          
+          <Button 
+            title="Làm bài kiểm tra ngay" 
+            variant="Green" 
+            onPress={() => {
+              routeSheetRef.current?.dismiss();
+              router.push('/practice/full');
+            }}
+            style={{ width: '100%', marginTop: Gap.gap_20 }}
+          />
+        </BottomSheetView>
+      </BottomSheetModal>
     </AnimatedLinearGradient>
   );
 };
@@ -163,13 +228,48 @@ const styles = StyleSheet.create({
   badgesRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 35,
+    marginBottom: 12, // Giảm margin để nhường chỗ cho nút bên dưới
     // Có thể thêm bóng đổ nhẹ để Badge nổi khối 3D tách biệt khỏi nền
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+  },
+  changeRouteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 30, // Đẩy thẻ bài học hiện tại xuống dưới một chút
+    gap: 4,
+  },
+  changeRouteText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: Color.color,
+  },
+  sheetContent: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: Color.text,
+    marginTop: 10,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  sheetDesc: {
+    fontSize: 14,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: Color.gray,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });
 

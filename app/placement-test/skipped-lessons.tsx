@@ -41,7 +41,7 @@ export default function SkippedLessonsScreen() {
       } catch (error: any) {
         Alert.alert(
           "Không thể tải danh sách bài học",
-          error.response?.data?.message || "Vui lòng thử lại sau."
+          error.message || "Vui lòng thử lại sau."
         );
       } finally {
         setIsLoading(false);

@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
 import AuthService from '../../api/services/auth.service';
+import { EnvelopeSimpleIcon, LockKeyIcon } from 'phosphor-react-native';
 
 // --- Components ---
 import Button from '../../components/Button';
@@ -115,12 +116,14 @@ export default function SignInScreen() {
                   autoCapitalize="none"
                   value={email}
                   onChangeText={setEmail}
+                  leftIcon={<EnvelopeSimpleIcon size={24} color={Color.gray} weight='fill' />}
                 />
                 <CustomInput
                   placeholder="Mật khẩu"
-                  secureTextEntry
+                  isPassword
                   value={password}
                   onChangeText={setPassword}
+                  leftIcon={<LockKeyIcon size={24} color={Color.gray} weight='fill' />}
                 />
               </View>
 

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
+import { Audio } from 'expo-av';
 
 import { Border, Color, FontFamily, FontSize } from '../../../constants/GlobalStyles';
 
@@ -10,7 +11,6 @@ type SpeakingFeedbackPopupProps = {
   visible: boolean;
   type: FeedbackType;
   onNext: () => void;
-  onOutsidePress?: () => void;
   translateY: Animated.Value;
   opacity: Animated.Value;
   imageSource: any;
@@ -20,16 +20,47 @@ export default function SpeakingFeedbackPopup({
   visible,
   type,
   onNext,
-  onOutsidePress,
   translateY,
   opacity,
   imageSource,
 }: SpeakingFeedbackPopupProps) {
   const isSuccess = type === 'success';
 
+  useEffect(() => {
+    let sound: Audio.Sound | null = null;
+
+    const playSound = async () => {
+      if (visible) {
+        try {
+          // Khuyến nghị: Thay URI bằng file nội bộ nếu bạn có file âm thanh sẵn trong assets để không bị độ trễ mạng
+          // Ví dụ: const soundAsset = isSuccess ? require('../../../assets/audio/correct.mp3') : require('../../../assets/audio/wrong.mp3');
+          // const { sound: newSound } = await Audio.Sound.createAsync(soundAsset);
+          
+          const audioUri = isSuccess 
+            ? 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3?filename=correct-2-46134.mp3'
+            : 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73151eb42b.mp3?filename=error-126627.mp3';
+
+          const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioUri });
+          sound = newSound;
+          await sound.playAsync();
+        } catch (error) {
+          console.log('Lỗi phát âm thanh feedback:', error);
+        }
+      }
+    };
+
+    playSound();
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [visible, isSuccess]);
+
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onNext}>
-      <Pressable style={styles.overlay} onPress={!isSuccess ? onOutsidePress : undefined}>
+      <View style={styles.overlay}>
         <Animated.View
           style={[
             isSuccess ? styles.successCard : styles.failureCard,
@@ -59,7 +90,7 @@ export default function SpeakingFeedbackPopup({
             <Text style={styles.buttonText}>Câu tiếp theo</Text>
           </Pressable>
         </Animated.View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }

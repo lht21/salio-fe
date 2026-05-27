@@ -1,8 +1,4 @@
-export interface BaseResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
+import { BaseResponse } from './auth.types';
 
 export type PlacementSectionType = "quiz" | "listening" | "reading";
 export type PlacementQuestionType =
@@ -44,6 +40,14 @@ export interface PlacementReadingItem {
   level?: string;
 }
 
+export interface LevelRule {
+  minPercent: number;
+  maxPercent: number;
+  level: string;
+  skipLessonOrderUpTo?: number;
+  skippedLessons?: string[] | PlacementLesson[];
+}
+
 export interface PlacementQuiz {
   _id: string;
   title: string;
@@ -56,6 +60,9 @@ export interface PlacementQuiz {
   };
   passingScore?: number;
   timeLimit?: number;
+  placementConfig?: {
+    levelRules: LevelRule[];
+  };
 }
 
 export interface PlacementAnswer {
@@ -122,9 +129,47 @@ export interface SkippedLessonsData {
   skippedLessons: PlacementLesson[];
 }
 
+// --- Admin Request & Params Types ---
+export interface AssemblePlacementTestRequest {
+  sectionType: "listening" | "reading";
+  itemIds: string[];
+  mode?: "append" | "replace";
+}
+
+export interface ReorderPlacementQuestionsRequest {
+  sectionType: "listening" | "reading";
+  itemIds: string[];
+}
+
+export interface RemovePlacementItemsRequest {
+  sectionType: "listening" | "reading";
+  itemIds: string[];
+}
+
+export interface GetPlacementSessionsParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedPlacementSessions {
+  sessions: PlacementSession[];
+  total: number;
+  page: number;
+  pages: number;
+}
+
+// --- Response Types ---
 export type StartPlacementTestResponse = BaseResponse<StartPlacementTestData>;
 export type PlacementSessionResponse = BaseResponse<PlacementSessionData>;
 export type SavePlacementAnswerResponse = BaseResponse<null>;
 export type SubmitPlacementResponse = BaseResponse<PlacementSession>;
 export type PlacementResultResponse = BaseResponse<PlacementSession>;
 export type SkippedLessonsResponse = BaseResponse<SkippedLessonsData>;
+
+// --- Admin Response Types ---
+export type PlacementTestConfigResponse = BaseResponse<PlacementQuiz>;
+export type AssemblePlacementTestResponse = BaseResponse<null>;
+export type ReorderPlacementQuestionsResponse = BaseResponse<null>;
+export type RemovePlacementItemsResponse = BaseResponse<null>;
+export type PlacementSessionsListResponse = BaseResponse<PaginatedPlacementSessions>;
+export type PlacementSessionDetailResponse = BaseResponse<PlacementSession>;

@@ -20,7 +20,7 @@ import CloseButton from '@/components/CloseButton';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
 import GrammarService from '@/api/services/grammar.service';
-import type { Grammar } from '@/api/types/lesson.types';
+import type { Grammar } from '@/api/types/grammar.types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.28;
@@ -40,12 +40,12 @@ type GrammarFlashcardData = {
 const mapGrammarToFlashcard = (grammar: Grammar): GrammarFlashcardData => {
   const usageLines = grammar.usage?.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
   return {
-    id: grammar._id,
+    id: grammar._id || (grammar as any).id || '',
     structure: grammar.structure,
     meaning: grammar.meaning,
     description: grammar.usage || grammar.explanation || 'Không có mô tả ngữ pháp.',
     rules: usageLines && usageLines.length > 0 ? usageLines : grammar.explanation ? [grammar.explanation] : [],
-    exampleKo: grammar.exampleSentences?.[0]?.korean || '',
+    exampleKo: grammar.exampleSentences?.[0]?.korean || grammar.exampleSentences?.[0]?.vietnamese ? grammar.exampleSentences[0].korean : '',
     exampleVi: grammar.exampleSentences?.[0]?.vietnamese || '',
   };
 };
@@ -246,26 +246,30 @@ export default function GrammarDetailScreen() {
 
   const onSwipedLeft = async () => {
     const cardId = currentCard.id;
+    if (!cardId) return handleNextCard(); // Bỏ qua gọi API nếu ID không hợp lệ
+
     setLearnCount((prev) => prev + 1);
+    handleNextCard();
+
     try {
       await GrammarService.updateGrammarProgress(String(lessonId), cardId, 'learning');
-    } catch (error) {
-      console.error("Lỗi cập nhật trạng thái learning ngữ pháp:", error);
+    } catch (error: any) {
+      console.error("Lỗi cập nhật trạng thái learning ngữ pháp:", error.response?.data || error.message);
     }
-
-    handleNextCard();
   };
 
   const onSwipedRight = async () => {
     const cardId = currentCard.id;
+    if (!cardId) return handleNextCard(); // Bỏ qua gọi API nếu ID không hợp lệ
+
     setKnownCount((prev) => prev + 1);
+    handleNextCard();
+
     try {
       await GrammarService.updateGrammarProgress(String(lessonId), cardId, 'completed');
-    } catch (error) {
-      console.error("Lỗi cập nhật trạng thái completed ngữ pháp:", error);
+    } catch (error: any) {
+      console.error("Lỗi cập nhật trạng thái completed ngữ pháp:", error.response?.data || error.message);
     }
-
-    handleNextCard();
   };
 
   return (

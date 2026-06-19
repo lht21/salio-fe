@@ -126,7 +126,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   // 1. Green (Mặc định)
   variantGreen: {
     backgroundColor: Color.main,
-    borderColor: colors.btnGreenBorder || '#3AB878', // Màu xanh lá đậm hơn cho viền
+    borderColor: '#6EAA00', // Màu xanh lá đậm hơn cho viền
     borderBottomWidth: 5,
     borderLeftWidth:2,// Bạn có thể đổi sang Color.main nếu khớp màu
   },

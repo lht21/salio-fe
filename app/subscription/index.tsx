@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 // Components
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
 import BenefitItem from '../../components/BenefitItem';
 import SubscriptionCard from '../../components/SubscriptionCard';
 
@@ -22,6 +22,7 @@ import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constan
 import { MotiView } from 'moti';
 import SubscriptionService from '../../api/services/subscription.service';
 import { SubscriptionPlan } from '../../api/types/subscription.types';
+import { XIcon } from 'phosphor-react-native';
 
 // Dữ liệu mẫu (Tách biệt logic)
 const BENEFITS = [
@@ -79,7 +80,8 @@ export default function SubscriptionScreen() {
             
             {/* --- HEADER --- */}
             <View style={styles.header}>
-              <CloseButton variant="Main" onPress={() => router.back()} />
+              <IconButton Icon={XIcon} onPress={() => router.back()} />
+                
             </View>
 
             {/* --- NỘI DUNG CUỘN ĐƯỢC --- */}

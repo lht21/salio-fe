@@ -7,7 +7,8 @@ import { Image } from 'expo-image';
 import { PaperPlaneRightIcon, ChatCircleIcon, HeartIcon } from 'phosphor-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { PostItem } from './PostCard';
 
@@ -81,7 +82,7 @@ export default function PostDetailModal({ isVisible, post, onClose }: PostDetail
           
           {/* Header */}
           <View style={styles.header}>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>

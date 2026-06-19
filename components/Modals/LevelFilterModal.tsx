@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 
 import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export type Level = 'EPS' | 'TOPIK I' | 'TOPIK II';
 
@@ -61,7 +62,8 @@ const LevelFilterModal = forwardRef<BottomSheetModal, LevelFilterModalProps>(({
       <BottomSheetView style={styles.sheetContent}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('level.title', 'Chọn cấp độ đề')}</Text>
-          <CloseButton variant="Stroke" onPress={onClose} />
+          
+          <IconButton Icon={XIcon} onPress={onClose} />
         </View>
 
         <View style={styles.menuContainer}>

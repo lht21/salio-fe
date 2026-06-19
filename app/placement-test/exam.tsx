@@ -3,9 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -343,11 +347,12 @@ export default function PlacementTestExam() {
     if (!currentQuestion) return null;
 
     return (
-      <View style={styles.shortAnswerWrap}>
+      <View style={styles.shortAnswerWrap} key={currentQuestion.id}>
         <Text style={styles.shortAnswerQuestion}>{currentQuestion.question}</Text>
         <TextInput
           value={shortAnswer}
           onChangeText={setShortAnswer}
+          autoFocus={true}
           editable={!isSaving && !showResultSheet}
           multiline
           placeholder="Nhập câu trả lời của bạn"
@@ -405,15 +410,24 @@ export default function PlacementTestExam() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <QuizHeader
-        current={sectionData.num}
-        total={sectionData.total}
-        incorrectCount={0}
-        timerLabel={timeLeft === null ? undefined : formatCountdown(timeLeft)}
-        onClose={() => router.back()}
-      />
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoiding}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.innerContainer}>
+            <QuizHeader
+              current={sectionData.num}
+              total={sectionData.total}
+              incorrectCount={0}
+              timerLabel={timeLeft === null ? undefined : formatCountdown(timeLeft)}
+              onClose={() => router.back()}
+            />
 
-      <View style={styles.content}>{renderQuestionForm()}</View>
+            <View style={styles.content}>{renderQuestionForm()}</View>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
 
       <AnswerResultBottomSheet
         visible={showResultSheet}
@@ -442,6 +456,12 @@ export default function PlacementTestExam() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
+  keyboardAvoiding: {
+    flex: 1
+  },
+  innerContainer: {
+    flex: 1
+  },
   centered: {
     alignItems: "center",
     justifyContent: "center",

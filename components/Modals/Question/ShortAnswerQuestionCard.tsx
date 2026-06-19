@@ -1,8 +1,10 @@
 import React from 'react';
 import { Animated, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CaretDownIcon, CheckIcon, XIcon } from 'phosphor-react-native';
+import AnimatedReanimated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
+import Button from '../../Button';
 
 type ShortAnswerQuestionCardProps = {
   progressLabel: string;
@@ -38,7 +40,7 @@ export default function ShortAnswerQuestionCard({
   disabled = false,
 }: ShortAnswerQuestionCardProps) {
   return (
-    <View style={styles.container}>
+    <AnimatedReanimated.View layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
         <Text style={styles.progressPill}>{progressLabel}</Text>
 
@@ -69,7 +71,12 @@ export default function ShortAnswerQuestionCard({
       </View>
 
       {expanded ? (
-        <View style={styles.body}>
+        <AnimatedReanimated.View 
+          entering={FadeIn} 
+          exiting={FadeOut} 
+          layout={LinearTransition.springify().damping(20).stiffness(200)}
+          style={styles.body}
+        >
           <Text style={styles.question}>{question}</Text>
 
           <TextInput
@@ -100,12 +107,15 @@ export default function ShortAnswerQuestionCard({
             </View>
           ) : null}
 
-          <Pressable style={[styles.submitButton, disabled ? styles.submitButtonDisabled : null]} onPress={onSubmit} disabled={disabled}>
-            <Text style={styles.submitButtonText}>{submitLabel}</Text>
-          </Pressable>
-        </View>
+          <Button
+            title={submitLabel}
+            onPress={onSubmit}
+            disabled={disabled}
+            style={{ marginVertical: 0 }}
+          />
+        </AnimatedReanimated.View>
       ) : null}
-    </View>
+    </AnimatedReanimated.View>
   );
 }
 
@@ -204,20 +214,5 @@ const styles = StyleSheet.create({
   },
   helperTextIncorrect: {
     color: '#D93030',
-  },
-  submitButton: {
-    minHeight: 46,
-    borderRadius: 999,
-    backgroundColor: '#8EEA7C',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitButtonDisabled: {
-    opacity: 0.55,
-  },
-  submitButtonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: '#1D4D23',
   },
 });

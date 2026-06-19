@@ -23,6 +23,8 @@ export default function GrammarQuizScreen() {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [feedbackState, setFeedbackState] = useState<'hidden' | 'success' | 'failure'>('hidden');
   const [showExitModal, setShowExitModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
   const feedbackOpacity = useRef(new Animated.Value(0)).current;
@@ -34,11 +36,13 @@ export default function GrammarQuizScreen() {
 
   const startQuiz = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const modulesResponse = await LessonService.getModules(lessonId as string);
       const quizId = modulesResponse?.data?.data?.grammarQuizzes?.[0] || modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.grammarQuizzes?.[0];
 
       if (!quizId) {
+          setErrorMsg("Bài học này chưa có Quiz Ngữ pháp.");
           setLoading(false);
           return;
       }
@@ -49,6 +53,7 @@ export default function GrammarQuizScreen() {
       setSession(sessionData?.data || sessionData);
     } catch (error) {
       console.error('Lỗi khởi tạo grammar quiz:', error);
+      setErrorMsg("Có lỗi xảy ra khi tải Quiz Ngữ pháp.");
     } finally {
       setLoading(false);
     }
@@ -94,6 +99,8 @@ export default function GrammarQuizScreen() {
   };
 
   const handleNext = async () => {
+    if (isSubmitting) return;
+
     const moveNext = async () => {
       if (currentIndex < session.questions.length - 1) {
         setCurrentIndex(prev => prev + 1);
@@ -102,9 +109,15 @@ export default function GrammarQuizScreen() {
         setIsAnswered(false);
         setFeedbackState('hidden');
       } else {
-        const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        await GrammarService.submitGrammarQuiz(session._id, { timeSpent });
-        router.replace(`/lessons/${lessonId}/grammar/result?sessionId=${session._id}`);
+        setIsSubmitting(true);
+        try {
+          const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          await GrammarService.submitGrammarQuiz(session._id, { timeSpent });
+          router.replace(`/lessons/${lessonId}/grammar/result?sessionId=${session._id}`);
+        } catch (error) {
+          console.error('Lỗi khi nộp bài:', error);
+          setIsSubmitting(false);
+        }
       }
     };
     
@@ -114,7 +127,20 @@ export default function GrammarQuizScreen() {
     ]).start(moveNext);
   };
 
-  if (loading || !session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
+
+  if (errorMsg) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <QuizHeader current={0} total={0} incorrectCount={0} onClose={() => router.back()} />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: Color.text }}>{errorMsg}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
 
   return (
     <SafeAreaView style={styles.safeArea}>

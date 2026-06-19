@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable,
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { CardsIcon, ListChecksIcon, PlusIcon, ArrowLeftIcon, TrashIcon, PencilSimpleIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -25,6 +24,8 @@ import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
+import IconButton from '../../components/IconButton';
+import ReviewModeCard from '../../components/ReviewModeCard';
 
 export default function FlashcardSetDetailScreen() {
   const { id, title } = useLocalSearchParams();
@@ -269,23 +270,18 @@ export default function FlashcardSetDetailScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Custom Header */}
       <View style={styles.customHeader}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={colors.text} weight="bold" />
-        </TouchableOpacity>
+        <IconButton Icon={ArrowLeftIcon} variant="Stroke" onPress={() => router.back()} />
           <Animated.Text style={[styles.headerTitle, headerTitleStyle]}>
             {displayTitle}
           </Animated.Text>
         {id !== 'favorite' ? (
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => {
+            <IconButton Icon={TrashIcon} variant="Stroke" onPress={handleDeleteSet} />
+            <IconButton Icon={PencilSimpleIcon} variant="Stroke" onPress={() => {
               setEditTitleText(displayTitle);
               setIsEditModalVisible(true);
-            }}>
-              <PencilSimpleIcon size={24} color={colors.text} weight="fill" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton} onPress={handleDeleteSet}>
-              <TrashIcon size={24} color={colors.text} weight="fill" />
-            </TouchableOpacity>
+            }} />
+            <IconButton Icon={PlusIcon} variant="Main" onPress={() => setIsSearchModalVisible(true)} />
           </View>
         ) : (
           <View style={{ width: 64 }} />
@@ -298,7 +294,7 @@ export default function FlashcardSetDetailScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        <LinearGradient colors={[colors.cardGreenBg, colors.main]} style={styles.gradientSection}>
+        <View style={styles.topSection}>
           <View style={styles.titleWrapper}>
             <Text style={styles.bigTitle}>{displayTitle}</Text>
           </View>
@@ -320,39 +316,25 @@ export default function FlashcardSetDetailScreen() {
           <View style={styles.actionContainer}>
             <Text style={styles.countText}>{t('vocabulary.total_words', { count: words.length, defaultValue: `Tổng cộng: ${words.length} từ vựng` })}</Text>
             
-            <View style={styles.buttonRow}>
-              <TouchableOpacity 
-                style={[styles.actionBtn, { backgroundColor: colors.blackActionBg, borderBottomColor: colors.colorBlack }]} 
-                activeOpacity={0.8}
+            <View style={styles.reviewModesContainer}>
+              <ReviewModeCard 
+                label={t('vocabulary.study_flashcard', 'Học Flashcard')}
+                icon={<CardsIcon size={36} color="#B05200" weight="bold" />}
                 onPress={handleStudyFlashcard}
-              >
-                <CardsIcon size={24} color={colors.main} weight="fill" />
-                <Text style={[styles.actionBtnText, { color: colors.main }]}>{t('vocabulary.study_flashcard', 'Học Flashcard')}</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.actionBtn, { backgroundColor: colors.whiteActionBg, borderBottomColor: colors.stroke }]} 
-                activeOpacity={0.8}
+              />
+              <ReviewModeCard 
+                label={t('vocabulary.quiz_mode', 'Chế độ Trắc nghiệm')}
+                icon={<ListChecksIcon size={36} color="#B05200" weight="bold" />}
                 onPress={handleQuiz}
-              >
-                <ListChecksIcon size={24} color={colors.whiteActionText} weight="bold" />
-                <Text style={[styles.actionBtnText, { color: colors.whiteActionText }]}>{t('vocabulary.quiz_mode', 'Chế độ Trắc nghiệm')}</Text>
-              </TouchableOpacity>
+              />
             </View>
           </View>
-        </LinearGradient>
+        </View>
 
         <View style={styles.bottomSection}>
           {/* Header Danh sách */}
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>{t('vocabulary.word_list', 'Danh sách từ vựng')}</Text>
-            <TouchableOpacity 
-              style={styles.addBtn}
-              onPress={() => setIsSearchModalVisible(true)}
-            >
-              <PlusIcon size={18} color={colors.blackActionText} weight="bold" />
-              <Text style={styles.addBtnText}>{t('vocabulary.add_word', 'Thêm từ')}</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Danh sách từ vựng */}
@@ -484,59 +466,41 @@ export default function FlashcardSetDetailScreen() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.cardGreenBg },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
   customHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Padding.padding_15,
     paddingVertical: 12,
-    backgroundColor: colors.cardGreenBg,
+    backgroundColor: colors.bg,
   },
-  backButton: { padding: 4 },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  iconButton: { padding: 4 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_10 || 10 },
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
     color: colors.text,
   },
   content: { flexGrow: 1, backgroundColor: colors.bg, paddingBottom: 40 },
-  gradientSection: {
+  topSection: {
     paddingHorizontal: Padding.padding_15,
     paddingTop: Padding.padding_10,
     paddingBottom: Gap.gap_20,
-    borderBottomLeftRadius: Border.br_30 || 30,
-    borderBottomRightRadius: Border.br_30 || 30,
-    shadowColor: colors.main,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 8,
     marginBottom: Gap.gap_20,
   },
   titleWrapper: { marginBottom: Gap.gap_15 },
-  bigTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: colors.color },
+  bigTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: colors.text },
   actionContainer: { marginBottom: Gap.gap_20 },
-  countText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textDarkGreen, opacity: 0.8, marginBottom: Gap.gap_15 },
+  countText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray, marginBottom: Gap.gap_15 },
   progressContainer: { backgroundColor: colors.bg, borderRadius: Border.br_20, padding: Padding.padding_15, marginBottom: Gap.gap_15, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
   progressStats: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   progressText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.text },
   progressBarBgDetail: { height: 8, backgroundColor: colors.stroke, borderRadius: 4, overflow: 'hidden' },
   progressBarFillDetail: { height: 8, backgroundColor: colors.main, borderRadius: 4 },
-  buttonRow: { flexDirection: 'row', gap: Gap.gap_15 },
-  actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: Border.br_20 || 20, gap: Gap.gap_8, borderBottomWidth: 4 },
-  actionBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14 },
+  reviewModesContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: Gap.gap_10 || 10 },
   bottomSection: { paddingHorizontal: Padding.padding_15 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },
   listTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
-  addBtn: { 
-    flexDirection: 'row', alignItems: 'center', gap: 4, 
-    backgroundColor: colors.addBtnBg, 
-    paddingHorizontal: 16, paddingVertical: 8, borderRadius: Border.br_20,
-    shadowColor: colors.addBtnBg, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
-  },
-  addBtnText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: colors.blackActionText },
   listContainer: { gap: 0 }, // Khoảng cách giữa các card đã được VocabularyCard tự xử lý qua marginBottom
   emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
   emptyText: { textAlign: 'center', color: colors.gray, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 },

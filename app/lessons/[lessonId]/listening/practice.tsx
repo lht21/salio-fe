@@ -1,10 +1,9 @@
-﻿import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+﻿﻿import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Animated, Easing, Platform, StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router'; 
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import LessonService from '../../../../api/services/lesson.service';
 import { ListeningItem, LessonModules } from '../../../../api/types/lesson.types';
@@ -82,8 +81,13 @@ export default function ListeningPracticeScreen() {
   const loadExercise = async (id: string) => {
     try {
       setLoading(true);
-      const item = await LessonService.getSkillItem<ListeningItem>(resolvedLessonId, 'listening', id);
-      setListeningItem(item);
+      console.log(`[ListeningPractice] Đang tải dữ liệu bài nghe ID: ${id}`);
+      
+      const response = await LessonService.getSkillItem<ListeningItem>(resolvedLessonId, 'listening', id);
+      console.log(`[ListeningPractice] Dữ liệu nhận về từ Server:`, response);
+      
+      // Bóc tách phần 'data' từ BaseResponse để gán vào state
+      setListeningItem(response.data);
       setCurrentIndex(0);
       setTypedAnswer('');
       setExpanded(true);
@@ -133,6 +137,12 @@ export default function ListeningPracticeScreen() {
               setDurationMs(status.durationMillis ?? 0);
               setPositionMs(status.positionMillis ?? 0);
               setPlaybackProgress(status.durationMillis ? status.positionMillis / status.durationMillis : 0);
+
+              // Khi audio chạy xong, tự động reset vị trí về đầu để dễ dàng bấm nghe lại
+              if (status.didJustFinish) {
+                setIsPlaying(false);
+                if (audioRef.current) audioRef.current.setPositionAsync(0);
+              }
             }
           }
         );
@@ -183,11 +193,13 @@ export default function ListeningPracticeScreen() {
                 timeSpent: 0
               });
 
-              totalScore += result.result.totalScore;
-              totalMaxScore += result.result.maxScore;
+              // result là BaseResponse, dữ liệu thực nằm trong result.data
+              const payload = result.data; 
+              totalScore += payload.result.totalScore;
+              totalMaxScore += payload.result.maxScore;
 
               // Cộng dồn breakdown từ server trả về
-              const b = result.result.breakdown;
+              const b = payload.result.breakdown;
               if (b) {
                 if (b.trueFalse) {
                   categories.trueFalse.score += b.trueFalse.score;
@@ -244,8 +256,20 @@ export default function ListeningPracticeScreen() {
     });
   }, [goNext]);
 
+  const handleRewind = () => {
+    if (!audioRef.current || durationMs === 0) return;
+    const newPosition = Math.max(0, positionMs - 10000); // 10 seconds
+    audioRef.current.setPositionAsync(newPosition);
+  };
+
+  const handleForward = () => {
+    if (!audioRef.current || durationMs === 0) return;
+    const newPosition = Math.min(durationMs, positionMs + 10000); // 10 seconds
+    audioRef.current.setPositionAsync(newPosition);
+  };
+
   const saveAnswer = (value: any) => {
-    if (!exercise) return;
+    if (!exercise || !exercise.questions[currentIndex]) return;
     const qId = exercise.questions[currentIndex].id;
     
     setAllUserAnswers(prev => {
@@ -274,9 +298,12 @@ export default function ListeningPracticeScreen() {
   const currentQuestion = exercise.questions[currentIndex];
   const totalInCourse = allExerciseIds.length;
   // Progress Label hiển thị: Câu 1/4
-  const progressLabel = `${currentIndex + 1}/${exercise.questions.length}`;
+  const totalQuestions = Math.max(1, exercise.questions.length);
+  const progressLabel = `${currentIndex + 1}/${totalQuestions}`;
 
   const renderQuestionCard = () => {
+    if (!currentQuestion) return null;
+
     // Tìm đáp án đã chọn cho câu này (nếu có)
     const currentExAnswers = allUserAnswers[exercise.id] || [];
     const selectedAns = currentExAnswers.find(a => a.questionId === currentQuestion.id)?.answer;
@@ -284,7 +311,7 @@ export default function ListeningPracticeScreen() {
     if (currentQuestion.type === 'multiple-choice') {
       return (
         <MultipleChoiceQuestionCard
-          progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
+          progressLabel={progressLabel} progress={(currentIndex + 1) / totalQuestions}
           animatedProgress={progressAnimation} question={currentQuestion.question}
           options={currentQuestion.options.map(opt => ({
             id: opt.id, label: opt.label,
@@ -299,7 +326,7 @@ export default function ListeningPracticeScreen() {
     if (currentQuestion.type === 'ox') {
       return (
         <OXQuestionAccordion
-          progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
+          progressLabel={progressLabel} progress={(currentIndex + 1) / totalQuestions}
           animatedProgress={progressAnimation} question={currentQuestion.question}
           expanded={expanded} selectedValue={selectedAns}
           trueLabel="Đúng" falseLabel="Sai"
@@ -311,7 +338,7 @@ export default function ListeningPracticeScreen() {
 
     return (
       <ShortAnswerQuestionCard
-        progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
+        progressLabel={progressLabel} progress={(currentIndex + 1) / totalQuestions}
         animatedProgress={progressAnimation} question={currentQuestion.question}
         value={typedAnswer} expanded={expanded}
         placeholder="Nhập câu trả lời..." submitLabel="Tiếp tục"
@@ -325,41 +352,46 @@ export default function ListeningPracticeScreen() {
   return (
     <LinearGradient colors={['#C8FF84', '#E9FFD1', '#FFFFFF']} style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <KeyboardAwareScrollView
-          enableOnAndroid extraScrollHeight={100} keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.keyboardContent}
-        >
-          <View style={styles.sheet}>
-            <ListeningPromptCard
-              instruction={exercise.title}
-              currentTimeLabel={formatTime(positionMs)}
-              durationLabel={formatTime(durationMs)}
-              progress={playbackProgress}
-              isPlaying={isPlaying}
-              speedOptions={SPEED_OPTIONS}
-              selectedSpeed={selectedSpeed}
-              onPlayPress={() => {
-                if (!audioRef.current || !audioReady) return;
-                isPlaying ? audioRef.current.pauseAsync() : audioRef.current.playAsync();
-              }}
-              onSpeedSelect={(val) => {
-                setSelectedSpeed(val);
-                if (audioRef.current) audioRef.current.setRateAsync(val, true);
-              }}
-              showTranscript={showTranscript}
-              transcript={exercise.transcript}
-              onToggleTranscript={() => setShowTranscript(!showTranscript)}
-              onClose={() => router.back()}
-              footer={
-                <View style={styles.footerWrap}>
-                  <Animated.View key={`q-${currentQuestion.id}`} style={{ opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] }}>
-                    {renderQuestionCard()}
-                  </Animated.View>
-                </View>
+        <View style={styles.sheet}>
+          <ListeningPromptCard
+            instruction={exercise.title}
+            currentTimeLabel={formatTime(positionMs)}
+            durationLabel={formatTime(durationMs)}
+            progress={playbackProgress}
+            isPlaying={isPlaying} 
+            speedOptions={SPEED_OPTIONS}
+            selectedSpeed={selectedSpeed}
+            onPlayPress={() => {
+              if (!audioRef.current || !audioReady) return;
+              if (isPlaying) {
+                audioRef.current.pauseAsync();
+              } else if (durationMs > 0 && positionMs >= durationMs) {
+                audioRef.current.replayAsync(); // Phát lại từ đầu nếu đang ở cuối
+              } else {
+                audioRef.current.playAsync();
               }
-            />
-          </View>
-        </KeyboardAwareScrollView>
+            }} 
+            onSpeedSelect={(val) => {
+              setSelectedSpeed(val);
+              if (audioRef.current) audioRef.current.setRateAsync(val, true);
+            }}
+            showTranscript={showTranscript}
+            transcript={exercise.transcript}
+            onToggleTranscript={() => setShowTranscript(!showTranscript)} 
+            onClose={() => router.back()}
+            footer={<Animated.View key={`q-${currentQuestion?.id || 'empty'}`} style={{ opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] }}>
+              {renderQuestionCard()}
+            </Animated.View>}
+            onRewind={handleRewind}
+            onForward={handleForward}
+            onSeek={(newProgress) => {
+              if (audioRef.current && durationMs > 0) {
+                const newPosition = newProgress * durationMs;
+                audioRef.current.setPositionAsync(newPosition);
+              }
+            }}
+          />
+        </View>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -373,8 +405,5 @@ const formatTime = (ms: number) => {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   safeArea: { flex: 1 },
-  sheet: { flex: 1, paddingTop: 10 },
-  keyboardContent: { flexGrow: 1, paddingBottom: Platform.OS === 'android' ? 0 : 0 },
-  questionWrap: { minHeight: 280, justifyContent: 'flex-end' },
-  footerWrap: { marginTop: 8, marginHorizontal: -14, marginBottom: 0 },
+  sheet: { flex: 1 },
 });

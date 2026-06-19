@@ -23,6 +23,7 @@ export default function GrammarExerciseScreen() {
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
   const [incorrectCount, setIncorrectCount] = useState(0); 
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
 
   // Animation refs
@@ -111,7 +112,7 @@ export default function GrammarExerciseScreen() {
   };
 
 const handleContinue = () => {
-    hideFeedback(() => {
+    hideFeedback(async () => {
       if (status === 'correct') {
         if (currentIndex < questions.length - 1) {
           setCurrentIndex(prev => prev + 1);
@@ -119,25 +120,26 @@ const handleContinue = () => {
           setAnswerWM([]);
           setHasWrongAttempt(false);
         } else {
+          if (isSubmitting) return;
+          setIsSubmitting(true);
+
           console.log("Đã xong Exercise, đang chuyển hướng tới Quiz Intro...");
           
           // 1. Tính điểm % Bài tập (Dựa trên số câu không bị sai lần nào)
           const correctCount = Math.max(0, questions.length - incorrectCount);
           const percentage = Math.round((correctCount / questions.length) * 100);
 
-          // 2. Gửi API lưu tiến độ
-          if (LessonService.updateLessonSectionProgress) {
-            LessonService.updateLessonSectionProgress(String(lessonId), 'grammar', String(lessonId), {
-              status: 'completed',
-              percentage: percentage,
-              title: 'Bài tập thực hành Ngữ pháp'
-            }).catch((err: any) => console.error("Lỗi lưu điểm bài tập:", err));
+          try {
+            // Lưu ý: Không lưu tiến độ bài tập ngữ pháp vào LessonProgress ở đây
+            // vì exercise chỉ là bài thực hành, tiến độ lý thuyết đã được lưu ở detail.tsx
+            router.push({
+              pathname: '/lessons/[lessonId]/grammar/quiz-intro',
+              params: { lessonId: String(lessonId) }
+            } as any);
+          } catch (err: any) {
+            console.error("Lỗi lưu điểm bài tập:", err);
+            setIsSubmitting(false);
           }
-
-          router.push({
-            pathname: '/lessons/[lessonId]/grammar/quiz-intro',
-            params: { lessonId: String(lessonId) }
-          } as any);        
         }
       } else {
         setAnswerWB('');

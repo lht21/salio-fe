@@ -2,7 +2,8 @@ import React, { useMemo, useCallback, forwardRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 interface EmailSettingsModalProps {
@@ -42,7 +43,7 @@ const EmailSettingsModal = forwardRef<BottomSheetModal, EmailSettingsModalProps>
       <BottomSheetView style={styles.sheetContent}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Địa chỉ Email</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <View style={styles.inputContainer}>

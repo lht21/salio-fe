@@ -12,7 +12,14 @@ export const PlaceholderDot = () => {
     );
 };
 
+const getTodayStr = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+};
+
 export const DayDot = ({ item }: { item: CalendarDay }) => {
+    const isToday = item.id === getTodayStr();
+
     let circleStyle = styles.circleInactive;
     let textStyle = styles.dayTextInactive;
 
@@ -28,9 +35,9 @@ export const DayDot = ({ item }: { item: CalendarDay }) => {
     }
 
     return (
-        <View style={styles.dayCell}>
-            <View style={[styles.dayCircle, circleStyle]}>
-                <Text style={[styles.dayText, textStyle]}>{item.day}</Text>
+        <View style={[styles.dayCell, isToday && styles.dayCellIsToday]}>
+            <View style={[styles.dayCircle, circleStyle, isToday && styles.circleIsToday]}>
+                <Text style={[styles.dayText, textStyle, isToday && styles.textIsToday]}>{item.day}</Text>
             </View>
             {item.fire ? (
                 <View style={styles.fireWrap}>
@@ -41,16 +48,18 @@ export const DayDot = ({ item }: { item: CalendarDay }) => {
     );
 };
 
-const MONTH_GRID_COLUMNS = 7;
-
 const styles = StyleSheet.create({
     dayCell: {
-        width: `${100 / MONTH_GRID_COLUMNS}%`,
-        aspectRatio: 1,
+        width: 44, // Kích thước cố định cho hiển thị dạng thanh trượt
+        height: 44,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
         padding: 2,
+    },
+    dayCellIsToday: {
+        width: 56,
+        height: 56,
     },
     placeholderDot: {
         width: 8,
@@ -65,9 +74,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    circleIsToday: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+    },
     dayText: {
         fontFamily: FontFamily.lexendDecaSemiBold,
         fontSize: FontSize.fs_12,
+    },
+    textIsToday: {
+        fontSize: FontSize.fs_16,
     },
     circleInactive: { backgroundColor: '#E2E8F0' },
     dayTextInactive: { color: '#64748B' },

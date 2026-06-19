@@ -28,6 +28,7 @@ export default function ReadingPracticeScreen() {
   const [allUserAnswers, setAllUserAnswers] = useState<Record<string, any[]>>({});
   const [expanded, setExpanded] = useState(true);
   const [typedAnswer, setTypedAnswer] = useState('');
+  const isTransitioning = useRef(false);
 
   const questionOpacity = useRef(new Animated.Value(1)).current;
   const questionTranslateY = useRef(new Animated.Value(0)).current;
@@ -52,8 +53,8 @@ export default function ReadingPracticeScreen() {
   const loadExercise = async (id: string) => {
     try {
       setLoading(true);
-      const item = await LessonService.getSkillItem<ReadingItem>(resolvedLessonId, 'reading', id);
-      setReadingItem(item);
+      const response = await LessonService.getSkillItem<ReadingItem>(resolvedLessonId, 'reading', id);
+      setReadingItem(response.data);
       setCurrentIndex(0);
       setTypedAnswer('');
       setExpanded(true);
@@ -86,12 +87,15 @@ export default function ReadingPracticeScreen() {
       setCurrentIndex(prev => prev + 1);
       setTypedAnswer('');
       setExpanded(true);
+      isTransitioning.current = false;
     } 
     else {
       if (currentExIndex < allExerciseIds.length - 1) {
         const nextIdx = currentExIndex + 1;
         setCurrentExIndex(nextIdx);
-        loadExercise(allExerciseIds[nextIdx]);
+        loadExercise(allExerciseIds[nextIdx]).then(() => {
+          isTransitioning.current = false;
+        });
       } 
       else {
         try {
@@ -103,9 +107,9 @@ export default function ReadingPracticeScreen() {
           for (const exId of allExerciseIds) {
             const answers = allUserAnswers[exId] || [];
             const result = await LessonService.submitSkillItem(resolvedLessonId, 'reading', exId, { answers, timeSpent: 0 });
-            totalScore += result.result.totalScore;
-            totalMaxScore += result.result.maxScore;
-            const b = result.result.breakdown;
+            totalScore += result.data.result.totalScore;
+            totalMaxScore += result.data.result.maxScore;
+            const b = result.data.result.breakdown;
             if (b) {
               if (b.vocabularyClassification) { cats.vocabulary.score += b.vocabularyClassification.score; cats.vocabulary.max += b.vocabularyClassification.maxScore; }
               if (b.choice) { cats.choice.score += b.choice.score; cats.choice.max += b.choice.maxScore; }
@@ -144,7 +148,11 @@ export default function ReadingPracticeScreen() {
   }, [goNext]);
 
   const saveAnswer = (value: any) => {
+    if (isTransitioning.current) return;
     if (!exercise) return;
+    if (!exercise.questions[currentIndex]) return;
+    
+    isTransitioning.current = true;
     const qId = exercise.questions[currentIndex].id;
     setAllUserAnswers(prev => {
       const currentExAnswers = prev[exercise.id] || [];
@@ -160,6 +168,8 @@ export default function ReadingPracticeScreen() {
   const progressLabel = `${currentIndex + 1}/${exercise.questions.length}`;
 
   const renderQuestionCard = () => {
+    if (!currentQuestion) return null;
+
     const currentExAnswers = allUserAnswers[exercise.id] || [];
     const selectedAns = currentExAnswers.find(a => a.questionId === currentQuestion.id)?.answer;
 
@@ -219,7 +229,7 @@ export default function ReadingPracticeScreen() {
               onClose={() => router.back()}
               footer={
                 <View style={styles.footerWrap}>
-                  <Animated.View key={`q-${currentQuestion.id}`} style={[styles.questionContainer, { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] }]}>
+                  <Animated.View style={[styles.questionContainer, { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] }]}>
                     {renderQuestionCard()}
                   </Animated.View>
                 </View>

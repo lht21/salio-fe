@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ClockIcon, PaperPlaneRightIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../constants/GlobalStyles';
-import CloseButton from './CloseButton';
+import IconButton from './IconButton';
+import { XIcon } from 'phosphor-react-native';
+
 
 interface TimerHeaderProps {
   timeLeft: number;
@@ -18,7 +20,7 @@ export default function TimerHeader({ timeLeft, isStarted, onClose, onSubmit }: 
   return (
     <View style={styles.header}>
       <View style={styles.headerSide}>
-        <CloseButton variant="Stroke" onPress={onClose} />
+        <IconButton Icon={XIcon} onPress={onClose} />
       </View>
 
       <View style={styles.timerPill}>

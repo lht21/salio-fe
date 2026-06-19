@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
 import { CaretDownIcon, CaretUpIcon, CheckCircleIcon } from 'phosphor-react-native';
 
-import { Border, Color, FontFamily, FontSize, Gap, Stroke } from '../../constants/GlobalStyles';
+import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '../../constants/GlobalStyles';
 
 export type LessonSectionDetailItem = {
   id: string;
@@ -25,6 +25,8 @@ export type LessonSectionAccordionProps = {
   initiallyExpanded?: boolean;
   details?: LessonSectionDetailItem[];
   onPress?: () => void;
+  onActionPress?: () => void;
+  actionText?: string;
 };
 
 const LessonSectionAccordion = ({
@@ -41,6 +43,8 @@ const LessonSectionAccordion = ({
   initiallyExpanded = false,
   details = [],
   onPress,
+  onActionPress,
+  actionText,
 }: LessonSectionAccordionProps) => {
   const [expanded, setExpanded] = React.useState(initiallyExpanded);
   const canExpand = expandable && details.length > 0;
@@ -125,9 +129,16 @@ const LessonSectionAccordion = ({
           <View style={[styles.progressRemaining, { backgroundColor: progressTrackColor }]} />
         </View>
 
-        <View style={styles.progressLabel}>
-          <CheckCircleIcon size={15} color={progressColor} weight="fill" />
-          <Text style={[styles.progressText, { color: progressColor }]}>{progressText}</Text>
+        <View style={styles.progressFooterRow}>
+          <View style={styles.progressLabel}>
+            <CheckCircleIcon size={15} color={progressColor} weight="fill" />
+            <Text style={[styles.progressText, { color: progressColor }]}>{progressText}</Text>
+          </View>
+          {onActionPress && (
+            <Pressable style={styles.actionBtn} onPress={onActionPress} hitSlop={8}>
+              <Text style={[styles.actionBtnText, { color: progressColor }]}>{actionText || 'Làm lại'}</Text>
+            </Pressable>
+          )}
         </View>
       </Pressable>
     </MotiView>
@@ -136,7 +147,7 @@ const LessonSectionAccordion = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 22,
+    borderRadius: Border.br_30,
     borderWidth: Stroke.stroke,
     borderColor: Color.stroke,
     padding: 16,
@@ -190,6 +201,10 @@ const styles = StyleSheet.create({
   },
   bodyWrap: {
     overflow: 'hidden',
+    backgroundColor: Color.bg2,
+    borderRadius: Border.br_20,
+    padding: Padding.padding_20,
+    gap: Gap.gap_10,
   },
   detailRow: {
     flexDirection: 'row',
@@ -225,14 +240,29 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
   },
+  progressFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 2,
+  },
   progressLabel: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
     alignItems: 'center',
     gap: 4,
   },
   progressText: {
     fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+  },
+  actionBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: Border.br_10,
+    backgroundColor: '#F3F4F6',
+  },
+  actionBtnText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_12,
   },
 });

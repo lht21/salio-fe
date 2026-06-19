@@ -1,8 +1,10 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
+import React, { useState, useRef, useMemo, useEffect, forwardRef, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable, useWindowDimensions } from 'react-native';
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import { PlayIcon, PauseIcon } from 'phosphor-react-native';
 import { Image } from 'expo-image';
+import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import RenderHtml from 'react-native-render-html';
 
 // Import Design System & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
@@ -105,12 +107,58 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay, onFinish, autoPl
   );
 };
 
+interface QuestionListModalProps {
+  allQuestions: any[];
+  answers: any;
+  onJump: (id: string) => void;
+}
+
+const QuestionListModal = forwardRef<BottomSheetModal, QuestionListModalProps>(({ allQuestions, answers, onJump }, ref) => {
+  const snapPoints = useMemo(() => ['50%', '80%'], []);
+  const renderBackdrop = useCallback(
+    (backdropProps: any) => (
+      <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1} pressBehavior="close" />
+    ),
+    []
+  );
+
+  return (
+    <BottomSheetModal
+      ref={ref}
+      snapPoints={snapPoints}
+      enablePanDownToClose={true}
+      backdropComponent={renderBackdrop}
+      backgroundStyle={{ backgroundColor: Color.bg }}
+      handleIndicatorStyle={{ backgroundColor: Color.stroke }}
+    >
+      <BottomSheetView style={styles.questionListContainer}>
+        <Text style={styles.questionListTitle}>Danh sách câu hỏi</Text>
+        <ScrollView contentContainerStyle={styles.questionGrid} showsVerticalScrollIndicator={false}>
+          {allQuestions.map((q: any, index: number) => {
+            const isAnswered = !!answers[q._id]; 
+            return (
+              <TouchableOpacity 
+                key={q._id || index} 
+                style={[styles.questionBox, isAnswered ? styles.questionBoxAnswered : styles.questionBoxPending]}
+                onPress={() => onJump(q._id)}
+              >
+                <Text style={[styles.questionBoxText, isAnswered && { color: Color.bg }]}>{index + 1}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </BottomSheetView>
+    </BottomSheetModal>
+  );
+});
+
 const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, onExit, type }: any) => {
+  const { width } = useWindowDimensions();
   const scrollViewRef = useRef<ScrollView>(null);
+  const questionListSheetRef = useRef<BottomSheetModal>(null);
   const questionLayouts = useRef<Record<string, number>>({});
   const [showExitModal, setShowExitModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [showQuestionListModal, setShowQuestionListModal] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null); // Trạng thái dùng cho Auto-Stop
   const examTitle = data?.title || 'Bài thi trắc nghiệm';
 
@@ -193,7 +241,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
   const handleJumpToQuestion = (questionId: string) => {
     const y = questionLayouts.current[questionId];
     if (y !== undefined && scrollViewRef.current) {
-      setShowQuestionListModal(false);
+      questionListSheetRef.current?.dismiss();
       scrollViewRef.current.scrollTo({ y: y - 10, animated: true });
     }
   };
@@ -251,7 +299,15 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
                 <Image source={{ uri: item.imageUrl }} style={styles.contentImage} contentFit="contain" />
               )}
 
-              {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
+               {(item.passage || item.content) ? (
+                <View style={styles.passageContainer}>
+                  <RenderHtml
+                    contentWidth={width - 60}
+                    source={{ html: item.passage || item.content }}
+                    baseStyle={styles.passageBaseText as any}
+                  />
+                </View>
+              ) : null}
               
               {item.questions?.map((q: any, qIndex: number) => (
                 <View
@@ -268,7 +324,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
                       autoPlay={`q-${q._id || qIndex}` === autoPlayId}
                     />
                   )}
-                  <QuestionBlock number={qIndex + 1} questionText={q.questionText || q.text}>
+                  <QuestionBlock number={q.order || (allQuestions.indexOf(q) + 1)} questionText={q.questionText || q.text}>
                     {q.imageUrl && (
                       <Image source={{ uri: q.imageUrl }} style={styles.contentImage} contentFit="contain" />
                     )}
@@ -290,7 +346,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
         remainingQuestions={remainingQuestions}
         onClose={() => setShowExitModal(true)}
         onSubmit={() => setShowSubmitModal(true)}
-        onOpenQuestionList={() => setShowQuestionListModal(true)}
+        onOpenQuestionList={() => questionListSheetRef.current?.present()}
       />
       <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContent}>
         <ExamCover title={examTitle} type={type} />
@@ -321,33 +377,12 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
         onCancel={() => setShowSubmitModal(false)}
       />
 
-      <Modal
-        visible={showQuestionListModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowQuestionListModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable style={styles.modalBackground} onPress={() => setShowQuestionListModal(false)} />
-          <View style={styles.questionListContainer}>
-            <Text style={styles.questionListTitle}>Danh sách câu hỏi</Text>
-            <ScrollView contentContainerStyle={styles.questionGrid}>
-              {allQuestions.map((q: any, index: number) => {
-                const isAnswered = !!answers[q._id]; 
-                return (
-                  <TouchableOpacity 
-                    key={q._id || index} 
-                    style={[styles.questionBox, isAnswered ? styles.questionBoxAnswered : styles.questionBoxPending]}
-                    onPress={() => handleJumpToQuestion(q._id)}
-                  >
-                    <Text style={[styles.questionBoxText, isAnswered && { color: Color.bg }]}>{index + 1}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <QuestionListModal 
+        ref={questionListSheetRef}
+        allQuestions={allQuestions}
+        answers={answers}
+        onJump={handleJumpToQuestion}
+      />
     </View>
   );
 };
@@ -361,7 +396,8 @@ const styles = StyleSheet.create({
   sectionHeader: { borderBottomWidth: 2, borderColor: Color.stroke, paddingBottom: 10, marginBottom: 20 },
   sectionTitle: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: Color.text },
   instructionText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_10 },
-  passageText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: Color.color, lineHeight: 24, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
+  passageContainer: { marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
+  passageBaseText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: Color.color, lineHeight: 24 },
   imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
   imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: Color.stroke, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between' },
   optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
@@ -370,15 +406,13 @@ const styles = StyleSheet.create({
   textOptionCard: { borderWidth: 2, borderColor: Color.stroke, borderRadius: Border.br_15, padding: Padding.padding_15 },
   textOptionContent: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_16, color: Color.text, lineHeight: 24 },
   optionSelected: { borderColor: Color.main, backgroundColor: Color.greenLight },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalBackground: { ...StyleSheet.absoluteFillObject },
-  questionListContainer: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_20, borderTopRightRadius: Border.br_20, padding: Padding.padding_20, maxHeight: '70%' },
-  questionListTitle: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_20, textAlign: 'center' },
+  questionListContainer: { padding: Padding.padding_20, paddingBottom: 40 },
+  questionListTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_20, textAlign: 'center' },
   questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Gap.gap_10, justifyContent: 'center' },
   questionBox: { width: 44, height: 44, borderRadius: Border.br_10, justifyContent: 'center', alignItems: 'center' },
   questionBoxPending: { backgroundColor: Color.stroke },
   questionBoxAnswered: { backgroundColor: Color.main },
-  questionBoxText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: Color.gray },
+  questionBoxText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.gray },
   audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: Color.stroke },
   playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main2, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
   progressContainer: { flex: 1, justifyContent: 'center' },

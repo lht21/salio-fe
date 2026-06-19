@@ -23,8 +23,9 @@ import {
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
 import TimerHeader from '../../../../components/TimerHeader';
 import InstructionCard from '../../../../components/InstructionCard';
+import IconButton from '../../../../components/IconButton';
+
 import WonGoJiGrid from '../../../../components/WonGoJiGrid';
-import CloseButton from '@/components/CloseButton';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import LessonService from '../../../../api/services/lesson.service';
 import { WritingItem } from '../../../../api/types/lesson.types';
@@ -216,7 +217,7 @@ export default function WritingPracticeScreen() {
           <View style={[styles.modalContent, { height: '80%' }]}> 
             <View style={styles.modalHeader}>
               <Text style={styles.modalHeaderTitle}>Quy tắc viết bài</Text>
-              <CloseButton variant="Stroke" onPress={() => setShowRulesModal(false)} />
+              <IconButton Icon={XIcon} onPress={() => setShowRulesModal(false)} />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>

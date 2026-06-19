@@ -39,7 +39,7 @@ const CategoryChip = ({ label, isActive, onPress, activeBgColor, activeTextColor
 
 const createStyles = (colors: any) => StyleSheet.create({
   chip: {
-    paddingVertical: 8,
+    paddingVertical: 5,
     paddingHorizontal: 16,
     borderRadius: Border.br_20 || 20,
     borderWidth: 1,

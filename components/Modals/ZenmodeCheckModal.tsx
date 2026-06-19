@@ -5,7 +5,8 @@ import { MicrophoneIcon, BellSlashIcon, WarningCircleIcon, CheckCircleIcon } fro
 
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 interface ZenmodeCheckModalProps {
   isVisible: boolean;
@@ -98,7 +99,7 @@ export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: Zen
         <View style={styles.modalContainer}>
           <View style={styles.header}>
             <Text style={styles.title}>Chuẩn bị vào Zenmode</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           {/* CHECK 1: TIẾNG ỒN MÔI TRƯỜNG */}

@@ -6,7 +6,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import UserService from '../../api/services/user.service';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
@@ -117,7 +118,7 @@ const ChangePasswordModal = forwardRef<BottomSheetModal, ChangePasswordModalProp
       <BottomSheetView style={styles.sheetContent}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('settings.changePassword', 'Đổi mật khẩu')}</Text>
-            <CloseButton variant="Stroke" onPress={handleClose} />
+            <IconButton Icon={XIcon} onPress={handleClose} />
           </View>
 
           <View style={styles.body}>

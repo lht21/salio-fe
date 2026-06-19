@@ -19,11 +19,11 @@ import Animated, {
   runOnJS
 } from 'react-native-reanimated';
 import { MotiView } from 'moti';
-import { SpeakerHighIcon, CaretRightIcon } from 'phosphor-react-native';
+import { SpeakerHighIcon, CaretRightIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
 import * as Speech from 'expo-speech';
 
 import { Color, FontFamily, FontSize } from '../constants/GlobalStyles';
-import ShieldBackground from '../components/BackgroundSVG/ShieldBackground'; 
+import FlashcardIcon from './icons/FlashcardIcon'; 
 import { useUser } from '../contexts/UserContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -42,15 +42,17 @@ export interface FlashcardData {
   highlight: string;
   image: string;
   sinoVietnamese?: string;
+  isFavorite?: boolean;
 }
 
 interface SwipableFlashcardProps {
   card: FlashcardData;
   onSwipedLeft: () => void;
   onSwipedRight: () => void;
+  onToggleFavorite?: () => void;
 }
 
-export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }: SwipableFlashcardProps) {
+export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, onToggleFavorite }: SwipableFlashcardProps) {
   const { user } = useUser();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   
@@ -198,35 +200,41 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
           {/* ======================================= */}
           <Animated.View style={[styles.cardFace, frontAnimatedStyle]}>
             
-            {/* Lớp 1: Khuôn Shield SVG làm nền */}
+            {/* Lớp 1: Khuôn Flashcard SVG làm nền */}
             <View style={StyleSheet.absoluteFillObject}>
-                <ShieldBackground 
+                <FlashcardIcon 
                     width={CARD_WIDTH} 
                     height={CARD_HEIGHT} 
-                    fillColor='#7BDB28' // Đường dẫn tới ảnh vân camo của bạn
                 />
             </View>
 
             {/* Lớp 2: Nội dung lọt lòng bên trong */}
             <View style={[StyleSheet.absoluteFillObject, styles.contentMask]}>
               <View style={styles.cardContentWrapper}>
+                <TouchableOpacity 
+                  style={styles.bookmarkBtn}
+                  onPress={(e) => {
+                    e.stopPropagation(); // Ngăn việc lật thẻ khi bấm
+                    onToggleFavorite?.();
+                  }}
+                >
+                  <BookmarkSimpleIcon size={40} color={card.isFavorite ? Color.cam : Color.bg} weight={card.isFavorite ? "fill" : "fill"} />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.audioBtn}
+                  onPress={(e) => {
+                    e.stopPropagation(); // Ngăn việc lật thẻ khi bấm loa
+                    handleSpeak(card.word);
+                  }}
+                >
+                  <SpeakerHighIcon size={24} color={Color.bg} weight="regular" />
+                </TouchableOpacity>
+
                 <Text style={styles.koreanWord}>{card.word}</Text>
                 
                 <View style={styles.phoneticPill}>
                   <Text style={styles.phoneticText}>{card.phonetic}</Text>
-                </View>
-
-                <View style={styles.frontBottomActions}>
-                  <TouchableOpacity 
-                    style={styles.audioBtn}
-                    onPress={(e) => {
-                      e.stopPropagation(); // Ngăn việc lật thẻ khi bấm loa
-                      handleSpeak(card.word);
-                    }}
-                  >
-                    <SpeakerHighIcon size={28} color={Color.bg} weight="fill" />
-                  </TouchableOpacity>
-                  {/* Đã xóa ArrowsClockwiseIcon ở đây */}
                 </View>
               </View>
             </View>
@@ -237,14 +245,28 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight }:
           {/* ======================================= */}
           <Animated.View style={[styles.cardFace, backAnimatedStyle]}>
             
-            {/* Lớp 1: SVG Shield */}
+            {/* Lớp 1: SVG Flashcard */}
             <View style={StyleSheet.absoluteFillObject}>
-               <ShieldBackground width={CARD_WIDTH} height={CARD_HEIGHT} fillColor='#F5F5DC' />
+               <FlashcardIcon 
+                 width={CARD_WIDTH} 
+                 height={CARD_HEIGHT} 
+                 color='#FFD3A8' 
+                 secondaryColor='#F07C18'
+               />
             </View>
 
             {/* Lớp 2: Nội dung */}
             <View style={[StyleSheet.absoluteFillObject, styles.contentMask]}>
               <View style={styles.cardContentWrapper}>
+                <TouchableOpacity 
+                  style={styles.bookmarkBtn}
+                  onPress={(e) => {
+                    e.stopPropagation(); // Ngăn việc lật thẻ khi bấm
+                    onToggleFavorite?.();
+                  }}
+                >
+                  <BookmarkSimpleIcon size={40} color={card.isFavorite ? Color.cam : '#B45309'} weight={card.isFavorite ? "fill" : "regular"} />
+                </TouchableOpacity>
                 
                 {/* Ý NGHĨA & HÁN TỰ */}
                 {step === 2 && (
@@ -348,17 +370,23 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   phoneticText: { color: Color.bg, fontSize: FontSize.fs_16, fontFamily: FontFamily.lexendDecaRegular },
-  frontBottomActions: {
-    position: 'absolute',
-    bottom: 40,
-    alignItems: 'center',
-    width: '100%', 
-  },
   audioBtn: {
-    width: 60, height: 60, borderRadius: 30,
-    backgroundColor: Color.main2,
+    position: 'absolute',
+    top: 20,
+    right: 40,
+    width: 44, height: 44, borderRadius: 22,
+
     justifyContent: 'center', alignItems: 'center',
-    borderWidth: 2, borderColor: '#166534'
+    
+    zIndex: 10,
+  },
+  bookmarkBtn: {
+    position: 'absolute',
+    top: -10,
+    left: 53,
+    width: 44, height: 44, borderRadius: 22,
+    justifyContent: 'center', alignItems: 'center',
+    zIndex: 10,
   },
   wordSpeakerRipple: {
     position: 'absolute',

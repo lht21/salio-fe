@@ -299,8 +299,8 @@ export default function PracticeHistoryScreen() {
             </LinearGradient>
           </TouchableOpacity>
         )}
-        <View style={styles.listContainer}>
-          {historyData.map((item) => {
+        <View style={[styles.listContainer, isExamType && { gap: 0, paddingVertical: 8 }]}>
+          {historyData.map((item, index) => {
             const isSelected = selectedIds.includes(item._id);
 
             if (isExamType) {
@@ -314,7 +314,8 @@ export default function PracticeHistoryScreen() {
                     score={displayScore}
                     time={formatTimeAgo(item.completedAt || item.startedAt || (item as any).createdAt)}
                     type={typeString}
-                    style={{ width: '100%' }}
+                    variant="list"
+                    isLast={index === historyData.length - 1}
                     onPress={() => handleItemPress(item)} 
                     onLongPress={() => handleLongPress(item)}
                     isSelectionMode={isSelectionMode}
@@ -430,6 +431,8 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   listContainer: {
     gap: Gap.gap_12,
+    backgroundColor: colors.bg,
+    borderRadius: Border.br_30,
   },
   emptyContainer: {
     alignItems: 'center',

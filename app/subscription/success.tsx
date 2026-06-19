@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-nati
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CheckFatIcon, CheckIcon } from 'phosphor-react-native';
+import { CheckFatIcon, CheckIcon, XIcon } from 'phosphor-react-native';
 
 // Components & Constants
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import Button from '@/components/Button';
 
@@ -48,7 +48,7 @@ export default function PaymentSuccessScreen() {
         {/* --- HEADER --- */}
         <View style={styles.header}>
           {/* Nút X màu vàng nhạt/stroke tùy variant bạn đã định nghĩa */}
-          <CloseButton variant="Main" onPress={handleStartExperience} />
+          <IconButton Icon={XIcon} variant="Main" onPress={handleStartExperience} />
         </View>
 
         {/* --- BODY CONTENT --- */}

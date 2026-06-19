@@ -6,11 +6,12 @@ import {
   ExportIcon,
   ArticleIcon, 
   DownloadSimpleIcon, 
-  ClockCounterClockwiseIcon 
+  ClockCounterClockwiseIcon,
+  XIcon
 } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../constants/GlobalStyles';
-import CloseButton from './CloseButton';
+import IconButton from './IconButton';
 
 // IMPORT COMPONENT MỚI
 import ActionMenuItem from './ActionMenuItem';
@@ -45,7 +46,7 @@ export default function ActionMenuModal({
 
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Tùy chọn</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} variant="Stroke" onPress={onClose} />
           </View>
 
           <View style={styles.menuContainer}>

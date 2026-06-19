@@ -16,7 +16,6 @@ import Animated, {
   withSpring,
   runOnJS
 } from 'react-native-reanimated';
-import { FireIcon, CloudIcon } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 

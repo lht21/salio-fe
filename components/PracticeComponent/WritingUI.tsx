@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { BookOpenIcon, CaretDownIcon, XIcon } from 'phosphor-react-native';
+import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 // Import Design System & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import TimerHeader from '../TimerHeader';
 import WonGoJiGrid from '../WonGoJiGrid';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
 import { ConfirmModal } from '../ModalResult/ConfirmModal';
 
 const WRITING_RULES = [
@@ -20,10 +21,19 @@ const WRITING_RULES = [
 
 const WritingUI = ({ data, text, timeLeft, onChangeText, onSubmit, onExit }: any) => {
   const maxChars = data?.wordLimit?.max || 700;
-  const [showRulesModal, setShowRulesModal] = useState(false);
-  const [showInstructionModal, setShowInstructionModal] = useState(false);
+  const instructionSheetRef = useRef<BottomSheetModal>(null);
+  const rulesSheetRef = useRef<BottomSheetModal>(null);
+
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+
+  const snapPoints = useMemo(() => ['50%', '80%'], []);
+  const renderBackdrop = useCallback(
+    (backdropProps: any) => (
+      <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1} pressBehavior="close" />
+    ),
+    []
+  );
 
   return (
     <KeyboardAvoidingView 
@@ -41,7 +51,7 @@ const WritingUI = ({ data, text, timeLeft, onChangeText, onSubmit, onExit }: any
         <TouchableOpacity 
           style={styles.topicBanner} 
           activeOpacity={0.7}
-          onPress={() => { Keyboard.dismiss(); setShowInstructionModal(true); }}
+          onPress={() => { Keyboard.dismiss(); instructionSheetRef.current?.present(); }}
         >
           <Text style={styles.topicTitle} numberOfLines={2}>
             {data?.prompt || 'Đề bài chưa được cập nhật'}
@@ -67,7 +77,7 @@ const WritingUI = ({ data, text, timeLeft, onChangeText, onSubmit, onExit }: any
           <TouchableOpacity 
             style={styles.rulesButton} 
             activeOpacity={0.7}
-            onPress={() => { Keyboard.dismiss(); setShowRulesModal(true); }}
+            onPress={() => { Keyboard.dismiss(); rulesSheetRef.current?.present(); }}
           >
             <BookOpenIcon size={18} color={Color.color} weight="fill" />
             <Text style={styles.rulesText}>Quy tắc viết bài</Text>
@@ -75,41 +85,52 @@ const WritingUI = ({ data, text, timeLeft, onChangeText, onSubmit, onExit }: any
         </View>
       </View>
 
-      <Modal visible={showInstructionModal} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalHeaderTitle}>Chi tiết đề bài</Text>
-              <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setShowInstructionModal(false)}>
-                <XIcon size={20} color={Color.text} weight="bold" />
-              </TouchableOpacity>
-            </View>
-            <ScrollView>
-              <Text style={styles.topicFullText}>{data?.prompt}</Text>
-              {data?.instruction && <Text style={styles.instructionText}>{data.instruction}</Text>}
-            </ScrollView>
+      <BottomSheetModal
+        ref={instructionSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBackdrop}
+        backgroundStyle={{ backgroundColor: Color.bg }}
+        handleIndicatorStyle={{ backgroundColor: Color.stroke }}
+      >
+        <BottomSheetView style={styles.modalContentSheet}>
+          <View style={styles.modalHeaderRow}>
+            <Text style={styles.modalHeaderTitle}>Chi tiết đề bài</Text>
+            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => instructionSheetRef.current?.dismiss()}>
+              <XIcon size={20} color={Color.text} weight="bold" />
+            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false}>
+            <Text style={styles.topicFullText}>{data?.prompt}</Text>
+            {data?.instruction && <Text style={styles.instructionText}>{data.instruction}</Text>}
+          </BottomSheetScrollView>
+        </BottomSheetView>
+      </BottomSheetModal>
 
-      <Modal visible={showRulesModal} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { height: '80%' }]}> 
-            <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalHeaderTitle}>Quy tắc viết bài</Text>
-              <CloseButton variant="Stroke" onPress={() => setShowRulesModal(false)} />
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+      <BottomSheetModal
+        ref={rulesSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBackdrop}
+        backgroundStyle={{ backgroundColor: Color.bg }}
+        handleIndicatorStyle={{ backgroundColor: Color.stroke }}
+      >
+        <BottomSheetView style={[styles.modalContentSheet, { flex: 1 }]}> 
+          <View style={styles.modalHeaderRow}>
+            <Text style={styles.modalHeaderTitle}>Quy tắc viết bài</Text>
+            <IconButton Icon={XIcon} onPress={() => rulesSheetRef.current?.dismiss()} />
+              
+          </View>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
               {WRITING_RULES.map((rule, index) => (
                 <View key={index} style={styles.ruleItem}>
                   <View style={styles.ruleBadge}><Text style={styles.ruleBadgeText}>{index + 1}</Text></View>
                   <Text style={styles.ruleText}>{rule}</Text>
                 </View>
               ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+          </BottomSheetScrollView>
+        </BottomSheetView>
+      </BottomSheetModal>
 
       <ConfirmModal
         isVisible={showExitModal}
@@ -147,8 +168,7 @@ const styles = StyleSheet.create({
   charCountText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: Color.color },
   rulesButton: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_8, paddingHorizontal: Padding.padding_10 },
   rulesText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.color },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, padding: Padding.padding_20, paddingBottom: 40, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10 },
+  modalContentSheet: { padding: Padding.padding_20, paddingBottom: 40 },
   modalHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
   modalHeaderTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
   modalCloseBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: Color.stroke, justifyContent: 'center', alignItems: 'center' },

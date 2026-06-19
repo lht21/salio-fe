@@ -1,21 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
-import { CardsIcon, ListChecksIcon } from 'phosphor-react-native';
+import { ClockCounterClockwiseIcon, ArrowFatLineRightIcon } from 'phosphor-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
-  useSharedValue,
-  useAnimatedProps,
-  interpolateColor,
-  withRepeat,
-  withTiming,
-  Easing
-} from 'react-native-reanimated';
 import { Border, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
-
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 interface FlashcardSetCardProps {
   title: string;
@@ -41,36 +30,11 @@ const FlashcardSetCard = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const colorProgress = useSharedValue(0);
-
-  useEffect(() => {
-    if (isSpecial) {
-      colorProgress.value = withRepeat(
-        withTiming(1, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
-        -1,
-        true
-      );
-    }
-  }, [colorProgress, isSpecial]);
-
-  const animatedGradientProps = useAnimatedProps(() => {
-    if (!isSpecial) {
-      return { colors: ['transparent', 'transparent'] } as any;
-    }
-
-    return {
-      colors: [
-        interpolateColor(colorProgress.value, [0, 1], [colors.cardGreenBg, colors.greenLight]),
-        interpolateColor(colorProgress.value, [0, 1], [colors.main, colors.main2]),
-      ]
-    };
-  }, [isSpecial, colors, colorProgress]);
 
   const resolvedImage = imageSource || (isSpecial ? require('../assets/images/horani/horani_vocab.png') : null);
 
   const content = (
-    <>
-      <View style={styles.topRow}>
+      <View style={styles.cardContent}>
         {resolvedImage ? (
           <Image
             source={resolvedImage}
@@ -80,45 +44,20 @@ const FlashcardSetCard = ({
         ) : null}
 
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
-          <View style={styles.subtitleRow}>
-            <Text style={styles.subtitle}>{t('vocabulary.saved_words_prefix', 'Bạn đã lưu ')}</Text>
-            <Text style={styles.countText}>{totalWords}</Text>
-            <Text style={styles.subtitle}>{t('vocabulary.saved_words_suffix', ' từ vựng')}</Text>
+          <Text style={[styles.title, isSpecial && { color: '#FFFFFF' }]}>{title}</Text>
+          
+          <View style={[styles.badgeContainer, isSpecial && { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+            <Text style={[styles.badgeText, isSpecial && { color: '#FFFFFF' }]}>{totalWords} {t('vocabulary.words', 'từ')}</Text>
+          </View>
+
+          <View style={styles.historyRow}>
+            <ClockCounterClockwiseIcon size={14} color={isSpecial ? 'rgba(255, 255, 255, 0.8)' : colors.gray} weight="bold" />
+            <Text style={[styles.historyText, isSpecial && { color: 'rgba(255, 255, 255, 0.8)' }]}>{t('vocabulary.last_studied', 'Học gần nhất: 3 ngày trước')}</Text>
           </View>
         </View>
-      </View>
 
-      <View style={styles.actionRow}>
-        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]} onPress={onFlashcardPress}>
-          <CardsIcon size={20} color={colors.bg} weight="fill" />
-          {isSpecial ? (
-            <Text
-              style={styles.buttonText}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.85}
-            >
-              {t('vocabulary.flashcard_mode', 'Chế độ Flashcard')}
-            </Text>
-          ) : null}
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.button, !isSpecial && styles.iconOnlyButton]} onPress={onQuizPress}>
-          <ListChecksIcon size={20} color={colors.bg} weight="bold" />
-          {isSpecial ? (
-            <Text
-              style={styles.buttonText}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.85}
-            >
-              {t('vocabulary.quiz_mode', 'Chế độ Trắc nghiệm')}
-            </Text>
-          ) : null}
-        </TouchableOpacity>
+        <ArrowFatLineRightIcon size={20} color={isSpecial ? '#FFFFFF' : colors.gray} weight="bold" />
       </View>
-    </>
   );
 
   return (
@@ -128,15 +67,11 @@ const FlashcardSetCard = ({
       activeOpacity={0.8}
     >
       {isSpecial ? (
-        <AnimatedLinearGradient
-          colors={[colors.cardGreenBg, colors.main]}
-          animatedProps={animatedGradientProps}
-          style={styles.container}
-        >
+        <View style={[styles.container, { backgroundColor: colors.main }]}>
           {content}
-        </AnimatedLinearGradient>
+        </View>
       ) : (
-        <View style={[styles.container, backgroundColor ? { backgroundColor } : null]}>
+        <View style={[styles.container, styles.normalCard, backgroundColor ? { backgroundColor } : null]}>
           {content}
         </View>
       )}
@@ -146,18 +81,21 @@ const FlashcardSetCard = ({
 
 const createStyles = (colors: any) => StyleSheet.create({
   cardWrapper: {
-    marginBottom: 24,
-    width: 300,
+    width: '100%',
   },
   container: {
     flex: 1,
     borderRadius: Border.br_30,
-    padding: Padding.padding_15 || 15,
+    padding: Padding.padding_20 || 20,
   },
-  topRow: {
+  normalCard: {
+    borderWidth: 1,
+    borderColor: colors.stroke,
+    borderBottomWidth: 4,
+  },
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Gap.gap_20,
   },
   mascotImage: {
     width: 80,
@@ -172,51 +110,30 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 16,
     color: colors.text,
-    marginBottom: Gap.gap_8,
+    marginBottom: 6,
   },
-  subtitleRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
+  badgeContainer: {
+    backgroundColor: colors.stroke,
+    borderRadius: 10,
+    paddingVertical: 2,
+    paddingHorizontal: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
   },
-  subtitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 13,
-    color: colors.gray,
-  },
-  countText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 18,
-    color: colors.text,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: Gap.gap_10 || 10,
-  },
-  button: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: 'row',
-    backgroundColor: colors.text,
-    borderRadius: Border.br_15,
-    paddingHorizontal: Padding.padding_10 || 10,
-    paddingVertical: Padding.padding_11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Gap.gap_5,
-  },
-  iconOnlyButton: {
-    flex: 0,
-    width: 44,
-    height: 44,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-  },
-  buttonText: {
-    flexShrink: 1,
-    color: colors.bg,
+  badgeText: {
     fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 14,
+    fontSize: 12,
+    color: colors.main2,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  historyText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 12,
+    color: colors.gray,
   },
 });
 

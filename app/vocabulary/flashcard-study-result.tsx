@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 
 import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 import Button from '../../components/Button';
 import SaveToFolderModal from '../../components/ModalOption/SaveToFolderModal';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
@@ -81,7 +82,7 @@ export default function FlashcardStudyResultScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* 1. HEADER */}
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={() => setShowExitModal(true)} />
+        <IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} />
       </View>
 
       <ScrollView 

@@ -1,17 +1,26 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { XIcon } from 'phosphor-react-native';
+import { TouchableOpacity, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
-export type CloseBtnVariant = 'Yellow' | 'Stroke' | 'Main';
+export type IconButtonVariant = 'Yellow' | 'Stroke' | 'Main';
 
-interface CloseButtonProps {
-  variant?: CloseBtnVariant;
+interface IconButtonProps {
+  Icon: React.ElementType; // Nhận Component Icon từ ngoài vào
+  iconSize?: number;
+  iconWeight?: string;
+  variant?: IconButtonVariant;
   onPress: () => void;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
-export default function CloseButton({ variant = 'Stroke', onPress, style }: CloseButtonProps) {
+export default function IconButton({ 
+  Icon, 
+  iconSize = 24, 
+  iconWeight = 'bold', 
+  variant = 'Stroke', 
+  onPress, 
+  style 
+}: IconButtonProps) {
   const { colors } = useTheme();
 
   const getColors = () => {
@@ -34,16 +43,16 @@ export default function CloseButton({ variant = 'Stroke', onPress, style }: Clos
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <XIcon size={18} color={variantColors.icon} weight="bold" />
+      <Icon size={iconSize} color={variantColors.icon} weight={iconWeight} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     justifyContent: 'center',
     alignItems: 'center',
   },

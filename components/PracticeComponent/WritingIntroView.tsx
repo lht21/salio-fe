@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { CrownIcon } from 'phosphor-react-native';
+import { CrownIcon, XIcon } from 'phosphor-react-native';
 
 // Import Design System & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
 import Button from '../Button';
 import ZenmodeBanner from '../ExamComponent/ZenmodeBanner';
 
@@ -16,7 +16,8 @@ const WritingIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled,
   return (
     <View style={styles.viewContainer}>
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={onExit} />
+        <IconButton Icon={XIcon} onPress={onExit} />
+        
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

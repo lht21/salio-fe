@@ -4,9 +4,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../../../constants/GlobalStyles';
-import CloseButton from '../../../../components/CloseButton';
 import Button from '../../../../components/Button';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
+import IconButton from '../../../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export default function GrammarQuizIntroScreen() {
   const router = useRouter();
@@ -16,7 +17,8 @@ export default function GrammarQuizIntroScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={() => setShowExitModal(true)} />
+        <IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} />
+          
       </View>
 
       <View style={styles.content}>

@@ -16,7 +16,7 @@ import { AnimatePresence, MotiView } from 'moti';
 import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import SearchBar from '../SearchBar';
 import VocabularyCard from '../VocabularyCard';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
 import VocabularyService from '../../api/services/vocabulary.service';
 import FlashcardService from '../../api/services/flashcard.service';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView, BottomSheetScro
 type SearchVocaModalProps = {
     onClose: () => void;
     setId?: string; // Hỗ trợ truyền ID bộ từ vựng cụ thể (Mặc định: 'favorite')
+    initialSearchText?: string; // Từ khóa ban đầu được truyền vào (từ text parser)
 };
 
 export type SearchVocaItem = {
@@ -39,7 +40,7 @@ export type SearchVocaItem = {
 
 const RECENT_KEYWORDS = ['호텔', '선생님', '학교'];
 
-const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ onClose, setId }, ref) => {
+const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ onClose, setId, initialSearchText }, ref) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
@@ -47,7 +48,7 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
     const isFavoriteMode = targetSetId === 'favorite';
 
     const router = useRouter();
-    const [searchText, setSearchText] = useState('');
+    const [searchText, setSearchText] = useState(initialSearchText || '');
     const [keywords, setKeywords] = useState<string[]>(RECENT_KEYWORDS);
     
     // State kết quả & loading API
@@ -77,6 +78,9 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
             setSearchResults([]);
             Keyboard.dismiss();
         } else if (index === 0) {
+        if (initialSearchText) {
+            setSearchText(initialSearchText);
+        }
 
         const fetchFavorites = async () => {
             try {
@@ -91,7 +95,14 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
         };
         fetchFavorites();
         }
-    }, [targetSetId]);
+    }, [targetSetId, initialSearchText]);
+
+    // Cập nhật text tìm kiếm nếu prop initialSearchText thay đổi trong lúc modal đang mở
+    useEffect(() => {
+        if (initialSearchText) {
+            setSearchText(initialSearchText);
+        }
+    }, [initialSearchText]);
 
     // Debounce Tìm kiếm qua API
     useEffect(() => {
@@ -196,7 +207,8 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
             <BottomSheetView style={styles.sheetContent}>
                     <View style={styles.header}>
                     <Text style={styles.headerTitle}>{t('vocabulary.search_title', 'Tìm kiếm từ vựng')}</Text>
-                        <CloseButton variant="Stroke" onPress={handleClose} />
+                        <IconButton Icon={XIcon} onPress={handleClose} />
+                        
                     </View>
 
                     <View style={styles.body}>

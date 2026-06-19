@@ -3,7 +3,8 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { CheckCircleIcon, CircleIcon } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
@@ -55,7 +56,7 @@ const ChangeVoiceModal = forwardRef<BottomSheetModal, ChangeVoiceModalProps>(({ 
       <BottomSheetView style={styles.sheetContent}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('settings.chooseVoice', 'Chọn Giọng Đọc')}</Text>
-          <CloseButton variant="Stroke" onPress={onClose} />
+          <IconButton Icon={XIcon} onPress={onClose} />
         </View>
 
         <View style={styles.body}>

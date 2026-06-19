@@ -5,8 +5,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircleIcon, XCircleIcon, LockIcon } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
-import CloseButton from '../../../../components/CloseButton';
 import Button from '../../../../components/Button';
+import IconButton from '../../../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal'; 
 import GrammarService from '@/api/services/grammar.service';
 import LessonService from '@/api/services/lesson.service';
@@ -49,13 +50,29 @@ export default function GrammarResultScreen() {
 
   // ĐIỀU KIỆN PASS NGỮ PHÁP
   const quizScore = session?.percentage || 0;
-  const completionRate = lessonProgress?.sections?.grammar?.progress || 0;
+  
+  const grammarSection = lessonProgress?.sections?.grammar;
+  // Chỉ lấy các thẻ ngữ pháp lý thuyết (moduleType === 'grammar') để tính tỉ lệ hoàn thành
+  const grammarTheoryItems = grammarSection?.items?.filter((i: any) => i.moduleType === 'grammar') || [];
+  const completionRate = grammarTheoryItems.length > 0 
+    ? Math.round((grammarTheoryItems.filter((i: any) => i.status === 'completed').length / grammarTheoryItems.length) * 100) 
+    : 0;
+
+  // Thêm Log để debug dễ dàng hơn trên Terminal (Metro)
+  console.log('--- GRAMMAR RESULT DEBUG ---');
+  console.log('Quiz Score:', quizScore);
+  console.log('Grammar Theory Items Total:', grammarTheoryItems.length);
+  console.log('Grammar Theory Items Completed:', grammarTheoryItems.filter((i: any) => i.status === 'completed').length);
+  console.log('Calculated Completion Rate:', completionRate);
+  // Nếu cần xem toàn bộ object có thể mở comment dòng dưới:
+  // console.log('Grammar Section Object:', JSON.stringify(grammarSection, null, 2));
+          
   const isPassed = quizScore >= 80 && completionRate >= 80;
 
   const handleNext = () => {
     if (!isPassed) {
       const msg = completionRate < 80 
-        ? "Bạn phải hoàn thành ít nhất 80% bài tập và bài học ngữ pháp mới được đi tiếp." 
+        ? "Bạn phải đánh dấu 'Nhớ' ít nhất 80% thẻ lý thuyết ngữ pháp mới được đi tiếp." 
         : "Điểm Quiz của bạn phải từ 80 trở lên.";
       Alert.alert("Chưa mở khóa", msg);
       return;
@@ -85,7 +102,8 @@ export default function GrammarResultScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={() => setShowExitModal(true)} />
+        <IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} />
+          
       </View>
 
       <ScrollView 

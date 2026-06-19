@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import "react-native-reanimated";
+import { ToastProvider } from 'react-native-toast-notifications';
 
 import { UserProvider } from "../contexts/UserContext";
 import { useAuth } from "../api/hooks/useAuth";
@@ -49,7 +50,15 @@ export default function RootLayout() {
         <ThemeProvider>
           <ModalProvider>
             <BottomSheetModalProvider>
-              <RootLayoutNav />
+              <ToastProvider
+                placement="top"
+                duration={3000}
+                animationType="slide-in"
+                offset={50}
+                swipeEnabled={true}
+              >
+                <RootLayoutNav />
+              </ToastProvider>
             </BottomSheetModalProvider>
           </ModalProvider>
         </ThemeProvider>

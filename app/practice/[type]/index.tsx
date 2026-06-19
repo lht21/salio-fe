@@ -8,12 +8,13 @@ import {
   Image,
   ActivityIndicator
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { 
-  ClockCounterClockwiseIcon, 
-  UsersIcon
+  ClockCounterClockwiseIcon
 } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
+import Svg, { Path } from 'react-native-svg';
 
 // Import Design System
 import { FontFamily, FontSize, Padding, Gap, Border, Color } from '../../../constants/GlobalStyles';
@@ -23,6 +24,7 @@ import TopicItem from '../../../components/TopicItem';
 import ExamCard from '../../../components/ExamComponent/ExamCard';
 import SectionHeader from '../../../components/SectionHeader';
 import FeaturedAICard from '../../../components/ExamComponent/FeaturedAICard';
+import FeaturedCard from '../../../components/PracticeComponent/FeaturedCard';
 
 import PracticeService from '../../../api/services/practice.service';
 import { PracticeType } from '../../../api/types/practice.types';
@@ -54,31 +56,6 @@ const usePracticeData = (type: string, examType?: string) => {
 };
 
 // --- COMPONENTS CON ---
-
-const FeaturedCard = ({ topic, onPress }: { topic: any; onPress: () => void }) => {
-  const { t } = useTranslation();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
-
-  return (
-    <View style={styles.featuredContainer}>
-      <Pressable style={styles.featuredCard} onPress={onPress}>
-        <View style={styles.featuredTextContent}>
-          <Text style={styles.featuredTitle} numberOfLines={2}>{topic.title}</Text>
-          <Text style={styles.featuredDesc} numberOfLines={3}>{topic.prompt || topic.instruction || t('practice.no_description', 'Không có mô tả')}</Text>
-        </View>
-        <View>
-          <Image source={topic.image} style={styles.featuredImage} resizeMode="cover" />
-          {(topic.level || (topic.tags && topic.tags.length > 0)) && (
-            <View style={styles.badgeContainer}>
-              <Text style={styles.badgeText}>{topic.level || topic.tags[0]}</Text>
-            </View>
-          )}
-        </View>
-      </Pressable>
-    </View>
-  );
-};
 
 // --- HELPER KIỂM TRA MỞ KHÓA ĐỀ THI ---
 const checkIsUnlocked = (exam: any, user: any) => {
@@ -243,8 +220,8 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const featuredTopic = data.length > 0 ? data[0] : null;
-  const otherTopics = data.length > 1 ? data.slice(1) : [];
+  const featuredTopics = data.slice(0, 3);
+  const otherTopics = data.slice(3);
 
   const handlePressTopic = (id: string) => {
     router.push({ pathname: `/practice/${type}/${id}/intro` as any });
@@ -277,18 +254,45 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
         ) : (
           <>
             {/* Phần 1: Chủ đề nổi bật */}
-            {featuredTopic && (
-              <View style={styles.section}>
-                <SectionHeader title={t('practice.featured_topics', "Chủ đề nổi bật")} />
-                <FeaturedCard 
-                  topic={{
-                    ...featuredTopic,
-                    id: featuredTopic._id,
-                    image: getTopicImage(featuredTopic)
-                  }} 
-                  onPress={() => handlePressTopic(featuredTopic._id)} 
+            {featuredTopics.length > 0 && (
+              <LinearGradient 
+                colors={['#CEF9B4', colors.main || '#98F291']} 
+                style={styles.featuredSectionGradient}
+              >
+                <Text style={styles.featuredSectionTitle}>{t('practice.featured_topics', "Chủ đề nổi bật")}</Text>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.featuredScrollContent}
+                >
+                  {featuredTopics.map((topic) => (
+                    <View key={topic._id} style={styles.featuredCardWrapper}>
+                      <FeaturedCard 
+                        topic={{
+                          ...topic,
+                          id: topic._id,
+                          image: getTopicImage(topic)
+                        }} 
+                        onPress={() => handlePressTopic(topic._id)} 
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              
+              {/* Đồ họa cắt lượn sóng biển ở đáy */}
+              <Svg
+                height="60"
+                width="100%"
+                viewBox="0 0 1440 320"
+                preserveAspectRatio="none"
+                style={styles.waveSvg}
+              >
+                <Path
+                  fill={colors.bg}
+                  d="M0,224L60,192C120,160,240,96,360,101.3C480,107,600,181,720,218.7C840,256,960,256,1080,218.7C1200,181,1320,107,1380,69.3L1440,32L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
                 />
-              </View>
+              </Svg>
+              </LinearGradient>
             )}
 
             {/* Phần 2: Các chủ đề khác */}
@@ -346,68 +350,46 @@ const createStyles = (colors: any) => StyleSheet.create({
     padding: Padding.padding_5,
   },
   scrollContent: {
-    flex: 1,
+    flexGrow: 1,
     padding: Padding.padding_20,
     paddingTop: 0,
     paddingBottom: 40,
-    backgroundColor: colors.bg2,
+    backgroundColor: colors.bg,
   },
   section: {
     marginBottom: Gap.gap_20,
   },
 
-  // --- Featured Card Styles ---
-  featuredContainer: {
-    gap: Gap.gap_10,
+  // --- Featured Section Styles ---
+  featuredSectionGradient: {
+    marginHorizontal: -Padding.padding_20, // Lề âm để gradient tràn ra sát 2 mép màn hình
+    paddingTop: Padding.padding_30,
+    paddingBottom: Padding.padding_30 + 50, // Tăng thêm padding dưới để nhường chỗ cho ngọn sóng không đè lên thẻ
+    marginBottom: Gap.gap_20,
+    position: 'relative',
   },
-  featuredCard: {
-    flexDirection: 'row',
-    backgroundColor: Color.greenLight, // Hoặc Color.main tùy vào độ đậm thiết kế muốn
-    borderRadius: Border.br_20,
-    padding: Padding.padding_15,
-    alignItems: 'center',
-    // Shadow nhẹ
-    shadowColor: Color.text,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  featuredTextContent: {
-    flex: 1,
-    paddingRight: Padding.padding_15,
-  },
-  featuredTitle: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_16,
-    color: colors.text,
-    marginBottom: Gap.gap_5,
-  },
-  featuredDesc: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: colors.color, 
-    lineHeight: 20,
-  },
-  featuredImage: {
-    width: 90,
-    height: 90,
-    borderRadius: Border.br_15,
-  },
-  badgeContainer: {
+  waveSvg: {
     position: 'absolute',
-    bottom: -8,
-    right: -8,
-    backgroundColor: colors.vang,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: Border.br_10,
+    bottom: -1, // Để -1 nhằm tránh tình trạng bị lộ 1px đường kẻ mờ trên một số dòng máy Android
+    left: 0,
+    right: 0,
   },
-  badgeText: {
+  featuredSectionTitle: {
     fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 10,
-    color: colors.text,
+    fontSize: FontSize.fs_24, // Chữ to và đậm hơn
+    color: Color.color,
+    paddingHorizontal: Padding.padding_20, // Thụt lề lại để bằng với nội dung bên dưới
+    marginBottom: Gap.gap_15,
   },
+  featuredScrollContent: {
+    paddingHorizontal: Padding.padding_20,
+    gap: Gap.gap_15,
+  },
+  featuredCardWrapper: {
+    width: 320, // Kích thước cố định để có thể cuộn ngang thấy được card kế tiếp
+  },
+
+  // --- Featured Card Styles ---
 
   // --- Topic Item Styles ---
   listContainer: {

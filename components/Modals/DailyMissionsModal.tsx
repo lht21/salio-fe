@@ -4,8 +4,9 @@ import { SealCheckIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Gap, Border, Padding } from '../../constants/GlobalStyles';
 import GamificationService from '../../api/services/gamification.service';
 import Button from '../Button';
-import CloseButton from '../CloseButton';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 interface DailyMissionsModalProps {
   isVisible: boolean;
@@ -174,7 +175,7 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
                   <Text style={styles.modalTitle}>Nhiệm vụ hằng ngày</Text>
                   <Text style={styles.timerText}>Làm mới sau: {timeLeft}</Text>
                 </View>
-                <CloseButton variant="Stroke" onPress={onClose} />
+                <IconButton Icon={XIcon} onPress={onClose} />
               </View>
             </View>
             

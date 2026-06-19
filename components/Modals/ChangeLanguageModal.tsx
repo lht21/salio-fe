@@ -5,7 +5,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export type LanguageMode = 'vi' | 'en' | 'ko';
 
@@ -64,7 +65,7 @@ const ChangeLanguageModal = forwardRef<BottomSheetModal, ChangeLanguageModalProp
       <BottomSheetView style={styles.sheetContent}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('settings.language', 'Ngôn ngữ')}</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <View style={styles.body}>

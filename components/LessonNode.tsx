@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import { MotiView } from 'moti';
+import { MotiView, MotiImage } from 'moti';
 import { TrophyIcon, KeyholeIcon } from 'phosphor-react-native';
 import { Border, Color, FontFamily, FontSize } from '../constants/GlobalStyles';
-import Svg, { Path } from 'react-native-svg';
+import LessonNodeIcon from './LessonNodeIcon';
 
 export interface LessonItem {
   id: string;
@@ -21,6 +21,8 @@ export interface LessonItem {
   }>;
   status: 'completed' | 'current' | 'locked';
   points?: number;
+  rewardClouds?: number;
+  rewardBadge?: string;
   mascotPos: 'left' | 'right';
   mascotImg: any;
 }
@@ -55,7 +57,7 @@ const LessonNode = ({ item, index, onPress }: LessonNodeProps) => {
     <MotiView 
       from={{ opacity: 0, translateY: 50 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ delay: index * 200, type: 'timing', duration: 500 }}
+      transition={{ type: 'timing', duration: 500, delay: index * 100 } as any}
       style={[
         styles.nodeContainer, 
         isLeft ? { paddingLeft: 20, paddingRight: 60 } : { paddingRight: 20, paddingLeft: 60, flexDirection: 'row-reverse' }
@@ -68,17 +70,7 @@ const LessonNode = ({ item, index, onPress }: LessonNodeProps) => {
         {/* --- LỚP NỀN SVG (Background) --- */}
         {/* transform scaleX: -1 giúp lật ngược cái đuôi của thẻ nếu Mascot nằm bên phải */}
         <View style={[StyleSheet.absoluteFill, { transform: [{ scaleX: isLeft ? 1 : -1 }] }]}>
-          <Svg width="100%" height="100%" viewBox="0 0 200 100" preserveAspectRatio="none">
-            <Path 
-              /* Đây là hình dạng card mẫu (bong bóng lượn sóng có đuôi). 
-                 Nếu bạn muốn nét cong giống hệt Frame 25.png của bạn, 
-                 hãy mở Figma, copy mã SVG (chỉ phần d="...") và dán đè vào dòng dưới đây nhé */
-              d="M20,5 C40,0 160,0 180,5 C195,8 195,20 195,50 C195,80 195,92 180,95 C160,100 40,100 20,95 C5,92 5,80 5,65 L0,50 L5,35 C5,20 5,8 20,5 Z"
-              fill={cardBg} 
-              stroke={strokeColor}
-              strokeWidth={4}
-            />
-          </Svg>
+          <LessonNodeIcon width="100%" height="100%" color1={cardBg} color2={strokeColor} preserveAspectRatio="none" />
         </View>
 
         {/* --- LỚP NỘI DUNG (Text) --- */}
@@ -89,6 +81,20 @@ const LessonNode = ({ item, index, onPress }: LessonNodeProps) => {
             {item.status === 'locked' && <KeyholeIcon size={18} color="#9CA3AF" weight="fill" />}
           </View>
           <Text style={[styles.nodeTitle, { color: textColor }]}>{item.title}</Text>
+
+          {/* --- HIỂN THỊ PHẦN THƯỞNG --- */}
+          {item.status !== 'completed' && (item.rewardClouds || item.rewardBadge) && (
+            <View style={styles.rewardContainer}>
+              {item.rewardClouds && (
+                <View style={styles.rewardItem}>
+                  <Image source={require('../assets/images/streak/cloud1.png')} style={styles.rewardIcon} />
+                  <Text style={[styles.rewardText, { color: unitColor }]}>+{item.rewardClouds}</Text>
+                </View>
+              )}
+              <Image source={item.mascotImg} style={[styles.rewardIcon, styles.rewardBadgeIcon]} />
+            </View>
+          )}
+
         </View>
         
         {/* --- HUY HIỆU ĐIỂM --- */}
@@ -139,6 +145,30 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
     lineHeight: 22,
+  },
+  rewardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 8,
+  },
+  rewardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  rewardIcon: {
+    width: 18,
+    height: 18,
+    opacity: 0.8,
+  },
+  rewardBadgeIcon: {
+    width: 24,
+    height: 24,
+  },
+  rewardText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 12,
   },
   pointsBadge: {
     position: 'absolute',

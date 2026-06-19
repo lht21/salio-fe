@@ -40,9 +40,9 @@ const WritingFeaturedCard = ({ onPress, title, subtitle, imageSource = require('
 
 const createStyles = (colors: any) => StyleSheet.create({
   card: {
-    backgroundColor: colors.main || '#98F291',
+    backgroundColor: '#C8ED6A',
     borderRadius: Border.br_30 || 30,
-    paddingHorizontal: Padding.padding_15 || 15,
+    paddingHorizontal: Padding.padding_20,
     paddingBottom: Padding.padding_30 || 20,
     marginBottom: Gap.gap_20 || 20,
     overflow: 'hidden', // Giữ lại để ảnh xoay không bị tràn ra ngoài

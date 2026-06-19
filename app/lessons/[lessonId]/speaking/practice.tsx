@@ -232,7 +232,16 @@ export default function SpeakingPracticeScreen() {
     try {
       setRecordingState('requesting');
       const res = await LessonService.submitAudio(resolvedLessonId, currentItem._id, uri, recordedDurations[currentItem._id]);
-      const isPassed = res.submission.evaluation.percentage >= (currentItem.passingScore || 70);
+      
+      // Truy cập an toàn để không bị crash nếu cấu trúc object thay đổi
+      const submissionData = res?.data?.data?.submission || res?.data?.submission || res?.submission;
+      const evaluation = submissionData?.evaluation || res?.data?.data?.aiEvaluation || res?.data?.aiEvaluation;
+
+      if (!evaluation) {
+        throw new Error('Không nhận được kết quả đánh giá từ hệ thống.');
+      }
+
+      const isPassed = evaluation.percentage >= (currentItem.passingScore || 70);
       showFeedback(isPassed ? 'success' : 'failure');
     } catch (error: any) {
       const message =

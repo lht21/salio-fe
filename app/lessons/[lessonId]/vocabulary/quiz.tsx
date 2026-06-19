@@ -1,4 +1,4 @@
-﻿﻿﻿﻿import { useLocalSearchParams, useRouter } from 'expo-router';
+﻿﻿﻿﻿﻿﻿﻿﻿import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Animated,
@@ -52,29 +52,34 @@ export default function VocabularyQuizScreen() {
       if (!lessonId) return;
       try {
         setIsLoading(true);
-        // Lấy danh sách từ vựng theo lessonId
-        const res = await VocabularyService.getAll({ lessonId: lessonId as string, limit: 100 } as GetVocabulariesRequest);
-        const vocabularies = res.data?.vocabularies || [];
+        // Lấy danh sách tiến độ học của bài học
+        const res = await VocabularyService.getStudyQueue({ lessonId: lessonId as string, limit: 100 });
+        const vocabularies = res.data || [];
 
-        if (vocabularies.length < 4) {
-          Alert.alert('Không đủ từ vựng', 'Cần ít nhất 4 từ vựng trong bài học để làm trắc nghiệm.', [
+        // Lọc ra những từ chưa thành thạo (Đang học / Đã quên)
+        const unmasteredVocabs = vocabularies.filter(
+          (v: any) => v.learningStatus?.status === 'learning' || v.learningStatus?.status === 'forgotten'
+        );
+
+        if (unmasteredVocabs.length < 4) {
+          Alert.alert('Không đủ từ vựng', 'Cần ít nhất 4 từ vựng chưa thành thạo để làm trắc nghiệm.', [
             { text: 'Trở về', onPress: () => router.back() }
           ]);
           return;
         }
 
-        // Trộn danh sách từ vựng
-        const shuffledVocabs = [...vocabularies].sort(() => Math.random() - 0.5);
+        // Trộn danh sách từ vựng chưa thành thạo để làm câu hỏi
+        const shuffledVocabs = [...unmasteredVocabs].sort(() => Math.random() - 0.5);
 
         // Tạo câu hỏi trắc nghiệm
-        const generatedQuiz: QuizQuestion[] = shuffledVocabs.map((vocab: Vocabulary, index: number) => {
-          const wrongVocabs = vocabularies.filter((v: Vocabulary) => v._id !== vocab._id);
-          // Chọn ngẫu nhiên 3 đáp án sai
+        const generatedQuiz: QuizQuestion[] = shuffledVocabs.map((vocab: any, index: number) => {
+          const wrongVocabs = vocabularies.filter((v: any) => v._id !== vocab._id);
+          // Chọn ngẫu nhiên 3 đáp án sai từ toàn bộ từ vựng trong bài
           const shuffledWrongVocabs = wrongVocabs.sort(() => Math.random() - 0.5).slice(0, 3);
           
           const options = [
             { id: vocab._id, text: vocab.meaning },
-            ...shuffledWrongVocabs.map((w: Vocabulary) => ({ id: w._id, text: w.meaning }))
+            ...shuffledWrongVocabs.map((w: any) => ({ id: w._id, text: w.meaning }))
           ];
 
           return {
@@ -146,7 +151,7 @@ export default function VocabularyQuizScreen() {
 
     // Gọi API cập nhật trạng thái từ vựng (chạy ngầm)
     const status: 'remembered' | 'forgotten' = isCorrect ? 'remembered' : 'forgotten';
-    VocabularyService.markStatus(currentQuestion.correctOptionId, { status })
+    VocabularyService.markStatus(currentQuestion.correctOptionId, { status, lessonId: lessonId as string })
       .catch((err: unknown) => console.error('Lỗi cập nhật tiến độ từ vựng:', err));
   };
 

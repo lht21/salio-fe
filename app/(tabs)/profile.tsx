@@ -1,5 +1,14 @@
 import { useRouter } from 'expo-router';
-import { CertificateIcon, CloudIcon, GearSixIcon } from 'phosphor-react-native';
+import { 
+  CertificateIcon, 
+  CloudIcon, 
+  GearSixIcon, 
+  CaretRightIcon, 
+  BookOpenTextIcon,
+  CardsIcon,
+  TextAaIcon,
+  HeadphonesIcon
+} from 'phosphor-react-native';
 import { StyleSheet, View, Text, TouchableOpacity, RefreshControl } from 'react-native';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Animated, { 
@@ -9,10 +18,11 @@ import Animated, {
   interpolate, 
   Extrapolation 
 } from 'react-native-reanimated';
-import { FontFamily, FontSize } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Import sub-components
 import AlertBanner from '../../components/AlertBanner';
@@ -25,12 +35,14 @@ import { UpgradeBanner } from '../../components/UpgradeBanner';
 import { useUser } from '../../contexts/UserContext';
 import UserService from '../../api/services/user.service';
 import { MyStatsData } from '../../api/types/user.types';
+import IconButton from '@/components/IconButton';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, refreshUser } = useUser();
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [stats, setStats] = useState<MyStatsData | null>(null);
@@ -76,6 +88,14 @@ export default function ProfileScreen() {
     };
   });
 
+  // Dữ liệu mẫu (Mock data) cho lịch sử học
+  const MOCK_HISTORY = [
+    { id: '1', type: 'vocabulary', title: '36 từ vựng', subtitle: 'Bài 1', iconColor: colors.blue || '#3B82F6' },
+    { id: '2', type: 'grammar', title: '4 ngữ pháp', subtitle: 'Bài 5', iconColor: colors.purple || '#A855F7' },
+    { id: '3', type: 'listening', title: 'Hội thoại: Mua sắm', subtitle: 'Bài 4', iconColor: colors.mint || '#14B8A6' },
+    { id: '4', type: 'reading', title: 'Đoạn văn: Trường học', subtitle: 'Bài 2', iconColor: colors.cam || '#F97316' },
+  ];
+
   return (
     <View style={styles.safeArea}>
       {/* Sticky Header (Thanh dính trên cùng) */}
@@ -92,19 +112,13 @@ export default function ProfileScreen() {
           />
           <Text style={styles.stickyHeaderTitle}>{user?.username || t('profile.header.guest', 'Khách')}</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.stickySettingsBtn} 
-          onPress={() => router.push('/settings' as any)}
-        >
-          <View style={styles.settingsIconBg}>
-            <GearSixIcon size={20} color={colors.bg} weight="fill" />
-          </View>
-        </TouchableOpacity>
+      
+        <IconButton Icon={GearSixIcon} onPress={() => router.push('/settings' as any)} style={styles.stickySettingsBtn} />
       </Animated.View>
 
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 110 + insets.bottom }]}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         refreshControl={
@@ -145,6 +159,40 @@ export default function ProfileScreen() {
         {/* Lịch chuỗi hoạt động */}
         <StreakCalendar onHeaderPress={() => router.push('/streak/streak' as any)} />
 
+        {/* Lịch sử học */}
+        <View style={styles.historySection}>
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>{t('history.title', 'Lịch sử học')}</Text>
+            <TouchableOpacity 
+              style={styles.seeAllButton}
+              onPress={() => router.push('/tracking/' as any)}
+            >
+              <Text style={styles.seeAllText}>{t('history.see_all', 'Xem tất cả')}</Text>
+              <CaretRightIcon size={14} color={colors.main2 || '#508D4E'} weight="bold" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.historyList}>
+            {MOCK_HISTORY.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.historyCard} activeOpacity={0.7}>
+                <View style={styles.historyCardInfo}>
+                  <View style={[styles.historyIconWrap, { backgroundColor: item.iconColor + '20' }]}>
+                    {item.type === 'vocabulary' && <CardsIcon size={24} color={item.iconColor} weight="fill" />}
+                    {item.type === 'grammar' && <TextAaIcon size={24} color={item.iconColor} weight="fill" />}
+                    {item.type === 'listening' && <HeadphonesIcon size={24} color={item.iconColor} weight="fill" />}
+                    {item.type === 'reading' && <BookOpenTextIcon size={24} color={item.iconColor} weight="fill" />}
+                  </View>
+                  <View style={styles.historyTextWrap}>
+                    <Text style={styles.historyCardTitle}>{item.title}</Text>
+                    <Text style={styles.historyCardSubtitle}>{item.subtitle}</Text>
+                  </View>
+                </View>
+                <CaretRightIcon size={20} color={colors.gray} weight="bold" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* Banner Xanh nâng cấp - Hiển thị nếu người dùng chưa có gói, hoặc đang ở gói miễn phí */}
         {(!user?.subscription?.type || user?.subscription?.type === 'free') && <UpgradeBanner />}
 
@@ -156,13 +204,12 @@ export default function ProfileScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.main,
+    backgroundColor: colors.main200,
     paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
     backgroundColor: colors.bg,
-    paddingBottom: 20,
   },
   stickyHeader: {
     position: 'absolute',
@@ -173,7 +220,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.main,
+    backgroundColor: colors.main200,
     paddingTop: 50, // Khớp với paddingTop của safeArea để không đè lên tai thỏ
     paddingBottom: 15,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
@@ -202,5 +249,71 @@ const createStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.gray,
     padding: 6,
     borderRadius: 16,
+  },
+  historySection: {
+    paddingHorizontal: Padding.padding_15 || 15,
+    marginTop: 24,
+    marginBottom: Gap.gap_20 || 20,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Gap.gap_15 || 15,
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16 || 16,
+    color: colors.gray,
+  },
+  seeAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  seeAllText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12 || 12,
+    color: colors.main2 || '#508D4E',
+  },
+  historyList: {
+    gap: Gap.gap_10 || 10,
+  },
+  historyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.bg,
+    borderRadius: Border.br_30 || 30,
+    borderWidth: 1,
+    borderColor: colors.stroke,
+    padding: 16,
+  },
+  historyCardInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_10 || 10,
+  },
+  historyIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyTextWrap: {
+    flex: 1,
+    gap: 3,
+  },
+  historyCardTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.text,
+  },
+  historyCardSubtitle: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: colors.gray,
   }
 });

@@ -41,10 +41,10 @@ export default function ReadingExplanationScreen() {
 
         // 3. Xử lý dữ liệu hiển thị
         allData.forEach((data, exIdx) => {
-          const item = data!.item;
-          const result = data!.result;
+          const item = data!.item?.data;
+          const result = data!.result?.data;
 
-          const mapped = (item.questions || []).map((q: any, qIdx: number) => {
+          const mapped = (item?.questions || []).map((q: any, qIdx: number) => {
             const userSub = result?.answers?.find((a: any) => String(a.questionId) === String(q._id));
             const isUserCorrect = userSub?.isCorrect;
             const uAns = userSub?.userAnswer || '(Bỏ trống)';

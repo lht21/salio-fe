@@ -16,10 +16,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import CloseButton from '@/components/CloseButton';
+import IconButton from '../../../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
 import GrammarService from '@/api/services/grammar.service';
+import LessonService from '@/api/services/lesson.service';
 import type { Grammar } from '@/api/types/grammar.types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -252,7 +254,13 @@ export default function GrammarDetailScreen() {
     handleNextCard();
 
     try {
-      await GrammarService.updateGrammarProgress(String(lessonId), cardId, 'learning');
+      if (LessonService.updateLessonSectionProgress) {
+        await LessonService.updateLessonSectionProgress(String(lessonId), 'grammar', cardId, {
+          status: 'learning',
+          percentage: 50, // Ghi nhận 50% tiến độ nếu chưa nhớ
+          title: currentCard.structure
+        });
+      }
     } catch (error: any) {
       console.error("Lỗi cập nhật trạng thái learning ngữ pháp:", error.response?.data || error.message);
     }
@@ -266,7 +274,13 @@ export default function GrammarDetailScreen() {
     handleNextCard();
 
     try {
-      await GrammarService.updateGrammarProgress(String(lessonId), cardId, 'completed');
+      if (LessonService.updateLessonSectionProgress) {
+        await LessonService.updateLessonSectionProgress(String(lessonId), 'grammar', cardId, {
+          status: 'completed',
+          percentage: 100, // Hoàn thành 100% nếu đã nhớ
+          title: currentCard.structure
+        });
+      }
     } catch (error: any) {
       console.error("Lỗi cập nhật trạng thái completed ngữ pháp:", error.response?.data || error.message);
     }
@@ -279,7 +293,7 @@ export default function GrammarDetailScreen() {
           <View style={styles.progressPill}>
             <Text style={styles.progressPillText}>{currentIndex + 1}/{totalCards}</Text>
           </View>
-          <CloseButton onPress={handleClose} />
+          <IconButton Icon={XIcon} onPress={handleClose} />
         </View>
 
         <View style={styles.progressBarBg}>

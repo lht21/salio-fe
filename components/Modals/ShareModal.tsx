@@ -6,11 +6,12 @@ import {
   InstagramLogoIcon, 
   MessengerLogoIcon,
   ChatTeardropTextIcon, // Icon chung cho Zalo (Phosphor không có logo Zalo)
-  EnvelopeIcon // Icon phong bì cho Email
+  EnvelopeIcon, // Icon phong bì cho Email
+  XIcon
 } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
 
 // Lấy chiều rộng màn hình để tính toán chiều rộng item linh hoạt
 const { width } = Dimensions.get('window');
@@ -55,7 +56,7 @@ export default function ShareModal({ isVisible, onClose }: ShareModalProps) {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Chia sẻ đến</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} variant="Stroke" onPress={onClose} />
           </View>
 
           {/* Lưới chứa các lựa chọn chia sẻ */}

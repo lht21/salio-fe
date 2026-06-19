@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { ClockIcon, CrownIcon, TrophyIcon } from 'phosphor-react-native';
+import { ClockIcon, CrownIcon, TrophyIcon, XIcon } from 'phosphor-react-native';
 
 // Import Design System & Components
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
 import Button from '../Button';
 import ZenmodeBanner from '../ExamComponent/ZenmodeBanner';
 
@@ -38,7 +38,8 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
   return (
     <View style={styles.viewContainer}>
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={onExit} />
+        <IconButton Icon={XIcon} onPress={onExit} />
+        
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

@@ -9,7 +9,9 @@ import { AnswerOption, QuizHeader, type OptionStatus } from '../../components/Mo
 import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import FlashcardService from '../../api/services/flashcard.service';
 import apiClient from '../../api/client';
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
+import CheckListIcon from '../../components/icons/CheckListIcon';
 
 // Quiz Question Type
 type QuizQuestion = {
@@ -197,7 +199,7 @@ export default function FlashcardQuizScreen() {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
          <Text style={{ fontFamily: FontFamily.lexendDecaMedium }}>Không có câu hỏi nào để hiển thị.</Text>
-         <CloseButton onPress={() => router.back()} style={{ marginTop: 20 }} />
+         <IconButton Icon={XIcon} onPress={() => router.back()} style={{ marginTop: 20 }} />
       </SafeAreaView>
     );
   }
@@ -210,6 +212,7 @@ export default function FlashcardQuizScreen() {
         total={quizData.length}
         incorrectCount={incorrectCount}
         onClose={() => setShowExitModal(true)}
+        icon={<CheckListIcon width={40} height={40} />}
       />
 
       {/* BODY CONTENT */}

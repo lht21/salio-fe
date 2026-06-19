@@ -1,6 +1,7 @@
 import React from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { CaretDownIcon, CornersOutIcon } from 'phosphor-react-native';
+import AnimatedReanimated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { Border, Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
 
@@ -39,7 +40,7 @@ export default function OXQuestionAccordion({
   footer,
 }: OXQuestionAccordionProps) {
   return (
-    <View style={styles.container}>
+    <AnimatedReanimated.View layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
         <Text style={styles.progressPill}>{progressLabel}</Text>
 
@@ -78,7 +79,12 @@ export default function OXQuestionAccordion({
       </View>
 
       {expanded ? (
-        <View style={styles.body}>
+        <AnimatedReanimated.View 
+          entering={FadeIn} 
+          exiting={FadeOut} 
+          layout={LinearTransition.springify().damping(20).stiffness(200)}
+          style={styles.body}
+        >
           <Text style={styles.question}>{question}</Text>
 
           <OXAnswerButton
@@ -95,9 +101,9 @@ export default function OXQuestionAccordion({
           />
 
           {footer}
-        </View>
+        </AnimatedReanimated.View>
       ) : null}
-    </View>
+    </AnimatedReanimated.View>
   );
 }
 

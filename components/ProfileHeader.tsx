@@ -8,6 +8,7 @@ import StatusBadge from './StatusBadge';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
+import IconButton from './IconButton';
 
 interface ProfileHeaderProps {
   username?: string;
@@ -32,14 +33,8 @@ const ProfileHeader = ({ username, email, avatarUrl, level, isPremium }: Profile
       />
       
       {/* Settings Icon */}
-      <TouchableOpacity 
-        style={styles.settingsBtn}
-        onPress={() => router.push('/settings' as any)}
-      >
-        <View style={styles.settingsIconBg}>
-          <GearSixIcon size={24} color={colors.bg} weight="fill" />
-        </View>
-      </TouchableOpacity>
+      <IconButton Icon={GearSixIcon} onPress={() => router.push('/settings' as any)} style={styles.settingsBtn} />
+      
 
       {/* Avatar & Info */}
       <View style={styles.infoWrapper}>
@@ -94,7 +89,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     right: 0,
     height: 120,
     zIndex: 0,
-    backgroundColor: colors.main || '#98F291',
+    backgroundColor: colors.main200 || '#98F291',
   },
   settingsBtn: {
     position: 'absolute',

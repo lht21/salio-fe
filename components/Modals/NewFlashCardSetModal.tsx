@@ -16,7 +16,8 @@ import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/Glob
 import { CustomInput } from '../CustomInput';
 import SearchBar from '../SearchBar';
 import VocabularyCard from '../VocabularyCard';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import Button from '../Button';
 import FlashcardService from '../../api/services/flashcard.service';
 import VocabularyService from '../../api/services/vocabulary.service';
@@ -185,7 +186,7 @@ const NewFlashCardSetModal = forwardRef<BottomSheetModal, NewFlashCardSetModalPr
             <BottomSheetView style={styles.sheetContent}>
                     <View style={styles.header}>
                         <Text style={styles.headerTitle}>Bộ từ vựng mới</Text>
-                        <CloseButton variant="Stroke" onPress={handleClose} />
+                        <IconButton Icon={XIcon} onPress={handleClose} />
                     </View>
 
                     <View style={styles.body}>

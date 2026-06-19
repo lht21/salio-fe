@@ -1,22 +1,20 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { 
-  CaretDownIcon, 
   HeadphonesIcon, 
   BookOpenTextIcon, 
   FactoryIcon, 
   PictureInPictureIcon,
-  ReceiptIcon
+  ReceiptIcon,
+  MagnifyingGlassIcon
 } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { useRouter } from 'expo-router';
 
 // Import Components
-import LevelFilterModal, { Level } from '../../components/Modals/LevelFilterModal';
-import WritingFeaturedCard from '../../components/WritingFeaturedCard';
+import CategoryChip from '../../components/CategoryChip';
 import SkillCard from '../../components/SkillCard';
 import MocktestCard from '../../components/MocktestCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +22,9 @@ import HistoryCardSlider from '../../components/HistoryCardSlider';
 import IndustryCard from '../../components/IndustryCard';
 import SafetyCard from '../../components/SafetyCard';
 import AlertBanner from '../../components/AlertBanner';
+import CreateSetButton from '../../components/CreateSetButton';
+
+export type Level = 'EPS' | 'TOPIK I' | 'TOPIK II';
 
 export default function PracticeScreen() {
   const router = useRouter();
@@ -31,7 +32,6 @@ export default function PracticeScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const levelSheetRef = useRef<BottomSheetModal>(null);
   const [selectedLevel, setSelectedLevel] = useState<Level>('TOPIK II');
   const [showAlert, setShowAlert] = useState(true);
 
@@ -81,11 +81,6 @@ export default function PracticeScreen() {
       case 'TOPIK II':
         return (
           <>
-            <WritingFeaturedCard
-              title={t('practice.writing_topik2', 'Luyện viết TOPIK II')}
-              subtitle={t('practice.writing_desc', 'Luyện viết biểu đồ (câu 53) và viết luận (câu 54)')}
-              onPress={() => router.push(`/practice/writing?examType=${getExamType(selectedLevel)}`)} 
-            />
             <View style={styles.skillsRow}>
               <SkillCard 
                 title={t('practice.listening', 'Luyện nghe')} 
@@ -98,6 +93,12 @@ export default function PracticeScreen() {
                 backgroundColor={colors.bluePastel}
                 onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
                 titleColor={colors.blue}
+              />
+              <SkillCard 
+                title={t('practice.writing', 'Luyện viết')} 
+                backgroundColor={colors.orangePastel || '#FFEDD5'}
+                onPress={() => router.push(`/practice/writing?examType=${getExamType(selectedLevel)}`)}
+                titleColor={colors.cam || '#F97316'}
               />
             </View>
             <View style={styles.mocktestContainer}>
@@ -186,17 +187,26 @@ export default function PracticeScreen() {
 
       {/* Header Section */}
       <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t('practice.title', 'Luyện thi')}</Text>
+        <CreateSetButton 
+          title="Tìm mọi đề"
+          icon={<MagnifyingGlassIcon size={15} color="#FFFFFF" weight="bold" />}
+          onPress={() => { /* TODO: Điều hướng sang màn tìm kiếm */ }}
+        />
+      </View>
 
-          <Text style={styles.headerTitle}>{t('practice.title', 'Luyện thi')}</Text>
-          
-          <View style={styles.filterContainer}>
-            <Text style={styles.filterLabel}>{t('practice.level', 'Cấp độ đề')}</Text>
-            <TouchableOpacity style={styles.filterDropdown} onPress={() => levelSheetRef.current?.present()}>
-              <Text style={styles.filterText}>{selectedLevel}</Text>
-              <CaretDownIcon size={14} color={colors.main} weight="bold" />
-            </TouchableOpacity>
-          </View>
-        </View>
+      <View style={styles.chipRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+          {(['TOPIK II', 'TOPIK I', 'EPS'] as Level[]).map(level => (
+            <CategoryChip
+              key={level}
+              label={level}
+              isActive={selectedLevel === level}
+              onPress={() => setSelectedLevel(level)}
+            />
+          ))}
+        </ScrollView>
+      </View>
 
       <ScrollView 
         showsVerticalScrollIndicator={false}
@@ -212,12 +222,6 @@ export default function PracticeScreen() {
 
       </ScrollView>
 
-      <LevelFilterModal 
-        ref={levelSheetRef}
-        currentLevel={selectedLevel}
-        onClose={() => levelSheetRef.current?.dismiss()}
-        onSelectLevel={(level) => setSelectedLevel(level)}
-      />
     </SafeAreaView>
   );
 }
@@ -239,36 +243,19 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Padding.padding_15 || 15,
     paddingTop: 20,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold, 
     fontSize: FontSize.fs_20 || 20, 
     color: colors.text || '#1E1E1E' 
   },
-  filterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  chipRow: {
+    marginBottom: Gap.gap_20 || 20,
   },
-  filterLabel: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12 || 12,
-    color: colors.gray || '#64748B', // Xám đậm
-  },
-  filterDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.text || '#98F291',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: Border.br_10 || 10,
-    gap: 4,
-  },
-  filterText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_12 || 12,
-    color: colors.bg,
+  chipScroll: {
+    paddingHorizontal: Padding.padding_15 || 15,
+    gap: 10,
   },
   skillsRow: {
     flexDirection: 'row',

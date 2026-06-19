@@ -1,6 +1,7 @@
 import React from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { CaretDownIcon, CornersOutIcon } from 'phosphor-react-native';
+import AnimatedReanimated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import MultipleChoiceOption, { MultipleChoiceOptionState } from './MultipleChoiceOption';
 import { FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
@@ -37,7 +38,7 @@ export default function MultipleChoiceQuestionCard({
   footer,
 }: MultipleChoiceQuestionCardProps) {
   return (
-    <View style={styles.container}>
+    <AnimatedReanimated.View layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
         <Text style={styles.progressPill}>{progressLabel}</Text>
 
@@ -76,7 +77,12 @@ export default function MultipleChoiceQuestionCard({
       </View>
 
       {expanded ? (
-        <View style={styles.body}>
+        <AnimatedReanimated.View 
+          entering={FadeIn} 
+          exiting={FadeOut} 
+          layout={LinearTransition.springify().damping(20).stiffness(200)}
+          style={styles.body}
+        >
           <Text style={styles.question}>{question}</Text>
 
           <View style={styles.optionsWrap}>
@@ -91,9 +97,9 @@ export default function MultipleChoiceQuestionCard({
           </View>
 
           {footer}
-        </View>
+        </AnimatedReanimated.View>
       ) : null}
-    </View>
+    </AnimatedReanimated.View>
   );
 }
 

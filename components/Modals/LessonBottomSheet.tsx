@@ -1,4 +1,4 @@
-﻿import React, { forwardRef, useMemo, useCallback } from 'react';
+﻿﻿﻿﻿import React, { forwardRef, useMemo, useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView, BottomSheetFooter } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
@@ -46,18 +46,23 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
     const isHangulLesson = lessonType === 'hangul' || lessonId === '0';
     const { modules, lessonProgress, isLoadingModules, sections } = useLessonModules(lessonId, isHangulLesson);
     const snapPoints = useMemo(() => isHangulLesson ? ['80%', '92%'] : ['80%', '85%'], [isHangulLesson]);
+
     const introRouteMap: Record<string, string> = {
       'intro-vocab': `/lessons/${lessonId}/vocabulary/intro`,
       'intro-grammar': `/lessons/${lessonId}/grammar/intro`,
-      'intro-speaking': `/lessons/${lessonId}/speaking/intro`,
       'intro-listening': `/lessons/${lessonId}/listening/intro`,
+      'intro-speaking': `/lessons/${lessonId}/speaking/intro`,
       'intro-reading': `/lessons/${lessonId}/reading/intro`,
       'intro-writing': `/lessons/${lessonId}/writing/intro`,
     };
     const progressSegments = sections.length > 0
       ? sections.map((section) => section.progressValue >= 100 ? Color.green : section.progressValue > 0 ? Color.xanh : '#E5E7EB')
       : ['#E5E7EB'];
-    const overallProgress = Math.round(lessonProgress?.data?.overallProgress ?? (
+
+    // Khắc phục lỗi Unwrapping: Kiểm tra trường data nếu có, nếu không lấy trực tiếp payload
+    const actualProgress = (lessonProgress as any)?.data ?? lessonProgress;
+
+    const overallProgress = Math.round(actualProgress?.overallProgress ?? (
       sections.length > 0
         ? sections.reduce((sum, section) => sum + section.progressValue, 0) / sections.length
         : 0
@@ -67,14 +72,15 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
     const dynamicMascot = MASCOTS[unitNumber % MASCOTS.length];
     const dynamicProgressText = `${overallProgress}% hoàn thành`;
 
-    const finalTestLocked = !lessonProgress?.data?.finalTestStatus?.isUnlocked;
+    const hasFinalTest = !!modules?.finalTest;
+    const finalTestLocked = !actualProgress?.finalTestStatus?.isUnlocked;
 
     // 2. Logic tính toán hành động tiếp theo (Guided Learning)
     const nextAction = useMemo(() => {
       if (sections.length === 0) return null;
 
       // 1. Ưu tiên cao nhất: Nếu Final Test đã mở khoá (tất cả các module đã pass >= 80%), điều hướng làm Test
-      if (!finalTestLocked) {
+      if (hasFinalTest && !finalTestLocked) {
         return { text: 'Làm bài Mini Test', route: `/lessons/${lessonId}/final-test/exam` };
       }
 
@@ -114,7 +120,7 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
       }
 
       return { text: 'Ôn tập lại từ vựng', route: introRouteMap['intro-vocab'] || `/lessons/${lessonId}/vocabulary/intro` };
-    }, [sections, finalTestLocked, lessonId]);
+    }, [sections, finalTestLocked, lessonId, hasFinalTest]);
 
     // 4. Tạo nút Call-to-Action ghim cố định (Sticky Footer)
     const renderFooter = useCallback((props: any) => {
@@ -211,6 +217,11 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
                         details={section.details}
                       // 1. Gỡ bỏ điều hướng của Accordion
                       onPress={undefined} 
+                      onActionPress={isLocked ? undefined : () => {
+                        router.back();
+                        setTimeout(() => router.push(introRoute as any), 100);
+                      }}
+                      actionText={section.progressValue >= 100 ? 'Ôn tập' : (section.progressValue === 0 ? 'Bắt đầu' : 'Làm lại')}
                       />
                     );
                   })}
@@ -218,7 +229,7 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
               )}
 
             {/* 3. Đưa Mini Test vào danh sách UI (dạng Card) */}
-            {!isLoadingModules && (
+            {!isLoadingModules && hasFinalTest && (
               <TouchableOpacity 
                 style={[styles.miniTestCard, finalTestLocked && styles.miniTestCardLocked]}
                 activeOpacity={0.8}

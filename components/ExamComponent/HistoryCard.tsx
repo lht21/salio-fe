@@ -14,9 +14,12 @@ interface HistoryCardProps {
   isSelectionMode?: boolean;
   isSelected?: boolean;
   style?: StyleProp<ViewStyle>;
+  type?: string;
+  variant?: 'card' | 'list';
+  isLast?: boolean;
 }
 
-export default function HistoryCard({ title, score, time, onPress, onLongPress, isSelectionMode, isSelected, style }: HistoryCardProps) {
+export default function HistoryCard({ title, score, time, type, variant = 'card', isLast, onPress, onLongPress, isSelectionMode, isSelected, style }: HistoryCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -66,7 +69,12 @@ export default function HistoryCard({ title, score, time, onPress, onLongPress, 
   }));
 
   return (
-    <TouchableOpacity activeOpacity={0.8} style={[styles.card, style, isSelected && styles.cardSelected]} onPress={onPress} onLongPress={onLongPress}>
+    <TouchableOpacity 
+      activeOpacity={0.8} 
+      style={[styles.card, variant === 'list' && styles.cardList, variant === 'list' && isLast && styles.cardListLast, style, isSelected && styles.cardSelected]} 
+      onPress={onPress} 
+      onLongPress={onLongPress}
+    >
       {isSelectionMode && (
         <View style={styles.checkboxContainer}>
           {isSelected 
@@ -120,6 +128,16 @@ const createStyles = (colors: any) => StyleSheet.create({
     padding: Padding.padding_15 || 15,
     width: 240,
   },
+  cardList: {
+    width: '100%',
+    borderWidth: 0,
+    borderBottomWidth: 1, // Border bottom mỏng ngăn cách
+    borderRadius: 0,
+    backgroundColor: 'transparent',
+  },
+  cardListLast: {
+    borderBottomWidth: 0, // Bỏ đường kẻ cho item cuối cùng trong danh sách
+  },
   cardSelected: {
     borderColor: colors.main2,
     backgroundColor: colors.historySelectedBg || '#F0FDF4',
@@ -151,7 +169,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   starIcon: {
     marginLeft: 8,
   },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap', // Cho phép các item xuống dòng nếu không đủ không gian
+    gap: 8, // Thêm khoảng cách giữa các item (ngang và dọc khi xuống dòng)
+  },
   badge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   scoreText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 || 12 },
   timeWrap: { flexDirection: 'row', alignItems: 'center', gap: 4 },

@@ -14,7 +14,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export type VocabularySheetModalProps = {
     visible: boolean;
@@ -174,11 +175,8 @@ const VocabularySheetModal = ({
                     <View style={[styles.header, { paddingHorizontal: headerHorizontalInset }]}>
                         <Text style={styles.title}>{title}</Text>
                         {showCloseButton ? (
-                            <CloseButton
-                                variant="Stroke"
-                                onPress={onClose}
-                                style={styles.closeButton}
-                            />
+                          
+                            <IconButton Icon={XIcon} onPress={onClose} style={styles.closeButton} />    
                         ) : null}
                     </View>
                 ) : null}

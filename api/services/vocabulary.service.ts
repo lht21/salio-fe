@@ -25,6 +25,7 @@ import {
   SaveVocabularyAnswerRequest,
   SubmitVocabularyQuizRequest,
   PaginatedVocabularyQuizzesResponse,
+  MarkVocabularyStatusResponse,
   VocabularyQuizDetailResponse,
   VocabularyQuizMutationResponse,
   PaginatedVocabularyQuizResultsResponse,
@@ -96,9 +97,9 @@ class VocabularyService {
     }
   }
 
-  static async markStatus(id: string, data: MarkStatusRequest): Promise<BaseResponse<null>> {
+  static async markStatus(id: string, data: MarkStatusRequest): Promise<MarkVocabularyStatusResponse> {
     try {
-      const response = await apiClient.post<BaseResponse<null>>(API_ENDPOINTS.VOCABULARY.MARK_STATUS(id), data);
+      const response = await apiClient.post<MarkVocabularyStatusResponse>(API_ENDPOINTS.VOCABULARY.MARK_STATUS(id), data);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || error;

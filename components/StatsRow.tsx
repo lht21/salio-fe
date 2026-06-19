@@ -29,7 +29,7 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
       <View style={styles.row}>
         {/* Thẻ 1: Chuỗi ngày */}
         <TouchableOpacity
-          style={styles.card}
+          style={[styles.card, { transform: [{ rotate: '1deg' }] }]}
           activeOpacity={0.82}
           onPress={onStreakPress}
           disabled={!onStreakPress}
@@ -46,7 +46,7 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
 
         {/* Thẻ 2: Từ vựng */}
         <TouchableOpacity 
-          style={styles.card} 
+          style={[styles.card, { transform: [{ rotate: '-1deg' }] }]}
           activeOpacity={0.82}
           onPress={onVocabPress}
           disabled={!onVocabPress}
@@ -63,7 +63,7 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
 
         {/* Thẻ 3: Điểm */}
         <TouchableOpacity
-          style={styles.card}
+          style={[styles.card, { transform: [{ rotate: '1deg' }] }]}
           activeOpacity={0.82}
           onPress={onScorePress}
           disabled={!onScorePress}
@@ -83,21 +83,21 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
       <View style={styles.row}>
         {/* Thẻ 4: Chứng chỉ */}
         <TouchableOpacity 
-          style={styles.card} 
+          style={[styles.card, { transform: [{ rotate: '-1deg' }] }]}
           activeOpacity={0.82}
           onPress={onCertificatePress}
           disabled={!onCertificatePress}
         >
           <View style={styles.textWrap}>
             <Text style={styles.number}>{certificates}</Text>
-            <Text style={styles.label}>{t('stats.certificates', 'chứng chỉ')}</Text>
+            <Text style={styles.label}>{t('stats.certificates', 'huy hiệu')}</Text>
           </View>
           <CertificateIcon size={24} color={colors.main2} weight="fill" />
         </TouchableOpacity>
 
         {/* Thẻ 5: Đám mây */}
         <TouchableOpacity 
-          style={styles.card} 
+          style={[styles.card, { transform: [{ rotate: '1deg' }] }]}
           activeOpacity={0.82}
           onPress={onCloudPress}
           disabled={!onCloudPress}

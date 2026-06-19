@@ -250,5 +250,10 @@ export const API_ENDPOINTS = {
     QUIZ_SAVE_ANSWER: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}/save-answer`,
     QUIZ_SUBMIT: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}/submit`,
     QUIZ_RESULT: (sessionId: string) => `/api/v1/grammars/quiz/session/${sessionId}/result`,
-  }
+  },
+
+  PROGRESS: {
+    GET_SKILL_CHART: (skill: string) => `/api/v1/progress/skills/${skill}/chart`,
+    GET_HISTORY: '/api/v1/progress/history',
+  },
 };

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
 import { FontFamily, FontSize, Border, Gap } from '../constants/GlobalStyles';
 
@@ -15,65 +16,86 @@ const SkillCard = ({ title, icon, backgroundColor, titleColor, onPress }: SkillC
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const bg = backgroundColor || colors.bg;
+  const cardBorderColor = backgroundColor || colors.stroke || '#E2E8F0';
   const txtColor = titleColor || colors.text;
 
   // Mở rộng logic phát hiện icon bằng Đa ngôn ngữ (cả tiếng Việt, Anh và Hàn)
   const lowerTitle = title.toLowerCase();
   const isListening = lowerTitle.includes('nghe') || lowerTitle.includes('listening') || lowerTitle.includes('듣기');
   const isReading = lowerTitle.includes('đọc') || lowerTitle.includes('reading') || lowerTitle.includes('읽기');
+  const isWriting = lowerTitle.includes('viết') || lowerTitle.includes('writing') || lowerTitle.includes('쓰기');
 
   let imageSource = null;
   if (isListening) {
     imageSource = require('../assets/images/horani/horani_skill1.png');
   } else if (isReading) {
     imageSource = require('../assets/images/horani/horani_skill2.png');
+  } else if (isWriting) {
+    imageSource = require('../assets/images/woji.png');
   }
 
   return (
-    <TouchableOpacity style={[styles.card, { backgroundColor: bg }]} onPress={onPress}>
-      <View style={styles.leftPart}>
-        {imageSource ? <Image source={imageSource} style={styles.skillImage} resizeMode="contain" /> : icon}
-      </View>
-      <View style={styles.rightPart}>
-        <Text style={[styles.title, { color: txtColor }]}>{title}</Text>
-      </View>
+    <TouchableOpacity style={styles.wrapper} onPress={onPress} activeOpacity={0.9}>
+      <LinearGradient
+        colors={['#FFFFFF', cardBorderColor]}
+        style={styles.gradientBorder}
+      >
+        <View style={styles.innerCard}>
+          <View style={styles.imageContainer}>
+            {imageSource ? <Image source={imageSource} style={styles.skillImage} resizeMode="contain" /> : icon}
+          </View>
+          <View style={styles.titleContainer}>
+            <Text style={[styles.title, { color: txtColor }]}>{title}</Text>
+          </View>
+        </View>
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
 
 const createStyles = (colors: any) => StyleSheet.create({
-  card: {
+  wrapper: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.stroke || '#E2E8F0',
-    borderRadius: Border.br_15 || 15,
-    minHeight: 75,
-    paddingRight: 15,
+    minHeight: 180,
     overflow: 'visible', // Cho phép hình ảnh tràn viền
+    transform: [{ rotate: '-2.3deg' }],
   },
-  leftPart: {
-    width: 70,
-    height: 75, // Cố định chiều cao bằng thẻ để làm mốc tọa độ
+  gradientBorder: {
+    flex: 1,
+    borderRadius: 30,
+    padding: 2.5, // Độ dày của viền gradient
+    overflow: 'visible',
+  },
+  innerCard: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28.5, // 30 - 1.5 để khít với góc bo bên ngoài
+    paddingBottom: 15,
+    overflow: 'visible',
+  },
+  imageContainer: {
+    height: 60,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Gap.gap_15,
+    marginBottom: Gap.gap_10 || 10,
   },
-  rightPart: {
-    flex: 1,
-    justifyContent: 'center',
+  titleContainer: {
+    alignItems: 'center',
   },
   skillImage: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     position: 'absolute',
-    bottom: -8, // Đẩy hình ảnh tràn ra khỏi viền dưới của thẻ tạo hiệu ứng 3D
+    bottom: -5, // Đẩy hình ảnh tràn viền phía trên để tạo hiệu ứng 3D
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14 || 14,
+    fontSize: FontSize.fs_16 ,
+    textAlign: 'center',
   },
 });
 

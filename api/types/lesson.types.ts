@@ -1,6 +1,13 @@
 import { BaseResponse } from './auth.types';
 import { Vocabulary, VocabularyQuiz } from './vocabulary.types';
 
+
+export interface Badge {
+  _id: string;
+  name: string;
+  imageUrl: string;
+}
+
 export type LessonType = 'standard' | 'hangul';
 export type LessonStatus = 'completed' | 'current' | 'locked';
 export { BaseResponse } from './auth.types'; 
@@ -300,6 +307,8 @@ export interface FinalTestResponse {
 export interface LessonModules {
   lessonId: string;
   lessonType: LessonType;
+  rewardClouds?: number;
+  rewardBadge?: Badge;
   hangul: HangulCharacter[];
   vocabulary: Vocabulary[];
   vocabularyQuizzes: VocabularyQuiz[];
@@ -332,6 +341,8 @@ export interface Lesson {
   writing?: string[] | WritingItem[];
   hangul?: HangulCharacter[];
   finalTest?: string | FinalTest;
+  rewardClouds?: number;
+  rewardBadge?: string | Badge;
   isPremium?: boolean;
   estimatedDuration?: number;
   isPublished?: boolean;
@@ -413,6 +424,7 @@ export interface LessonProgress {
   finalTestStatus: FinalTestStatus;
   overallProgress: number;
   isCompleted: boolean;
+  isRewardClaimed?: boolean;
   resumePoint?: ResumePoint;
   sections: {
     hangul: SectionProgress;

@@ -5,8 +5,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
-import CloseButton from '../CloseButton';
-import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
+import { FontFamily, FontSize, Border, Padding, Gap, Color } from '../../constants/GlobalStyles';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 export type ChangeUserNameModalProps = {
@@ -69,17 +70,27 @@ const ChangeUserNameModal = forwardRef<BottomSheetModal, ChangeUserNameModalProp
       enablePanDownToClose={true}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
+      detached={true}
+      bottomInset={40}
+      style={styles.floatingSheet}
       backgroundStyle={{ 
-        backgroundColor: colors.bg,
-        borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30 
+        backgroundColor: Color.main50,
+        borderRadius: Border.br_30,
+        borderBottomWidth: 7,
+        borderLeftWidth: 4,
+        borderWidth: 2,
+        borderColor: "#4E7A00",
       }}
       handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
       <BottomSheetView style={styles.sheetContent}>
+        {/* Nút Close lơ lửng nằm trên cùng */}
+        <View style={styles.closeButtonWrapper}>
+          <IconButton Icon={XIcon} onPress={onClose} variant='Main' style={styles.closeButton}/>
+        </View>
+
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('settings.changeUserName', 'Thay đổi Tên người dùng')}</Text>
-          <CloseButton variant="Stroke" onPress={onClose} />
         </View>
 
         <View style={styles.body}>
@@ -105,13 +116,22 @@ const ChangeUserNameModal = forwardRef<BottomSheetModal, ChangeUserNameModalProp
 });
 
 const createStyles = (colors: any) => StyleSheet.create({
+  floatingSheet: {
+    marginHorizontal: 15,
+  },
   sheetContent: {
     paddingHorizontal: Padding.padding_20,
     paddingTop: Padding.padding_15,
     paddingBottom: 40,
   },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+  closeButtonWrapper: {
+    position: 'absolute',
+    top: -78,   // Điều chỉnh giá trị này lên/xuống (Dùng số âm VD: -40 nếu muốn nổi bật ra ngoài mép trên sheet)
+    right: 10, // Căn lề phải
+    zIndex: 99,
+  },
+  header: { alignItems: 'center', marginBottom: Gap.gap_20, marginTop: 5 },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: "#4A3218" },
   body: {
     gap: 16,
     paddingBottom: 16,
@@ -120,6 +140,13 @@ const createStyles = (colors: any) => StyleSheet.create({
     height: 48,
     borderRadius: 37,
     marginVertical: 0,
+  },
+  closeButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

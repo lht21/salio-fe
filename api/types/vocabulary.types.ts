@@ -82,6 +82,7 @@ export interface GetLearningProgressParams {
 export interface MarkStatusRequest {
   status: 'learning' | 'remembered' | 'forgotten';
   answer?: string;
+  lessonId?: string; // Thêm lessonId để khớp với controller
 }
 
 export interface CreateVocabularyRequest {
@@ -118,6 +119,8 @@ export type PaginatedVocabulariesResponse = BaseResponse<PaginatedVocabulariesDa
 export type StudyQueueResponse = BaseResponse<StudyQueueItem[]>;
 export type VocabularyDetailResponse = BaseResponse<Vocabulary>;
 export type VocabularyMutationResponse = BaseResponse<Vocabulary>;
+
+export type MarkVocabularyStatusResponse = BaseResponse<VocabularyProgressItem>;
 
 export type GetLearningProgressResponse = BaseResponse<{
   progress: VocabularyProgressItem[];
@@ -161,10 +164,11 @@ export interface VocabularyQuizQuestion {
   question: {
     _id: string;
     type: 'single_choice' | 'short_answer';
-    question: string;
+    questionText: string; // FIX: Đổi tên từ 'question'
     options?: string[];
-    correctAnswer: string;
+    correctAnswer?: string; // FIX: Chuyển thành optional
     points: number;
+    metadata?: any; // FIX: Thêm metadata
   };
   userAnswer?: string;
   isCorrect?: boolean;

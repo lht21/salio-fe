@@ -4,7 +4,8 @@ import { CheckIcon, PaperPlaneRightIcon, PlusCircleIcon } from 'phosphor-react-n
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '../../contexts/ThemeContext';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { CustomInput } from '../CustomInput';
 import { FontFamily, FontSize, Border, Padding, Gap, Color } from '../../constants/GlobalStyles';
 
@@ -75,7 +76,7 @@ const CreatePostModal = ({ isVisible, onClose, onSubmit }: CreatePostModalProps)
                   <PaperPlaneRightIcon size={16} color="#FFFFFF" weight="fill" />
                 </TouchableOpacity>
               )}
-              <CloseButton variant="Stroke" onPress={handleClose} />
+              <IconButton Icon={XIcon} onPress={handleClose} />
             </View>
           </View>
 

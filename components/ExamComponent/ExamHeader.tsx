@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ClockIcon, ListChecksIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 interface ExamHeaderProps {
   onClose: () => void;
@@ -20,7 +21,7 @@ export default function ExamHeader({ onClose, onSubmit, timeLeft, remainingQuest
     <View style={styles.header}>
       {/* Left: Close Button */}
       <View style={styles.sideContainer}>
-        <CloseButton variant="Stroke" onPress={onClose} />
+        <IconButton Icon={XIcon} onPress={onClose} />
       </View>
 
       {/* Center: Statuses */}

@@ -8,9 +8,9 @@ import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
 
 // Import Component Thẻ đã tách
-import CloseButton from '@/components/CloseButton';
+import IconButton from '../../../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 import SwipableFlashcard, { FlashcardData } from '../../../../components/SwipableFlashcard';
-import LessonService from '../../../../api/services/lesson.service';
 import { Vocabulary } from '../../../../api/types/vocabulary.types';
 import VocabularyService from '../../../../api/services/vocabulary.service';
 
@@ -48,11 +48,16 @@ export default function FlashcardScreen() {
   const loadLessonVocabulary = async () => {
     try {
       setLoading(true);
-      const response = await LessonService.getModules(lessonId as string);
-      const lessonVocabularies = (response.data as any).vocabulary as Vocabulary[];
-      setVocabularyCards(lessonVocabularies || []);
+      const response = await VocabularyService.getStudyQueue({ lessonId: lessonId as string, limit: 100 });
+      if (response.success && response.data) {
+        // Chỉ lấy những từ đang học hoặc đã quên
+        const wordsToStudy = response.data.filter(
+          (vocab: any) => vocab.learningStatus?.status === 'learning' || vocab.learningStatus?.status === 'forgotten'
+        );
+        setVocabularyCards(wordsToStudy || []);
+      }
     } catch (error) {
-      console.error('Lỗi khi tải vocabulary của lesson:', error);
+      console.error('Lỗi khi tải study queue:', error);
       // TODO: Handle error, có thể hiển thị thông báo lỗi
     } finally {
       setLoading(false);
@@ -87,7 +92,7 @@ export default function FlashcardScreen() {
     setLearnCount(prev => prev + 1);
     
     try {
-      await VocabularyService.markStatus(cardId.toString(), { status: 'learning' });
+      await VocabularyService.markStatus(cardId.toString(), { status: 'learning', lessonId: lessonId as string });
     } catch (error) {
       console.error('Lỗi cập nhật trạng thái learning:', error);
     }
@@ -100,7 +105,7 @@ export default function FlashcardScreen() {
     setKnownCount(prev => prev + 1);
     
     try {
-      await VocabularyService.markStatus(cardId.toString(), { status: 'remembered' });
+      await VocabularyService.markStatus(cardId.toString(), { status: 'remembered', lessonId: lessonId as string });
     } catch (error) {
       console.error('Lỗi cập nhật trạng thái remembered:', error);
     }
@@ -125,8 +130,8 @@ export default function FlashcardScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>Không có dữ liệu từ vựng cho bài học này</Text>
-          <CloseButton onPress={() => router.back()} />
+          <Text style={styles.emptyText}>Tuyệt vời! Bạn đã thành thạo tất cả từ vựng trong bài học này.</Text>
+          <IconButton Icon={XIcon} onPress={() => router.back()} />
         </View>
       </SafeAreaView>
     );
@@ -140,7 +145,8 @@ export default function FlashcardScreen() {
           <View style={styles.progressPill}>
             <Text style={styles.progressPillText}>{currentIndex + 1}/{totalCards}</Text>
           </View>
-          <CloseButton onPress={handleClose} />
+          <IconButton Icon={XIcon} onPress={handleClose} />
+          
         </View>
 
         {/* Progress Bar */}
@@ -279,10 +285,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.fs_16,
     color: Color.text,
   },
-  errorText: {
+  emptyText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16,
-    color: Color.red,
+    color: Color.main,
     marginBottom: Gap.gap_20,
+    textAlign: 'center',
+    paddingHorizontal: Padding.padding_20,
   },
 });

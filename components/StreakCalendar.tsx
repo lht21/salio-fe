@@ -13,12 +13,11 @@ const formatDate = (y: number, m: number, d: number) => {
     return `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
 };
 
-const generateCurrentMonth = (activeDates: string[], createdAtStr?: string): MonthSection => {
+const generateSlidingWindowDates = (activeDates: string[], createdAtStr?: string): MonthSection => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đưa về đầu ngày
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
-    const currentDate = today.getDate();
-    const daysInMonth = new Date(year, month, 0).getDate();
 
     let createdAtDate: Date | null = null;
     if (createdAtStr) {
@@ -44,18 +43,25 @@ const generateCurrentMonth = (activeDates: string[], createdAtStr?: string): Mon
     };
 
     const days: CalendarDay[] = [];
-    for (let d = 1; d <= daysInMonth; d++) {
+    
+    // Lặp từ -5 đến 5 (5 ngày trước, hôm nay, 5 ngày sau)
+    for (let i = -5; i <= 5; i++) {
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + i);
+        
+        const targetYear = targetDate.getFullYear();
+        const targetMonth = targetDate.getMonth() + 1;
+        const targetDay = targetDate.getDate();
+        const dateStr = formatDate(targetYear, targetMonth, targetDay);
+
         let state: DayState = 'inactive';
         let fire = false;
 
-        const isToday = d === currentDate;
-        const isFuture = d > currentDate; // Vì đang tạo cho tháng hiện tại
+        const isToday = i === 0;
+        const isFuture = i > 0;
         
-        const currentIterDate = new Date(year, month - 1, d);
-        const isBeforeCreation = createdAtDate ? currentIterDate < createdAtDate : false;
-        const isPast = !isToday && !isFuture && !isBeforeCreation;
-
-        const dateStr = formatDate(year, month, d);
+        const isBeforeCreation = createdAtDate ? targetDate < createdAtDate : false;
+        const isPast = i < 0 && !isBeforeCreation;
 
         if (isFuture || isBeforeCreation) {
             state = 'inactive';
@@ -72,7 +78,7 @@ const generateCurrentMonth = (activeDates: string[], createdAtStr?: string): Mon
             }
         }
 
-        days.push({ id: dateStr, day: d.toString(), state, fire });
+        days.push({ id: dateStr, day: targetDay.toString(), state, fire });
     }
 
     return { id: `${month}-${year}`, title: `Tháng ${month} ${year}`, month, year, days };
@@ -88,7 +94,7 @@ const StreakCalendar = ({ onHeaderPress }: StreakCalendarProps) => {
   const activeDates = stats?.gamification?.activeDates || [];
   
   const currentMonthSection = useMemo(
-    () => generateCurrentMonth(activeDates, user?.createdAt), 
+    () => generateSlidingWindowDates(activeDates, user?.createdAt), 
     [activeDates, user?.createdAt]
   );
 

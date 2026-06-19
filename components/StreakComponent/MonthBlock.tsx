@@ -1,46 +1,31 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useMemo, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FontFamily, FontSize, Padding } from '../../constants/GlobalStyles';
-import { DayDot, PlaceholderDot } from './DayCell';
+import { DayDot } from './DayCell';
 import { MonthSection, CalendarDay } from './types';
-
-const MONTH_GRID_CELLS = 35;
-
-type MonthCell = {
-    id: string;
-    type: 'placeholder' | 'day';
-    day?: CalendarDay;
-};
-
-const buildMonthCells = (section: MonthSection): MonthCell[] => {
-    const leadingPlaceholders = Array.from({ length: 6 }, (_, index) => ({
-        id: section.id + '-lead-' + index,
-        type: 'placeholder' as const,
-    }));
-
-    const dayCells = section.days.map((day) => ({
-        id: day.id,
-        type: 'day' as const,
-        day,
-    }));
-
-    const remaining = Math.max(0, MONTH_GRID_CELLS - leadingPlaceholders.length - dayCells.length);
-    const trailingPlaceholders = Array.from({ length: remaining }, (_, index) => ({
-        id: section.id + '-trail-' + index,
-        type: 'placeholder' as const,
-    }));
-
-    return [...leadingPlaceholders, ...dayCells, ...trailingPlaceholders];
-};
 
 export const MonthBlock = ({ section }: { section: MonthSection }) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
+    const scrollViewRef = useRef<ScrollView>(null);
 
-    const monthCells = buildMonthCells(section);
+    useEffect(() => {
+        const screenWidth = Dimensions.get('window').width;
+        const pastDaysWidth = 5 * (44 + 12); // 5 ngày trước * (chiều rộng 44 + khoảng cách 12)
+        const todayCellWidth = 56; // Ngày hiện tại có kích thước 56
+        const paddingLeft = 15;
+        
+        // Tính toán offset để đưa ngày hiện tại vào giữa màn hình
+        const centerOffset = pastDaysWidth + paddingLeft + (todayCellWidth / 2) - (screenWidth / 2);
+
+        setTimeout(() => {
+            scrollViewRef.current?.scrollTo({ x: Math.max(0, centerOffset), animated: true });
+        }, 300); // Thêm một chút delay để UI kịp render trước khi cuộn
+    }, [section]);
 
     return (
         <View style={styles.monthBlock}>
@@ -48,14 +33,31 @@ export const MonthBlock = ({ section }: { section: MonthSection }) => {
                 <Text style={styles.monthTitle}>{section.title}</Text>
             </View>
 
-            <View style={styles.daysWrap}>
-                {monthCells.map((cell) => {
-                    if (cell.type === 'placeholder') {
-                        return <PlaceholderDot key={cell.id} />;
-                    }
-
-                    return cell.day ? <DayDot key={cell.id} item={cell.day} /> : null;
-                })}
+            <View style={styles.scrollWrapper}>
+                <ScrollView 
+                    ref={scrollViewRef}
+                    horizontal 
+                    showsHorizontalScrollIndicator={false} 
+                    contentContainerStyle={styles.daysWrap}
+                >
+                    {section.days.map((day) => (
+                        <DayDot key={day.id} item={day} />
+                    ))}
+                </ScrollView>
+                <LinearGradient
+                    colors={[colors.bg, colors.bg + '00']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.fadeLeft}
+                    pointerEvents="none"
+                />
+                <LinearGradient
+                    colors={[colors.bg + '00', colors.bg]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.fadeRight}
+                    pointerEvents="none"
+                />
             </View>
         </View>
     );
@@ -65,5 +67,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     monthBlock: { backgroundColor: colors.bg, borderWidth: 2, borderColor: colors.monthBlockBorder || 'rgba(80, 141, 78, 0.22)', borderRadius: 26, overflow: 'hidden' },
     monthHeader: { backgroundColor: colors.main2, paddingHorizontal: Padding.padding_20, paddingVertical: 14, borderTopLeftRadius: 26, borderTopRightRadius: 26 },
     monthTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.bg },
-    daysWrap: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: Padding.padding_20, backgroundColor: colors.bg },
+    scrollWrapper: { position: 'relative' },
+    daysWrap: { flexDirection: 'row', gap: 12, paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: Padding.padding_20, backgroundColor: colors.bg },
+    fadeLeft: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 32, zIndex: 1 },
+    fadeRight: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 32, zIndex: 1 },
 });

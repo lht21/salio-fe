@@ -7,7 +7,8 @@ import {
 } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import ActionMenuItem from '../ActionMenuItem';
 
 interface HistoryActionModalProps {
@@ -37,7 +38,7 @@ export default function HistoryActionModal({
 
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Tùy chọn bài viết</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <View style={styles.menuContainer}>

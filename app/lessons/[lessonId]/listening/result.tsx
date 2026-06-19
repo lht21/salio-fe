@@ -33,11 +33,14 @@ export default function ListeningResultScreen() {
         };
 
         results.forEach(res => {
-          if (!res) return;
-          tScore += (res.totalScore || 0);
-          tMax += (res.maxScore || 0);
+          if (!res || !res.data) return;
           
-          const b = res.breakdown;
+          // res là BaseResponse, lấy dữ liệu thực từ res.data
+          const payload = res.data;
+          tScore += (payload.totalScore || 0);
+          tMax += (payload.maxScore || 0);
+          
+          const b = payload.breakdown;
           if (b) {
             // Khớp chính xác Key với Backend: trueFalse, choice, deepComprehension
             if (b.trueFalse) { cats.trueFalse.s += b.trueFalse.score || 0; cats.trueFalse.m += b.trueFalse.maxScore || 0; }

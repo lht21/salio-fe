@@ -13,7 +13,8 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "../../../../components/Button";
-import CloseButton from "../../../../components/CloseButton";
+import IconButton from "../../../../components/IconButton";
+import { XIcon } from "phosphor-react-native";
 import { Color, FontFamily, FontSize, Padding, Gap } from "../../../../constants/GlobalStyles";
 
 export default function AudioCheckScreen() {
@@ -148,7 +149,8 @@ export default function AudioCheckScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Header với nút Back */}
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={() => router.back()} />
+        <IconButton Icon={XIcon} onPress={() => router.back()} />
+          
       </View>
 
       {/* Body: Hiệu ứng âm thanh ở giữa */}

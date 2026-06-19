@@ -6,7 +6,9 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import { Audio } from 'expo-av';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
+
 import Button from '../../components/Button';
 import SaveToFolderModal from '../../components/ModalOption/SaveToFolderModal';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
@@ -132,7 +134,7 @@ export default function FlashcardQuizResultScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* 1. HEADER */}
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={() => setShowExitModal(true)} />
+        <IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} />
       </View>
 
       <ScrollView 

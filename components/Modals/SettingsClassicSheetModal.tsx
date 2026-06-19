@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
 
 export type SettingsSheetModalProps = {
@@ -164,11 +165,7 @@ const SettingsSheetModal = ({
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
           {showCloseButton ? (
-            <CloseButton
-              variant="Stroke"
-              onPress={onClose}
-              style={styles.closeButton}
-            />
+            <IconButton Icon={XIcon} onPress={onClose} style={styles.closeButton} />
           ) : null}
         </View>
 

@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // --- IMPORT COMPONENTS & CONSTANTS ---
 import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../../../constants/GlobalStyles';
-import CloseButton from '../../../../components/CloseButton';
 import Button from '../../../../components/Button';
+import IconButton from '../../../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export default function GrammarIntroScreen() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function GrammarIntroScreen() {
       
       {/* 1. HEADER: Chỉ có nút X ở góc phải */}
       <View style={styles.header}>
-        <CloseButton variant="Stroke" onPress={handleClose} />
+        <IconButton Icon={XIcon} onPress={handleClose} />
       </View>
 
       {/* 2. NỘI DUNG CHÍNH */}

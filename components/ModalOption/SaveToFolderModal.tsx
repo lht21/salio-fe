@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 // IMPORT COMPONENT MỚI
 import ActionMenuItem from '../ActionMenuItem';
@@ -39,7 +40,7 @@ export default function SaveToFolderModal({ isVisible, onClose, wordData }: Save
 
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Lưu thẻ</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <View style={styles.menuContainer}>

@@ -11,7 +11,8 @@ import VocabularyService from '../../../../api/services/vocabulary.service';
 import LessonService from '../../../../api/services/lesson.service';
 import { LessonProgressResponse } from '../../../../api/types/lesson.types';
 import { GetVocabulariesRequest, Vocabulary } from '../../../../api/types/vocabulary.types';
-import CloseButton from '../../../../components/CloseButton';
+import IconButton from '../../../../components/IconButton';
+import { XIcon } from 'phosphor-react-native';
 import Button from '../../../../components/Button';
 import SaveToFolderModal from '../../../../components/ModalOption/SaveToFolderModal';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
@@ -120,7 +121,7 @@ export default function VocabularyResultScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       
-      <View style={styles.header}><CloseButton variant="Stroke" onPress={() => setShowExitModal(true)} /></View>
+      <View style={styles.header}><IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} /></View>
 
       <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.celebrationSection}>

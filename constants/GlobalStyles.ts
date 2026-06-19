@@ -26,7 +26,11 @@ export const lightTheme = {
   gray: "#64748B",
 
   // --- GREEN (cũ của bạn - giữ lại) ---
-  main: "#98F291",
+  main: "#9FD52C",
+  main75: "#E8F7C0",
+  main400: "#90CC18",
+  main200: "#C8ED6A",
+  main50: "#F2FCD0",
   mainLighter: "rgba(152, 242, 145, 0.10)",
   main2: "#6FAE6C",
   green: "#059669",

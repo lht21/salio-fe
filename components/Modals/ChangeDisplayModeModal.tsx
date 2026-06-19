@@ -6,7 +6,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export type DisplayMode = 'light' | 'dark';
 
@@ -63,7 +64,7 @@ const ChangeDisplayModeModal = forwardRef<BottomSheetModal, ChangeDisplayModeMod
       <BottomSheetView style={styles.sheetContent}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('settings.display', 'Hiển thị')}</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <View style={styles.body}>

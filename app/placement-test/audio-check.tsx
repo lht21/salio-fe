@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { SpeakerHigh, Warning } from "phosphor-react-native";
+import { WarningIcon, XIcon } from "phosphor-react-native";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
@@ -16,7 +16,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/Button";
-import CloseButton from "@/components/CloseButton";
+import IconButton from "@/components/IconButton";
 import PlacementTestService from "@/api/services/placement-test.service";
 import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
 
@@ -135,7 +135,8 @@ export default function AudioCheckScreen() {
       <SafeAreaView style={styles.safeArea}>
         {/* Header với nút Back */}
         <View style={styles.header}>
-          <CloseButton onPress={() => router.back()} style={styles.backButton} />
+          <IconButton Icon={XIcon} onPress={() => router.back()} style={styles.backButton} />
+            
         </View>
 
         {/* Bọc toàn bộ nội dung trong ScrollView */}
@@ -175,7 +176,7 @@ export default function AudioCheckScreen() {
             </View>
             {/* Alert Banner */}
             <View style={styles.alertBanner}>
-              <Warning size={40} color={Color.cam || "#FF6B00"} weight="fill" />
+              <WarningIcon size={40} color={Color.cam || "#FF6B00"} weight="fill" />
               <View style={styles.alertTextWrapper}>
                 <Text style={styles.alertTitle}>Cảnh báo</Text>
                 <Text style={styles.alertSubtitle}>Kẻ địch đang đến gần!</Text>

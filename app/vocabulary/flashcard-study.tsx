@@ -6,10 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
+import QuizHeader from '../../components/Modals/Question/QuizHeader';
+import { XIcon } from 'phosphor-react-native';
 import SwipableFlashcard, { FlashcardData } from '../../components/SwipableFlashcard';
 import FlashcardService from '../../api/services/flashcard.service';
 import apiClient from '../../api/client';
+import Cards02Icon from '../../components/icons/Cards02Icon';
 
 export default function FlashcardStudyScreen() {
   const router = useRouter();
@@ -30,8 +33,17 @@ export default function FlashcardStudyScreen() {
       if (!setId) return;
       try {
         setIsLoading(true);
-        const res = await FlashcardService.getSetById(setId as string);
+        const [res, favRes] = await Promise.all([
+          FlashcardService.getSetById(setId as string),
+          FlashcardService.getSetById('favorite').catch(() => null)
+        ]);
+
         if (res.success && res.data) {
+          const favoriteIds = new Set();
+          if (favRes && favRes.success && favRes.data) {
+            (favRes.data.cards || []).forEach((c: any) => favoriteIds.add(c._id || c));
+          }
+
           // Mapping dữ liệu từ API sang dạng FlashcardData để hiển thị
           const mappedCards: FlashcardData[] = (res.data.cards || []).map((card: any, index: number) => ({
             id: card._id || index.toString(),
@@ -42,7 +54,8 @@ export default function FlashcardStudyScreen() {
             hanja: card.sinoVietnamese ? [card.sinoVietnamese] : [],
             example: card.examples?.[0]?.korean || '',
             highlight: card.word,
-            image: card.imageUrl || 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=400'
+            image: card.imageUrl || 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=400',
+            isFavorite: setId === 'favorite' ? true : favoriteIds.has(card._id)
           }));
           setCards(mappedCards);
         }
@@ -55,6 +68,30 @@ export default function FlashcardStudyScreen() {
     };
     fetchCards();
   }, [setId]);
+
+  const handleToggleFavorite = async (id: string | number) => {
+    const cardId = id.toString();
+    const targetCardIndex = cards.findIndex(c => c.id === id);
+    if (targetCardIndex === -1) return;
+    
+    const targetCard = cards[targetCardIndex];
+    const isCurrentlyFavorite = targetCard.isFavorite;
+
+    // Optimistic Update: Cập nhật UI ngay lập tức
+    setCards(prev => prev.map(c => c.id === id ? { ...c, isFavorite: !c.isFavorite } : c));
+
+    try {
+      if (isCurrentlyFavorite) {
+        await FlashcardService.removeCardFromSet('favorite', cardId);
+      } else {
+        await FlashcardService.addCardsToSet('favorite', { vocabIds: [cardId] });
+      }
+    } catch (error) {
+      // Rollback UI nếu API gọi lỗi
+      setCards(prev => prev.map(c => c.id === id ? { ...c, isFavorite: isCurrentlyFavorite } : c));
+      console.error('Lỗi khi cập nhật yêu thích:', error);
+    }
+  };
 
   const totalCards = cards.length;
   const currentCard = cards[currentIndex];
@@ -125,7 +162,7 @@ export default function FlashcardStudyScreen() {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ fontFamily: FontFamily.lexendDecaMedium }}>Không có thẻ nào để học.</Text>
-        <CloseButton onPress={() => router.back()} style={{ marginTop: 20 }} />
+        <IconButton Icon={XIcon} onPress={() => router.back()} style={{ marginTop: 20 }} />
       </SafeAreaView>
     );
   }
@@ -133,26 +170,18 @@ export default function FlashcardStudyScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* HEADER SECTION */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View style={styles.progressPill}>
-            <Text style={styles.progressPillText}>
-              {Math.min(currentIndex + 1, totalCards)}/{totalCards}
-            </Text>
-          </View>
-          <CloseButton onPress={handleClose} />
-        </View>
+      <QuizHeader
+        current={Math.min(currentIndex + 1, totalCards)}
+        total={totalCards}
+        incorrectCount={0}
+        onClose={handleClose}
+        icon={<Cards02Icon width={40} height={40} />}
+      />
 
-        {/* Progress Bar */}
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: `${((Math.min(currentIndex + 1, totalCards)) / totalCards) * 100}%` }]} />
-        </View>
-
-        {/* Counter Row */}
-        <View style={styles.counterRow}>
-          <Text style={styles.counterLearn}>— {learnCount}</Text>
-          <Text style={styles.counterKnown}>{knownCount} +</Text>
-        </View>
+      {/* Counter Row */}
+      <View style={styles.counterRow}>
+        <Text style={styles.counterLearn}>— {learnCount}</Text>
+        <Text style={styles.counterKnown}>{knownCount} +</Text>
       </View>
 
       {/* FLASHCARD SECTION */}
@@ -163,6 +192,7 @@ export default function FlashcardStudyScreen() {
             card={currentCard}
             onSwipedLeft={onSwipedLeft}
             onSwipedRight={onSwipedRight}
+            onToggleFavorite={() => handleToggleFavorite(currentCard.id)}
           />
         ) : (
           <Text style={{ fontFamily: FontFamily.lexendDecaMedium }}>Bạn đã học xong!</Text>
@@ -199,13 +229,7 @@ export default function FlashcardStudyScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Color.bg },
-  header: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },
-  progressPill: { backgroundColor: Color.main2, paddingHorizontal: Padding.padding_15, paddingVertical: Padding.padding_5, borderRadius: Border.br_20 },
-  progressPillText: { color: Color.bg, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_14 },
-  progressBarBg: { height: 4, backgroundColor: Color.stroke, borderRadius: 2, marginBottom: Gap.gap_15 },
-  progressBarFill: { height: 4, backgroundColor: Color.main2, borderRadius: 2 },
-  counterRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  counterRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Padding.padding_20, marginBottom: Gap.gap_10 },
   counterLearn: { color: Color.cam, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
   counterKnown: { color: Color.main2, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
   flashcardArea: { flex: 1, justifyContent: 'center', alignItems: 'center' },

@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from 'phosphor-react-native';
 import { useRouter } from 'expo-router';
 import { FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
 import { useTheme } from '../contexts/ThemeContext';
+import IconButton from './IconButton';
 
 interface ScreenHeaderProps {
   title: string;
@@ -36,9 +37,13 @@ export default function ScreenHeader({
     <View style={[styles.header, style]}>
       <View style={styles.leftContent}>
         {showBackButton && (
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeftIcon size={24} color={colors.main2} weight="bold" />
-          </TouchableOpacity>
+          <IconButton
+            Icon={ArrowLeftIcon}
+            iconSize={18}
+            variant="Main"
+            onPress={handleBack}
+            style={styles.backButton}
+          />
         )}
         <Text style={styles.headerTitle}>{title}</Text>
       </View>
@@ -50,7 +55,12 @@ export default function ScreenHeader({
 const createStyles = (colors: any) => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, paddingBottom: Padding.padding_15, backgroundColor: colors.bg },
   leftContent: { flexDirection: 'row', alignItems: 'center' },
-  backButton: { marginRight: Gap.gap_15 },
+  backButton: { 
+    marginRight: Gap.gap_15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
   headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.text },
   rightContent: { flexDirection: 'row', alignItems: 'center' },
 });

@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { XIcon } from 'phosphor-react-native';
 
 // Components & Constants
-import CloseButton from '../../components/CloseButton';
+import IconButton from '../../components/IconButton';
 import { Color, FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../../components/Button';
 
@@ -52,7 +52,7 @@ export default function PaymentFailedScreen() {
         {/* --- HEADER --- */}
         <View style={styles.header}>
           {/* Nút X thoát hoàn toàn luồng thanh toán */}
-          <CloseButton variant="Stroke" onPress={handleClose} />
+          <IconButton Icon={XIcon} onPress={handleClose} />
         </View>
 
         {/* --- BODY CONTENT --- */}

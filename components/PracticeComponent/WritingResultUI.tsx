@@ -6,11 +6,12 @@ import Animated, { useSharedValue, withTiming, useAnimatedProps, Easing } from '
 import Svg, { Circle } from 'react-native-svg';
 import { 
   TextAUnderlineIcon, TranslateIcon, BookOpenIcon, LinkIcon,
-  TextTIcon, ClockIcon, TargetIcon, SealQuestionIcon, HouseIcon
+  TextTIcon, ClockIcon, TargetIcon, SealQuestionIcon, HouseIcon,
+  XIcon
 } from 'phosphor-react-native';
 
 import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
 import CategoryChip from '../CategoryChip';
 import Button from '../Button';
 import StatCircle from '../StatCircle';
@@ -125,7 +126,8 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
             <TouchableOpacity style={styles.helpButton} onPress={() => setShowActionMenu(true)}>
               <SealQuestionIcon size={20} color={Color.bg} weight="bold" />
             </TouchableOpacity>
-            <CloseButton variant="Stroke" onPress={onHomePress} />
+            <IconButton Icon={XIcon} onPress={onHomePress} />
+            
           </View>
         </View>
 

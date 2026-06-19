@@ -13,9 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
-  CaretLeftIcon,
   SpeakerHighIcon,
   BookmarkSimpleIcon,
   MagicWandIcon,
@@ -32,6 +30,7 @@ import VocabularyService from '../../api/services/vocabulary.service';
 import { Vocabulary } from '../../api/types/vocabulary.types';
 import { useUser } from '../../contexts/UserContext';
 import FlashcardService from '../../api/services/flashcard.service';
+import ScreenHeader from '../../components/ScreenHeader';
 
 // --- TYPES ---
 interface AIResult {
@@ -251,19 +250,6 @@ export default function VocabularyDetailScreen() {
     return type;
   };
 
-  const getGradientColors = (type?: string) => {
-    if (!type) return [colors.cardGreenBg, colors.main];
-    const lowerType = type.toLowerCase();
-    
-    if (lowerType === 'noun' || lowerType === 'danh từ') return [colors.picVocabBg || colors.cardGreenBg, colors.main];
-    if (lowerType === 'verb' || lowerType === 'động từ') return [colors.badgePurpleBg || '#F3E8FF', colors.badgePurpleText || '#A855F7'];
-    if (lowerType === 'adjective' || lowerType === 'tính từ') return [colors.orangePastel || '#FFEDD5', colors.cam || '#F97316'];
-    if (lowerType === 'adverb' || lowerType === 'phó từ') return [colors.bluePastel || '#DBEAFE', colors.blue || '#3B82F6'];
-    
-    // Mặc định
-    return [colors.cardGreenBg, colors.main];
-  };
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -271,14 +257,7 @@ export default function VocabularyDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* --- HEADER SECTION --- */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <CaretLeftIcon size={24} color={colors.text} weight="bold" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('vocabulary.detail_title', 'Chi tiết từ vựng')}</Text>
-          {/* Spacer để căn giữa title */}
-          <View style={{ width: 40 }} />
-        </View>
+        <ScreenHeader title={t('vocabulary.detail_title', 'Chi tiết từ vựng')} style={{ backgroundColor: colors.bgLightBlue }} />
 
         {isScreenLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -296,9 +275,8 @@ export default function VocabularyDetailScreen() {
               contentContainerStyle={styles.scrollContent}
             >
               {/* PHẦN 1: THÔNG TIN TỪ VỰNG CHÍNH (TOP CARD) */}
-              <LinearGradient
-                colors={getGradientColors(vocabData.type)}
-                style={styles.topCard}
+              <View
+                style={[styles.topCard, { backgroundColor: '#C8ED6A' }]}
               >
                 {/* Nút thao tác góc phải */}
                 <View style={styles.cardActions}>
@@ -307,12 +285,7 @@ export default function VocabularyDetailScreen() {
                       <MotiView
                         from={{ opacity: 0.5, scale: 1 }}
                         animate={{ opacity: 0, scale: 1.8 }}
-                        transition={{
-                          type: 'timing',
-                          duration: 1000,
-                          loop: true,
-                          repeatReverse: false,
-                        }}
+                        transition={{ duration: 800, loop: true }}
                         style={styles.speakerRipple}
                       />
                     )}
@@ -348,7 +321,7 @@ export default function VocabularyDetailScreen() {
                     </View>
                   )}
                 </View>
-              </LinearGradient>
+              </View>
 
               {/* HÌNH ẢNH MINH HỌA */}
               {vocabData.imageUrl && /^(http|https):\/\/[^ "]+$/.test(vocabData.imageUrl) && (
@@ -396,17 +369,17 @@ export default function VocabularyDetailScreen() {
                   </View>
                 </View>
               )}
+              
+              {/* PHẦN 3: FOOTER - LUYỆN TẬP ĐẶT CÂU AI */}
+              <AIPracticeFooter 
+                word={vocabData.word}
+                sentence={sentence}
+                setSentence={setSentence}
+                onCheck={handleAICheck}
+                isLoading={isLoading}
+                aiResult={aiResult}
+              />
             </ScrollView>
-
-            {/* PHẦN 3: FIXED FOOTER - LUYỆN TẬP ĐẶT CCâu AI */}
-            <AIPracticeFooter 
-              word={vocabData.word}
-              sentence={sentence}
-              setSentence={setSentence}
-              onCheck={handleAICheck}
-              isLoading={isLoading}
-              aiResult={aiResult}
-            />
           </>
         )}
 
@@ -422,24 +395,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   keyboardAvoid: {
     flex: 1,
-  },
-  // --- HEADER ---
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Padding.padding_15,
-    paddingVertical: 12,
-    backgroundColor: colors.bgLightBlue,
-  },
-  backButton: {
-    padding: 8,
-    marginLeft: -8,
-  },
-  headerTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 || 16,
-    color: colors.text,
   },
   // --- BODY SCROLL ---
   scrollContent: {
@@ -578,16 +533,11 @@ const createStyles = (colors: any) => StyleSheet.create({
   // --- FOOTER AI PRACTICE ---
   footerContainer: {
     backgroundColor: colors.bg,
-    paddingHorizontal: Padding.padding_15 || 15,
-    paddingTop: 16,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
-    borderTopWidth: 1,
-    borderTopColor: colors.stroke,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 10, // Shadow nhẹ đè lên ScrollView
+    borderRadius: Border.br_20 || 20,
+    padding: Padding.padding_20 || 20,
+    marginBottom: Gap.gap_10 || 20,
+    borderWidth: 1,
+    borderColor: colors.greenLight,
   },
   footerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,

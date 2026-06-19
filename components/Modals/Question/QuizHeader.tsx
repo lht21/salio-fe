@@ -3,7 +3,9 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../constants/GlobalStyles';
-import CloseButton from '../../CloseButton';
+import IconButton from '../../IconButton';
+import { XIcon } from 'phosphor-react-native';
+
 
 type QuizHeaderProps = {
   current: number;
@@ -11,6 +13,7 @@ type QuizHeaderProps = {
   incorrectCount: number;
   onClose?: () => void;
   timerLabel?: string;
+  icon?: React.ReactNode;
 };
 
 export default function QuizHeader({
@@ -18,7 +21,8 @@ export default function QuizHeader({
   total,
   incorrectCount,
   onClose,
-  timerLabel
+  timerLabel,
+  icon
 }: QuizHeaderProps) {
   const router = useRouter();
   const progress = total > 0 ? (current / total) * 100 : 0;
@@ -26,8 +30,12 @@ export default function QuizHeader({
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <View style={styles.progressPill}>
-          <Text style={styles.progressText}>{current}/{total}</Text>
+        
+        <View style={styles.leftGroup}>
+          {icon}
+          <View style={styles.progressPill}>
+            <Text style={styles.progressText}>{current}/{total}</Text>
+          </View>
         </View>
 
         {timerLabel ? (
@@ -42,7 +50,7 @@ export default function QuizHeader({
           <View style={styles.spacer} />
         )}
 
-        <CloseButton variant="Stroke" onPress={onClose || (() => router.back())} />
+        <IconButton Icon={XIcon} onPress={onClose || (() => router.back())} />
       </View>
 
       <View style={styles.progressBarBg}>
@@ -64,8 +72,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Gap.gap_15,
   },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_10,
+  },
   progressPill: {
-    backgroundColor: Color.main2,
+    backgroundColor: Color.main,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: Border.br_20,
@@ -101,14 +114,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   progressBarBg: {
-    height: 8,
+    height: 10,
     backgroundColor: Color.stroke,
-    borderRadius: 4,
+    borderRadius: 5,
     marginBottom: Gap.gap_15,
   },
   progressBarFill: {
-    height: 8,
-    backgroundColor: Color.main2,
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: Color.main,
+    borderRadius: 5,
   },
 });

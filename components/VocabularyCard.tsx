@@ -7,6 +7,7 @@ import * as Speech from 'expo-speech';
 import { useUser } from '../contexts/UserContext';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
+import PosBadge from './PracticeComponent/PosBadge';
 
 interface Props {
   item: {
@@ -87,9 +88,7 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.word}>{item.word}</Text>
-          <View style={[styles.badge, { backgroundColor: badge.bg }]}>
-            <Text style={[styles.badgeText, { color: badge.text }]}>{displayPos}</Text>
-          </View>
+          <PosBadge text={displayPos} bgColor={badge.bg} textColor={badge.text} />
         </View>
         <Text style={styles.phonetic}>{item.phonetic}</Text>
         <Text style={styles.meaning}>{item.meaning}</Text>
@@ -98,7 +97,7 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
       <View style={styles.actions}>
         <TouchableOpacity onPress={handleSpeak} activeOpacity={0.7}>
           <SpeakerSimpleHighIcon 
-            size={24} 
+            size={30} 
             color={isSpeaking ? colors.main2 : colors.text} 
             weight={isSpeaking ? "fill" : "regular"} 
           />
@@ -110,8 +109,8 @@ const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPre
             activeOpacity={0.85}
           >
             <BookmarkSimpleIcon
-              size={24}
-              color={item.isFavorite ? colors.main2 : colors.text}
+              size={30}
+              color={item.isFavorite ? colors.main : colors.text}
               weight={item.isFavorite ? 'fill' : 'regular'}
             />
           </TouchableOpacity>
@@ -128,19 +127,17 @@ const createStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bg,
     borderWidth: Stroke.stroke,
     borderColor: colors.stroke,
-    borderRadius: Border.br_20,
-    padding: Padding.padding_15,
+    borderRadius: Border.br_30,
+    padding: Padding.padding_20 || 20,
     marginBottom: Gap.gap_15,
     alignItems: 'center',
   },
   content: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
-  word: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16 || 16, color: colors.text },
-  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: Border.br_5 },
-  badgeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10 },
-  phonetic: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray, marginBottom: 2 },
+  word: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20 || 16, color: colors.text },
+  phonetic: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: colors.gray, marginBottom: 2 },
   meaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color },
-  actions: { flexDirection: 'row', gap: Gap.gap_15 || 15 },
+  actions: { flexDirection: 'row', gap: Gap.gap_20 || 20 },
   favoriteButton: {
     padding: 0,
     alignItems: 'center',

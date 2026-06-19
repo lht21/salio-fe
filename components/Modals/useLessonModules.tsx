@@ -4,7 +4,7 @@ import {
   HeadphonesIcon,
   MicrophoneStageIcon,
   PenNibStraightIcon,
-  SpeakerHighIcon,
+  BracketsAngleIcon,
 } from 'phosphor-react-native';
 import LessonService from '../../api/services/lesson.service';
 import { LessonProgressResponse } from '../../api/types/lesson.types';
@@ -109,7 +109,8 @@ const buildDynamicSections = (modules: LessonModulesData | null, progress: any):
   if (!modules) return [];
 
   // Sửa lỗi Unwrapping: Payload thực sự nằm trong trường data của BaseResponse
-  const progressSections = progress?.data?.sections ?? {};
+  const actualProgress = progress?.data ?? progress;
+  const progressSections = actualProgress?.sections ?? {};
   const vocabularyItems = [...(modules.vocabulary ?? []), ...(modules.vocabularyQuizzes ?? [])];
   const grammarItems = [...(modules.grammar ?? []), ...(modules.grammarQuizzes ?? [])];
   const configs: LessonSectionConfig[] = [];
@@ -138,7 +139,7 @@ const buildDynamicSections = (modules: LessonModulesData | null, progress: any):
   };
 
   pushSection('vocabulary', vocabularyItems, `${vocabularyItems.length} từ vựng`, 'Từ vựng của bài học', <BookOpenTextIcon size={24} color={Color.main2} weight="fill" />, buildDetails(vocabularyItems.slice(0, 10), progressSections.vocabulary, (item, index) => item.word ?? item.title ?? `Quiz ${index + 1}`, (item) => item.meaning ?? item.description ?? 'Bài luyện từ vựng'));
-  pushSection('grammar', grammarItems, `${grammarItems.length} ngữ pháp`, 'Mẫu câu và điểm ngữ pháp', <SpeakerHighIcon size={24} color={Color.main2} weight="fill" />, buildDetails(grammarItems, progressSections.grammar, (item, index) => item.structure ?? item.title ?? `Quiz ${index + 1}`, (item) => item.meaning ?? item.description ?? 'Bài luyện ngữ pháp'));
+  pushSection('grammar', grammarItems, `${grammarItems.length} ngữ pháp`, 'Mẫu câu và điểm ngữ pháp', <BracketsAngleIcon size={24} color={Color.main2} weight="fill" />, buildDetails(grammarItems, progressSections.grammar, (item, index) => item.structure ?? item.title ?? `Quiz ${index + 1}`, (item) => item.meaning ?? item.description ?? 'Bài luyện ngữ pháp'));
   pushSection('listening', modules.listening ?? [], `${modules.listening?.length ?? 0} bài nghe`, 'Luyện nghe theo ngữ cảnh', <HeadphonesIcon size={24} color={Color.main2} weight="fill" />, buildDetails(modules.listening ?? [], progressSections.listening, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? 'Bài nghe'));
   pushSection('speaking', modules.speaking ?? [], `${modules.speaking?.length ?? 0} bài nói`, 'Luyện phát âm và phản xạ nói', <MicrophoneStageIcon size={24} color={Color.main2} weight="fill" />, buildDetails(modules.speaking ?? [], progressSections.speaking, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? item.prompt ?? 'Bài nói'));
   pushSection('reading', modules.reading ?? [], `${modules.reading?.length ?? 0} bài đọc`, 'Luyện đọc hiểu', <BookOpenTextIcon size={24} color={Color.main2} weight="fill" />, buildDetails(modules.reading ?? [], progressSections.reading, (_, index) => `Bài ${index + 1}`, (item) => item.title ?? 'Bài đọc'));

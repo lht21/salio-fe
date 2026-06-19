@@ -7,7 +7,8 @@ import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/
 import { AvatarPreset } from '../../constants/avatarPresets';
 import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button';
-import CloseButton from '../CloseButton';
+import IconButton from '../IconButton';
+import { XIcon } from 'phosphor-react-native';
 
 export type ChangeAvatarModalProps = {
   selectedAvatarId: string;
@@ -72,7 +73,7 @@ const ChangeAvatarModal = forwardRef<BottomSheetModal, ChangeAvatarModalProps>((
       <BottomSheetView style={styles.sheetContent}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('settings.changeAvatar', 'Thay đổi ảnh đại diện')}</Text>
-            <CloseButton variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} onPress={onClose} />
           </View>
 
           <View style={styles.body}>

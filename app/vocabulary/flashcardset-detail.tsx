@@ -26,6 +26,7 @@ import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
 import IconButton from '../../components/IconButton';
 import ReviewModeCard from '../../components/ReviewModeCard';
+import ProgressBar from '../../components/ProgressBar';
 
 export default function FlashcardSetDetailScreen() {
   const { id, title } = useLocalSearchParams();
@@ -306,9 +307,7 @@ export default function FlashcardSetDetailScreen() {
                 <Text style={styles.progressText}>{t('vocabulary.remembered_count_label', 'Đã thuộc: ')}<Text style={{color: colors.picVocabText}}>{rememberedCount}</Text></Text>
                 <Text style={styles.progressText}>{t('vocabulary.learn_again_label', 'Cần học: ')}<Text style={{color: colors.cam}}>{forgottenCount}</Text></Text>
               </View>
-              <View style={styles.progressBarBgDetail}>
-                <View style={[styles.progressBarFillDetail, { width: `${progressPercent}%` }]} />
-              </View>
+              <ProgressBar progress={progressPercent / 100} height={8} />
             </View>
           )}
           
@@ -495,8 +494,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   progressContainer: { backgroundColor: colors.bg, borderRadius: Border.br_20, padding: Padding.padding_15, marginBottom: Gap.gap_15, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
   progressStats: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   progressText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.text },
-  progressBarBgDetail: { height: 8, backgroundColor: colors.stroke, borderRadius: 4, overflow: 'hidden' },
-  progressBarFillDetail: { height: 8, backgroundColor: colors.main, borderRadius: 4 },
   reviewModesContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: Gap.gap_10 || 10 },
   bottomSection: { paddingHorizontal: Padding.padding_15 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },

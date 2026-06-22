@@ -19,6 +19,9 @@ import { BookOpenIcon, MicrophoneIcon, SpeakerHighIcon, XIcon } from 'phosphor-r
 
 import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
 import IntroPopup from '../../../../components/Modals/Popup/IntroPopup';
+import { QuizHeader } from '../../../../components/Modals/Question';
+import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
+import Button from '../../../../components/Button';
 import { Border, Color, FontFamily, FontSize, Gap } from '../../../../constants/GlobalStyles';
 import LessonService from '../../../../api/services/lesson.service';
 import { SpeakingItem as BESpeakingItem } from '../../../../api/types/lesson.types';
@@ -67,6 +70,7 @@ export default function SpeakingPracticeScreen() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [showIntroModal, setShowIntroModal] = React.useState(true);
+  const [showExitModal, setShowExitModal] = React.useState(false);
   const [recordingState, setRecordingState] = React.useState<'idle' | 'requesting' | 'recording' | 'recorded'>('idle');
   const [recordedUris, setRecordedUris] = React.useState<Record<string, string>>({});
   const [recordedDurations, setRecordedDurations] = React.useState<Record<string, number>>({});
@@ -291,13 +295,12 @@ export default function SpeakingPracticeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.sheet}>
         {/* Header */}
-        <View style={styles.sheetTop}>
-          <Text style={styles.counter}>{currentIndex + 1}/{items.length}</Text>
-          <Pressable onPress={() => router.back()} hitSlop={10}><XIcon size={22} color="#A1A1AA" weight="bold" /></Pressable>
-        </View>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${((currentIndex + 1) / items.length) * 100}%` }]} />
-        </View>
+        <QuizHeader 
+          current={currentIndex + 1} 
+          total={items.length} 
+          incorrectCount={0} 
+          onClose={() => setShowExitModal(true)} 
+        />
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           <Animated.View style={{ opacity: contentOpacity, transform: [{ translateY: contentTranslateY }], gap: 16 }}>
@@ -345,8 +348,9 @@ export default function SpeakingPracticeScreen() {
 
             {recordedUris[currentItem._id] && (
               <View style={styles.evaluationArea}>
-                <Pressable 
-                  style={styles.replayButton} 
+                <Button 
+                  variant="Outline"
+                  title={isPlayingUserAudio ? 'Đang phát - Bấm để dừng' : 'Nghe lại giọng mình'}
                   onPress={async () => {
                     if (isPlayingUserAudio) {
                       await stopPlayback();
@@ -371,28 +375,15 @@ export default function SpeakingPracticeScreen() {
                       });
                     }
                   }}
-                >
-                  <SpeakerHighIcon 
-                    size={18} 
-                    color={Color.cam} 
-                    weight={isPlayingUserAudio ? "fill" : "regular"} 
-                  />
-                  <Text style={styles.replayText}>
-                    {isPlayingUserAudio ? 'Đang phát - Bấm để dừng' : 'Nghe lại giọng mình'}
-                  </Text>
-                </Pressable>
+                  style={{ marginBottom: 10 }}
+                />
 
-                <Pressable 
-                  style={[styles.evaluateButton, recordingState === 'requesting' && styles.evaluateButtonDisabled]} 
-                  onPress={handleEvaluatePress} 
+                <Button
+                  variant="Green"
+                  title={recordingState === 'requesting' ? "Đang xử lý..." : "Kiểm tra"}
+                  onPress={handleEvaluatePress}
                   disabled={recordingState === 'requesting'}
-                >
-                  {recordingState === 'requesting' ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.evaluateButtonText}>Kiểm tra</Text>
-                  )}
-                </Pressable>
+                />
               </View>
             )}
           </Animated.View>
@@ -400,7 +391,7 @@ export default function SpeakingPracticeScreen() {
 
         <View style={styles.bottomAction}>
           <Pressable style={[styles.micButtonOuter, recordingState === 'recording' && styles.micButtonOuterActive]} onPress={handleMicPress}>
-            <View style={styles.micButtonInner}><MicrophoneIcon size={30} color={Color.cam} weight="fill" /></View>
+            <View style={styles.micButtonInner}><MicrophoneIcon size={30} color={Color.color} weight="fill" /></View>
           </Pressable>
         </View>
       </View>
@@ -415,6 +406,16 @@ export default function SpeakingPracticeScreen() {
         translateY={feedbackTranslateY}
         opacity={feedbackOpacity}
         imageSource={feedbackState === 'failure' ? require('../../../../assets/images/horani/failure.png') : require('../../../../assets/images/horani/success.png')}
+      />
+
+      <ConfirmModal 
+        isVisible={showExitModal} 
+        title="Dừng học sao?" 
+        subtitle="Bạn đang học dở, nếu thoát bây giờ tiến độ sẽ không được lưu." 
+        cancelText="Vẫn rời đi" 
+        confirmText="Học tiếp" 
+        onCancel={() => { setShowExitModal(false); router.back(); }} 
+        onConfirm={() => setShowExitModal(false)} 
       />
     </SafeAreaView>
   );
@@ -469,7 +470,7 @@ const RecordPad = ({ recordingState, waveTick, onPress, instruction }: any) => (
 );
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#4A4A4A' },
+  safeArea: { flex: 1, backgroundColor: Color.bg },
   sheet: { flex: 1, backgroundColor: Color.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden' },
   sheetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
   counter: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.text },
@@ -495,13 +496,8 @@ const styles = StyleSheet.create({
   answerPadText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#666', marginTop: 10 },
   hintText: { fontSize: 11, color: '#AAA', textAlign: 'center', marginTop: 4 },
   waveformRow: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 30 },
-  waveformBar: { width: 3, backgroundColor: '#67C76B', borderRadius: 2 },
+  waveformBar: { width: 3, backgroundColor: Color.main, borderRadius: 2 },
   evaluationArea: { gap: 10, marginTop: 10 },
-  replayButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
-  replayText: { fontSize: 13, color: Color.cam, fontFamily: FontFamily.lexendDecaMedium },
-  evaluateButton: { backgroundColor: Color.cam, borderRadius: 25, height: 48, alignItems: 'center', justifyContent: 'center' },
-  evaluateButtonDisabled: { backgroundColor: '#CCC' },
-  evaluateButtonText: { color: '#FFF', fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15 },
   dialogueWrap: { gap: 16 },
   dialogueRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   dialogueRowReverse: { flexDirection: 'row-reverse' },
@@ -509,7 +505,7 @@ const styles = StyleSheet.create({
   dialogueBubbleLeft: { borderTopLeftRadius: 2 },
   dialogueBubbleRight: { borderTopRightRadius: 2, backgroundColor: '#FFF9F2' },
   bottomAction: { paddingBottom: 25, alignItems: 'center' },
-  micButtonOuter: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFEAAE', alignItems: 'center', justifyContent: 'center' },
-  micButtonOuterActive: { backgroundColor: '#FFF2C7' },
-  micButtonInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#FFF7D7', alignItems: 'center', justifyContent: 'center' },
+  micButtonOuter: { width: 72, height: 72, borderRadius: 36, backgroundColor: Color.main75, alignItems: 'center', justifyContent: 'center' },
+  micButtonOuterActive: { backgroundColor: Color.main50 },
+  micButtonInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: Color.main, alignItems: 'center', justifyContent: 'center' },
 });

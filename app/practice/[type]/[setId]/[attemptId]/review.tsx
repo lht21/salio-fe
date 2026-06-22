@@ -10,6 +10,7 @@ import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../.
 import ScreenHeader from '../../../../../components/ScreenHeader';
 import QuestionBlock from '../../../../../components/ExamComponent/QuestionBlock';
 import PracticeService from '../../../../../api/services/practice.service';
+import ProgressBar from '../../../../../components/ProgressBar';
 
 // --- SUB-COMPONENTS ---
 
@@ -124,9 +125,7 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
         {isPlaying ? <PauseIcon size={20} color={Color.bg} weight="fill" /> : <PlayIcon size={20} color={Color.bg} weight="fill" />}
       </TouchableOpacity>
       <View style={styles.progressContainer}>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
-        </View>
+        <ProgressBar progress={progressPercent / 100} height={6} style={{ marginBottom: 6 }} />
         <View style={styles.timeRow}>
           <Text style={styles.timeText}>{formatTime(position)}</Text>
           <Text style={styles.timeText}>{formatTime(duration)}</Text>
@@ -470,8 +469,6 @@ const styles = StyleSheet.create({
   audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: Color.stroke },
   playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
   progressContainer: { flex: 1, justifyContent: 'center' },
-  progressBarBg: { height: 6, backgroundColor: Color.stroke, borderRadius: 3, marginBottom: 6 },
-  progressBarFill: { height: 6, backgroundColor: Color.main, borderRadius: 3 },
   timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
   timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray },
   contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },

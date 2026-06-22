@@ -37,7 +37,7 @@ export default function FinalTestExplanationScreen() {
     const loadData = async () => {
       try {
         const data = await LessonService.getFinalTestResult(lessonId, sessionId);
-        const { quiz, session } = data;
+        const { quiz, session } = data.data;
 
         // Flatten quiz để tìm thông tin câu hỏi gốc
         const allQuestions: any[] = [];

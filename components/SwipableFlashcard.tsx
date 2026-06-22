@@ -298,13 +298,21 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
 
                 {/* VÍ DỤ & HÌNH ẢNH */}
                 {step === 3 && (
-                  <View style={styles.stepContainer}>
-                    <Image source={{ uri: card.image }} style={styles.exampleImage} />
-                    <TouchableOpacity onPress={() => handleSpeak(card.example)}>
-                      <SpeakerHighIcon size={24} color={Color.main2} weight="fill" style={{ marginTop: 20 }} />
+                  <>
+                    <TouchableOpacity 
+                      style={styles.audioBtn}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleSpeak(card.example);
+                      }}
+                    >
+                      <SpeakerHighIcon size={24} color={Color.bg} weight="regular" />
                     </TouchableOpacity>
-                    {renderHighlightedExample(card.example, card.highlight)}
-                  </View>
+                    <View style={styles.stepContainer}>
+                      <Image source={{ uri: card.image }} style={styles.exampleImage} />
+                      {renderHighlightedExample(card.example, card.highlight)}
+                    </View>
+                  </>
                 )}
                 {/* Đã xóa ArrowsClockwiseIcon ở đây */}
               </View>

@@ -311,7 +311,6 @@ export interface LessonModules {
   rewardBadge?: Badge;
   hangul: HangulCharacter[];
   vocabulary: Vocabulary[];
-  vocabularyQuizzes: VocabularyQuiz[];
   grammar: Grammar[];
   grammarQuizzes: GrammarQuiz[];
   listening: ListeningItem[];
@@ -332,7 +331,6 @@ export interface Lesson {
   thumbnail?: string;
   order: number;
   vocabulary?: string[] | Vocabulary[];
-  vocabularyQuizzes?: string[] | VocabularyQuiz[];
   grammar?: string[] | Grammar[];
   grammarQuizzes?: string[] | GrammarQuiz[];
   listening?: string[] | ListeningItem[];
@@ -374,7 +372,7 @@ export interface ProgressResultRef {
 }
 
 export interface SectionItemProgress {
-  moduleType: 'hangul' | 'vocabulary' | 'vocabularyQuiz' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing';
+  moduleType: 'hangul' | 'vocabulary' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing';
   itemId: string;
   status: 'locked' | 'learning' | 'completed';
   score: number;
@@ -410,7 +408,7 @@ export interface FinalTestStatus {
 
 export interface ResumePoint {
   section?: 'hangul' | 'vocabulary' | 'grammar' | 'listening' | 'speaking' | 'reading' | 'writing';
-  moduleType?: 'hangul' | 'vocabulary' | 'vocabularyQuiz' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing';
+  moduleType?: 'hangul' | 'vocabulary' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing';
   itemId?: string;
   title?: string;
 }
@@ -553,7 +551,7 @@ export interface EvaluateLessonSpeakingSubmissionRequest {
 }
 
 export interface AddLessonModuleRequest {
-  moduleType: 'vocabulary' | 'vocabularyQuiz' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing' | 'finalTest';
+  moduleType: 'vocabulary' | 'grammar' | 'grammarQuiz' | 'listening' | 'speaking' | 'reading' | 'writing' | 'finalTest';
   moduleId?: string;
   moduleIds?: string[];
 }

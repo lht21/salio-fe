@@ -1,20 +1,20 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, Text, View, ActivityIndicator, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View, ActivityIndicator, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import GrammarService from '@/api/services/grammar.service';
 import LessonService from '@/api/services/lesson.service';
-import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
-import FeedbackPopup from '../../../../components/Modals/Popup/FeedbackPopup';
-import { AnswerOption, QuizHeader, type OptionStatus } from '../../../../components/Modals/Question';
-import { Color, FontFamily, FontSize, Gap, Padding, Border } from '../../../../constants/GlobalStyles';
+import QuizStudyUI, { QuizQuestion } from '../../../../components/QuizStudyUI';
+import { Color, FontFamily, Gap, Padding } from '../../../../constants/GlobalStyles';
+import { QuizHeader } from '../../../../components/Modals/Question';
 
 export default function GrammarQuizScreen() {
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
 
   const [session, setSession] = useState<any>(null);
+  const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -22,7 +22,6 @@ export default function GrammarQuizScreen() {
   const [isAnswered, setIsAnswered] = useState(false);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [feedbackState, setFeedbackState] = useState<'hidden' | 'success' | 'failure'>('hidden');
-  const [showExitModal, setShowExitModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -39,7 +38,7 @@ export default function GrammarQuizScreen() {
     setErrorMsg(null);
     try {
       const modulesResponse = await LessonService.getModules(lessonId as string);
-      const quizId = modulesResponse?.data?.data?.grammarQuizzes?.[0] || modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.grammarQuizzes?.[0];
+      const quizId = modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.grammarQuizzes?.[0];
 
       if (!quizId) {
           setErrorMsg("Bài học này chưa có Quiz Ngữ pháp.");
@@ -50,7 +49,22 @@ export default function GrammarQuizScreen() {
       const startRes = await GrammarService.startGrammarQuiz({ quizId: typeof quizId === 'object' ? quizId._id : quizId });
       const sessionId = startRes?.data?.sessionId || startRes?.sessionId;
       const sessionData = await GrammarService.getGrammarQuizSession(sessionId);
-      setSession(sessionData?.data || sessionData);
+      const data = sessionData?.data || sessionData;
+      setSession(data);
+
+      if (data && data.questions) {
+        const mappedData: QuizQuestion[] = data.questions.map((q: any) => {
+          const opts = q.metadata?.options || q.options || [];
+          return {
+            id: q._id,
+            question: q.questionText || q.question,
+            options: opts.map((optText: string) => ({ id: optText, text: optText })),
+            correctOptionId: q.correctAnswer,
+            originalQuestion: q
+          };
+        });
+        setQuizData(mappedData);
+      }
     } catch (error) {
       console.error('Lỗi khởi tạo grammar quiz:', error);
       setErrorMsg("Có lỗi xảy ra khi tải Quiz Ngữ pháp.");
@@ -65,13 +79,12 @@ export default function GrammarQuizScreen() {
   };
 
   const currentQuestionData = session?.questions?.[currentIndex];
-  const q = currentQuestionData?.question;
-
+  
   const handleSubmit = async (answer: string) => {
     if (isAnswered || !answer.trim()) return;
     Keyboard.dismiss();
 
-    const isCorrect = normalizeString(answer) === normalizeString(q.correctAnswer);
+    const isCorrect = normalizeString(answer) === normalizeString(currentQuestionData.correctAnswer);
     setSelectedAnswer(answer);
     setIsAnswered(true);
 
@@ -143,56 +156,50 @@ export default function GrammarQuizScreen() {
   if (!session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <QuizHeader current={currentIndex + 1} total={session.questions.length} incorrectCount={incorrectCount} onClose={() => setShowExitModal(true)} />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.questionText}>{q.questionText || q.question}</Text>
-          {q.type === 'short_answer' ? (
+    <QuizStudyUI
+      quizData={quizData}
+      currentIndex={currentIndex}
+      isLoading={loading}
+      isAnswered={isAnswered}
+      selectedAnswerId={selectedAnswer}
+      incorrectCount={incorrectCount}
+      feedbackState={feedbackState}
+      feedbackOpacity={feedbackOpacity}
+      feedbackTranslateY={feedbackTranslateY}
+      onSelectOption={(opt) => handleSubmit(opt)}
+      onNextQuestion={handleNext}
+      onClose={() => router.back()}
+      renderCustomOptions={(currentQuestion) => {
+        const q = currentQuestion.originalQuestion;
+        if (q.type === 'short_answer') {
+          return (
             <View style={styles.inputContainer}>
               <TextInput
-                style={[styles.textInput, isAnswered && (normalizeString(inputText) === normalizeString(q.correctAnswer) ? styles.inputSuccess : styles.inputError)]}
+                style={[
+                  styles.textInput, 
+                  isAnswered && (normalizeString(inputText) === normalizeString(q.correctAnswer) ? styles.inputSuccess : styles.inputError)
+                ]}
                 placeholder="Nhập đáp án..."
                 value={inputText}
                 onChangeText={setInputText}
                 editable={!isAnswered}
-                autoFocus
               />
-              {!isAnswered && <TouchableOpacity style={styles.submitBtn} onPress={() => handleSubmit(inputText)}><Text style={styles.submitBtnText}>Kiểm tra</Text></TouchableOpacity>}
+              {!isAnswered && (
+                <TouchableOpacity style={styles.submitBtn} onPress={() => handleSubmit(inputText)}>
+                  <Text style={styles.submitBtnText}>Kiểm tra</Text>
+                </TouchableOpacity>
+              )}
             </View>
-          ) : (
-            <View style={styles.optionsContainer}>
-              {(q.metadata?.options || q.options || []).map((opt: string, idx: number) => (
-                <AnswerOption
-                  key={idx}
-                  index={idx}
-                  text={opt}
-                  status={!isAnswered ? 'default' : selectedAnswer === opt ? (normalizeString(opt) === normalizeString(q.correctAnswer) ? 'correct' : 'incorrect') : normalizeString(opt) === normalizeString(q.correctAnswer) ? 'missed-correct' : 'disabled'}
-                  onPress={() => handleSubmit(opt)}
-                />
-              ))}
-            </View>
-          )}
-        </ScrollView>
-        <FeedbackPopup
-          visible={feedbackState !== 'hidden'}
-          type={feedbackState === 'failure' ? 'failure' : 'success'}
-          onNext={handleNext}
-          translateY={feedbackTranslateY}
-          opacity={feedbackOpacity}
-          imageSource={feedbackState === 'failure' ? require('../../../../assets/images/horani/failure.png') : require('../../../../assets/images/horani/success.png')}
-        />
-        <ConfirmModal isVisible={showExitModal} title="Dừng học sao?" subtitle="Cố lên, sắp xong rồi!" cancelText="Vẫn rời đi" confirmText="Học tiếp" onCancel={() => router.back()} onConfirm={() => setShowExitModal(false)} />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          );
+        }
+        return null;
+      }}
+    />
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Color.bg },
-  scrollContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_30, paddingBottom: 40 },
-  questionText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.text, marginBottom: Gap.gap_20 },
-  optionsContainer: { width: '100%' },
   inputContainer: { width: '100%', marginTop: Gap.gap_20 },
   textInput: { backgroundColor: Color.whiteText, borderWidth: 2, borderColor: Color.colorBlack, borderRadius: 20, padding: Padding.padding_15, fontSize: 18, fontFamily: FontFamily.lexendDecaMedium, color: Color.text, minHeight: 60 },
   inputSuccess: { borderColor: Color.main },

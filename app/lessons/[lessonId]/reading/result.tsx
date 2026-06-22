@@ -12,7 +12,13 @@ export default function ReadingResultScreen() {
 
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<any[]>([]);
-  const [scoreInfo, setScoreInfo] = useState({ score: 0, total: 0, percent: 0 });
+  const [scoreInfo, setScoreInfo] = useState({ score: 0, total: 0, percent: 0, timeSpent: 0, isCompleted: false });
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const loadResults = async () => {
@@ -30,6 +36,7 @@ export default function ReadingResultScreen() {
 
         let totalScore = 0;
         let totalMaxScore = 0;
+        let totalTime = 0;
 
         // Khởi tạo bộ gom điểm theo 3 nhóm kỹ năng chính
         let cats = { 
@@ -43,6 +50,7 @@ export default function ReadingResultScreen() {
           
           totalScore += (res.totalScore || 0);
           totalMaxScore += (res.maxScore || 0);
+          totalTime += (res.timeSpent || 0);
           
           const b = res.breakdown;
           if (!b) return;
@@ -76,23 +84,24 @@ export default function ReadingResultScreen() {
 
         // --- TÍNH TOÁN % TỔNG ---
         const finalPercent = totalMaxScore > 0 ? Math.round((totalScore / totalMaxScore) * 100) : 0;
+        const completedCount = results.filter(res => res && res.data).length;
+        const isCompleted = readingIds.length > 0 && completedCount === readingIds.length;
 
         // --- XÂY DỰNG BIỂU ĐỒ METRICS NĂNG LỰC ---
         const finalMetrics = [];
         const calcP = (cat: any) => cat.m > 0 ? Math.round((cat.s / cat.m) * 100) : 0;
 
-        // Chỉ thêm vào metrics nếu hạng mục đó có tồn tại trong bài học (m > 0)
-        if (cats.vocabulary.m > 0) {
-          finalMetrics.push({ id: '1', label: 'Từ vựng & Phân loại', value: calcP(cats.vocabulary), color: '#4ACB40' });
+        if (cats.vocab.m > 0) {
+          finalMetrics.push({ id: '1', label: 'Từ vựng & Ngữ pháp', value: calcP(cats.vocab), color: '#FFB200' });
         }
-        if (cats.choice.m > 0) {
-          finalMetrics.push({ id: '2', label: 'Đọc hiểu trắc nghiệm', value: calcP(cats.choice), color: '#FFB200' });
+        if (cats.info.m > 0) {
+          finalMetrics.push({ id: '2', label: 'Tìm kiếm thông tin', value: calcP(cats.info), color: '#38A0F4' });
         }
         if (cats.deep.m > 0) {
           finalMetrics.push({ id: '3', label: 'Phân tích & Hiểu sâu', value: calcP(cats.deep), color: '#B50909' });
         }
 
-        setScoreInfo({ score: totalScore, total: totalMaxScore, percent: finalPercent });
+        setScoreInfo({ score: totalScore, total: totalMaxScore, percent: finalPercent, timeSpent: totalTime, isCompleted });
         setMetrics(finalMetrics);
       } catch (e) {
         console.error("Lỗi tổng hợp kết quả đọc:", e);
@@ -105,40 +114,32 @@ export default function ReadingResultScreen() {
 
   if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={Color.main} /></View>;
 
-  const isPassed = scoreInfo.percent >= 80;
-
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <ResultSummaryScreen
-        title={isPassed ? "Hoàn thành xuất sắc!" : "Cố gắng thêm nhé!"}
-        // Hiển thị tổng điểm thực tế / tổng điểm tối đa
-        scoreLabel={`Tổng kết bài đọc: ${scoreInfo.score}/${scoreInfo.total}`}
+        title={scoreInfo.isCompleted ? "Hoàn thành bài Đọc!" : "Chưa hoàn thành!"}
         pointLabel={`${scoreInfo.percent} điểm`}
+        subLabels={[
+          `${scoreInfo.score}/${scoreInfo.total}`,
+          `${formatTime(scoreInfo.timeSpent)} giây`
+        ]}
         metrics={metrics}
-        primaryLabel={isPassed ? "Tiếp tục học Viết" : "Làm lại để mở khóa bài Viết (Cần 80đ)"}
+        primaryLabel={scoreInfo.isCompleted ? "Tiếp tục học Viết" : "Tiếp tục làm bài"}
         onClose={() => router.replace('/(tabs)')}
         onPrimaryPress={() => {
-          if (isPassed) {
+          if (scoreInfo.isCompleted) {
             router.replace(`/lessons/${lessonId}/writing/intro` as any);
           } else {
-            // Quay lại practice nếu không đạt 80%
             router.replace(`/lessons/${lessonId}/reading/practice` as any);
           }
         }}
+        secondaryLabel="Xem giải thích chi tiết"
+        onSecondaryPress={() => router.push({ pathname: '/lessons/[lessonId]/reading/explanation', params: { lessonId } } as any)}
       />
-      
-      <View style={styles.footer}>
-        <Button 
-            title="Xem giải thích chi tiết" 
-            variant="Orange" 
-            onPress={() => router.push({ pathname: '/lessons/[lessonId]/reading/explanation', params: { lessonId } } as any)} 
-        />
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
-  footer: { padding: 20, paddingBottom: 40, backgroundColor: '#FFFFFF' }
 });

@@ -1,3 +1,5 @@
+import { blue } from "react-native-reanimated/lib/typescript/Colors";
+
 /* Fonts */
 export const FontFamily = {
   lexendDecaMedium: "LexendDeca-Medium",
@@ -25,12 +27,33 @@ export const lightTheme = {
   stroke: "#E2E8F0",
   gray: "#64748B",
 
-  // --- GREEN (cũ của bạn - giữ lại) ---
+  // --- new colors ---
   main: "#9FD52C",
-  main75: "#E8F7C0",
-  main400: "#90CC18",
-  main200: "#C8ED6A",
   main50: "#F2FCD0",
+  main75: "#E8F7C0",
+  main100: '#DFF5A0',
+  main200: "#C8ED6A",
+  main300: '#AEDD40',
+  main400: "#90CC18",
+  main500: '#6EAA00',
+  main700: '#4E7A00',
+  main900: '#2F4D00',
+
+  brown50: "#FDF7F0",
+  brown200: "#D4B896",
+  brown500: "#7A5530",
+  brown800: "#4A3218",
+
+  blue50: '#E0F2FF',
+  blue200: '#A8DAFF',
+  blue400: '#60B8F8',
+  blue600: '#2896E0',
+
+  orange50: '#FFF0E0',
+  orange300: '#FFAB58',
+  orange500: '#F07C18',
+  orange700: '#B05200',
+
   mainLighter: "rgba(152, 242, 145, 0.10)",
   main2: "#6FAE6C",
   green: "#059669",

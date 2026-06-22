@@ -106,7 +106,6 @@ const createStyles = (colors: any) => StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 23, // Đã gộp paddingLeft và paddingRight để text luôn căn giữa chuẩn
     paddingVertical: Padding.padding_5,
-    marginVertical: 8, // Thêm margin để các nút cách nhau khi render list
   },
   baseText: {
     fontSize: FontSize.fs_14,
@@ -126,7 +125,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   // 1. Green (Mặc định)
   variantGreen: {
     backgroundColor: Color.main,
-    borderColor: '#6EAA00', // Màu xanh lá đậm hơn cho viền
+    borderColor: Color.main500, // Màu xanh lá đậm hơn cho viền
     borderBottomWidth: 5,
     borderLeftWidth:2,// Bạn có thể đổi sang Color.main nếu khớp màu
   },
@@ -152,12 +151,12 @@ const createStyles = (colors: any) => StyleSheet.create({
   variantOutline: {
     backgroundColor: colors.bg,
     borderWidth: 1.5,
-    borderColor: colors.color,
+    borderColor: Color.main900,
     borderBottomWidth: 5,
   },
   textOutline: {
     color: colors.color,
-    fontWeight: "500",
+    fontFamily: FontFamily.lexendDecaMedium,
   },
 
   // 4. Gray (Disabled / Phụ)
@@ -186,7 +185,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     backgroundColor: "transparent", // Không có nền
   },
   textTextOnly: {
-    color: colors.cam,
+    color: colors.main500,
     fontWeight: "500",
   },
 

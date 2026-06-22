@@ -1,15 +1,16 @@
-import React from 'react';
-import { Animated, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { memo } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CaretDownIcon, CheckIcon, XIcon } from 'phosphor-react-native';
-import AnimatedReanimated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { LinearTransition } from 'react-native-reanimated';
+import { MotiView, AnimatePresence } from 'moti';
 
 import { Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
 import Button from '../../Button';
+import ProgressBar from '../../ProgressBar';
 
 type ShortAnswerQuestionCardProps = {
   progressLabel: string;
   progress: number;
-  animatedProgress?: Animated.Value;
   question: string;
   value: string;
   expanded?: boolean;
@@ -23,10 +24,9 @@ type ShortAnswerQuestionCardProps = {
   disabled?: boolean;
 };
 
-export default function ShortAnswerQuestionCard({
+const ShortAnswerQuestionCard = ({
   progressLabel,
   progress,
-  animatedProgress,
   question,
   value,
   expanded = true,
@@ -38,9 +38,9 @@ export default function ShortAnswerQuestionCard({
   onChangeText,
   onSubmit,
   disabled = false,
-}: ShortAnswerQuestionCardProps) {
+}: ShortAnswerQuestionCardProps) => {
   return (
-    <AnimatedReanimated.View layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
+    <MotiView layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
         <Text style={styles.progressPill}>{progressLabel}</Text>
 
@@ -54,70 +54,65 @@ export default function ShortAnswerQuestionCard({
         </Pressable>
       </View>
 
-      <View style={styles.progressTrack}>
-        <Animated.View
-          style={[
-            styles.progressFill,
-            {
-              width: animatedProgress
-                ? animatedProgress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%'],
-                  })
-                : `${Math.max(0, Math.min(progress, 1)) * 100}%`,
-            },
-          ]}
-        />
-      </View>
+      <ProgressBar
+        progress={progress}
+        height={8}
+        color={Color.main}
+        backgroundColor="#71809B"
+      />
 
-      {expanded ? (
-        <AnimatedReanimated.View 
-          entering={FadeIn} 
-          exiting={FadeOut} 
-          layout={LinearTransition.springify().damping(20).stiffness(200)}
-          style={styles.body}
-        >
-          <Text style={styles.question}>{question}</Text>
+      <AnimatePresence>
+        {expanded && (
+          <MotiView 
+            from={{ opacity: 0, translateY: -10 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            exit={{ opacity: 0, translateY: -10 }}
+            style={styles.body}
+          >
+            <Text style={styles.question}>{question}</Text>
 
-          <TextInput
-            multiline
-            value={value}
-            editable={!disabled}
-            onChangeText={onChangeText}
-            placeholder={placeholder}
-            placeholderTextColor="#8E9AAF"
-            textAlignVertical="top"
-            style={[
-              styles.input,
-              answerState === 'correct' ? styles.inputCorrect : null,
-              answerState === 'incorrect' ? styles.inputIncorrect : null,
-            ]}
-          />
+            <TextInput
+              multiline
+              value={value}
+              editable={!disabled}
+              onChangeText={onChangeText}
+              placeholder={placeholder}
+              placeholderTextColor="#8E9AAF"
+              textAlignVertical="top"
+              style={[
+                styles.input,
+                answerState === 'correct' ? styles.inputCorrect : null,
+                answerState === 'incorrect' ? styles.inputIncorrect : null,
+              ]}
+            />
 
-          {helperText ? (
-            <View style={[styles.helperWrap, answerState === 'correct' ? styles.helperWrapCorrect : styles.helperWrapIncorrect]}>
-              {answerState === 'correct' ? (
-                <CheckIcon size={16} color="#4CAF28" weight="bold" />
-              ) : (
-                <XIcon size={16} color="#FF4B4B" weight="bold" />
-              )}
-              <Text style={[styles.helperText, answerState === 'correct' ? styles.helperTextCorrect : styles.helperTextIncorrect]}>
-                {helperText}
-              </Text>
-            </View>
-          ) : null}
+            {helperText ? (
+              <View style={[styles.helperWrap, answerState === 'correct' ? styles.helperWrapCorrect : styles.helperWrapIncorrect]}>
+                {answerState === 'correct' ? (
+                  <CheckIcon size={16} color="#4CAF28" weight="bold" />
+                ) : (
+                  <XIcon size={16} color="#FF4B4B" weight="bold" />
+                )}
+                <Text style={[styles.helperText, answerState === 'correct' ? styles.helperTextCorrect : styles.helperTextIncorrect]}>
+                  {helperText}
+                </Text>
+              </View>
+            ) : null}
 
-          <Button
-            title={submitLabel}
-            onPress={onSubmit}
-            disabled={disabled}
-            style={{ marginVertical: 0 }}
-          />
-        </AnimatedReanimated.View>
-      ) : null}
-    </AnimatedReanimated.View>
+            <Button
+              title={submitLabel}
+              onPress={onSubmit}
+              disabled={disabled}
+              style={{ marginVertical: 0 }}
+            />
+          </MotiView>
+        )}
+      </AnimatePresence>
+    </MotiView>
   );
-}
+};
+
+export default memo(ShortAnswerQuestionCard);
 
 const styles = StyleSheet.create({
   container: {
@@ -137,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 5,
-    backgroundColor: '#8EEA7C',
+    backgroundColor: Color.main,
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_20,
     color: '#FFFFFF',
@@ -147,17 +142,6 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  progressTrack: {
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: '#71809B',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 999,
-    backgroundColor: '#8EEA7C',
   },
   body: {
     gap: Gap.gap_14,

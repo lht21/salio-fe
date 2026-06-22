@@ -29,12 +29,11 @@ export default function FinalTestResultScreen() {
           onPress: async () => {
             try {
               setIsLoading(true);
-              // Bắt đầu phiên thi mới
               const startRes = await LessonService.startFinalTest(lessonId);
               // Chuyển đến màn hình thi với sessionId mới
               router.replace({
                 pathname: `/lessons/${lessonId}/final-test/exam` as any,
-                params: { sessionId: startRes.sessionId }
+                params: { sessionId: startRes.data.sessionId }
               });
             } catch (error) {
               Alert.alert("Lỗi", "Không thể bắt đầu bài thi mới. Vui lòng thử lại.");
@@ -89,7 +88,7 @@ export default function FinalTestResultScreen() {
     );
   }
 
-  const { session } = data;
+  const { session } = data.data;
   const isPassed = session.percentage >= 80;
 
   // Tính điểm chi tiết theo từng kỹ năng (nếu có breakdown)
@@ -137,25 +136,18 @@ export default function FinalTestResultScreen() {
     <View style={{flex: 1}}>
       <ResultSummaryScreen
         title={isPassed ? "Chúc mừng!" : "Chưa đạt yêu cầu"}
-        scoreLabel={`Đạt ${session.percentage}%`}
-        pointLabel={`${session.totalScore} / ${session.maxScore} điểm`}
+        pointLabel={`${session.percentage} điểm`}
+        subLabels={[`${session.totalScore}/${session.maxScore}`]}
         metrics={metrics}
         primaryLabel={isPassed ? "Tiếp tục bài 2" : "Làm lại bài thi"}
         onPrimaryPress={isPassed ? handleContinue : handleRetry}
         onClose={() => router.replace('/(tabs)')}
+        secondaryLabel="Xem giải thích đáp án"
+        onSecondaryPress={() => router.push({
+          pathname: `/lessons/${lessonId}/final-test/explanation` as any, 
+          params: { sessionId }
+        })}
       />
-      
-      {/* Thêm button phụ bên ngoài nếu cần */}
-      <View style={{padding: 16, marginBottom: 20}}>
-        <Button
-          title="Xem giải thích đáp án"
-          onPress={() => router.push({
-            pathname: `/lessons/${lessonId}/final-test/explanation` as any, 
-            params: { sessionId }
-          })}
-          variant="Outline"
-        />
-      </View>
     </View>
   );
 }

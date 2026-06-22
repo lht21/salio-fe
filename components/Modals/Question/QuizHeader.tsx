@@ -1,10 +1,12 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../constants/GlobalStyles';
 import IconButton from '../../IconButton';
 import { XIcon } from 'phosphor-react-native';
+import ProgressBar from '../../ProgressBar';
 
 
 type QuizHeaderProps = {
@@ -14,6 +16,7 @@ type QuizHeaderProps = {
   onClose?: () => void;
   timerLabel?: string;
   icon?: React.ReactNode;
+  sharedTransitionTag?: string;
 };
 
 export default function QuizHeader({
@@ -22,7 +25,8 @@ export default function QuizHeader({
   incorrectCount,
   onClose,
   timerLabel,
-  icon
+  icon,
+  sharedTransitionTag
 }: QuizHeaderProps) {
   const router = useRouter();
   const progress = total > 0 ? (current / total) * 100 : 0;
@@ -32,7 +36,13 @@ export default function QuizHeader({
       <View style={styles.topRow}>
         
         <View style={styles.leftGroup}>
-          {icon}
+          {sharedTransitionTag ? (
+            <Animated.View sharedTransitionTag={sharedTransitionTag}>
+              {icon}
+            </Animated.View>
+          ) : (
+            icon
+          )}
           <View style={styles.progressPill}>
             <Text style={styles.progressText}>{current}/{total}</Text>
           </View>
@@ -53,9 +63,7 @@ export default function QuizHeader({
         <IconButton Icon={XIcon} onPress={onClose || (() => router.back())} />
       </View>
 
-      <View style={styles.progressBarBg}>
-        <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
-      </View>
+      <ProgressBar progress={total > 0 ? current / total : 0} height={10} style={{ marginBottom: Gap.gap_15 }} />
     </View>
   );
 }
@@ -112,16 +120,5 @@ const styles = StyleSheet.create({
   },
   spacer: {
     flex: 1,
-  },
-  progressBarBg: {
-    height: 10,
-    backgroundColor: Color.stroke,
-    borderRadius: 5,
-    marginBottom: Gap.gap_15,
-  },
-  progressBarFill: {
-    height: 10,
-    backgroundColor: Color.main,
-    borderRadius: 5,
   },
 });

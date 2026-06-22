@@ -1,7 +1,7 @@
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../endpoints';
 import { BaseResponse } from '../types/auth.types';
-import { 
+import {
   GetVocabulariesRequest,
   GetStudyQueueParams,
   GetLearningProgressParams,

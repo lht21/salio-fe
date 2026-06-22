@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from './endpoints';
  * Khởi tạo Axios Instance
  * Thay đổi EXPO_PUBLIC_API_URL trong file .env của dự án Expo để trỏ đúng server
  */
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.19.68:5000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.79:5000';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -70,7 +70,7 @@ apiClient.interceptors.response.use(
 
     if (error.response) {
       const { status, data } = error.response;
-      
+
       if (status === 401 && !originalRequest._retry) {
         if (isRefreshing) {
           // Đang có 1 request khác thực hiện refresh token rồi, đưa request hiện tại vào hàng đợi
@@ -105,21 +105,21 @@ apiClient.interceptors.response.use(
           if (newAccessToken) {
             await SecureStore.setItemAsync('accessToken', newAccessToken);
             if (newRefreshToken) await SecureStore.setItemAsync('refreshToken', newRefreshToken);
-            
+
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            
+
             processQueue(null, newAccessToken);
             return apiClient(originalRequest);
           }
         } catch (refreshError) {
           processQueue(refreshError, null);
-          
+
           // Nếu Refresh Token cũng hết hạn / không hợp lệ -> Đăng xuất người dùng
           await SecureStore.deleteItemAsync('accessToken');
           await SecureStore.deleteItemAsync('refreshToken');
           console.log('⚠️ [401] Phiên đăng nhập đã hết hạn hoàn toàn. Vui lòng đăng nhập lại.');
-          
+
           // Phát sự kiện báo hiệu UI cần force logout
           // Throttling 2 giây để tránh bắn sự kiện liên tục gây treo máy nếu có nhiều API cùng fail
           const now = Date.now();
@@ -134,7 +134,7 @@ apiClient.interceptors.response.use(
       } else if (status === 403) {
         console.log('⚠️ [403] Không có quyền truy cập tài nguyên này.');
       }
-      
+
     } else if (error.request) {
       console.warn('📡 Không thể kết nối tới server. Vui lòng kiểm tra lại đường truyền mạng.');
     }

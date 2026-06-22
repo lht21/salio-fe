@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Modal, Image } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedScrollHandler, 
-  useAnimatedStyle, 
-  interpolate, 
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  interpolate,
   Extrapolation,
   useAnimatedProps,
   interpolateColor,
@@ -30,6 +30,7 @@ import { useUser } from '../../contexts/UserContext';
 import UserService from '../../api/services/user.service';
 import GamificationService from '../../api/services/gamification.service';
 import DailyMissionsModal from '../../components/Modals/DailyMissionsModal';
+import LessonBottomSheet from '../../components/Modals/LessonBottomSheet';
 import { MyStatsData } from '../../api/types/user.types';
 import LessonService from '@/api/services/lesson.service';
 import { Lesson, LessonProgress, LessonStatus } from '@/api/types/lesson.types';
@@ -151,7 +152,7 @@ const STREAK_MILESTONES = [
 
 const StreakFiresList = ({ currentStreak }: { currentStreak: number }) => {
   const scrollViewRef = useRef<ScrollView>(null);
-  
+
   const currentLevelIndex = useMemo(() => {
     let index = STREAK_MILESTONES.findIndex(m => currentStreak >= m.min && currentStreak <= m.max);
     return index !== -1 ? index : 0;
@@ -160,25 +161,25 @@ const StreakFiresList = ({ currentStreak }: { currentStreak: number }) => {
   useEffect(() => {
     // Chờ 300ms để Bottom Sheet kịp trượt lên trước khi thực hiện cuộn ngang
     setTimeout(() => {
-      scrollViewRef.current?.scrollTo({ 
+      scrollViewRef.current?.scrollTo({
         x: Math.max(0, currentLevelIndex * 80 - 100), // Căn giữa một chút
-        animated: true 
+        animated: true
       });
     }, 300);
   }, [currentLevelIndex]);
 
   return (
     <View style={{ width: '100%', marginBottom: 16 }}>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         ref={scrollViewRef}
-        showsHorizontalScrollIndicator={false} 
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ gap: 30, paddingHorizontal: 20 }}
       >
         {STREAK_MILESTONES.map((item, index) => {
           const isCurrent = index === currentLevelIndex;
           const isLocked = currentStreak < item.min;
-          
+
           return (
             <View key={item.id} style={{ alignItems: 'center', opacity: isLocked ? 0.3 : 1, width: 64 }}>
               <View style={[styles.streakIconWrapper, isCurrent && styles.streakIconWrapperActive]}>
@@ -209,6 +210,8 @@ export default function HomeScreen() {
   const [stats, setStats] = useState<MyStatsData | null>(null);
   const [isMissionsModalVisible, setMissionsModalVisible] = useState(false);
   const [isAutoConfetti, setIsAutoConfetti] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState<LessonItem | null>(null);
+  const lessonSheetRef = useRef<BottomSheetModal>(null);
 
   const fetchStats = async () => {
     try {
@@ -225,41 +228,41 @@ export default function HomeScreen() {
     fetchStats();
   }, []);
 
-useEffect(() => {
-  const handleAutoCheckIn = async () => {
-    
-    const fetchLessons = async () => {
-      try {
-        const res = await LessonService.getAll({ limit: 50 });
-        if (res.success && Array.isArray(res.data?.lessons) && res.data.lessons.length > 0) {
-          const nextLessons = await mapLessonsWithProgress(res.data.lessons);
-          setLessons(nextLessons);
+  useEffect(() => {
+    const handleAutoCheckIn = async () => {
+
+      const fetchLessons = async () => {
+        try {
+          const res = await LessonService.getAll({ limit: 50 });
+          if (res.success && Array.isArray(res.data?.lessons) && res.data.lessons.length > 0) {
+            const nextLessons = await mapLessonsWithProgress(res.data.lessons);
+            setLessons(nextLessons);
+          }
+        } catch (error) {
+          console.error('Lỗi khi lấy danh sách lesson:', error);
         }
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách lesson:', error);
-      }
+      };
+
+      const performCheckIn = async () => {
+        try {
+          const checkInRes = await GamificationService.dailyCheckIn();
+
+          if (checkInRes.success) {
+            setIsAutoConfetti(true);
+            setMissionsModalVisible(true);
+            fetchStats(); // Làm mới thông tin (Streak, mây...) từ hàm gốc bên ngoài
+          }
+        } catch (error: any) {
+          console.log('Auto Check-in message:', error.response?.data?.message || error.message);
+        }
+      };
+
+      await fetchLessons();
+      await performCheckIn();
     };
 
-    const performCheckIn = async () => {
-      try {
-        const checkInRes = await GamificationService.dailyCheckIn();
-        
-        if (checkInRes.success) {
-          setIsAutoConfetti(true);
-          setMissionsModalVisible(true);
-          fetchStats(); // Làm mới thông tin (Streak, mây...) từ hàm gốc bên ngoài
-        }
-      } catch (error: any) {
-        console.log('Auto Check-in message:', error.response?.data?.message || error.message);
-      }
-    };
-
-    await fetchLessons();  
-    await performCheckIn();   
-  };  
-
-  handleAutoCheckIn();  
-}, []);
+    handleAutoCheckIn();
+  }, []);
 
   const scrollY = useSharedValue(0);
 
@@ -292,7 +295,7 @@ useEffect(() => {
   const stickyHeaderStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [180, 230], [0, 1], Extrapolation.CLAMP);
     const translateY = interpolate(scrollY.value, [180, 230], [-20, 0], Extrapolation.CLAMP);
-    
+
     return {
       opacity,
       transform: [{ translateY }],
@@ -300,7 +303,7 @@ useEffect(() => {
   });
 
   // --- STATE CHO POPUP THÔNG TIN ---
-  const [infoContent, setInfoContent] = useState<{title: string, desc: string, icon: React.ReactNode | null, type?: 'streak' | 'cloud'}>({ title: '', desc: '', icon: null });
+  const [infoContent, setInfoContent] = useState<{ title: string, desc: string, icon: React.ReactNode | null, type?: 'streak' | 'cloud' }>({ title: '', desc: '', icon: null });
 
   const currentStreak = stats?.gamification?.currentStreak || 0;
   const currentStreakImage = getStreakImage(currentStreak);
@@ -348,11 +351,11 @@ useEffect(() => {
 
   const showToast = (message: string) => {
     setToastMessage(message);
-    
+
     // Đặt lại giá trị ban đầu để hiệu ứng luôn bắt đầu từ dưới lên
     toastOpacity.value = 0;
     toastTranslateY.value = 50;
-    
+
     // Hiệu ứng Fade In -> Đợi 2.5s -> Fade Out
     toastOpacity.value = withSequence(
       withTiming(1, { duration: 300 }),
@@ -360,7 +363,7 @@ useEffect(() => {
         if (finished) runOnJS(setToastMessage)(null); // Xóa component khỏi DOM khi ẩn xong
       }))
     );
-    
+
     // Hiệu ứng Trượt nảy lên (Spring) -> Đợi 2.5s -> Trượt xuống lại
     toastTranslateY.value = withSequence(
       withSpring(0),
@@ -378,17 +381,8 @@ useEffect(() => {
     if (item.status === 'locked') {
       showToast('Vui lòng hoàn thành bài học trước đó để mở khóa!');
     } else {
-      router.push({
-        pathname: '/lesson-modal',
-        params: {
-          lessonId: item.id,
-          unit: item.unit,
-          title: item.title,
-          lessonType: item.lessonType,
-          // Chuyển object phức tạp thành chuỗi JSON để truyền qua URL params
-          hangul: item.hangul ? JSON.stringify(item.hangul) : undefined
-        }
-      });
+      setSelectedLesson(item);
+      lessonSheetRef.current?.present();
     }
   };
 
@@ -396,36 +390,36 @@ useEffect(() => {
     <View style={styles.container}>
 
       {/* Sticky Header (Thanh dính trên cùng) */}
-      <AnimatedLinearGradient 
+      <AnimatedLinearGradient
         colors={['#CEF9B4', Color.main || '#98F291']} // Màu mặc định cho TypeScript
         animatedProps={animatedGradientProps}
         style={[styles.stickyHeader, stickyHeaderStyle]}
       >
         <StatusBadge text={user?.level || "Sơ cấp 1"} bgColor="#FFFFFF" />
-        <StatusBadge 
-            icon={<Image source={currentStreakImage} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-            text={currentStreak.toString()} 
-          bgColor="#FFFFFF" 
-          onPress={handleShowFireInfo} 
+        <StatusBadge
+          icon={<Image source={currentStreakImage} style={{ width: 20, height: 20 }} resizeMode="contain" />}
+          text={currentStreak.toString()}
+          bgColor="#FFFFFF"
+          onPress={handleShowFireInfo}
         />
-        <StatusBadge 
-          icon={<Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />} 
-          text={stats?.gamification?.clouds?.toString() || "0"} 
-          bgColor="#FFFFFF" 
-          onPress={handleShowCloudInfo} 
+        <StatusBadge
+          icon={<Image source={require('../../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />}
+          text={stats?.gamification?.clouds?.toString() || "0"}
+          bgColor="#FFFFFF"
+          onPress={handleShowCloudInfo}
         />
       </AnimatedLinearGradient>
-      
+
       {/* Đổi ScrollView thành Animated.ScrollView để nhận tín hiệu cuộn */}
-      <Animated.ScrollView 
-        showsVerticalScrollIndicator={false} 
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         onScroll={scrollHandler}
         scrollEventThrottle={16} // Tốc độ cập nhật 60fps
       >
-        <HeaderSection 
-          currentLesson={currentLesson} 
-          onCurrentLessonPress={() => handleLessonPress(currentLesson)} 
+        <HeaderSection
+          currentLesson={currentLesson}
+          onCurrentLessonPress={() => handleLessonPress(currentLesson)}
           onFirePress={handleShowFireInfo}
           onCloudPress={handleShowCloudInfo}
           streak={stats?.gamification?.currentStreak}
@@ -438,7 +432,7 @@ useEffect(() => {
           <View style={styles.nodesWrapper}>
             {lessons.map((item, index) => {
               const isLast = index === lessons.length - 1;
-              
+
               // Path nối từ Node hiện tại đến Node tiếp theo sẽ active (màu xanh)
               // NẾU Node hiện tại đã hoàn thành. 
               // Nếu Node hiện tại là 'current' thì Path đến Node sau sẽ màu xám (chưa mở khóa)
@@ -447,12 +441,12 @@ useEffect(() => {
 
               return (
                 <React.Fragment key={item.id}>
-                  <LessonNode 
-                    item={item} 
-                    index={index} 
-                    onPress={() => handleLessonPress(item)} 
+                  <LessonNode
+                    item={item}
+                    index={index}
+                    onPress={() => handleLessonPress(item)}
                   />
-                  
+
                   {/* Render đoạn đường nối xen kẽ, trừ Node cuối cùng */}
                   {!isLast && (
                     <WindingPath isActive={isPathActive} isLeftToRight={isLeftToRight} />
@@ -479,18 +473,18 @@ useEffect(() => {
           {infoContent.icon}
           <Text style={styles.sheetTitle}>{infoContent.title}</Text>
           <Text style={styles.sheetDesc}>{infoContent.desc}</Text>
-          
+
           {infoContent.type && (
-            <Button 
-              title={infoContent.type === 'streak' ? 'Xem chi tiết chuỗi học' : 'Đến Cửa hàng đổi thưởng'} 
-              variant="Black" 
+            <Button
+              title={infoContent.type === 'streak' ? 'Xem chi tiết chuỗi học' : 'Đến Cửa hàng đổi thưởng'}
+              variant="Black"
               onPress={() => {
                 infoSheetRef.current?.dismiss();
                 setTimeout(() => {
                   router.push(infoContent.type === 'streak' ? '/streak/streak' as any : '/cloud/' as any);
                 }, 300); // Chờ hiệu ứng đóng modal rồi mới chuyển trang cho mượt
-              }} 
-              style={{ width: '100%', marginTop: 10 }} 
+              }}
+              style={{ width: '100%', marginTop: 10 }}
             />
           )}
           <Button title="Đã hiểu" variant="Gray" onPress={() => infoSheetRef.current?.dismiss()} style={{ width: '100%', marginTop: 10 }} />
@@ -505,8 +499,8 @@ useEffect(() => {
       )}
 
       {/* --- POPUP NHIỆM VỤ HẰNG NGÀY KÈM HIỆU ỨNG --- */}
-      <DailyMissionsModal 
-        isVisible={isMissionsModalVisible} 
+      <DailyMissionsModal
+        isVisible={isMissionsModalVisible}
         onClose={() => {
           setMissionsModalVisible(false);
           setIsAutoConfetti(false); // Reset cờ
@@ -514,6 +508,19 @@ useEffect(() => {
         autoTriggerConfetti={isAutoConfetti}
         onClaimSuccess={() => fetchStats()}
       />
+
+      {/* --- BOTTOM SHEET BÀI HỌC --- */}
+      {selectedLesson && (
+        <LessonBottomSheet
+          ref={lessonSheetRef}
+          lessonId={selectedLesson.id}
+          unit={selectedLesson.unit}
+          title={selectedLesson.title}
+          lessonType={selectedLesson.lessonType as any}
+          hangul={selectedLesson.hangul}
+          onCloseRequest={() => lessonSheetRef.current?.dismiss()}
+        />
+      )}
     </View>
   );
 }
@@ -550,11 +557,11 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
     zIndex: 2,
   },
-  
+
   floatingSheet: {
     marginHorizontal: 15, // Khoảng cách 2 bên trái phải
   },
-  
+
   // --- STYLES CHO BOTTOM SHEET ---
   sheetContent: {
     paddingHorizontal: 24,
@@ -597,7 +604,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  
+
   // --- STYLES CHO STREAK FIRES LIST ---
   streakIconWrapper: {
     width: 80,

@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Audio } from 'expo-av';
+import * as Haptics from 'expo-haptics';
 
 import { Border, Color, FontFamily, FontSize } from '../../../constants/GlobalStyles';
+import Button from '../../../components/Button';
 
 type FeedbackType = 'success' | 'failure';
 
@@ -14,6 +16,7 @@ type SpeakingFeedbackPopupProps = {
   translateY: Animated.Value;
   opacity: Animated.Value;
   imageSource: any;
+  onOverrideCorrect?: () => void;
 };
 
 export default function SpeakingFeedbackPopup({
@@ -23,6 +26,7 @@ export default function SpeakingFeedbackPopup({
   translateY,
   opacity,
   imageSource,
+  onOverrideCorrect,
 }: SpeakingFeedbackPopupProps) {
   const isSuccess = type === 'success';
 
@@ -32,15 +36,17 @@ export default function SpeakingFeedbackPopup({
     const playSound = async () => {
       if (visible) {
         try {
-          // Khuyến nghị: Thay URI bằng file nội bộ nếu bạn có file âm thanh sẵn trong assets để không bị độ trễ mạng
-          // Ví dụ: const soundAsset = isSuccess ? require('../../../assets/audio/correct.mp3') : require('../../../assets/audio/wrong.mp3');
-          // const { sound: newSound } = await Audio.Sound.createAsync(soundAsset);
-          
-          const audioUri = isSuccess 
-            ? 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3?filename=correct-2-46134.mp3'
-            : 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_73151eb42b.mp3?filename=error-126627.mp3';
+          if (isSuccess) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          } else {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          }
 
-          const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioUri });
+          const soundAsset = isSuccess
+            ? require('../../../assets/audio/correct.mp3')
+            : require('../../../assets/audio/incorrect.mp3');
+
+          const { sound: newSound } = await Audio.Sound.createAsync(soundAsset);
           sound = newSound;
           await sound.playAsync();
         } catch (error) {
@@ -58,44 +64,61 @@ export default function SpeakingFeedbackPopup({
     };
   }, [visible, isSuccess]);
 
+  if (!visible) return null;
+
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onNext}>
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            isSuccess ? styles.successCard : styles.failureCard,
-            {
-              opacity,
-              transform: [{ translateY }],
-            },
-          ]}
-          onStartShouldSetResponder={() => true}
-        >
-          <View style={styles.contentRow}>
-            <View style={styles.textWrap}>
-              {isSuccess ? (
-                <>
-                  <Text style={styles.successLabel}>Tích lũy năng lượng</Text>
-                  <Text style={styles.successText}>BẠN LÀM TỐT LẮM!</Text>
-                </>
-              ) : (
-                <Text style={styles.failureText}>TÔI SAI MẤT RỒI!{'\n'}BẠN ĐANG HỌC MÀ,{'\n'}CỐ LÊN</Text>
-              )}
-            </View>
+    <Animated.View
+      style={[
+        styles.wrapper,
+        {
+          opacity,
+          transform: [{ translateY }],
+        },
+      ]}
+      onStartShouldSetResponder={() => true}
+    >
+      <View style={isSuccess ? styles.successCard : styles.failureCard}>
+        <View style={styles.contentRow}>
+        <View style={styles.textWrap}>
+          {isSuccess ? (
+            <>
+              <Text style={styles.successLabel}>Tích lũy năng lượng</Text>
+              <Text style={styles.successText}>BẠN LÀM TỐT LẮM!</Text>
+            </>
+          ) : (
+            <Text style={styles.failureText}>TÔI SAI MẤT RỒI!{'\n'}BẠN ĐANG HỌC MÀ,{'\n'}CỐ LÊN</Text>
+          )}
+        </View>
 
-            <Image source={imageSource} style={isSuccess ? styles.successImage : styles.failureImage} contentFit="contain" />
-          </View>
-
-          <Pressable style={styles.button} onPress={onNext}>
-            <Text style={styles.buttonText}>Câu tiếp theo</Text>
-          </Pressable>
-        </Animated.View>
+        <Image source={imageSource} style={isSuccess ? styles.successImage : styles.failureImage} contentFit="contain" />
       </View>
-    </Modal>
+
+      {!isSuccess && onOverrideCorrect && (
+        <Button 
+          variant="TextOnly"
+          title="Đáp án của tôi là đúng!"
+          onPress={onOverrideCorrect}
+          style={styles.overrideButton}
+          textStyle={styles.overrideButtonText}
+        />
+      )}
+
+      <Button 
+        variant="Black"
+        title="Câu tiếp theo"
+        onPress={onNext}
+        style={{ marginTop: 20 }}
+      />
+      </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: 15,
+    paddingBottom: 20, // Tạo khoảng cách để popup lơ lửng cách đáy
+  },
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -104,21 +127,29 @@ const styles = StyleSheet.create({
   successCard: {
     margin: 0,
     minHeight: 150,
-    backgroundColor: '#ABFF73',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: Color.main75,
+    borderRadius: 30, // Bo tròn cả 4 góc
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 20,
+    borderBottomWidth: 7,
+    borderLeftWidth: 4,
+    borderWidth: 2,
+    borderColor: Color.main700
+
   },
   failureCard: {
     margin: 0,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    backgroundColor: '#FF9A48',
+    borderRadius: 30, // Bo tròn cả 4 góc
+    backgroundColor: Color.orange300,
     paddingHorizontal: 24,
     paddingTop: 28,
     paddingBottom: 24,
+    borderBottomWidth: 7,
+    borderLeftWidth: 4,
+    borderWidth: 2,
+    borderColor: Color.orange700
+    
   },
   contentRow: {
     flexDirection: 'row',
@@ -155,6 +186,17 @@ const styles = StyleSheet.create({
   failureImage: {
     width: 118,
     height: 118,
+  },
+  overrideButton: {
+    marginTop: 15,
+    marginBottom: 5,
+    alignItems: 'center',
+  },
+  overrideButtonText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    color: '#8B1B00',
+    textDecorationLine: 'underline',
   },
   button: {
     marginTop: 20,

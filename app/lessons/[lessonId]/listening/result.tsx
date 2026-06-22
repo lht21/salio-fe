@@ -12,7 +12,13 @@ export default function ListeningResultScreen() {
 
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<any[]>([]);
-  const [scoreInfo, setScoreInfo] = useState({ score: 0, total: 0, percent: 0 });
+  const [scoreInfo, setScoreInfo] = useState({ score: 0, total: 0, percent: 0, timeSpent: 0, isCompleted: false });
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const loadAllResults = async () => {
@@ -25,7 +31,7 @@ export default function ListeningResultScreen() {
           listenIds.map(id => LessonService.getSkillResult(lessonId!, 'listening', id).catch(() => null))
         );
 
-        let tScore = 0, tMax = 0;
+        let tScore = 0, tMax = 0, tTime = 0;
         let cats = { 
           trueFalse: { s: 0, m: 0 }, 
           choice: { s: 0, m: 0 }, 
@@ -35,14 +41,13 @@ export default function ListeningResultScreen() {
         results.forEach(res => {
           if (!res || !res.data) return;
           
-          // res là BaseResponse, lấy dữ liệu thực từ res.data
           const payload = res.data;
           tScore += (payload.totalScore || 0);
           tMax += (payload.maxScore || 0);
+          tTime += (payload.timeSpent || 0);
           
           const b = payload.breakdown;
           if (b) {
-            // Khớp chính xác Key với Backend: trueFalse, choice, deepComprehension
             if (b.trueFalse) { cats.trueFalse.s += b.trueFalse.score || 0; cats.trueFalse.m += b.trueFalse.maxScore || 0; }
             if (b.choice) { cats.choice.s += b.choice.score || 0; cats.choice.m += b.choice.maxScore || 0; }
             if (b.deepComprehension) { cats.deepComprehension.s += b.deepComprehension.score || 0; cats.deepComprehension.m += b.deepComprehension.maxScore || 0; }
@@ -51,15 +56,18 @@ export default function ListeningResultScreen() {
 
         const getP = (c: any) => c.m > 0 ? Math.round((c.s / c.m) * 100) : 0;
         const finalPercent = tMax > 0 ? Math.round((tScore / tMax) * 100) : 0;
+        const completedCount = results.filter(res => res && res.data).length;
+        const isCompleted = listenIds.length > 0 && completedCount === listenIds.length;
 
-        setScoreInfo({ score: tScore, total: tMax, percent: finalPercent });
+        setScoreInfo({ score: tScore, total: tMax, percent: finalPercent, timeSpent: tTime, isCompleted });
         
-        // Đảm bảo value luôn là Number để tránh lỗi interpolate
-        setMetrics([
-          { id: 'ox', label: 'Khả năng Đúng/Sai', value: Number(getP(cats.trueFalse)) || 0, color: '#4ACB40' },
-          { id: 'choice', label: 'Khả năng chọn đáp án', value: Number(getP(cats.choice)) || 0, color: '#FFB200' },
-          { id: 'deep', label: 'Khả năng hiểu sâu', value: Number(getP(cats.deepComprehension)) || 0, color: '#B50909' },
-        ]);
+        const allMetrics = [
+          { id: 'ox', label: 'Khả năng Đúng/Sai', value: Number(getP(cats.trueFalse)) || 0, color: '#4ACB40', max: cats.trueFalse.m },
+          { id: 'choice', label: 'Khả năng chọn đáp án', value: Number(getP(cats.choice)) || 0, color: '#FFB200', max: cats.choice.m },
+          { id: 'deep', label: 'Khả năng hiểu sâu', value: Number(getP(cats.deepComprehension)) || 0, color: '#B50909', max: cats.deepComprehension.m },
+        ];
+
+        setMetrics(allMetrics.filter(m => m.max > 0));
       } catch (e) {
         console.error("Lỗi tổng hợp kết quả nghe:", e);
       } finally {
@@ -77,39 +85,30 @@ export default function ListeningResultScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: Color.bg }}>
       <ResultSummaryScreen
-        title={scoreInfo.percent >= 80 ? "Hoàn thành xuất sắc!" : "Cố gắng thêm nhé!"}
-        scoreLabel={`Tổng điểm bài nghe: ${scoreInfo.score}/${scoreInfo.total}`}
+        title={scoreInfo.isCompleted ? (scoreInfo.percent >= 80 ? "Hoàn thành xuất sắc!" : "Hoàn thành bài Nghe!") : "Chưa hoàn thành!"}
         pointLabel={`${scoreInfo.percent} điểm`}
+        subLabels={[
+          `${scoreInfo.score}/${scoreInfo.total}`,
+          `${formatTime(scoreInfo.timeSpent)} giây`
+        ]}
         metrics={metrics}
-        primaryLabel={scoreInfo.percent >= 80 ? "Chuyển sang học Nói" : "Bạn phải đạt ít nhất 80 điểm để qua bài này"}
+        primaryLabel={scoreInfo.isCompleted ? "Tiếp tục học Nói" : "Tiếp tục làm bài"}
         onClose={() => router.replace('/(tabs)')}
         onPrimaryPress={() => {
-          if (scoreInfo.percent >= 80) {
-            router.replace(`/lessons/${lessonId}/reading/intro` as any);
+          if (scoreInfo.isCompleted) {
+            router.replace(`/lessons/${lessonId}/speaking/intro` as any);
           } else {
             router.replace(`/lessons/${lessonId}/listening/practice` as any);
           }
         }}
+        secondaryLabel="Xem giải thích chi tiết"
+        onSecondaryPress={() => router.push({ pathname: '/lessons/[lessonId]/listening/explanation', params: { lessonId } } as any)}
       />
       
-      {/* Container nút bấm ở dưới cùng */}
-      <View style={styles.footer}>
-        <Button 
-            title="Xem giải thích chi tiết" 
-            variant="Orange" 
-            style={{ marginTop: Gap.gap_10 }}
-            onPress={() => router.push({ pathname: '/lessons/[lessonId]/listening/explanation', params: { lessonId } } as any)} 
-        />
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Color.bg },
-  footer: { 
-    padding: 20, 
-    backgroundColor: Color.bg,
-    paddingBottom: 40 
-  }
 });

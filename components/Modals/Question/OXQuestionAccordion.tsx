@@ -1,9 +1,11 @@
-import React from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { memo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CaretDownIcon, CornersOutIcon } from 'phosphor-react-native';
-import AnimatedReanimated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { LinearTransition } from 'react-native-reanimated';
+import { MotiView, AnimatePresence } from 'moti';
 
 import { Border, Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
+import ProgressBar from '../../ProgressBar';
 
 type OXChoice = 'O' | 'X';
 type AnswerState = 'default' | 'correct' | 'incorrect';
@@ -11,7 +13,6 @@ type AnswerState = 'default' | 'correct' | 'incorrect';
 type OXQuestionAccordionProps = {
   progressLabel: string;
   progress: number;
-  animatedProgress?: Animated.Value;
   question: string;
   expanded?: boolean;
   selectedValue?: OXChoice;
@@ -24,10 +25,9 @@ type OXQuestionAccordionProps = {
   footer?: React.ReactNode;
 };
 
-export default function OXQuestionAccordion({
+const OXQuestionAccordion = ({
   progressLabel,
   progress,
-  animatedProgress,
   question,
   expanded = true,
   selectedValue,
@@ -38,9 +38,9 @@ export default function OXQuestionAccordion({
   onPressExpand,
   onSelect,
   footer,
-}: OXQuestionAccordionProps) {
+}: OXQuestionAccordionProps) => {
   return (
-    <AnimatedReanimated.View layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
+    <MotiView layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
         <Text style={styles.progressPill}>{progressLabel}</Text>
 
@@ -62,50 +62,45 @@ export default function OXQuestionAccordion({
         </View>
       </View>
 
-      <View style={styles.progressTrack}>
-        <Animated.View
-          style={[
-            styles.progressFill,
-            {
-              width: animatedProgress
-                ? animatedProgress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%'],
-                  })
-                : `${Math.max(0, Math.min(progress, 1)) * 100}%`,
-            },
-          ]}
-        />
-      </View>
+      <ProgressBar
+        progress={progress}
+        height={8}
+        color={Color.main}
+        backgroundColor="#71809B"
+      />
 
-      {expanded ? (
-        <AnimatedReanimated.View 
-          entering={FadeIn} 
-          exiting={FadeOut} 
-          layout={LinearTransition.springify().damping(20).stiffness(200)}
-          style={styles.body}
-        >
-          <Text style={styles.question}>{question}</Text>
+      <AnimatePresence>
+        {expanded && (
+          <MotiView
+            from={{ opacity: 0, translateY: -10 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            exit={{ opacity: 0, translateY: -10 }}
+            style={styles.body}
+          >
+            <Text style={styles.question}>{question}</Text>
 
-          <OXAnswerButton
-            label={trueLabel}
-            selected={selectedValue === 'O'}
-            state={answerState?.O ?? 'default'}
-            onPress={() => onSelect('O')}
-          />
-          <OXAnswerButton
-            label={falseLabel}
-            selected={selectedValue === 'X'}
-            state={answerState?.X ?? 'default'}
-            onPress={() => onSelect('X')}
-          />
+            <OXAnswerButton
+              label={trueLabel}
+              selected={selectedValue === 'O'}
+              state={answerState?.O ?? 'default'}
+              onPress={() => onSelect('O')}
+            />
+            <OXAnswerButton
+              label={falseLabel}
+              selected={selectedValue === 'X'}
+              state={answerState?.X ?? 'default'}
+              onPress={() => onSelect('X')}
+            />
 
-          {footer}
-        </AnimatedReanimated.View>
-      ) : null}
-    </AnimatedReanimated.View>
+            {footer}
+          </MotiView>
+        )}
+      </AnimatePresence>
+    </MotiView>
   );
-}
+};
+
+export default memo(OXQuestionAccordion);
 
 function OXAnswerButton({
   label,
@@ -148,6 +143,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     padding: 14,
     gap: Gap.gap_14,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 15,
+    elevation: 15,
   },
   topRow: {
     flexDirection: 'row',
@@ -159,7 +162,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 5,
-    backgroundColor: '#8EEA7C',
+    backgroundColor: Color.main,
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_20,
     color: '#FFFFFF',
@@ -173,17 +176,6 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  progressTrack: {
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: '#71809B',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 999,
-    backgroundColor: '#8EEA7C',
   },
   body: {
     gap: Gap.gap_14,

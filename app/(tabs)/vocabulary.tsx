@@ -40,7 +40,7 @@ export default function VocabularyScreen() {
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const newSetSheetRef = useRef<BottomSheetModal>(null);
-  
+
   const [vocabularyItems, setVocabularyItems] = useState<VocabularyItem[]>([]);
   const [flashcardSets, setFlashcardSets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,7 +129,7 @@ export default function VocabularyScreen() {
         }
 
         newSetSheetRef.current?.dismiss();
-        await fetchData(); 
+        await fetchData();
       }
     } catch (error) {
       console.error('Lỗi khi tạo bộ từ vựng mới:', error);
@@ -139,6 +139,8 @@ export default function VocabularyScreen() {
   };
 
   const favoriteCount = vocabularyItems.filter(item => item.isFavorite).length;
+  const allSetsCount = flashcardSets.reduce((sum, set) => sum + (set.totalWords || 0), 0);
+  const totalAllCount = favoriteCount + allSetsCount;
 
   const handleStudyFlashcard = (setId: string, wordCount: number) => {
     if (wordCount === 0) {
@@ -154,6 +156,13 @@ export default function VocabularyScreen() {
     router.push({ pathname: '/vocabulary/flashcard-quiz', params: { setId } });
   };
 
+  const handleMatch = (setId: string, wordCount: number) => {
+    if (wordCount === 0) {
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_match', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi chơi ghép thẻ nhé!'));
+    }
+    router.push({ pathname: '/vocabulary/flashcard-match', params: { setId } });
+  };
+
   return (
     <View style={styles.safeArea}>
       <ScrollView
@@ -161,7 +170,7 @@ export default function VocabularyScreen() {
         contentContainerStyle={[
           styles.scrollContent,
           // Bù trừ chiều cao của Tab Bar (86px) + lề bổ sung (24px) + safe area
-          { paddingBottom: 110 + insets.bottom } 
+          { paddingBottom: 110 + insets.bottom }
         ]}
         refreshControl={
           <RefreshControl
@@ -172,10 +181,10 @@ export default function VocabularyScreen() {
         }
       >
         {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('vocabulary.notebook', 'Sổ tay từ vựng')}</Text>
-        <CreateSetButton onPress={() => newSetSheetRef.current?.present()} />
-      </View>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('vocabulary.notebook', 'Sổ tay từ vựng')}</Text>
+          <CreateSetButton onPress={() => newSetSheetRef.current?.present()} />
+        </View>
 
         {/* Mission Banner */}
         {missionD2 && !missionD2.isCompleted && (
@@ -199,7 +208,7 @@ export default function VocabularyScreen() {
               <StatCard label="Đang học" value={stats.learning} valueColor={colors.blue} />
               <StatCard label="Quên rồi" value={stats.forgotten} valueColor={colors.red} />
             </View>
-            <TouchableOpacity style={styles.detailBtn} activeOpacity={0.7} onPress={() => {/* TODO: Navigate to detail */}}>
+            <TouchableOpacity style={styles.detailBtn} activeOpacity={0.7} onPress={() => {/* TODO: Navigate to detail */ }}>
               <CaretDoubleRightIcon size={18} color={colors.text} weight="bold" />
             </TouchableOpacity>
           </LinearGradient>
@@ -209,57 +218,60 @@ export default function VocabularyScreen() {
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Ôn luyện tổng hợp</Text>
           <View style={styles.reviewModesContainer}>
-            <ReviewModeCard 
+            <ReviewModeCard
               label="Chế độ flashcard"
               icon={<Cards02Icon />}
-              onPress={() => handleStudyFlashcard('favorite', favoriteCount)}
+              onPress={() => handleStudyFlashcard('all', totalAllCount)}
+              sharedTransitionTag="study_flashcard_icon"
             />
-            <ReviewModeCard 
+            <ReviewModeCard
               label="Câu hỏi trắc nghiệm"
               icon={<CheckListIcon />}
-              onPress={() => handleQuiz('favorite', favoriteCount)}
+              onPress={() => handleQuiz('all', totalAllCount)}
+              sharedTransitionTag="quiz_icon"
             />
-            <ReviewModeCard 
+            <ReviewModeCard
               label="Ghép thẻ"
               icon={<PuzzleIcon />}
-              onPress={() => { /* TODO: Navigate to matching game */ }}
+              onPress={() => handleMatch('all', totalAllCount)}
+              sharedTransitionTag="match_icon"
             />
           </View>
         </View>
 
-        
+
 
         {/* Flashcard Sets List */}
         <View style={styles.setsListContainer}>
           {favoriteCount >= 0 && (
-            <FlashcardSetCard 
-              title={t('vocabulary.favorite', 'Từ vựng yêu thích')} 
-              totalWords={favoriteCount} 
+            <FlashcardSetCard
+              title={t('vocabulary.favorite', 'Từ vựng yêu thích')}
+              totalWords={favoriteCount}
               isSpecial={true}
               imageSource={require('../../assets/images/horani/horani_vocab.png')}
               onPress={() => {
-                  router.push({
-                    pathname: '/vocabulary/flashcardset-detail',
-                    params: { id: 'favorite', title: t('vocabulary.favorite', 'Từ vựng yêu thích') }
-                  });
-                }}
+                router.push({
+                  pathname: '/vocabulary/flashcardset-detail',
+                  params: { id: 'favorite', title: t('vocabulary.favorite', 'Từ vựng yêu thích') }
+                });
+              }}
             />
           )}
-          
+
           {flashcardSets.map((set) => (
-              <FlashcardSetCard 
-                key={set.id} 
-                title={set.title} 
-                totalWords={set.totalWords} 
-                backgroundColor={colors.bg}
-                imageSource={set.imageSource} 
-                onPress={() => {
-                  router.push({
-                    pathname: '/vocabulary/flashcardset-detail',
-                    params: { id: set.id, title: set.title }
-                  });
-                }}
-              />
+            <FlashcardSetCard
+              key={set.id}
+              title={set.title}
+              totalWords={set.totalWords}
+              backgroundColor={colors.bg}
+              imageSource={set.imageSource}
+              onPress={() => {
+                router.push({
+                  pathname: '/vocabulary/flashcardset-detail',
+                  params: { id: set.id, title: set.title }
+                });
+              }}
+            />
           ))}
         </View>
       </ScrollView>
@@ -279,8 +291,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bg,
     paddingTop: 50,
   },
-  scrollContent: { 
-    flexGrow: 1, 
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Padding.padding_15 || 15,
   },
   header: {

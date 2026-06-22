@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Animated, Easing, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Animated, Easing, ActivityIndicator, Alert, Keyboard } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,6 +24,7 @@ export default function GrammarExerciseScreen() {
   const [incorrectCount, setIncorrectCount] = useState(0); 
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
 
   // Animation refs
@@ -50,7 +51,11 @@ export default function GrammarExerciseScreen() {
       );
       
       const results = await Promise.all(allExercisesPromises);
-      const combinedQuestions = results.flatMap(res => res?.data?.questions || res?.questions || []);
+      const combinedQuestions = results.flatMap(res => {
+        const qs = res?.data?.questions || res?.questions || [];
+        const gId = res?.data?.grammarId || res?.grammarId;
+        return qs.map((q: any) => ({ ...q, grammarId: gId }));
+      });
       
       setQuestions(combinedQuestions.sort(() => Math.random() - 0.5));
     } catch (error) {
@@ -80,35 +85,52 @@ export default function GrammarExerciseScreen() {
   };
 
   const isButtonDisabled = () => {
-    if (status !== 'idle' || !currentQuestion) return true;
+    if (status !== 'idle' || !currentQuestion || isChecking) return true;
     if (currentQuestion.type === 'whiteboard') return !answerWB.trim();
     if (currentQuestion.type === 'word_match') return answerWM.length !== currentQuestion.words?.length;
     return true;
   };
 
-  const handleCheck = () => {
-      let isCorrect = false;
-      
-      if (currentQuestion.type === 'whiteboard') {
-        const userAns = answerWB.trim().toLowerCase();
-        const correctAns = (currentQuestion.correctAnswerStr || "").trim().toLowerCase();
-        isCorrect = userAns === correctAns;
-      } else {
-        const cleanAnswers = answerWM.map(w => w.split('_')[0]);
-        const correctOrder = currentQuestion.correctOrder || [];
-        isCorrect = JSON.stringify(cleanAnswers) === JSON.stringify(correctOrder);
-      }
+  const handleCheck = async () => {
+      if (isChecking || !currentQuestion) return;
+      setIsChecking(true);
+      Keyboard.dismiss(); // Tắt keyboard ngay lập tức
 
-      if (isCorrect) {
-        setStatus('correct');
-      } else {
-        setStatus('incorrect');
-        if (!hasWrongAttempt) {
-          setIncorrectCount(prev => prev + 1);
-          setHasWrongAttempt(true);
+      try {
+        let answerData: any;
+        if (currentQuestion.type === 'whiteboard') {
+          answerData = answerWB.trim().toLowerCase();
+        } else {
+          answerData = answerWM.map(w => w.split('_')[0]);
         }
+
+        // Đợi API và đảm bảo ít nhất 350ms để keyboard kịp hạ xuống mượt mà
+        const minWaitPromise = new Promise(resolve => setTimeout(resolve, 350));
+        const apiPromise = GrammarService.checkGrammarExercise(currentQuestion.grammarId, {
+          questionId: currentQuestion.id,
+          answer: answerData
+        });
+
+        const [res] = await Promise.all([apiPromise, minWaitPromise]);
+
+        const isCorrect = res?.data?.isCorrect;
+
+        if (isCorrect) {
+          setStatus('correct');
+        } else {
+          setStatus('incorrect');
+          if (!hasWrongAttempt) {
+            setIncorrectCount(prev => prev + 1);
+            setHasWrongAttempt(true);
+          }
+        }
+        showFeedback();
+      } catch (error) {
+        console.error("Lỗi kiểm tra bài tập:", error);
+        Alert.alert("Lỗi", "Không thể kiểm tra bài tập lúc này.");
+      } finally {
+        setIsChecking(false);
       }
-      showFeedback();
   };
 
 const handleContinue = () => {
@@ -218,18 +240,20 @@ const handleContinue = () => {
         </View>
       </KeyboardAvoidingView>
 
-      <FeedbackSheet 
-        visible={status !== 'idle'} 
-        type={status === 'incorrect' ? 'failure' : 'success'} 
-        onNext={handleContinue}
-        translateY={feedbackTranslateY} 
-        opacity={feedbackOpacity}
-        imageSource={
-          status === 'incorrect'
-            ? require('../../../../assets/images/horani/failure.png')
-            : require('../../../../assets/images/horani/success.png')
-        }
-      />
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 100 }}>
+        <FeedbackSheet 
+          visible={status !== 'idle'} 
+          type={status === 'incorrect' ? 'failure' : 'success'} 
+          onNext={handleContinue}
+          translateY={feedbackTranslateY} 
+          opacity={feedbackOpacity}
+          imageSource={
+            status === 'incorrect'
+              ? require('../../../../assets/images/horani/failure.png')
+              : require('../../../../assets/images/horani/success.png')
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 }

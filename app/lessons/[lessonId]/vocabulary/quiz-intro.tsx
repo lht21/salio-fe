@@ -142,10 +142,18 @@ export default function QuizIntroScreen() {
           </View>
 
           {/* Phần 4: Nhắc nhở điều kiện thi */}
-          {!canStartQuiz && stats.total > 0 && (
+          {!canStartQuiz && stats.total > 0 && unmasteredCount > 0 && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
                 Bạn cần có ít nhất 4 từ vựng "Đang học" hoặc "Chưa học" để tạo bài trắc nghiệm ôn tập. Hiện tại bạn chỉ còn {unmasteredCount} từ.
+              </Text>
+            </View>
+          )}
+          
+          {!canStartQuiz && stats.total > 0 && unmasteredCount === 0 && (
+            <View style={[styles.warningBox, { backgroundColor: '#F0FFF0', borderColor: Color.main }]}>
+              <Text style={[styles.warningText, { color: Color.main }]}>
+                Tuyệt vời! Bạn đã thông thạo toàn bộ từ vựng trong bài này.
               </Text>
             </View>
           )}
@@ -160,6 +168,12 @@ export default function QuizIntroScreen() {
             title="Bắt đầu Trắc nghiệm" 
             variant="Green" 
             onPress={handleStart} 
+          />
+        ) : (!canStartQuiz && stats.total > 0 && unmasteredCount === 0) ? (
+          <Button 
+            title="Tiếp tục sang Ngữ pháp" 
+            variant="Green" 
+            onPress={() => router.push(`/lessons/${lessonId}/grammar/intro` as any)} 
           />
         ) : (
           <Button 
@@ -215,9 +229,7 @@ const styles = StyleSheet.create({
   },
 
   titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     marginBottom: 30,
   },
@@ -230,7 +242,7 @@ const styles = StyleSheet.create({
   
   titleText: {
     fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_20,
+    fontSize: FontSize.fs_24,
     color: Color.cam, // Màu cam từ thiết kế
   },
 

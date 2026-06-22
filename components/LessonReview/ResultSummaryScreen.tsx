@@ -1,12 +1,12 @@
 import React from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Animated, Easing, Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { XIcon } from 'phosphor-react-native';
 
 import Button from '@/components/Button';
-import { Border, Color, FontFamily, FontSize } from '@/constants/GlobalStyles';
+import IconButton from '@/components/IconButton';
+import { Border, Color, FontFamily, FontSize, Gap } from '@/constants/GlobalStyles';
 
 type ResultMetric = {
   id: string;
@@ -17,87 +17,115 @@ type ResultMetric = {
 
 type ResultSummaryScreenProps = {
   title: string;
-  scoreLabel: string;
   pointLabel: string;
+  subLabels?: string[];
   metrics: ResultMetric[];
   primaryLabel: string;
   onClose: () => void;
   onPrimaryPress: () => void;
+  secondaryLabel?: string;
+  onSecondaryPress?: () => void;
 };
 
 export default function ResultSummaryScreen({
   title,
-  scoreLabel,
   pointLabel,
+  subLabels,
   metrics,
   primaryLabel,
   onClose,
   onPrimaryPress,
+  secondaryLabel,
+  onSecondaryPress
 }: ResultSummaryScreenProps) {
-  const screenOpacity = React.useRef(new Animated.Value(0)).current;
-  const screenTranslateY = React.useRef(new Animated.Value(26)).current;
+  const insets = useSafeAreaInsets();
+  
+  // Header animation: slide down
+  const headerTranslateY = React.useRef(new Animated.Value(-600)).current;
+  
+  // Content animation: fade in after header
+  const contentOpacity = React.useRef(new Animated.Value(0)).current;
+  const contentTranslateY = React.useRef(new Animated.Value(30)).current;
+  
   const metricAnimations = React.useRef(metrics.map(() => new Animated.Value(0))).current;
 
   React.useEffect(() => {
-    Animated.parallel([
-      Animated.timing(screenOpacity, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(screenTranslateY, {
-        toValue: 0,
-        duration: 420,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    Animated.stagger(
-      180,
-      metricAnimations.map((value) =>
-        Animated.timing(value, {
+    // 1. Header slides down
+    Animated.timing(headerTranslateY, {
+      toValue: 0,
+      duration: 600,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => {
+      // 2. Content fades in and slides up slightly
+      Animated.parallel([
+        Animated.timing(contentOpacity, {
           toValue: 1,
-          duration: 820,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentTranslateY, {
+          toValue: 0,
+          duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: false,
-        })
-      )
-    ).start();
-  }, [metricAnimations, screenOpacity, screenTranslateY]);
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // 3. Metrics fill up
+      Animated.stagger(
+        150,
+        metricAnimations.map((value) =>
+          Animated.timing(value, {
+            toValue: 1,
+            duration: 700,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: false,
+          })
+        )
+      ).start();
+    });
+  }, [headerTranslateY, contentOpacity, contentTranslateY, metricAnimations]);
 
   return (
-    <LinearGradient colors={['#E7FFD0', '#FFFFFF', '#FFFFFF', '#fff']} style={styles.gradientScreen}>
-      <SafeAreaView style={styles.safeArea}>
-        <Animated.View
-          style={[
-            styles.content,
-            {
-              opacity: screenOpacity,
-              transform: [{ translateY: screenTranslateY }],
-            },
-          ]}
-        >
-          <Pressable style={styles.closeButton} onPress={onClose}>
-            <XIcon size={22} color="#A3A3A3" weight="bold" />
-          </Pressable>
-
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* HEADER SECTION */}
+        <Animated.View style={[styles.headerCurved, { paddingTop: insets.top + 16, transform: [{ translateY: headerTranslateY }] }]}>
+          <View style={styles.closeBtnContainer}>
+             <IconButton Icon={XIcon} variant="Stroke" onPress={onClose} />
+          </View>
+          
           <Image
             source={require('../../assets/images/horani/result.png')}
             style={styles.heroImage}
             contentFit="contain"
           />
 
-          <Text style={styles.title}>{title}</Text>
-
-          <View style={styles.scoreRow}>
-            <Text style={styles.scoreLabel}>{scoreLabel}</Text>
-            <Text style={styles.scoreValue}>{pointLabel}</Text>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>{title}</Text>
           </View>
 
-          <View style={styles.metricsWrap}>
-            <Text style={styles.metricsHeading}>Phân tích kỹ năng</Text>
+          <View style={styles.pointPill}>
+            <Text style={styles.pointLabel}>{pointLabel}</Text>
+          </View>
 
+          {subLabels && subLabels.length > 0 && (
+            <View style={styles.subLabelsRow}>
+              {subLabels.map((lbl, idx) => (
+                <View key={idx} style={styles.subPill}>
+                  <Text style={styles.subPillText}>{lbl}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </Animated.View>
+
+        {/* CONTENT SECTION */}
+        <Animated.View style={[styles.mainContent, { opacity: contentOpacity, transform: [{ translateY: contentTranslateY }] }]}>
+          <Text style={styles.metricsHeading}>Phân tích kỹ năng</Text>
+
+          <View style={styles.metricsWrap}>
             {metrics.map((metric, index) => (
               <View key={metric.id} style={styles.metricBlock}>
                 <Text style={styles.metricLabel}>{metric.label}</Text>
@@ -124,85 +152,129 @@ export default function ResultSummaryScreen({
           </View>
 
           <View style={styles.footer}>
-            <Button title={primaryLabel} onPress={onPrimaryPress} style={styles.primaryButton} />
+            <Button title={primaryLabel} onPress={onPrimaryPress} variant="Green" />
+            
+            {secondaryLabel && onSecondaryPress && (
+              <Button title={secondaryLabel} onPress={onSecondaryPress} variant="TextOnly" />
+            )}
           </View>
         </Animated.View>
-      </SafeAreaView>
-    </LinearGradient>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradientScreen: {
+  container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
-  safeArea: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 18,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
+  headerCurved: {
+    backgroundColor: Color.main200,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    paddingBottom: 32,
     alignItems: 'center',
-    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 10,
+    // Add shadow to curved header to match design
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  closeBtnContainer: {
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  closeBtn: {
+    backgroundColor: 'rgba(255,255,255,0.4)', // Slightly transparent grey/white
+    borderWidth: 0,
   },
   heroImage: {
     width: 148,
     height: 148,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 10,
+    marginBottom: 16,
+  },
+  titleWrapper: {
+    position: 'relative',
+    marginBottom: 16,
   },
   title: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 28,
-    color: Color.cam,
+    color: '#3F5C1B', // Dark green text inside
     textAlign: 'center',
-    marginBottom: 22,
+    textTransform: 'uppercase',
   },
-  scoreRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 18,
-    paddingHorizontal: 6,
+  titleStroke: {
+    position: 'absolute',
+    color: '#FFFFFF', // White stroke
   },
-  scoreLabel: {
+  pointPill: {
+    backgroundColor: Color.bg, // Light yellow/green background
+    paddingVertical: 10,
+    paddingHorizontal: 36,
+    borderRadius: 20,
+    marginBottom: 12,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderColor: Color.main700
+  },
+  pointLabel: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
+    fontSize: 24,
+    color: Color.orange500,
   },
-  scoreValue: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_20,
-    color: '#A10202',
+  subLabelsRow: {
+    flexDirection: 'row',
+    gap: 12,
   },
-  metricsWrap: {
-    marginTop: 8,
-    gap: 14,
+  subPill: {
+    backgroundColor: Color.main50,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  subPillText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    color: Color.main700,
+  },
+  mainContent: {
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    flex: 1,
   },
   metricsHeading: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 18,
+    color: Color.main500,
+    marginBottom: 16,
+    textAlign: 'center'
+  },
+  metricsWrap: {
+    gap: 20,
   },
   metricBlock: {
     gap: 8,
   },
   metricLabel: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 14,
+    color: '#000000',
   },
   track: {
-    height: 24,
+    height: 26,
     borderRadius: 999,
-    backgroundColor: 'rgba(0, 0, 0, 0.14)',
+    backgroundColor: '#D9D9D9',
     overflow: 'hidden',
     justifyContent: 'center',
   },
@@ -213,17 +285,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   trackValue: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_12,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 13,
     color: '#FFFFFF',
-    paddingRight: 10,
+    paddingRight: 12,
   },
   footer: {
-    marginTop: 'auto',
-    paddingTop: 16,
-  },
-  primaryButton: {
-    marginVertical: 0,
-    borderRadius: Border.br_30,
+    marginTop: 40,
+    gap: 16,
   },
 });

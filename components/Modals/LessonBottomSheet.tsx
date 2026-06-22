@@ -1,6 +1,6 @@
-﻿﻿﻿﻿import React, { forwardRef, useMemo, useCallback } from 'react';
+﻿﻿import React, { forwardRef, useMemo, useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView, BottomSheetFooter } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetScrollView, BottomSheetFooter } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import {
@@ -12,6 +12,7 @@ import {
 import Button from '../Button';
 import HangulLessonContent from './HangulLessonContent';
 import LessonSectionAccordion from './LessonSectionAccordion';
+import MiniTestCard from './MiniTestCard';
 import { useLessonModules } from './useLessonModules';
 import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 
@@ -29,6 +30,7 @@ type LessonBottomSheetProps = {
     romanization?: string;
   }>;
   onClose?: () => void;
+  onCloseRequest?: () => void;
   initialIndex?: number;
 };
 
@@ -40,8 +42,8 @@ const MASCOTS = [
   require('../../assets/images/horani/sc1_b4.png'),
 ];
 
-const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
-  ({ lessonId, unit, title, lessonType, hangul, onClose, initialIndex = -1 }, ref) => {
+const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
+  ({ lessonId, unit, title, lessonType, hangul, onClose, onCloseRequest, initialIndex = 0 }, ref) => {
     const router = useRouter();
     const isHangulLesson = lessonType === 'hangul' || lessonId === '0';
     const { modules, lessonProgress, isLoadingModules, sections } = useLessonModules(lessonId, isHangulLesson);
@@ -134,7 +136,7 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
               variant="Green"
               onPress={() => {
             // Đóng modal rồi dùng setTimeout để chuyển trang mượt mà tránh xung đột animation
-            router.back();
+            if (onCloseRequest) onCloseRequest();
             setTimeout(() => router.push(nextAction.route as any), 100);
               }}
             />
@@ -144,18 +146,18 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
     }, [isHangulLesson, nextAction, router]);
 
     return (
-      <BottomSheet
+      <BottomSheetModal
         ref={ref}
         index={initialIndex}
         snapPoints={snapPoints}
         enableDynamicSizing={true}
         enablePanDownToClose
-        onClose={onClose}
+        onDismiss={onClose}
         backgroundStyle={styles.sheetBackground}
         handleIndicatorStyle={styles.sheetHandle}
         footerComponent={renderFooter}
         backdropComponent={(props) => (
-          <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} opacity={0.28} />
+          <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} opacity={0.28} pressBehavior="close" />
         )}
       >
         <BottomSheetScrollView contentContainerStyle={[styles.sheetContent, !isHangulLesson && { paddingBottom: 110 }]} showsVerticalScrollIndicator={false}>
@@ -218,7 +220,7 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
                       // 1. Gỡ bỏ điều hướng của Accordion
                       onPress={undefined} 
                       onActionPress={isLocked ? undefined : () => {
-                        router.back();
+                        if (onCloseRequest) onCloseRequest();
                         setTimeout(() => router.push(introRoute as any), 100);
                       }}
                       actionText={section.progressValue >= 100 ? 'Ôn tập' : (section.progressValue === 0 ? 'Bắt đầu' : 'Làm lại')}
@@ -230,35 +232,18 @@ const LessonBottomSheet = forwardRef<BottomSheet, LessonBottomSheetProps>(
 
             {/* 3. Đưa Mini Test vào danh sách UI (dạng Card) */}
             {!isLoadingModules && hasFinalTest && (
-              <TouchableOpacity 
-                style={[styles.miniTestCard, finalTestLocked && styles.miniTestCardLocked]}
-                activeOpacity={0.8}
-                disabled={finalTestLocked}
+              <MiniTestCard 
+                isLocked={finalTestLocked}
                 onPress={() => {
-              router.back();
-              setTimeout(() => router.push(`/lessons/${lessonId}/final-test/exam` as any), 100);
+                  if (onCloseRequest) onCloseRequest();
+                  setTimeout(() => router.push(`/lessons/${lessonId}/final-test/exam` as any), 100);
                 }}
-              >
-                <View style={styles.miniTestIconWrap}>
-                  {finalTestLocked ? (
-                    <LockKeyIcon size={24} color={Color.gray} weight="fill" />
-                  ) : (
-                    <TrophyIcon size={24} color={Color.vang || '#FBBF24'} weight="fill" />
-                  )}
-                </View>
-                <View style={styles.miniTestInfo}>
-                  <Text style={[styles.miniTestTitle, finalTestLocked && styles.miniTestTextLocked]}>Bài kiểm tra cuối khóa</Text>
-                  <Text style={styles.miniTestSub}>{finalTestLocked ? "Hoàn thành bài học để mở khóa" : "Kiểm tra kiến thức đã học"}</Text>
-                </View>
-                {!finalTestLocked && (
-                  <CaretRightIcon size={20} color={Color.main2} weight="bold" />
-                )}
-              </TouchableOpacity>
+              />
             )}
             </>
           )}
         </BottomSheetScrollView>
-      </BottomSheet>
+      </BottomSheetModal>
     );
   }
 );
@@ -345,47 +330,6 @@ const styles = StyleSheet.create({
     color: Color.gray,
     textAlign: 'center',
     paddingVertical: 24,
-  },
-  // Style cho Mini Test Card
-  miniTestCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFBEB', // Nền vàng nhạt
-    borderWidth: 1.5,
-    borderColor: '#FDE68A',
-    borderRadius: Border.br_20,
-    padding: Padding.padding_15,
-    marginTop: Gap.gap_15,
-    gap: Gap.gap_10,
-  },
-  miniTestCardLocked: {
-    backgroundColor: '#F3F4F6', // Nền xám
-    borderColor: '#E5E7EB',
-  },
-  miniTestIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Color.bg,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  miniTestInfo: {
-    flex: 1,
-  },
-  miniTestTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: '#D97706', // Cam đậm
-    marginBottom: 2,
-  },
-  miniTestTextLocked: {
-    color: Color.gray,
-  },
-  miniTestSub: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
   },
   // Style cho Sticky Footer
   footerContainer: {

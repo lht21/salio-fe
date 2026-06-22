@@ -4,6 +4,7 @@ import { AnimatePresence, MotiView } from 'moti';
 import { CaretDownIcon, CaretUpIcon, CheckCircleIcon } from 'phosphor-react-native';
 
 import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '../../constants/GlobalStyles';
+import Button from '../Button';
 
 export type LessonSectionDetailItem = {
   id: string;
@@ -53,7 +54,7 @@ const LessonSectionAccordion = ({
     <MotiView
       from={{ opacity: 0, translateY: 12 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'timing', duration: 350, delay }}
+      transition={{ type: 'timing', duration: 350, delay } as any}
       style={[styles.card, { backgroundColor }]}
     >
       <View style={styles.header}>
@@ -92,7 +93,7 @@ const LessonSectionAccordion = ({
             from={{ opacity: 0, height: 0, translateY: -8 }}
             animate={{ opacity: 1, height: 'auto', translateY: 0 }}
             exit={{ opacity: 0, height: 0, translateY: -8 }}
-            transition={{ type: 'timing', duration: 280 }}
+            transition={{ type: 'timing', duration: 280 } as any}
             style={styles.bodyWrap}
           >
             <Pressable style={styles.body} onPress={onPress} disabled={!onPress}>
@@ -102,7 +103,7 @@ const LessonSectionAccordion = ({
                     key={item.id}
                     from={{ opacity: 0, translateY: 6 }}
                     animate={{ opacity: 1, translateY: 0 }}
-                    transition={{ type: 'timing', duration: 220, delay: index * 45 }}
+                    transition={{ type: 'timing', duration: 220, delay: index * 45 } as any}
                     style={styles.detailRow}
                   >
                     <Text style={styles.detailLeft}>{item.left}</Text>
@@ -135,9 +136,11 @@ const LessonSectionAccordion = ({
             <Text style={[styles.progressText, { color: progressColor }]}>{progressText}</Text>
           </View>
           {onActionPress && (
-            <Pressable style={styles.actionBtn} onPress={onActionPress} hitSlop={8}>
-              <Text style={[styles.actionBtnText, { color: progressColor }]}>{actionText || 'Làm lại'}</Text>
-            </Pressable>
+            <Button
+              title={actionText}
+              onPress={onActionPress}
+              variant='Outline'
+            />
           )}
         </View>
       </Pressable>
@@ -152,6 +155,7 @@ const styles = StyleSheet.create({
     borderColor: Color.stroke,
     padding: 16,
     gap: Gap.gap_10,
+    borderBottomWidth: 5
   },
   contentPressable: {
     flex: 1,
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
   },
   bodyWrap: {
     overflow: 'hidden',
-    backgroundColor: Color.bg2,
+    backgroundColor: Color.main50,
     borderRadius: Border.br_20,
     padding: Padding.padding_20,
     gap: Gap.gap_10,

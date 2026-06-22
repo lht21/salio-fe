@@ -4,6 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { MotiView, AnimatePresence } from 'moti';
+import * as Haptics from 'expo-haptics';
+import { Audio } from 'expo-av';
 
 import LessonService from '../../../../api/services/lesson.service';
 import { ReadingItem, LessonModules } from '../../../../api/types/lesson.types';
@@ -12,8 +15,10 @@ import {
   ReadingPassageCard,
   MultipleChoiceQuestionCard,
   ShortAnswerQuestionCard,
-  OXQuestionAccordion, // THÊM OX
+  OXQuestionAccordion,
 } from '../../../../components/Modals/Question';
+import ImmediateFeedbackBar from '../../../../components/Listening/ImmediateFeedbackBar';
+import { Color } from '../../../../constants/GlobalStyles';
 
 export default function ReadingPracticeScreen() {
   const router = useRouter();
@@ -28,10 +33,11 @@ export default function ReadingPracticeScreen() {
   const [allUserAnswers, setAllUserAnswers] = useState<Record<string, any[]>>({});
   const [expanded, setExpanded] = useState(true);
   const [typedAnswer, setTypedAnswer] = useState('');
-  const isTransitioning = useRef(false);
+  
+  const [feedback, setFeedback] = useState<{ visible: boolean; isCorrect: boolean } | null>(null);
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const startTimeRef = useRef<number>(Date.now());
 
-  const questionOpacity = useRef(new Animated.Value(1)).current;
-  const questionTranslateY = useRef(new Animated.Value(0)).current;
   const progressAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -73,29 +79,28 @@ export default function ReadingPracticeScreen() {
       content: readingItem.content,
       questions: (readingItem.questions || []).map(q => ({
         id: q._id,
-        // CẬP NHẬT MAPPING LOẠI CÂU HỎI
         type: q.type === 'true_false' ? 'ox' : q.type === 'single_choice' ? 'multiple-choice' : 'short-answer',
         question: q.questionText,
         options: q.metadata?.options?.map(opt => ({ id: opt, label: opt })) || [],
+        correctAnswer: q.correctAnswer,
       })),
     };
   }, [readingItem]);
 
   const goNext = useCallback(async () => {
+    setFeedback(null);
     if (!exercise) return;
+    
     if (currentIndex < exercise.questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setTypedAnswer('');
       setExpanded(true);
-      isTransitioning.current = false;
     } 
     else {
       if (currentExIndex < allExerciseIds.length - 1) {
         const nextIdx = currentExIndex + 1;
         setCurrentExIndex(nextIdx);
-        loadExercise(allExerciseIds[nextIdx]).then(() => {
-          isTransitioning.current = false;
-        });
+        loadExercise(allExerciseIds[nextIdx]);
       } 
       else {
         try {
@@ -104,9 +109,12 @@ export default function ReadingPracticeScreen() {
           let totalMaxScore = 0;
           let cats = { vocabulary: { score: 0, max: 0 }, choice: { score: 0, max: 0 }, deepComprehension: { score: 0, max: 0 } };
 
+          const timeSpentSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          const timeSpentPerEx = Math.max(1, Math.floor(timeSpentSeconds / Math.max(1, allExerciseIds.length)));
+
           for (const exId of allExerciseIds) {
             const answers = allUserAnswers[exId] || [];
-            const result = await LessonService.submitSkillItem(resolvedLessonId, 'reading', exId, { answers, timeSpent: 0 });
+            const result = await LessonService.submitSkillItem(resolvedLessonId, 'reading', exId, { answers, timeSpent: timeSpentPerEx });
             totalScore += result.data.result.totalScore;
             totalMaxScore += result.data.result.maxScore;
             const b = result.data.result.breakdown;
@@ -134,32 +142,64 @@ export default function ReadingPracticeScreen() {
     }
   }, [currentIndex, exercise, allUserAnswers, currentExIndex, allExerciseIds, resolvedLessonId]);
 
-  const animateToNext = useCallback(() => {
-    Animated.parallel([
-      Animated.timing(questionOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
-      Animated.timing(questionTranslateY, { toValue: -10, duration: 180, useNativeDriver: true }),
-    ]).start(({ finished }) => {
-      if (finished) {
-        goNext();
-        questionOpacity.setValue(1);
-        questionTranslateY.setValue(0);
-      }
-    });
-  }, [goNext]);
+  const playFeedbackSound = async (isCorrect: boolean) => {
+    try {
+      const soundAsset = isCorrect 
+        ? require('../../../../assets/audio/correct.mp3') 
+        : require('../../../../assets/audio/incorrect.mp3');
+      
+      const { sound } = await Audio.Sound.createAsync(soundAsset);
+      
+      await sound.playAsync();
+      
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (e) {
+      console.log('Lỗi phát âm thanh:', e);
+    }
+  };
 
   const saveAnswer = (value: any) => {
-    if (isTransitioning.current) return;
     if (!exercise) return;
     if (!exercise.questions[currentIndex]) return;
     
-    isTransitioning.current = true;
-    const qId = exercise.questions[currentIndex].id;
+    const currentQ = exercise.questions[currentIndex];
+    const qId = currentQ.id;
+    
+    let isCorrect = false;
+    if (Array.isArray(currentQ.correctAnswer)) {
+      isCorrect = currentQ.correctAnswer.includes(value);
+    } else {
+      isCorrect = currentQ.correctAnswer === value;
+    }
+    
     setAllUserAnswers(prev => {
       const currentExAnswers = prev[exercise.id] || [];
       const filtered = currentExAnswers.filter(a => a.questionId !== qId);
-      return { ...prev, [exercise.id]: [...filtered, { questionId: qId, answer: value }] };
+      return { ...prev, [exercise.id]: [...filtered, { questionId: qId, answer: value, isCorrect }] };
     });
-    setTimeout(animateToNext, 400);
+
+    if (isCorrect) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      playFeedbackSound(true);
+    } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      playFeedbackSound(false);
+      
+      shakeAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true })
+      ]).start();
+    }
+
+    setFeedback({ visible: true, isCorrect });
   };
 
   if (loading || !exercise) return <SafeAreaView style={styles.center}><ActivityIndicator size="large" color="#4ACB40" /></SafeAreaView>;
@@ -185,7 +225,6 @@ export default function ReadingPracticeScreen() {
       );
     }
 
-    // BỔ SUNG RENDER OX
     if (currentQuestion.type === 'ox') {
       return (
         <OXQuestionAccordion
@@ -204,7 +243,7 @@ export default function ReadingPracticeScreen() {
         progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
         animatedProgress={progressAnimation} question={currentQuestion.question}
         value={typedAnswer} expanded={expanded}
-        placeholder="Nhập câu trả lời..." submitLabel="Tiếp tục"
+        placeholder="Nhập câu trả lời..." submitLabel="Kiểm tra"
         onToggleExpand={() => setExpanded(!expanded)}
         onChangeText={setTypedAnswer} 
         onSubmit={() => saveAnswer(typedAnswer)}
@@ -213,7 +252,7 @@ export default function ReadingPracticeScreen() {
   };
 
   return (
-    <LinearGradient colors={['#D8FFAA', '#F5FFE8', '#FFFFFF']} style={styles.screen}>
+    <LinearGradient colors={[Color.main200, '#FFFFFF']} style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <KeyboardAwareScrollView
           enableOnAndroid 
@@ -221,21 +260,36 @@ export default function ReadingPracticeScreen() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.keyboardContent}
         >
-          {/* View bao quanh để đảm bảo nội dung dàn trải */}
-            <ReadingPassageCard
-              lessonLabel={exercise.title}
-              instruction="Đọc đoạn văn và trả lời câu hỏi"
-              passage={exercise.content}
-              onClose={() => router.back()}
-              footer={
-                <View style={styles.footerWrap}>
-                  <Animated.View style={[styles.questionContainer, { opacity: questionOpacity, transform: [{ translateY: questionTranslateY }] }]}>
-                    {renderQuestionCard()}
-                  </Animated.View>
-                </View>
-              }
-            />
+          <ReadingPassageCard
+            lessonLabel={exercise.title}
+            instruction="Đọc đoạn văn và trả lời câu hỏi"
+            passage={exercise.content}
+            onClose={() => router.back()}
+            footer={
+              <View style={styles.footerWrap} pointerEvents={feedback?.visible ? 'none' : 'auto'}>
+                <Animated.View style={[styles.questionContainer, { transform: [{ translateX: shakeAnim }] }]}>
+                  <AnimatePresence exitBeforeEnter>
+                    <MotiView
+                      key={`q-${currentQuestion?.id || 'empty'}`}
+                      from={{ opacity: 0, translateX: 50 }}
+                      animate={{ opacity: 1, translateX: 0 }}
+                      exit={{ opacity: 0, translateX: -50 }}
+                      transition={{ type: 'timing', duration: 250 } as any}
+                    >
+                      {renderQuestionCard()}
+                    </MotiView>
+                  </AnimatePresence>
+                </Animated.View>
+              </View>
+            }
+          />
         </KeyboardAwareScrollView>
+
+        <ImmediateFeedbackBar
+          visible={!!feedback?.visible}
+          isCorrect={!!feedback?.isCorrect}
+          onNext={goNext}
+        />
       </SafeAreaView>
     </LinearGradient>
   );
@@ -245,9 +299,9 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   safeArea: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  sheet: { flex: 1, paddingTop: 10 },
   keyboardContent: { 
     flexGrow: 1, 
+    paddingBottom: 24, // Thêm padding bottom để không bị vướng feedback bar
   },
   footerWrap: { 
     marginTop: 20, 

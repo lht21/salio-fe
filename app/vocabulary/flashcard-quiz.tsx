@@ -1,25 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, Text, View, ActivityIndicator, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
-import FeedbackPopup from '../../components/Modals/Popup/FeedbackPopup';
-import { AnswerOption, QuizHeader, type OptionStatus } from '../../components/Modals/Question';
-import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Animated, Easing, StyleSheet, Alert } from 'react-native';
 import FlashcardService from '../../api/services/flashcard.service';
-import apiClient from '../../api/client';
-import IconButton from '../../components/IconButton';
-import { XIcon } from 'phosphor-react-native';
+import VocabularyService from '../../api/services/vocabulary.service';
 import CheckListIcon from '../../components/icons/CheckListIcon';
+import QuizStudyUI, { QuizQuestion } from '../../components/QuizStudyUI';
 
-// Quiz Question Type
-type QuizQuestion = {
-  id: string;
-  question: string;
-  options: { id: string; text: string }[];
-  correctOptionId: string;
-};
+
 
 export default function FlashcardQuizScreen() {
   const router = useRouter();
@@ -36,8 +23,7 @@ export default function FlashcardQuizScreen() {
   const [feedbackState, setFeedbackState] = useState<'hidden' | 'success' | 'failure'>('hidden');
   const [answerHistory, setAnswerHistory] = useState<Record<string, boolean>>({});
 
-  // STATE HIỂN THỊ MODAL THOÁT
-  const [showExitModal, setShowExitModal] = useState(false);
+
   const feedbackOpacity = React.useRef(new Animated.Value(0)).current;
   const feedbackTranslateY = React.useRef(new Animated.Value(150)).current;
 
@@ -64,7 +50,7 @@ export default function FlashcardQuizScreen() {
             const wrongCards = cards.filter((c: any) => c._id !== card._id);
             // Chọn ngẫu nhiên 3 đáp án sai
             const shuffledWrongCards = wrongCards.sort(() => Math.random() - 0.5).slice(0, 3);
-            
+
             const options = [
               { id: card._id, text: card.meaning },
               ...shuffledWrongCards.map((w: any) => ({ id: w._id, text: w.meaning }))
@@ -87,7 +73,7 @@ export default function FlashcardQuizScreen() {
         setIsLoading(false);
       }
     };
-    
+
     fetchAndGenerateQuiz();
   }, [setId]);
 
@@ -135,8 +121,8 @@ export default function FlashcardQuizScreen() {
 
     // Gọi API cập nhật trạng thái từ vựng (chạy ngầm, không block UI)
     const status = isAnswerCorrect ? 'remembered' : 'forgotten';
-    apiClient.post(`/api/v1/vocabularies/${currentQuestion.correctOptionId}/mark`, { status })
-      .catch(err => console.error('Lỗi cập nhật tiến độ từ vựng:', err));
+    VocabularyService.markStatus(currentQuestion.correctOptionId, { status })
+      .catch(err => console.error('Lỗi khi lưu kết quả câu hỏi:', err));
 
     if (isAnswerCorrect) {
       showFeedback('success');
@@ -144,6 +130,32 @@ export default function FlashcardQuizScreen() {
       setIncorrectCount(prev => prev + 1);
       showFeedback('failure');
     }
+  };
+
+  const handleDontKnow = () => {
+    if (isAnswered) return;
+    setSelectedAnswerId('dont_know');
+    setIsAnswered(true);
+    setAnswerHistory(prev => ({ ...prev, [currentQuestion.correctOptionId]: false }));
+    VocabularyService.markStatus(currentQuestion.correctOptionId, { status: 'forgotten' })
+      .catch(err => console.error('Lỗi khi lưu kết quả (bỏ qua):', err));
+    setIncorrectCount(prev => prev + 1);
+    showFeedback('failure');
+  };
+
+  const handleOverrideCorrect = () => {
+    // Sửa lại đáp án trong lịch sử thành đúng
+    setAnswerHistory(prev => ({ ...prev, [currentQuestion.correctOptionId]: true }));
+
+    // Cập nhật API thành remembered
+    VocabularyService.markStatus(currentQuestion.correctOptionId, { status: 'remembered' })
+      .catch(err => console.error('Lỗi khi sửa đáp án thành đúng:', err));
+
+    // Trừ đi số câu sai
+    setIncorrectCount(prev => Math.max(0, prev - 1));
+
+    // Đổi popup sang trạng thái success
+    setFeedbackState('success');
   };
 
   const handleNextQuestion = () => {
@@ -174,114 +186,29 @@ export default function FlashcardQuizScreen() {
     moveNext();
   };
 
-  const getOptionStatus = (optionId: string): OptionStatus => {
-    if (!isAnswered) return 'default';
 
-    const isThisOptionSelected = selectedAnswerId === optionId;
-    const isThisOptionCorrect = currentQuestion.correctOptionId === optionId;
-
-    if (isThisOptionSelected && isThisOptionCorrect) return 'correct';
-    if (isThisOptionSelected && !isThisOptionCorrect) return 'incorrect';
-    if (!isThisOptionSelected && isThisOptionCorrect) return 'missed-correct';
-
-    return 'disabled';
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
-      </SafeAreaView>
-    );
-  }
-
-  if (quizData.length === 0) {
-    return (
-      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-         <Text style={{ fontFamily: FontFamily.lexendDecaMedium }}>Không có câu hỏi nào để hiển thị.</Text>
-         <IconButton Icon={XIcon} onPress={() => router.back()} style={{ marginTop: 20 }} />
-      </SafeAreaView>
-    );
-  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* HEADER */}
-      <QuizHeader
-        current={currentIndex + 1}
-        total={quizData.length}
-        incorrectCount={incorrectCount}
-        onClose={() => setShowExitModal(true)}
-        icon={<CheckListIcon width={40} height={40} />}
-      />
-
-      {/* BODY CONTENT */}
-      <ScrollView
-        key={currentQuestion?.id}
-        style={styles.scrollArea}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.questionText}>{currentQuestion?.question}</Text>
-
-        <View style={styles.optionsContainer}>
-          {currentQuestion?.options.map((opt, idx) => (
-            <AnswerOption
-              key={`${currentQuestion.id}-${opt.id}`}
-              index={idx}
-              text={opt.text}
-              status={getOptionStatus(opt.id)}
-              onPress={() => handleSelectOption(opt.id)}
-            />
-          ))}
-        </View>
-      </ScrollView>
-      <FeedbackPopup
-        visible={feedbackState !== 'hidden'}
-        type={feedbackState === 'failure' ? 'failure' : 'success'}
-        onNext={handleNextQuestion}
-        translateY={feedbackTranslateY}
-        opacity={feedbackOpacity}
-        imageSource={
-          feedbackState === 'failure'
-            ? require('../../assets/images/horani/failure.png')
-            : require('../../assets/images/horani/success.png')
-        }
-      />
-
-      <ConfirmModal
-        isVisible={showExitModal}
-        title="Đang kiểm tra dở mà"
-        subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"
-        cancelText="Vẫn rời đi"
-        confirmText="Làm tiếp"
-        onCancel={() => {
-          setShowExitModal(false);
-          router.back();
-        }}
-        onConfirm={() => setShowExitModal(false)}
-      />
-    </SafeAreaView>
+    <QuizStudyUI
+      quizData={quizData}
+      currentIndex={currentIndex}
+      isLoading={isLoading}
+      isAnswered={isAnswered}
+      selectedAnswerId={selectedAnswerId}
+      incorrectCount={incorrectCount}
+      feedbackState={feedbackState}
+      feedbackOpacity={feedbackOpacity}
+      feedbackTranslateY={feedbackTranslateY}
+      headerIcon={<CheckListIcon width={40} height={40} />}
+      headerSharedTransitionTag="quiz_icon"
+      onSelectOption={handleSelectOption}
+      onDontKnow={handleDontKnow}
+      onNextQuestion={handleNextQuestion}
+      onOverrideCorrect={handleOverrideCorrect}
+      onClose={() => router.back()}
+    />
   );
 }
 
 // --- STYLES ---
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  scrollArea: { flex: 1 },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: Padding.padding_20,
-    paddingTop: Padding.padding_30,
-    paddingBottom: 40,
-  },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_24,
-    color: Color.text,
-    marginBottom: Gap.gap_20,
-    textAlign: 'left',
-  },
-  optionsContainer: { width: '100%' },
-});
+const styles = StyleSheet.create({});

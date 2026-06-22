@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, ActivityIndicator, Alert, Animated, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -235,7 +235,9 @@ export default function FinalTestExamScreen() {
 
       try {
         const startRes = await LessonService.startFinalTest(lessonId);
-        const { quiz } = await LessonService.getFinalTestSession(lessonId, startRes.sessionId);
+        const sessionId = startRes.data.sessionId;
+        const sessionRes = await LessonService.getFinalTestSession(lessonId, sessionId);
+        const quiz = sessionRes.data.quiz;
         
         console.log('Quiz sections:', {
           listening: quiz.sections?.listening?.length,
@@ -244,7 +246,7 @@ export default function FinalTestExamScreen() {
           readingQuestions: quiz.sections?.reading?.reduce((sum, item) => sum + (item.questions?.length || 0), 0)
         });
 
-        setSessionId(startRes.sessionId);
+        setSessionId(sessionId);
         setQuizData(quiz);
 
         const tempFlat: any[] = [];

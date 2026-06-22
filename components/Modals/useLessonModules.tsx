@@ -42,7 +42,6 @@ export type ProgressSection = {
 export type LessonModulesData = {
   lessonType?: 'standard' | 'hangul';
   vocabulary?: ModuleItem[];
-  vocabularyQuizzes?: ModuleItem[];
   grammar?: ModuleItem[];
   grammarQuizzes?: ModuleItem[];
   listening?: ModuleItem[];
@@ -111,7 +110,7 @@ const buildDynamicSections = (modules: LessonModulesData | null, progress: any):
   // Sửa lỗi Unwrapping: Payload thực sự nằm trong trường data của BaseResponse
   const actualProgress = progress?.data ?? progress;
   const progressSections = actualProgress?.sections ?? {};
-  const vocabularyItems = [...(modules.vocabulary ?? []), ...(modules.vocabularyQuizzes ?? [])];
+  const vocabularyItems = [...(modules.vocabulary ?? [])];
   const grammarItems = [...(modules.grammar ?? []), ...(modules.grammarQuizzes ?? [])];
   const configs: LessonSectionConfig[] = [];
 

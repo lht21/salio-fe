@@ -7,6 +7,7 @@ import Button from '../Button';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import IconButton from '../IconButton';
 import { XIcon } from 'phosphor-react-native';
+import ProgressBar from '../ProgressBar';
 
 interface DailyMissionsModalProps {
   isVisible: boolean;
@@ -128,9 +129,7 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
           <Text style={styles.missionDesc}>{item.condition}</Text>
           
           <View style={styles.progressContainer}>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
-            </View>
+            <ProgressBar progress={progressPercent / 100} height={6} color={Color.orange || '#F59E0B'} style={{ flex: 1 }} />
             <Text style={styles.progressText}>{item.progress}/{item.target}</Text>
           </View>
         </View>
@@ -275,8 +274,6 @@ const styles = StyleSheet.create({
   missionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.text, marginBottom: 4 },
   missionDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray, marginBottom: 8 },
   progressContainer: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_10 },
-  progressBarBg: { flex: 1, height: 6, backgroundColor: Color.stroke, borderRadius: 3, overflow: 'hidden' },
-  progressBarFill: { height: '100%', backgroundColor: Color.orange || '#F59E0B' }, // Dùng màu cam hoặc fallback vàng cam
   progressText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: Color.gray },
   missionAction: { alignItems: 'center', justifyContent: 'center' },
   claimBtn: {

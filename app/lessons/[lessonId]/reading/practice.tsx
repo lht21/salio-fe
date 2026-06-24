@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Animated, Platform, StyleSheet, View, Text, ActivityIndicator } from 'react-native';
+import { Animated, Platform, StyleSheet, View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import { MotiView, AnimatePresence } from 'moti';
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-av';
@@ -18,6 +18,7 @@ import {
   OXQuestionAccordion,
 } from '../../../../components/Modals/Question';
 import ImmediateFeedbackBar from '../../../../components/Listening/ImmediateFeedbackBar';
+import PracticeHeader from '../../../../components/Shared/PracticeHeader';
 import { Color } from '../../../../constants/GlobalStyles';
 
 export default function ReadingPracticeScreen() {
@@ -37,8 +38,6 @@ export default function ReadingPracticeScreen() {
   const [feedback, setFeedback] = useState<{ visible: boolean; isCorrect: boolean } | null>(null);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const startTimeRef = useRef<number>(Date.now());
-
-  const progressAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const fetchModules = async () => {
@@ -217,7 +216,7 @@ export default function ReadingPracticeScreen() {
       return (
         <MultipleChoiceQuestionCard
           progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
-          animatedProgress={progressAnimation} question={currentQuestion.question}
+          question={currentQuestion.question}
           options={currentQuestion.options.map(opt => ({ id: opt.id, label: opt.label, state: selectedAns === opt.id ? 'selected' : 'default' }))}
           expanded={expanded} onToggleExpand={() => setExpanded(!expanded)}
           onSelectOption={saveAnswer}
@@ -229,7 +228,7 @@ export default function ReadingPracticeScreen() {
       return (
         <OXQuestionAccordion
           progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
-          animatedProgress={progressAnimation} question={currentQuestion.question}
+          question={currentQuestion.question}
           expanded={expanded} selectedValue={selectedAns}
           trueLabel="Đúng" falseLabel="Sai"
           onToggleExpand={() => setExpanded(!expanded)}
@@ -241,7 +240,7 @@ export default function ReadingPracticeScreen() {
     return (
       <ShortAnswerQuestionCard
         progressLabel={progressLabel} progress={(currentIndex + 1) / exercise.questions.length}
-        animatedProgress={progressAnimation} question={currentQuestion.question}
+        question={currentQuestion.question}
         value={typedAnswer} expanded={expanded}
         placeholder="Nhập câu trả lời..." submitLabel="Kiểm tra"
         onToggleExpand={() => setExpanded(!expanded)}
@@ -252,46 +251,49 @@ export default function ReadingPracticeScreen() {
   };
 
   return (
-    <LinearGradient colors={[Color.main200, '#FFFFFF']} style={styles.screen}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <KeyboardAwareScrollView
-          enableOnAndroid 
-          extraScrollHeight={Platform.OS === 'android' ? 100 : 60} 
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.keyboardContent}
-        >
-          <ReadingPassageCard
-            lessonLabel={exercise.title}
-            instruction="Đọc đoạn văn và trả lời câu hỏi"
-            passage={exercise.content}
-            onClose={() => router.back()}
-            footer={
-              <View style={styles.footerWrap} pointerEvents={feedback?.visible ? 'none' : 'auto'}>
-                <Animated.View style={[styles.questionContainer, { transform: [{ translateX: shakeAnim }] }]}>
-                  <AnimatePresence exitBeforeEnter>
-                    <MotiView
-                      key={`q-${currentQuestion?.id || 'empty'}`}
-                      from={{ opacity: 0, translateX: 50 }}
-                      animate={{ opacity: 1, translateX: 0 }}
-                      exit={{ opacity: 0, translateX: -50 }}
-                      transition={{ type: 'timing', duration: 250 } as any}
-                    >
-                      {renderQuestionCard()}
-                    </MotiView>
-                  </AnimatePresence>
-                </Animated.View>
-              </View>
-            }
-          />
-        </KeyboardAwareScrollView>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: Color.main200 }]} edges={['top']}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <LinearGradient colors={[Color.main200, '#FFFFFF']} style={styles.container}>
+          <ScrollView 
+            style={styles.content}
+            contentContainerStyle={styles.contentInner}
+            showsVerticalScrollIndicator={false}
+          >
+            <PracticeHeader 
+              lessonLabel={exercise.title}
+              instruction="Đọc đoạn văn và trả lời câu hỏi" 
+              onClose={() => router.back()} 
+            />
+
+            <ReadingPassageCard
+              passage={exercise.content}
+            />
+          </ScrollView>
+
+          <View style={styles.footerSlot} pointerEvents={feedback?.visible ? 'none' : 'auto'}>
+            <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
+              <AnimatePresence exitBeforeEnter>
+                <MotiView
+                  key={`q-${currentQuestion?.id || 'empty'}`}
+                  from={{ opacity: 0, translateX: 50 }}
+                  animate={{ opacity: 1, translateX: 0 }}
+                  exit={{ opacity: 0, translateX: -50 }}
+                  transition={{ type: 'timing', duration: 250 } as any}
+                >
+                  {renderQuestionCard()}
+                </MotiView>
+              </AnimatePresence>
+            </Animated.View>
+          </View>
+        </LinearGradient>
 
         <ImmediateFeedbackBar
           visible={!!feedback?.visible}
           isCorrect={!!feedback?.isCorrect}
           onNext={goNext}
         />
-      </SafeAreaView>
-    </LinearGradient>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -299,17 +301,20 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   safeArea: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  keyboardContent: { 
-    flexGrow: 1, 
-    paddingBottom: 24, // Thêm padding bottom để không bị vướng feedback bar
+  container: {
+    flex: 1,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 14,
+    overflow: 'hidden',
   },
-  footerWrap: { 
-    marginTop: 20, 
-    marginHorizontal: -14, 
-    justifyContent: 'flex-end'
+  content: {
+    flex: 1,
   },
-  questionContainer: {
-    minHeight: 250, 
-    justifyContent: 'flex-end'
-  }
+  contentInner: {
+    paddingBottom: 24,
+  },
+  footerSlot: {
+    marginTop: 'auto',
+  },
 });

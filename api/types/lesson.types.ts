@@ -285,7 +285,7 @@ export interface QuizAnswer {
 
 export interface QuizSession {
   _id: string;
-  quiz: string;
+  quiz: string | FinalTest;
   user: string;
   status: 'in_progress' | 'completed';
   answers: QuizAnswer[];

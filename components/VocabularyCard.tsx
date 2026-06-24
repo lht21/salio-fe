@@ -24,7 +24,7 @@ interface Props {
   onPress?: () => void;
 }
 
-const VocabularyCard = ({ item, onToggleFavorite, rightAction, isSelected, onPress }: Props) => {
+const VocabularyCard: React.FC<Props> = ({ item, onToggleFavorite, rightAction, isSelected, onPress }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { user } = useUser();
   const { t } = useTranslation();

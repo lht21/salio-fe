@@ -4,13 +4,13 @@ import { SealQuestionIcon, XIcon } from 'phosphor-react-native';
 import { FontFamily, FontSize, Color } from '../../constants/GlobalStyles';
 import IconButton from '../IconButton';
 
-type ListeningHeaderProps = {
+type PracticeHeaderProps = {
   lessonLabel?: string;
   instruction: string;
   onClose?: () => void;
 };
 
-export default function ListeningHeader({ lessonLabel, instruction, onClose }: ListeningHeaderProps) {
+export default function PracticeHeader({ lessonLabel, instruction, onClose }: PracticeHeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MagnifyingGlassIcon, UsersThreeIcon, CaretRightIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
 import { Image } from 'expo-image';
 import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
@@ -217,7 +218,7 @@ export default function DiscoverScreen() {
   );
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.pageTitle}>Khám phá</Text>
         <CreateSetButton 
@@ -232,7 +233,7 @@ export default function DiscoverScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {activeTab === 'content' ? renderContentTab() : renderSocialTab()}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -240,7 +241,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Color.bg,
-    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',

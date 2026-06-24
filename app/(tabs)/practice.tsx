@@ -191,7 +191,7 @@ export default function PracticeScreen() {
         <CreateSetButton 
           title="Tìm mọi đề"
           icon={<MagnifyingGlassIcon size={15} color="#FFFFFF" weight="bold" />}
-          onPress={() => { /* TODO: Điều hướng sang màn tìm kiếm */ }}
+          onPress={() => router.push('/practice/search-exam')}
         />
       </View>
 

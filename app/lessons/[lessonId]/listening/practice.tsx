@@ -16,7 +16,7 @@ import {
   ShortAnswerQuestionCard,
 } from '../../../../components/Modals/Question';
 import useAudioPlayer from '../../../../api/hooks/useAudioPlayer';
-import ListeningHeader from '../../../../components/Listening/ListeningHeader';
+import PracticeHeader from '../../../../components/Shared/PracticeHeader';
 import AudioPlayerControls from '../../../../components/Listening/AudioPlayerControls';
 import TranscriptBox from '../../../../components/Listening/TranscriptBox';
 import ImmediateFeedbackBar from '../../../../components/Listening/ImmediateFeedbackBar';
@@ -335,7 +335,7 @@ export default function ListeningPracticeScreen() {
             contentContainerStyle={styles.contentInner}
             showsVerticalScrollIndicator={false}
           >
-            <ListeningHeader 
+            <PracticeHeader 
               instruction={exercise.title} 
               onClose={() => router.back()} 
             />

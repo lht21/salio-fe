@@ -38,7 +38,7 @@ const LessonSectionAccordion = ({
   progressText,
   progressValue,
   progressColor,
-  progressTrackColor = '#E5E7EB',
+  progressTrackColor = Color.brown50,
   backgroundColor = Color.bg,
   expandable = false,
   initiallyExpanded = false,

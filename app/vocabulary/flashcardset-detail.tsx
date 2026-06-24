@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable, ActivityIndicator, Alert, TextInput } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { CardsIcon, ListChecksIcon, PlusIcon, ArrowLeftIcon, TrashIcon, PencilSimpleIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { 
@@ -20,7 +20,6 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 import VocabularyCard from '../../components/VocabularyCard';
 import ActionMenuItem from '../../components/ActionMenuItem';
-import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
@@ -46,9 +45,6 @@ export default function FlashcardSetDetailScreen() {
 
   // State quản lý từ vựng đang được chọn để thao tác (nhấn giữ)
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null);
-
-  // State quản lý modal tìm kiếm từ vựng
-  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
 
   // Quản lý state cho danh sách từ để có thể toggle yêu thích
   const [words, setWords] = useState<any[]>([]);
@@ -94,9 +90,11 @@ export default function FlashcardSetDetailScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchSetDetail();
-  }, [id]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchSetDetail();
+    }, [id])
+  );
 
   // State quản lý từ vựng vừa xóa để hoàn tác
   const [deletedWord, setDeletedWord] = useState<{ index: number, word: any } | null>(null);
@@ -282,7 +280,7 @@ export default function FlashcardSetDetailScreen() {
               setEditTitleText(displayTitle);
               setIsEditModalVisible(true);
             }} />
-            <IconButton Icon={PlusIcon} variant="Main" onPress={() => setIsSearchModalVisible(true)} />
+            <IconButton Icon={PlusIcon} variant="Main" onPress={() => router.push(`/vocabulary/add-words?setId=${id}`)} />
           </View>
         ) : (
           <View style={{ width: 64 }} />
@@ -438,16 +436,6 @@ export default function FlashcardSetDetailScreen() {
           </TouchableOpacity>
         </Animated.View>
       )}
-
-      {/* --- MODAL TÌM VÀ THÊM TỪ VỰNG --- */}
-      <SearchVocaModal
-        isVisible={isSearchModalVisible}
-        onClose={() => {
-          setIsSearchModalVisible(false);
-          fetchSetDetail(); // Tải lại danh sách từ vựng sau khi modal đóng
-        }}
-        setId={id as string}
-      />
 
       {/* --- MODAL XÁC NHẬN XÓA BỘ TỪ VỰNG --- */}
       <ConfirmModal

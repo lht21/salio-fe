@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from './endpoints';
  * Khởi tạo Axios Instance
  * Thay đổi EXPO_PUBLIC_API_URL trong file .env của dự án Expo để trỏ đúng server
  */
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.79:5000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.11:5000';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

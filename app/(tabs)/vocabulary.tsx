@@ -1,19 +1,17 @@
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState, useMemo } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 // Import các components đã tách
 import FlashcardSetCard from '../../components/FlashcardSetCard';
-import NewFlashCardSetModal from '../../components/Modals/NewFlashCardSetModal';
 import VocabularyService from '../../api/services/vocabulary.service';
 import FlashcardService from '../../api/services/flashcard.service';
 import apiClient from '../../api/client';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ReviewModeCard from '../../components/ReviewModeCard';
 import StatCard from '../../components/StatCard';
 import CreateSetButton from '../../components/CreateSetButton';
@@ -39,7 +37,6 @@ export default function VocabularyScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const newSetSheetRef = useRef<BottomSheetModal>(null);
 
   const [vocabularyItems, setVocabularyItems] = useState<VocabularyItem[]>([]);
   const [flashcardSets, setFlashcardSets] = useState<any[]>([]);
@@ -105,38 +102,17 @@ export default function VocabularyScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchData().finally(() => setIsLoading(false));
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData().finally(() => setIsLoading(false));
+    }, [])
+  );
 
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true);
     await fetchData();
     setIsRefreshing(false);
   }, []);
-
-  const handleCreateNewSet = async (setName: string, selectedWords: any[]) => {
-    try {
-      setIsLoading(true);
-      const createRes = await FlashcardService.createSet({ name: setName });
-
-      if (createRes.success && createRes.data) {
-        const newSetId = createRes.data._id;
-
-        const vocabIds = selectedWords.map(word => word.id);
-        if (vocabIds.length > 0) {
-          await FlashcardService.addCardsToSet(newSetId, { vocabIds });
-        }
-
-        newSetSheetRef.current?.dismiss();
-        await fetchData();
-      }
-    } catch (error) {
-      console.error('Lỗi khi tạo bộ từ vựng mới:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const favoriteCount = vocabularyItems.filter(item => item.isFavorite).length;
   const allSetsCount = flashcardSets.reduce((sum, set) => sum + (set.totalWords || 0), 0);
@@ -164,7 +140,7 @@ export default function VocabularyScreen() {
   };
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -183,7 +159,7 @@ export default function VocabularyScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('vocabulary.notebook', 'Sổ tay từ vựng')}</Text>
-          <CreateSetButton onPress={() => newSetSheetRef.current?.present()} />
+          <CreateSetButton onPress={() => router.push('/vocabulary/create-set')} />
         </View>
 
         {/* Mission Banner */}
@@ -275,13 +251,7 @@ export default function VocabularyScreen() {
           ))}
         </View>
       </ScrollView>
-
-      <NewFlashCardSetModal
-        ref={newSetSheetRef}
-        onClose={() => newSetSheetRef.current?.dismiss()}
-        onCreateSet={handleCreateNewSet}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -289,7 +259,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.bg,
-    paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,

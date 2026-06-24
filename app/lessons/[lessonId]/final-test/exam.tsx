@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, ActivityIndicator, Alert, Animated, Platform } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Alert, Animated, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 
 import LessonService from '../../../../api/services/lesson.service';
+import { FinalTest } from '../../../../api/types/lesson.types';
 import Button from '../../../../components/Button';
 import TimerHeader from '../../../../components/TimerHeader';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import IntroPopup from '../../../../components/Modals/Popup/IntroPopup';
 import {
-  ListeningPromptCard,
   MultipleChoiceQuestionCard,
   OXQuestionAccordion,
   ReadingPassageCard,
   ShortAnswerQuestionCard,
 } from '../../../../components/Modals/Question';
+import PracticeHeader from '../../../../components/Shared/PracticeHeader';
+import AudioPlayerControls from '../../../../components/Listening/AudioPlayerControls';
 import { Color } from '../../../../constants/GlobalStyles';
 
 const SPEED_OPTIONS = [
@@ -237,7 +238,7 @@ export default function FinalTestExamScreen() {
         const startRes = await LessonService.startFinalTest(lessonId);
         const sessionId = startRes.data.sessionId;
         const sessionRes = await LessonService.getFinalTestSession(lessonId, sessionId);
-        const quiz = sessionRes.data.quiz;
+        const quiz = sessionRes.data.quiz as FinalTest;
         
         console.log('Quiz sections:', {
           listening: quiz.sections?.listening?.length,
@@ -334,7 +335,7 @@ export default function FinalTestExamScreen() {
         sectionType: currentQuestion.sectionType,
         itemId: currentQuestion.itemId,
         questionId: currentQuestion._id,
-        userAnswer: answer,
+        answer: answer,
         timeSpent: Math.floor((Date.now() - startTimeRef.current) / 1000),
       });
 
@@ -437,66 +438,74 @@ export default function FinalTestExamScreen() {
   }
 
   return (
-    <LinearGradient colors={['#DFF8C6', '#FFFFFF']} style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <TimerHeader 
-          timeLeft={timeLeft} 
-          isStarted={isStarted} 
-          onClose={() => {
-            if (timerIntervalRef.current) {
-              clearInterval(timerIntervalRef.current);
-            }
-            router.back();
-          }} 
-          onSubmit={() => setShowSubmitConfirm(true)} 
-        />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#DFF8C6' }]} edges={['top']}>
+      <TimerHeader 
+        timeLeft={timeLeft} 
+        isStarted={isStarted} 
+        onClose={() => {
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+          }
+          router.back();
+        }} 
+        onSubmit={() => setShowSubmitConfirm(true)} 
+      />
 
-        {isStarted && currentQuestion && (
-          <KeyboardAwareScrollView 
-            contentContainerStyle={styles.scrollContent}
-            enableOnAndroid={true}
-            extraScrollHeight={Platform.OS === 'android' ? 120 : 80}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <Animated.View
-              style={[
-                styles.questionContainer,
-                {
-                  opacity: questionOpacity,
-                  transform: [{ translateY: questionTranslateY }],
-                }
-              ]}
-            >
-              {currentQuestion.sectionType === 'listening' ? (
-                <ListeningPromptCard
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <LinearGradient colors={['#DFF8C6', '#FFFFFF']} style={styles.container}>
+
+          {isStarted && currentQuestion && (
+            <>
+              <ScrollView 
+                style={styles.content}
+                contentContainerStyle={styles.contentInner}
+                showsVerticalScrollIndicator={false}
+              >
+                <PracticeHeader 
                   lessonLabel={currentQuestion.sectionTitle}
                   instruction={currentQuestion.instruction}
-                  currentTimeLabel={formatTime(positionMs)}
-                  durationLabel={formatTime(durationMs)}
-                  progress={playbackProgress}
-                  isPlaying={isPlaying}
-                  speedOptions={SPEED_OPTIONS}
-                  selectedSpeed={selectedSpeed}
-                  onPlayPress={handlePlayPause}
-                  onSpeedSelect={handleSpeedChange}
-                  showTranscript={false}
-                  onToggleTranscript={() => {}}
-                  footer={renderQuestion()}
                 />
-              ) : (
-                <ReadingPassageCard
-                  lessonLabel={currentQuestion.sectionTitle}
-                  instruction={currentQuestion.instruction}
-                  passage={currentQuestion.passage || currentQuestion.content}
-                  footer={renderQuestion()}
-                />
-              )}
-            </Animated.View>
-          </KeyboardAwareScrollView>
-        )}
 
-        <IntroPopup
+                {currentQuestion.sectionType === 'listening' ? (
+                  <View style={styles.audioControlsWrapper}>
+                    <AudioPlayerControls
+                      currentTimeLabel={formatTime(positionMs)}
+                      durationLabel={formatTime(durationMs)}
+                      progress={playbackProgress}
+                      isPlaying={isPlaying}
+                      speedOptions={SPEED_OPTIONS}
+                      selectedSpeed={selectedSpeed}
+                      onPlayPress={handlePlayPause}
+                      onSpeedSelect={handleSpeedChange}
+                      onRewind={() => {}}
+                      onForward={() => {}}
+                      onSeek={() => {}}
+                    />
+                  </View>
+                ) : (
+                  <ReadingPassageCard
+                    passage={currentQuestion.passage || currentQuestion.content}
+                  />
+                )}
+              </ScrollView>
+
+              <View style={styles.footerSlot}>
+                <Animated.View
+                  style={[
+                    styles.questionContainer,
+                    {
+                      opacity: questionOpacity,
+                      transform: [{ translateY: questionTranslateY }],
+                    }
+                  ]}
+                >
+                  {renderQuestion()}
+                </Animated.View>
+              </View>
+            </>
+          )}
+
+          <IntroPopup
           visible={showIntroModal}
           title={quizData?.title || "Mini Test"}
           description={quizData?.description || `Làm bài thi để hoàn thành khóa học.\n\n• Thời gian: 15 phút\n• Số câu hỏi: ${flatQuestions.length}\n• Bạn cần đạt 80% để vượt qua`}
@@ -534,21 +543,41 @@ export default function FinalTestExamScreen() {
           }}
           onCancel={() => setShowSubmitConfirm(false)}
         />
-      </SafeAreaView>
-    </LinearGradient>
+        </LinearGradient>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({ 
+  safeArea: { flex: 1 },
+  container: {
+    flex: 1,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 14,
+    overflow: 'hidden',
+  },
   center: { 
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center' 
   },
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    flex: 1,
+  },
+  contentInner: {
+    paddingBottom: 24,
+  },
+  audioControlsWrapper: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  footerSlot: {
+    marginTop: 'auto',
   },
   questionContainer: {
-    flex: 1,
+    minHeight: 180,
+    justifyContent: 'flex-end',
   }
 });

@@ -75,8 +75,8 @@ const getSectionTone = (section: ProgressSection | undefined) => {
     return {
       progressValue,
       progressText: 'Đã hoàn thành 100%',
-      progressColor: Color.green,
-      progressTrackColor: '#DDF7D8',
+      progressColor: Color.main400,
+      progressTrackColor:   Color.brown50,
     };
   }
 

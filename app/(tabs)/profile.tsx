@@ -22,7 +22,7 @@ import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/Glob
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 // Import sub-components
 import AlertBanner from '../../components/AlertBanner';
@@ -97,7 +97,7 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Sticky Header (Thanh dính trên cùng) */}
       <Animated.View style={[styles.stickyHeader, stickyHeaderStyle]}>
         <View style={styles.stickyUserInfo}>
@@ -197,7 +197,7 @@ export default function ProfileScreen() {
         {(!user?.subscription?.type || user?.subscription?.type === 'free') && <UpgradeBanner />}
 
       </Animated.ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -205,7 +205,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.main200,
-    paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,

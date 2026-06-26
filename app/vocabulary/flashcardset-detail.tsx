@@ -1,31 +1,30 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Pressable, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { CardsIcon, ListChecksIcon, PlusIcon, ArrowLeftIcon, TrashIcon, PencilSimpleIcon } from 'phosphor-react-native';
+import { CardsIcon,  PlusIcon, ArrowLeftIcon, TrashIcon, PencilSimpleIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
   useAnimatedStyle, 
   interpolate, 
-  Extrapolation,
-  withSequence,
-  withTiming,
-  withDelay,
-  withSpring,
-  runOnJS
+  Extrapolation
 } from 'react-native-reanimated';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 
 import VocabularyCard from '../../components/VocabularyCard';
-import ActionMenuItem from '../../components/ActionMenuItem';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
 import IconButton from '../../components/IconButton';
 import ReviewModeCard from '../../components/ReviewModeCard';
 import ProgressBar from '../../components/ProgressBar';
+import PuzzleIcon from '../../components/icons/PuzzleIcon';
+import Cards02Icon from '../../components/icons/Cards02Icon';
+import CheckListIcon from '../../components/icons/CheckListIcon';
+import { Keyboard as KeyboardIcon } from 'phosphor-react-native';
 
 export default function FlashcardSetDetailScreen() {
   const { id, title } = useLocalSearchParams();
@@ -43,14 +42,8 @@ export default function FlashcardSetDetailScreen() {
   const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
 
-  // State quản lý từ vựng đang được chọn để thao tác (nhấn giữ)
-  const [selectedWordId, setSelectedWordId] = useState<string | null>(null);
-
   // Quản lý state cho danh sách từ để có thể toggle yêu thích
   const [words, setWords] = useState<any[]>([]);
-
-  // Ref để lưu id của Timeout cho việc xóa
-  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchSetDetail = async () => {
     if (!id) return;
@@ -96,70 +89,37 @@ export default function FlashcardSetDetailScreen() {
     }, [id])
   );
 
-  // State quản lý từ vựng vừa xóa để hoàn tác
-  const [deletedWord, setDeletedWord] = useState<{ index: number, word: any } | null>(null);
-  const toastOpacity = useSharedValue(0);
-  const toastTranslateY = useSharedValue(50);
-
   // Hàm xử lý xóa từ vựng khỏi bộ hiện tại
-  const handleRemoveWord = () => {
-    if (selectedWordId) {
-      const wordIndex = words.findIndex((item) => item.id === selectedWordId);
-      const wordToRemove = words[wordIndex];
-
-      if (wordToRemove) {
-        setDeletedWord({ index: wordIndex, word: wordToRemove });
-        setWords((prev) => prev.filter((item) => item.id !== selectedWordId));
-
-        // Hiện Toast Notification
-        toastOpacity.value = 0;
-        toastTranslateY.value = 50;
-
-        toastOpacity.value = withSequence(
-          withTiming(1, { duration: 300 }),
-          withDelay(3000, withTiming(0, { duration: 300 }, (finished) => {
-            if (finished) runOnJS(setDeletedWord)(null); // Xóa khỏi bộ nhớ đệm tạm sau khi ẩn
-          }))
-        );
-
-        toastTranslateY.value = withSequence(
-          withSpring(0),
-          withDelay(3000, withTiming(50, { duration: 300 }))
-        );
-
-        // Gọi API thực sự sau 3 giây nếu không bị hủy
-        if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-        deleteTimeoutRef.current = setTimeout(async () => {
-          try {
-            await FlashcardService.removeCardFromSet(id as string, wordToRemove.id);
-          } catch (error) {
-            console.error('Lỗi khi xóa từ vựng trên server:', error);
+  const handleRemoveWord = (wordId: string) => {
+    Alert.alert(
+      t('vocabulary.confirm_delete_title', 'Xóa từ vựng'),
+      t('vocabulary.confirm_delete_msg', 'Bạn có chắc chắn muốn xóa từ này khỏi bộ từ vựng?'),
+      [
+        { text: t('common.cancel', 'Hủy'), style: 'cancel' },
+        { 
+          text: t('common.delete', 'Xóa'), 
+          style: 'destructive',
+          onPress: async () => {
+            // Cập nhật UI ngay lập tức
+            const prevWords = [...words];
+            setWords(prevWords.filter(w => w.id !== wordId));
+            
+            try {
+              const res = await FlashcardService.removeCardFromSet(id as string, wordId);
+              if (!res.success) {
+                // Khôi phục nếu lỗi
+                setWords(prevWords);
+                Alert.alert(t('common.error', 'Lỗi'), t('vocabulary.delete_error', 'Không thể xóa từ vựng.'));
+              }
+            } catch (error) {
+              setWords(prevWords);
+              console.error('Lỗi khi xóa từ vựng:', error);
+              Alert.alert(t('common.error', 'Lỗi'), t('vocabulary.delete_error', 'Không thể xóa từ vựng.'));
+            }
           }
-        }, 3000);
-      }
-      setSelectedWordId(null);
-    }
-  };
-
-  // Hàm xử lý khi người dùng bấm "Hoàn tác"
-  const handleUndo = () => {
-    if (deletedWord) {
-      // Hủy gọi API xóa
-      if (deleteTimeoutRef.current) {
-        clearTimeout(deleteTimeoutRef.current);
-        deleteTimeoutRef.current = null;
-      }
-
-      setWords((prev) => {
-        const newWords = [...prev];
-        newWords.splice(deletedWord.index, 0, deletedWord.word); // Chèn lại đúng vị trí ban đầu
-        return newWords;
-      });
-      // Ẩn Toast ngay lập tức
-      toastOpacity.value = withTiming(0, { duration: 200 });
-      toastTranslateY.value = withTiming(50, { duration: 200 });
-      setDeletedWord(null);
-    }
+        }
+      ]
+    );
   };
 
   // --- HANDLER CHO SỬA TÊN BỘ TỪ VỰNG ---
@@ -227,11 +187,6 @@ export default function FlashcardSetDetailScreen() {
     }
   };
 
-  const toastStyle = useAnimatedStyle(() => ({
-    opacity: toastOpacity.value,
-    transform: [{ translateY: toastTranslateY.value }],
-  }));
-
   // --- ANIMATION CHO TITLE TRÊN HEADER ---
   const scrollY = useSharedValue(0);
 
@@ -258,6 +213,20 @@ export default function FlashcardSetDetailScreen() {
       return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_quiz', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi kiểm tra nhé!'));
     }
     router.push({ pathname: '/vocabulary/flashcard-quiz', params: { setId: id } });
+  };
+
+  const handleMatch = () => {
+    if (words.length === 0) {
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_match', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi chơi ghép thẻ nhé!'));
+    }
+    router.push({ pathname: '/vocabulary/flashcard-match-intro', params: { setId: id } });
+  };
+
+  const handleType = () => {
+    if (words.length === 0) {
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_type', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi tập viết nhé!'));
+    }
+    router.push({ pathname: '/vocabulary/flashcard-type-intro', params: { setId: id } });
   };
 
   // Tính toán tiến độ học
@@ -316,13 +285,27 @@ export default function FlashcardSetDetailScreen() {
             <View style={styles.reviewModesContainer}>
               <ReviewModeCard 
                 label={t('vocabulary.study_flashcard', 'Học Flashcard')}
-                icon={<CardsIcon size={36} color="#B05200" weight="bold" />}
+                icon={<Cards02Icon />}
                 onPress={handleStudyFlashcard}
+                sharedTransitionTag="study_flashcard_icon"
               />
               <ReviewModeCard 
                 label={t('vocabulary.quiz_mode', 'Chế độ Trắc nghiệm')}
-                icon={<ListChecksIcon size={36} color="#B05200" weight="bold" />}
+                icon={<CheckListIcon />}
                 onPress={handleQuiz}
+                sharedTransitionTag="quiz_icon"
+              />
+              <ReviewModeCard
+                label={t('vocabulary.match_mode', 'Ghép thẻ')}
+                icon={<PuzzleIcon />}
+                onPress={handleMatch}
+                sharedTransitionTag="match_icon"
+              />
+              <ReviewModeCard
+                label={t('vocabulary.type_mode', 'Tập viết')}
+                icon={<KeyboardIcon size={32} color={colors.text} />}
+                onPress={handleType}
+                sharedTransitionTag="type_icon"
               />
             </View>
           </View>
@@ -345,45 +328,38 @@ export default function FlashcardSetDetailScreen() {
                   {t('vocabulary.empty_set_list', 'Chưa có từ vựng nào trong bộ này.')}
                 </Text>
               </View>
-            ) : words.map((item) => (
-              <TouchableOpacity 
-                key={item.id} 
-                activeOpacity={0.9}
-                onPress={() => router.push({ pathname: '/vocabulary/vocabulary-detail', params: { wordId: item.id } })}
-                onLongPress={() => setSelectedWordId(item.id)}
-                delayLongPress={200}
-              >
-                <VocabularyCard 
-                  item={item} 
-                  onToggleFavorite={() => handleToggleFavorite(item.id)}
-                />
-              </TouchableOpacity>
-            ))}
+            ) : words.map((item) => {
+              const renderRightActions = () => (
+                <TouchableOpacity
+                  style={styles.deleteAction}
+                  onPress={() => handleRemoveWord(item.id)}
+                  activeOpacity={0.8}
+                >
+                  <TrashIcon size={28} color={ '#FFF'} weight="fill" />
+                </TouchableOpacity>
+              );
+
+              return (
+                <Swipeable
+                  key={item.id}
+                  renderRightActions={renderRightActions}
+                  overshootRight={false}
+                >
+                  <TouchableOpacity 
+                    activeOpacity={0.9}
+                    onPress={() => router.push({ pathname: '/vocabulary/vocabulary-detail', params: { wordId: item.id } })}
+                  >
+                    <VocabularyCard 
+                      item={item} 
+                      onToggleFavorite={() => handleToggleFavorite(item.id)}
+                    />
+                  </TouchableOpacity>
+                </Swipeable>
+              );
+            })}
           </View>
         </View>
       </Animated.ScrollView>
-
-      {/* --- MODAL TÙY CHỌN KHI NHẤN GIỮ TỪ VỰNG --- */}
-      <Modal
-        visible={!!selectedWordId}
-        animationType="slide" 
-        transparent={true}
-        onRequestClose={() => setSelectedWordId(null)}
-      >
-        <View style={styles.overlay}>
-          <Pressable style={styles.backgroundTouchable} onPress={() => setSelectedWordId(null)} />
-          <View style={styles.sheetContent}>
-            <View style={styles.dragHandle} />
-            
-            <ActionMenuItem 
-              label={t('vocabulary.remove_from_set', 'Xóa khỏi bộ từ vựng')} 
-              variant="danger" 
-              icon={<TrashIcon size={24} color={colors.red} weight="bold" />} 
-              onPress={handleRemoveWord} 
-            />
-          </View>
-        </View>
-      </Modal>
 
       {/* --- MODAL SỬA TÊN BỘ TỪ VỰNG --- */}
       <Modal
@@ -426,16 +402,6 @@ export default function FlashcardSetDetailScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* --- TOAST THÔNG BÁO HOÀN TÁC --- */}
-      {deletedWord && (
-        <Animated.View style={[styles.toastContainer, toastStyle]}>
-          <Text style={styles.toastText}>{t('vocabulary.deleted_one_word', 'Đã xóa 1 từ vựng')}</Text>
-          <TouchableOpacity onPress={handleUndo} style={styles.undoBtn}>
-            <Text style={styles.undoText}>{t('common.undo', 'Hoàn tác')}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      )}
 
       {/* --- MODAL XÁC NHẬN XÓA BỘ TỪ VỰNG --- */}
       <ConfirmModal
@@ -490,36 +456,15 @@ const createStyles = (colors: any) => StyleSheet.create({
   emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
   emptyText: { textAlign: 'center', color: colors.gray, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 },
 
-  // --- STYLES CHO BOTTOM SHEET MODAL ---
-  overlay: { flex: 1, backgroundColor: colors.modalOverlayBg, justifyContent: 'flex-end' },
-  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
-  sheetContent: {
-    backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
-    paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
-  },
-  dragHandle: {
-    width: 40, height: 5, borderRadius: 3, backgroundColor: colors.dragHandleBg, alignSelf: 'center', marginBottom: Gap.gap_20,
-  },
-  favoriteHintText: {
-    fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: colors.gray, textAlign: 'center', lineHeight: 22,
-  },
-
-  // --- STYLES CHO TOAST UNDO ---
-  toastContainer: {
-    position: 'absolute', bottom: 40, alignSelf: 'center',
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: colors.toastBg, // Màu nền xám đậm
-    paddingVertical: 14, paddingHorizontal: 20,
-    borderRadius: Border.br_30, width: '90%',
-    shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
-    zIndex: 9999,
-  },
-  toastText: {
-    color: colors.toastText, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14,
-  },
-  undoBtn: { paddingHorizontal: 8, paddingVertical: 4 },
-  undoText: {
-    color: colors.main, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14,
+  // --- STYLES CHO SWIPE TO DELETE ---
+  deleteAction: {
+    backgroundColor: colors.red,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    marginBottom: Gap.gap_15, // Cùng margin với VocabularyCard để nút không bị tràn xuống dưới
+    borderTopRightRadius: Border.br_30,
+    borderBottomRightRadius: Border.br_30,
   },
   
   // --- STYLES CHO MODAL EDIT ---

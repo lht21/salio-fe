@@ -18,7 +18,7 @@ import CreateSetButton from '../../components/CreateSetButton';
 import PuzzleIcon from '../../components/icons/PuzzleIcon';
 import Cards02Icon from '../../components/icons/Cards02Icon';
 import CheckListIcon from '../../components/icons/CheckListIcon';
-import { CaretDoubleRightIcon } from 'phosphor-react-native';
+import { CaretDoubleRightIcon, Keyboard as KeyboardIcon } from 'phosphor-react-native';
 
 type VocabularyItem = {
   id: string;
@@ -136,7 +136,14 @@ export default function VocabularyScreen() {
     if (wordCount === 0) {
       return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_match', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi chơi ghép thẻ nhé!'));
     }
-    router.push({ pathname: '/vocabulary/flashcard-match', params: { setId } });
+    router.push({ pathname: '/vocabulary/flashcard-match-intro', params: { setId } });
+  };
+
+  const handleType = (setId: string, wordCount: number) => {
+    if (wordCount === 0) {
+      return Alert.alert(t('common.notice', 'Thông báo'), t('vocabulary.empty_type', 'Bộ từ vựng này chưa có từ nào. Hãy thêm từ vựng trước khi tập viết nhé!'));
+    }
+    router.push({ pathname: '/vocabulary/flashcard-type-intro', params: { setId } });
   };
 
   return (
@@ -211,6 +218,12 @@ export default function VocabularyScreen() {
               icon={<PuzzleIcon />}
               onPress={() => handleMatch('all', totalAllCount)}
               sharedTransitionTag="match_icon"
+            />
+            <ReviewModeCard
+              label="Tập viết"
+              icon={<KeyboardIcon size={32} color={colors.text} />}
+              onPress={() => handleType('all', totalAllCount)}
+              sharedTransitionTag="type_icon"
             />
           </View>
         </View>

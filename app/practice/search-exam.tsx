@@ -3,13 +3,13 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Keyboar
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { ClockIcon, ListChecksIcon, XIcon, ClockCounterClockwiseIcon } from 'phosphor-react-native';
+import { ClockIcon, ListChecksIcon, XIcon, ClockCounterClockwiseIcon, ArrowLeftIcon } from 'phosphor-react-native';
 
 import { FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
 import { useTheme } from '../../contexts/ThemeContext';
-import ScreenHeader from '../../components/ScreenHeader';
 import SearchBar from '../../components/SearchBar';
 import CategoryChip from '../../components/CategoryChip';
+import IconButton from '../../components/IconButton';
 
 // Mock Data
 const MOCK_EXAMS = [
@@ -92,16 +92,25 @@ export default function SearchExamScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <ScreenHeader title={t('practice.search_exam', 'Tìm kiếm đề thi')} />
+      <View style={styles.customHeader}>
+        <IconButton
+          Icon={ArrowLeftIcon}
+          iconSize={18}
+          variant="Main"
+          onPress={() => router.back()}
+          style={styles.backButton}
+        />
+        <View style={styles.searchBarWrapper}>
+          <SearchBar
+            value={searchText}
+            onChangeText={handleSearch}
+            placeholder={t('practice.search_placeholder', 'Nhập tên đề, từ khóa (VD: TOPIK, EPS...)')}
+            containerStyle={{ marginBottom: 0 }}
+          />
+        </View>
+      </View>
       
       <View style={styles.body}>
-        <SearchBar
-          value={searchText}
-          onChangeText={handleSearch}
-          placeholder={t('practice.search_placeholder', 'Nhập tên đề, từ khóa (VD: TOPIK, EPS...)')}
-          containerStyle={{ marginBottom: 0 }}
-        />
-
         {!searchText.trim() ? (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.idleContent}>
             {/* Lịch sử tìm kiếm */}
@@ -172,6 +181,23 @@ const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  customHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+    paddingBottom: Padding.padding_10,
+    backgroundColor: colors.bg,
+  },
+  backButton: {
+    marginRight: Gap.gap_15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  searchBarWrapper: {
+    flex: 1,
   },
   body: {
     flex: 1,

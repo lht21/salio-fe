@@ -14,8 +14,8 @@ type MatchCardProps = {
 
 const { width } = Dimensions.get('window');
 const CARD_MARGIN = 6;
-// 3 columns
-const CARD_WIDTH = (width - 30 - (CARD_MARGIN * 6)) / 3;
+// 2 columns
+const CARD_WIDTH = Math.floor((width - 30 - (CARD_MARGIN * 4)) / 2);
 
 export default function MatchCard({ data, isSelected, isMatched, isError, onPress }: MatchCardProps) {
   let animateState: any = { scale: 1, opacity: 1, translateY: 0 };
@@ -51,7 +51,7 @@ export default function MatchCard({ data, isSelected, isMatched, isError, onPres
   return (
     <MotiView
       animate={animateState}
-      transition={{ type: 'spring', damping: 15 }}
+      transition={{ type: 'spring', damping: 15 } as any}
       style={[
         styles.cardContainer,
         {
@@ -81,7 +81,7 @@ export default function MatchCard({ data, isSelected, isMatched, isError, onPres
 const styles = StyleSheet.create({
   cardContainer: {
     width: CARD_WIDTH,
-    height: Math.max(CARD_WIDTH * 1.2, 100),
+    height: 100,
     margin: CARD_MARGIN,
     borderRadius: Border.br_15,
     borderWidth: 2,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
+    fontSize: FontSize.fs_20,
     textAlign: 'center',
   },
 });

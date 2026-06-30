@@ -1,11 +1,12 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import IconButton from '../IconButton';
 import { XIcon } from 'phosphor-react-native';
 
 // IMPORT COMPONENT MỚI
 import ActionMenuItem from '../ActionMenuItem';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface SaveToFolderModalProps {
   isVisible: boolean;
@@ -14,6 +15,9 @@ interface SaveToFolderModalProps {
 }
 
 export default function SaveToFolderModal({ isVisible, onClose, wordData }: SaveToFolderModalProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   
   // Dữ liệu mock các thư mục của người dùng
   const userFolders = ['Từ vựng giao tiếp', 'Từ vựng TOPIK 3'];
@@ -81,31 +85,31 @@ export default function SaveToFolderModal({ isVisible, onClose, wordData }: Save
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end', 
-  },
-  backgroundTouchable: {
-    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-  },
-  sheetContent: {
-    backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
-    paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
-  },
-  dragHandle: {
-    width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', 
-    alignSelf: 'center', marginBottom: Gap.gap_15,
-  },
-  header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20,
-  },
-  headerTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text,
-  },
-  menuContainer: {
-    gap: Gap.gap_10,
-  },
-  divider: {
-    height: 1, backgroundColor: '#E2E8F0', marginVertical: 4, 
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      overlay: {
+        flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end', 
+      },
+      backgroundTouchable: {
+        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+      },
+      sheetContent: {
+        backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
+        paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
+      },
+      dragHandle: {
+        width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', 
+        alignSelf: 'center', marginBottom: Gap.gap_15,
+      },
+      header: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20,
+      },
+      headerTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text,
+      },
+      menuContainer: {
+        gap: Gap.gap_10,
+      },
+      divider: {
+        height: 1, backgroundColor: '#E2E8F0', marginVertical: 4, 
+      },
+    });

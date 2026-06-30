@@ -8,13 +8,17 @@ import { XIcon } from 'phosphor-react-native';
 
 // Components & Constants
 import IconButton from '../../components/IconButton';
-import { Color, FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../../components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Lấy kích thước màn hình để định vị các họa tiết mờ
 const { width, height } = Dimensions.get('window');
 
 export default function PaymentFailedScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
 
   // Hàm xử lý khi nhấn nút X (Hủy bỏ hoàn toàn và về Home)
@@ -30,7 +34,7 @@ export default function PaymentFailedScreen() {
   return (
     <LinearGradient
       // Cập nhật dải gradient: Đỏ nhạt -> Trắng -> Xám mờ (thể hiện sự không thành công)
-      colors={['#FFE5E5', Color.bg, Color.stroke]} 
+      colors={['#FFE5E5', colors.bg, colors.stroke]} 
       locations={[0, 0.4, 1]} 
       style={styles.container}
     >
@@ -59,7 +63,7 @@ export default function PaymentFailedScreen() {
         <View style={styles.content}>
           {/* Icon X/Lỗi chính */}
           <View style={styles.mainIconContainer}>
-            <XIcon size={80} color={Color.red} weight="bold" />
+            <XIcon size={80} color={colors.red} weight="bold" />
           </View>
 
           <Text style={styles.title}>Thanh toán thất bại</Text>
@@ -91,60 +95,60 @@ export default function PaymentFailedScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Padding.padding_15,
-  },
-  
-  // Họa tiết nền
-  bgPattern: {
-    position: 'absolute',
-    opacity: 0.04, // Mờ ảo hòa quyện vào nền
-  },
-  sText: {
-    fontFamily: FontFamily.lexendDecaSemiBold, 
-    color: Color.red, // Dùng tone đỏ mờ cho background thất bại
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1,
+      },
+      safeArea: {
+        flex: 1,
+        paddingHorizontal: Padding.padding_15,
+      },
+      
+      // Họa tiết nền
+      bgPattern: {
+        position: 'absolute',
+        opacity: 0.04, // Mờ ảo hòa quyện vào nền
+      },
+      sText: {
+        fontFamily: FontFamily.lexendDecaSemiBold, 
+        color: colors.red, // Dùng tone đỏ mờ cho background thất bại
+      },
 
-  // Header
-  header: {
-    alignItems: 'flex-end',
-    paddingTop: Padding.padding_15,
-    paddingBottom: Padding.padding_30,
-  },
+      // Header
+      header: {
+        alignItems: 'flex-end',
+        paddingTop: Padding.padding_15,
+        paddingBottom: Padding.padding_30,
+      },
 
-  // Nội dung chính
-  content: {
-    flex: 1,
-    paddingHorizontal: Padding.padding_10,
-    marginBottom: height * 0.1, 
-  },
-  mainIconContainer: {
-    marginBottom: Gap.gap_20,
-    alignItems: 'flex-start', 
-  },
-  title: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.red, // Màu đỏ nổi bật thông báo lỗi
-    marginBottom: Gap.gap_15,
-    textAlign: 'left',
-  },
-  message: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text, 
-    textAlign: 'left',
-    lineHeight: 24, 
-  },
+      // Nội dung chính
+      content: {
+        flex: 1,
+        paddingHorizontal: Padding.padding_10,
+        marginBottom: height * 0.1, 
+      },
+      mainIconContainer: {
+        marginBottom: Gap.gap_20,
+        alignItems: 'flex-start', 
+      },
+      title: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.red, // Màu đỏ nổi bật thông báo lỗi
+        marginBottom: Gap.gap_15,
+        textAlign: 'left',
+      },
+      message: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.text, 
+        textAlign: 'left',
+        lineHeight: 24, 
+      },
 
-  // Nút bấm
-  footer: {
-    paddingBottom: Padding.padding_30,
-    gap: Gap.gap_10, // Khoảng cách giữa 2 nút (Thử lại & Về trang chủ)
-  },
-});
+      // Nút bấm
+      footer: {
+        paddingBottom: Padding.padding_30,
+        gap: Gap.gap_10, // Khoảng cách giữa 2 nút (Thử lại & Về trang chủ)
+      },
+    });

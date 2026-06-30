@@ -14,6 +14,7 @@ import {
   DeleteAttemptResponse,
   DeleteMultipleAttemptsResponse,
   BaseResponse,
+  PreparationMaterialsResponse,
 } from '../types/practice.types';
 
 /**
@@ -25,15 +26,27 @@ class PracticeService {
   // ====================== NHÓM HÀM PRACTICE (LẤY ĐỀ) ======================= //
   // ========================================================================= //
 
-  /**
-   * Lấy danh sách đề thi / bài luyện tập theo kỹ năng
-   */
   static async getSets(type: PracticeType, params?: { page?: number; limit?: number; examType?: string }): Promise<PracticeSetsResponse> {
     try {
       const response = await apiClient.get<PracticeSetsResponse>(API_ENDPOINTS.PRACTICE.GET_SETS_BY_TYPE(type), { params });
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi gọi API getSets (${type}):`, error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Tìm kiếm bài luyện tập
+   */
+  static async searchSets(keyword: string, params?: { page?: number; limit?: number }): Promise<PracticeSetsResponse> {
+    try {
+      const response = await apiClient.get<PracticeSetsResponse>(API_ENDPOINTS.PRACTICE.SEARCH, { 
+        params: { q: keyword, ...params } 
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Lỗi khi gọi API searchSets:', error.response?.data || error.message);
       throw error;
     }
   }
@@ -48,6 +61,19 @@ class PracticeService {
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi gọi API getSetById (${setId}):`, error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Lấy tài liệu ôn tập trước khi thi
+   */
+  static async getPreparationMaterials(type: PracticeType, setId: string): Promise<PreparationMaterialsResponse> {
+    try {
+      const response = await apiClient.get<PreparationMaterialsResponse>(API_ENDPOINTS.PRACTICE.GET_PREPARATION_MATERIALS(type, setId));
+      return response.data;
+    } catch (error: any) {
+      console.error(`Lỗi khi gọi API getPreparationMaterials (${setId}):`, error.response?.data || error.message);
       throw error;
     }
   }

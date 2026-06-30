@@ -6,15 +6,19 @@ import { CheckCircleIcon, XCircleIcon, PlayIcon, PauseIcon } from 'phosphor-reac
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import { Image as ExpoImage } from 'expo-image';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../../../../constants/GlobalStyles';
 import ScreenHeader from '../../../../../components/ScreenHeader';
 import QuestionBlock from '../../../../../components/ExamComponent/QuestionBlock';
 import PracticeService from '../../../../../api/services/practice.service';
 import ProgressBar from '../../../../../components/ProgressBar';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // --- SUB-COMPONENTS ---
 
 const QuestionNavigation = ({ questions, onJumpToQuestion }: { questions: any[], onJumpToQuestion: (id: string) => void }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <View style={styles.navContainer}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navScrollContent}>
@@ -39,6 +43,9 @@ const QuestionNavigation = ({ questions, onJumpToQuestion }: { questions: any[],
 };
 
 const ExamCover = ({ title, type }: { title: string, type: string }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const typeLabel = type === 'reading' ? '읽기' : type === 'listening' ? '듣기' : '종합';
   return (
     <View style={styles.coverBanner}>
@@ -52,6 +59,9 @@ const ExamCover = ({ title, type }: { title: string, type: string }) => {
 };
 
 const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
@@ -122,7 +132,7 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
   return (
     <View style={styles.audioPlayerContainer}>
       <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
-        {isPlaying ? <PauseIcon size={20} color={Color.bg} weight="fill" /> : <PlayIcon size={20} color={Color.bg} weight="fill" />}
+        {isPlaying ? <PauseIcon size={20} color={colors.bg} weight="fill" /> : <PlayIcon size={20} color={colors.bg} weight="fill" />}
       </TouchableOpacity>
       <View style={styles.progressContainer}>
         <ProgressBar progress={progressPercent / 100} height={6} style={{ marginBottom: 6 }} />
@@ -136,6 +146,9 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
 };
 
 export default function MockExamReviewScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const { examId, attemptId, type } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
   const questionLayouts = useRef<Record<string, number>>({});
@@ -400,76 +413,76 @@ export default function MockExamReviewScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
-  
-  coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
-  coverTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: Color.bg, textAlign: 'center', marginBottom: Gap.gap_15 },
-  coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
-  coverInfoChip: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: Color.stroke, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
-  sectionHeader: { borderBottomWidth: 2, borderColor: Color.stroke, paddingBottom: 10, marginBottom: 20 },
-  sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  instructionText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_10 },
-  passageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.color, lineHeight: 24, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
-  
-  imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
-  imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: Color.stroke, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
-  optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
-  optionLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.gray, marginTop: 8 },
-  iconBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: Color.bg, borderRadius: 14 },
-  
-  textOptionsContainer: { gap: Gap.gap_10 },
-  textOptionCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 2, borderColor: Color.stroke, borderRadius: Border.br_15, padding: Padding.padding_15 },
-  textOptionContent: { flex: 1, fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: Color.text, lineHeight: 24 },
-  
-  // Trạng thái đáp án
-  optionCorrect: { borderColor: '#22C55E', backgroundColor: '#F0FDF4' },
-  optionWrong: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
+      
+      coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
+      coverTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: colors.bg, textAlign: 'center', marginBottom: Gap.gap_15 },
+      coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
+      coverInfoChip: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: colors.stroke, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
+      sectionHeader: { borderBottomWidth: 2, borderColor: colors.stroke, paddingBottom: 10, marginBottom: 20 },
+      sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      instructionText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_10 },
+      passageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color, lineHeight: 24, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
+      
+      imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
+      imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: colors.stroke, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
+      optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
+      optionLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray, marginTop: 8 },
+      iconBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: colors.bg, borderRadius: 14 },
+      
+      textOptionsContainer: { gap: Gap.gap_10 },
+      textOptionCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 2, borderColor: colors.stroke, borderRadius: Border.br_15, padding: Padding.padding_15 },
+      textOptionContent: { flex: 1, fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: colors.text, lineHeight: 24 },
+      
+      // Trạng thái đáp án
+      optionCorrect: { borderColor: '#22C55E', backgroundColor: '#F0FDF4' },
+      optionWrong: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
 
-  explanationContainer: {
-    marginTop: Gap.gap_15,
-    padding: Padding.padding_15,
-    backgroundColor: '#F8FAFC',
-    borderRadius: Border.br_10,
-    borderLeftWidth: 3,
-    borderLeftColor: '#94A3B8',
-  },
-  explanationText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: '#64748B',
-    fontStyle: 'italic',
-    lineHeight: 22,
-  },
+      explanationContainer: {
+        marginTop: Gap.gap_15,
+        padding: Padding.padding_15,
+        backgroundColor: '#F8FAFC',
+        borderRadius: Border.br_10,
+        borderLeftWidth: 3,
+        borderLeftColor: '#94A3B8',
+      },
+      explanationText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: '#64748B',
+        fontStyle: 'italic',
+        lineHeight: 22,
+      },
 
-  // --- Question Navigation Styles ---
-  navContainer: {
-    backgroundColor: Color.bg,
-    borderTopWidth: 1,
-    borderTopColor: Color.stroke,
-    paddingVertical: Padding.padding_10,
-  },
-  navScrollContent: {
-    paddingHorizontal: Padding.padding_15,
-    gap: Gap.gap_10,
-  },
-  navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-  },
-  navButtonCorrect: { backgroundColor: '#F0FDF4', borderColor: '#22C55E' },
-  navButtonWrong: { backgroundColor: '#FEF2F2', borderColor: '#EF4444' },
-  navButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
+      // --- Question Navigation Styles ---
+      navContainer: {
+        backgroundColor: colors.bg,
+        borderTopWidth: 1,
+        borderTopColor: colors.stroke,
+        paddingVertical: Padding.padding_10,
+      },
+      navScrollContent: {
+        paddingHorizontal: Padding.padding_15,
+        gap: Gap.gap_10,
+      },
+      navButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+      },
+      navButtonCorrect: { backgroundColor: '#F0FDF4', borderColor: '#22C55E' },
+      navButtonWrong: { backgroundColor: '#FEF2F2', borderColor: '#EF4444' },
+      navButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
 
-  audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: Color.stroke },
-  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: Color.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
-  progressContainer: { flex: 1, justifyContent: 'center' },
-  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray },
-  contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
-});
+      audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: colors.stroke },
+      playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
+      progressContainer: { flex: 1, justifyContent: 'center' },
+      timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+      timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray },
+      contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
+    });

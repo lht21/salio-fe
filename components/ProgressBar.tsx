@@ -1,6 +1,6 @@
 import React from 'react';
 import { Animated, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { Color } from '../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type ProgressBarProps = {
   progress?: number; // 0 to 1
@@ -15,10 +15,16 @@ export default function ProgressBar({
   progress = 0,
   animatedProgress,
   height = 6,
-  color = Color.main,
-  backgroundColor = Color.stroke,
+  color,
+  backgroundColor,
   style,
 }: ProgressBarProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+    
+    const finalColor = color || colors.main;
+    const finalBgColor = backgroundColor || colors.stroke;
+
   const widthPercentage = animatedProgress
     ? animatedProgress.interpolate({
         inputRange: [0, 1],
@@ -30,26 +36,26 @@ export default function ProgressBar({
     <View
       style={[
         styles.track,
-        { height, backgroundColor, borderRadius: height / 2 },
+        { height, backgroundColor: finalBgColor, borderRadius: height / 2 },
         style,
       ]}
     >
       <Animated.View
         style={[
           styles.fill,
-          { width: widthPercentage, backgroundColor: color, borderRadius: height / 2 },
+          { width: widthPercentage as any, backgroundColor: finalColor, borderRadius: height / 2 },
         ]}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  track: {
-    width: '100%',
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      track: {
+        width: '100%',
+        overflow: 'hidden',
+      },
+      fill: {
+        height: '100%',
+      },
+    });

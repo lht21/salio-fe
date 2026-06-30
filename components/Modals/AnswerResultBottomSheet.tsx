@@ -12,7 +12,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/Button";
 
-import { Color, FontFamily } from "../../constants/GlobalStyles";
+import { FontFamily } from "../../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type BottomSheetVariant = "green" | "orange";
 
@@ -33,6 +34,9 @@ export default function AnswerResultBottomSheet({
   buttonText = "Chốt, câu tiếp theo",
   title = ""
 }: AnswerResultBottomSheetProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const insets = useSafeAreaInsets();
   const isGreen = variant === "green";
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -112,7 +116,7 @@ export default function AnswerResultBottomSheet({
             <Text
               style={[
                 styles.title,
-                { color: isGreen ? Color.main2 : Color.cam }
+                { color: isGreen ? colors.main2 : colors.cam }
               ]}
             >
               {title}
@@ -136,44 +140,44 @@ export default function AnswerResultBottomSheet({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: "flex-end"
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.4)"
-  },
-  sheetContent: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 25,
-    paddingTop: 10,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 10
-  },
-  title: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 20,
-    textAlign: "center"
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      overlay: {
+        flex: 1,
+        justifyContent: "flex-end"
+      },
+      backdrop: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "rgba(0, 0, 0, 0.4)"
+      },
+      sheetContent: {
+        backgroundColor: "#FFFFFF",
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 25,
+        paddingTop: 10,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 10
+      },
+      title: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 20,
+        textAlign: "center"
+      },
 
-  buttonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold
-  },
-  cancelButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-  },
-  cancelText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 14,
-    color: Color.gray || "#64748B",
-  },
-});
+      buttonText: {
+        fontFamily: FontFamily.lexendDecaSemiBold
+      },
+      cancelButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 20,
+      },
+      cancelText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 14,
+        color: colors.gray || "#64748B",
+      },
+    });

@@ -3,10 +3,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, View, Alert } from 'react-native';
 import ResultSummaryScreen from '@/components/LessonReview/ResultSummaryScreen';
 import LessonService from '../../../../api/services/lesson.service';
-import { Color } from '../../../../constants/GlobalStyles';
 import Button from '@/components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function FinalTestResultScreen() {
+    const { colors } = useTheme();
+
   const router = useRouter();
   const { lessonId, sessionId } = useLocalSearchParams<{ lessonId: string, sessionId: string }>();
   const [data, setData] = useState<any>(null);
@@ -83,7 +85,7 @@ export default function FinalTestResultScreen() {
   if (!data || isLoading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }

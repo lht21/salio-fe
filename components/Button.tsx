@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   Border,
-  Color,
   FontFamily,
   FontSize,
   Padding
@@ -124,13 +123,13 @@ const createStyles = (colors: any) => StyleSheet.create({
 
   // 1. Green (Mặc định)
   variantGreen: {
-    backgroundColor: Color.main,
-    borderColor: Color.main500, // Màu xanh lá đậm hơn cho viền
+    backgroundColor: colors.main,
+    borderColor: colors.main500, // Màu xanh lá đậm hơn cho viền
     borderBottomWidth: 5,
     borderLeftWidth:2,// Bạn có thể đổi sang Color.main nếu khớp màu
   },
   textGreen: {
-    color: Color.color,
+    color: colors.textGreen,
     fontWeight: "500",
   },
 
@@ -151,7 +150,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   variantOutline: {
     backgroundColor: colors.bg,
     borderWidth: 1.5,
-    borderColor: Color.main900,
+    borderColor: colors.main900,
     borderBottomWidth: 5,
   },
   textOutline: {
@@ -204,13 +203,13 @@ const createStyles = (colors: any) => StyleSheet.create({
 
   // 8. Black
   variantBlack: {
-    backgroundColor: Color.text,
+    backgroundColor: colors.text,
     borderColor: colors.main || '#3AB878', // Màu xanh lá cho viền
     borderBottomWidth: 5,
     borderLeftWidth: 2,
   },
   textBlack: {
-    color: Color.bg, // Màu nghịch đảo tự động
+    color: colors.bg, // Màu nghịch đảo tự động
     fontWeight: "500",
   },
 });

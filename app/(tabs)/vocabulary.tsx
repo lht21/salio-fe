@@ -252,7 +252,7 @@ export default function VocabularyScreen() {
               key={set.id}
               title={set.title}
               totalWords={set.totalWords}
-              backgroundColor={colors.bg}
+              backgroundColor={colors.bgFlashCardSet}
               imageSource={set.imageSource}
               onPress={() => {
                 router.push({

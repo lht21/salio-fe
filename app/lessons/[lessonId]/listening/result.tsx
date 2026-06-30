@@ -3,10 +3,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import ResultSummaryScreen from '@/components/LessonReview/ResultSummaryScreen';
 import Button from '@/components/Button';
-import { Gap, Padding, Color } from '@/constants/GlobalStyles';
+import { Gap, Padding } from '@/constants/GlobalStyles';
 import LessonService from '@/api/services/lesson.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ListeningResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
 
@@ -79,11 +83,11 @@ export default function ListeningResultScreen() {
 
   // Loading guard để tránh lỗi interpolate của Reanimated
   if (loading || metrics.length === 0) {
-    return <View style={styles.loading}><ActivityIndicator size="large" color={Color.main} /></View>;
+    return <View style={styles.loading}><ActivityIndicator size="large" color={colors.main} /></View>;
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: Color.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ResultSummaryScreen
         title={scoreInfo.isCompleted ? (scoreInfo.percent >= 80 ? "Hoàn thành xuất sắc!" : "Hoàn thành bài Nghe!") : "Chưa hoàn thành!"}
         pointLabel={`${scoreInfo.percent} điểm`}
@@ -109,6 +113,6 @@ export default function ListeningResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Color.bg },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+    });

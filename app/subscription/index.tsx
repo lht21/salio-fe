@@ -18,11 +18,12 @@ import BenefitItem from '../../components/BenefitItem';
 import SubscriptionCard from '../../components/SubscriptionCard';
 
 // Constants
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import { MotiView } from 'moti';
 import SubscriptionService from '../../api/services/subscription.service';
 import { SubscriptionPlan } from '../../api/types/subscription.types';
 import { XIcon } from 'phosphor-react-native';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Dữ liệu mẫu (Tách biệt logic)
 const BENEFITS = [
@@ -33,6 +34,9 @@ const BENEFITS = [
 ];
 
 export default function SubscriptionScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   
   // Quản lý trạng thái gọi API
@@ -93,7 +97,7 @@ export default function SubscriptionScreen() {
             <Text style={styles.mainTitle}>Salio Master TOPIK</Text>
 
             {isLoading ? (
-              <ActivityIndicator size="large" color={Color.vang} style={{ marginVertical: 30 }} />
+              <ActivityIndicator size="large" color={colors.vang} style={{ marginVertical: 30 }} />
             ) : (
               <View style={styles.plansContainer}>
                   {plans.map((plan) => {
@@ -155,69 +159,69 @@ export default function SubscriptionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-    alignItems: 'flex-end', // Căn phải nút X
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: Padding.padding_15,
-    paddingBottom: 40,
-  },
-  mainTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 32,
-    color: Color.color, // Màu chữ sáng trên nền tối
-    marginTop: Padding.padding_10,
-    marginBottom: Padding.padding_30,
-  },
-  benefitsContainer: {
-    marginTop: Padding.padding_30,
-  },
-  plansContainer: {
-    gap: Gap.gap_15,
-  },
-  
-  // --- BOTTOM FIXED UI ---
-  bottomFixed: {
-    paddingHorizontal: Padding.padding_15,
-    paddingBottom: Padding.padding_30, // Đẩy lên một chút cho các dòng máy có thanh Home ảo
-    paddingTop: Padding.padding_15,
-    backgroundColor: "transparent", // Trong suốt để lộ nền
-    borderTopLeftRadius: Border.br_20,
-    borderTopRightRadius: Border.br_20,
-  },
-  statusBanner: {
-    backgroundColor: "transparent", // Xám nhạt
-    paddingVertical: Padding.padding_10,
-    borderRadius: Border.br_10,
-    alignItems: 'center',
-  },
-  statusText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-  },
-  continueButton: {
-    backgroundColor: Color.vang, // Nền màu đen cố định theo yêu cầu
-    paddingVertical: Padding.padding_15,
-    borderRadius: 37, // Bo tròn mạnh
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  continueButtonText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.color, // Chữ trắng trên nền đen
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      backgroundImage: {
+        flex: 1,
+      },
+      safeArea: {
+        flex: 1,
+      },
+      header: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+        alignItems: 'flex-end', // Căn phải nút X
+      },
+      scrollView: {
+        flex: 1,
+      },
+      scrollContent: {
+        paddingHorizontal: Padding.padding_15,
+        paddingBottom: 40,
+      },
+      mainTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: 32,
+        color: colors.color, // Màu chữ sáng trên nền tối
+        marginTop: Padding.padding_10,
+        marginBottom: Padding.padding_30,
+      },
+      benefitsContainer: {
+        marginTop: Padding.padding_30,
+      },
+      plansContainer: {
+        gap: Gap.gap_15,
+      },
+      
+      // --- BOTTOM FIXED UI ---
+      bottomFixed: {
+        paddingHorizontal: Padding.padding_15,
+        paddingBottom: Padding.padding_30, // Đẩy lên một chút cho các dòng máy có thanh Home ảo
+        paddingTop: Padding.padding_15,
+        backgroundColor: "transparent", // Trong suốt để lộ nền
+        borderTopLeftRadius: Border.br_20,
+        borderTopRightRadius: Border.br_20,
+      },
+      statusBanner: {
+        backgroundColor: "transparent", // Xám nhạt
+        paddingVertical: Padding.padding_10,
+        borderRadius: Border.br_10,
+        alignItems: 'center',
+      },
+      statusText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+      },
+      continueButton: {
+        backgroundColor: colors.vang, // Nền màu đen cố định theo yêu cầu
+        paddingVertical: Padding.padding_15,
+        borderRadius: 37, // Bo tròn mạnh
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      continueButtonText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.color, // Chữ trắng trên nền đen
+      },
+    });

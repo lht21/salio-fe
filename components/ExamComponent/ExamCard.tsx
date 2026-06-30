@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ShootingStarIcon, LockKeyIcon, ListNumbersIcon, ClockIcon, CrownIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Padding, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Border } from '../../constants/GlobalStyles';
 import Button from '../Button';
 import Animated, {
   useSharedValue,
@@ -10,6 +10,7 @@ import Animated, {
   withTiming,
   runOnJS
 } from 'react-native-reanimated';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -30,6 +31,9 @@ interface ExamCardProps {
 }
 
 export default function ExamCard({ exam, onPress }: ExamCardProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   // Tính tổng số câu hỏi nếu API trả về là một object {listening, reading, writing}
   let displayQuestionCount = exam.questionCount as number;
   if (typeof exam.questionCount === 'object' && exam.questionCount !== null) {
@@ -72,22 +76,21 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
 
   return (
     <AnimatedTouchableOpacity activeOpacity={0.8} onPress={handlePress} style={[styles.examCard, !exam.isUnlocked && styles.examCardLocked, animatedStyle]}>
-      {/* Watermark */}
-      <Text style={styles.examWatermark}>{exam.edition}</Text>
+
 
       {/* Background Icon Watermark */}
-      <View style={styles.iconWatermark}>
+      <View style={[styles.iconWatermark, { opacity: !exam.isUnlocked ? 0.1 : 0.2 }]}>
         {!exam.isUnlocked ? (
-          <CrownIcon size={120} color="#64748B" weight="fill" opacity={0.1} />
+          <CrownIcon size={120} color="#64748B" weight="fill" />
         ) : (
-          <ShootingStarIcon size={120} color={Color.main} weight="fill" opacity={0.2} />
+          <ShootingStarIcon size={120} color={colors.main} weight="fill" />
         )}
       </View>
 
       {/* Unlocked Label */}
       {exam.isUnlocked && (
         <View style={styles.examLabel}>
-          <ShootingStarIcon size={16} color={Color.color} weight="fill" />
+          <ShootingStarIcon size={12} color={colors.main500} weight="fill" />
           <Text style={styles.examLabelText}>Đã mở khoá</Text>
         </View>
       )}
@@ -95,7 +98,7 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
       {/* Locked Icon */}
       {!exam.isUnlocked && (
         <View style={styles.examLabelLocked}>
-          <LockKeyIcon size={16} color="#64748B" weight="fill" />
+          <LockKeyIcon size={12} color="#64748B" weight="fill" />
           <Text style={styles.examLabelLockedText}>Premium</Text>
         </View>
       )}
@@ -128,25 +131,25 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
           title={exam.isUnlocked ? "Luyện tập" : "Mở khoá"}
           variant={exam.isUnlocked ? "Green" : "Gray"}
           onPress={handlePress}
-          style={{ height: 40, marginVertical: 0 }}
+          style={{ height: 40, marginVertical: 0, alignSelf: 'flex-end' }}
         />
       </View>
     </AnimatedTouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  examCard: { backgroundColor: Color.bg, borderRadius: Border.br_20, borderWidth: 1.5, borderColor: Color.stroke, padding: Padding.padding_15, position: 'relative', overflow: 'hidden', justifyContent: 'space-between', minHeight: 150 },
-  examCardLocked: { backgroundColor: '#F8FAFC' },
-  examWatermark: { position: 'absolute', right: -10, top: -20, fontFamily: FontFamily.lexendDecaBold, fontSize: 120, color: Color.stroke, opacity: 0.8 },
-  iconWatermark: { position: 'absolute', right: -15, bottom: -15, transform: [{ rotate: '-15deg' }], zIndex: 0 },
-  examLabel: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Color.main, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
-  examLabelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: Color.text },
-  examLabelLocked: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
-  examLabelLockedText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: '#64748B' },
-  examContent: { zIndex: 1 },
-  examTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: 12 },
-  statsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-  statItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#64748B' },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      examCard: { backgroundColor: colors.bg, borderRadius: Border.br_30, borderWidth: 1.5, borderColor: colors.stroke, padding: Padding.padding_20, position: 'relative', overflow: 'hidden', justifyContent: 'space-between', minHeight: 150 },
+      examCardLocked: { backgroundColor: '#F8FAFC' },
+      examWatermark: { position: 'absolute', right: -10, top: -20, fontFamily: FontFamily.lexendDecaBold, fontSize: 120, color: colors.stroke, opacity: 0.8 },
+      iconWatermark: { position: 'absolute', right: -15, bottom: -15, transform: [{ rotate: '-15deg' }], zIndex: 0 },
+      examLabel: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: colors.main50, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
+      examLabelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: colors.text },
+      examLabelLocked: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
+      examLabelLockedText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: '#64748B' },
+      examContent: { zIndex: 1 },
+      examTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_18, color: colors.text, marginBottom: 12 },
+      statsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+      statItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+      statText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#64748B' },
+    });

@@ -10,7 +10,7 @@ import {
   XIcon
 } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import IconButton from '../IconButton';
 import CategoryChip from '../CategoryChip';
 import Button from '../Button';
@@ -19,6 +19,7 @@ import FeedbackCard from '../FeedbackCard';
 import DetailedCorrectionView from '../DetailedCorrectionView';
 import ActionMenuModal from '@/components/ActionMenuModal';
 import ShareModal from '@/components/Modals/ShareModal';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -29,6 +30,9 @@ interface WritingResultUIProps {
 }
 
 export default function WritingResultUI({ data, onHomePress, onRetryPress }: WritingResultUIProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [activeTab, setActiveTab] = useState<'overview' | 'detailed'>('overview');
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -85,11 +89,11 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
   };
 
   const getIconForTitle = (title: string) => {
-    if (title.includes('Nội dung')) return <TextAUnderlineIcon size={35} color={Color.color} weight="fill" />;
-    if (title.includes('Từ vựng')) return <TranslateIcon size={35} color={Color.color} weight="fill" />;
-    if (title.includes('Ngữ pháp')) return <BookOpenIcon size={35} color={Color.color} weight="fill" />;
-    if (title.includes('mạch lạc')) return <LinkIcon size={35} color={Color.color} weight="fill" />;
-    return <TextTIcon size={35} color={Color.color} weight="fill" />;
+    if (title.includes('Nội dung')) return <TextAUnderlineIcon size={35} color={colors.color} weight="fill" />;
+    if (title.includes('Từ vựng')) return <TranslateIcon size={35} color={colors.color} weight="fill" />;
+    if (title.includes('Ngữ pháp')) return <BookOpenIcon size={35} color={colors.color} weight="fill" />;
+    if (title.includes('mạch lạc')) return <LinkIcon size={35} color={colors.color} weight="fill" />;
+    return <TextTIcon size={35} color={colors.color} weight="fill" />;
   };
 
   const handleReport = () => {
@@ -124,7 +128,7 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
           <Text style={styles.headerTitle}>Kết quả bài viết</Text>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.helpButton} onPress={() => setShowActionMenu(true)}>
-              <SealQuestionIcon size={20} color={Color.bg} weight="bold" />
+              <SealQuestionIcon size={20} color={colors.bg} weight="bold" />
             </TouchableOpacity>
             <IconButton Icon={XIcon} onPress={onHomePress} />
             
@@ -140,13 +144,13 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {activeTab === 'overview' ? (
           <>
-            <LinearGradient colors={[Color.main, Color.greenLight]} style={styles.scoreBanner}>
+            <LinearGradient colors={[colors.main, colors.greenLight]} style={styles.scoreBanner}>
               <View style={styles.scoreWrapper}>
                 <Svg width={136} height={136} style={styles.svgRing}>
                   <Circle cx={68} cy={68} r={CIRCLE_RADIUS} stroke="rgba(255,255,255,0.2)" strokeWidth={8} fill="transparent" />
                   <AnimatedCircle
                     cx={68} cy={68} r={CIRCLE_RADIUS}
-                    stroke={Color.vang || "#F9F871"} strokeWidth={8} fill="transparent"
+                    stroke={colors.vang || "#F9F871"} strokeWidth={8} fill="transparent"
                     strokeDasharray={CIRCUMFERENCE} animatedProps={animatedCircleProps}
                     strokeLinecap="round" transform="rotate(-90 68 68)"
                   />
@@ -159,9 +163,9 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
               </View>
 
               <View style={styles.statsRow}>
-                <StatCircle icon={<TextTIcon size={20} color={Color.color} />} value={`${charCount}/700`} label="ký tự" />
-                <StatCircle icon={<ClockIcon size={20} color={Color.color} />} value={formatTime(timeUsed)} label="phút" />
-                <StatCircle icon={<TargetIcon size={20} color={Color.color} />} value={`${Math.round((aiScore / 50) * 100)}%`} label="hoàn thành" />
+                <StatCircle icon={<TextTIcon size={20} color={colors.color} />} value={`${charCount}/700`} label="ký tự" />
+                <StatCircle icon={<ClockIcon size={20} color={colors.color} />} value={formatTime(timeUsed)} label="phút" />
+                <StatCircle icon={<TargetIcon size={20} color={colors.color} />} value={`${Math.round((aiScore / 50) * 100)}%`} label="hoàn thành" />
               </View>
             </LinearGradient>
 
@@ -180,7 +184,7 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.retryButton} activeOpacity={0.8} onPress={onHomePress}>
-          <HouseIcon size={20} color={Color.color} weight="duotone" />
+          <HouseIcon size={20} color={colors.color} weight="duotone" />
         </TouchableOpacity>
 
         <Button title="Luyện tập lại" variant="Green" onPress={onRetryPress} style={styles.continueButton} />
@@ -196,33 +200,33 @@ export default function WritingResultUI({ data, onHomePress, onRetryPress }: Wri
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  header: { paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, backgroundColor: Color.bg },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: Color.text },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_10 },
-  helpButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: Color.color, justifyContent: 'center', alignItems: 'center' },
-  tabSelector: { flexDirection: 'row', alignSelf: 'center', gap: Gap.gap_10, paddingBottom: Padding.padding_10 },
-  scrollContent: { paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: 40 },
-  scoreBanner: { borderRadius: Border.br_30, padding: 24, alignItems: 'center', marginBottom: Gap.gap_20 },
-  scoreWrapper: { justifyContent: 'center', alignItems: 'center', marginBottom: Gap.gap_20, position: 'relative', width: 136, height: 136 },
-  svgRing: { position: 'absolute' },
-  mainScoreCircle: {
-    width: 120, height: 120, borderRadius: 60, backgroundColor: Color.color, justifyContent: 'center', alignItems: 'center',
-    shadowColor: Color.color, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5
-  },
-  mainScoreText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 40, color: Color.vang, lineHeight: 45 },
-  maxScoreText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.bg },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%' },
-  feedbackList: { gap: Gap.gap_15 },
-  footer: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15,
-    paddingBottom: Padding.padding_30, backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke, gap: Gap.gap_15
-  },
-  retryButton: {
-    paddingHorizontal: Padding.padding_15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    height: 47, borderRadius: 37, borderWidth: 1.5, borderColor: Color.stroke, backgroundColor: Color.bg, gap: Gap.gap_8
-  },
-  continueButton: { flex: 1, marginVertical: 0 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      header: { paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, backgroundColor: colors.bg },
+      headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_15 },
+      headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: colors.text },
+      headerActions: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_10 },
+      helpButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.color, justifyContent: 'center', alignItems: 'center' },
+      tabSelector: { flexDirection: 'row', alignSelf: 'center', gap: Gap.gap_10, paddingBottom: Padding.padding_10 },
+      scrollContent: { paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: 40 },
+      scoreBanner: { borderRadius: Border.br_30, padding: 24, alignItems: 'center', marginBottom: Gap.gap_20 },
+      scoreWrapper: { justifyContent: 'center', alignItems: 'center', marginBottom: Gap.gap_20, position: 'relative', width: 136, height: 136 },
+      svgRing: { position: 'absolute' },
+      mainScoreCircle: {
+        width: 120, height: 120, borderRadius: 60, backgroundColor: colors.color, justifyContent: 'center', alignItems: 'center',
+        shadowColor: colors.color, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5
+      },
+      mainScoreText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 40, color: colors.vang, lineHeight: 45 },
+      maxScoreText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.bg },
+      statsRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%' },
+      feedbackList: { gap: Gap.gap_15 },
+      footer: {
+        flexDirection: 'row', alignItems: 'center', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15,
+        paddingBottom: Padding.padding_30, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke, gap: Gap.gap_15
+      },
+      retryButton: {
+        paddingHorizontal: Padding.padding_15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+        height: 47, borderRadius: 37, borderWidth: 1.5, borderColor: colors.stroke, backgroundColor: colors.bg, gap: Gap.gap_8
+      },
+      continueButton: { flex: 1, marginVertical: 0 },
+    });

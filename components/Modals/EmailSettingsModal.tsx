@@ -1,10 +1,11 @@
 import React, { useMemo, useCallback, forwardRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button';
 import IconButton from '../IconButton';
 import { XIcon } from 'phosphor-react-native';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface EmailSettingsModalProps {
   email: string;
@@ -13,6 +14,8 @@ interface EmailSettingsModalProps {
 }
 
 const EmailSettingsModal = forwardRef<BottomSheetModal, EmailSettingsModalProps>(({ email, onClose, onDeleteAccount }, ref) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => getStyles(colors), [colors]);
   const snapPoints = useMemo(() => ['40%'], []);
 
   const renderBackdrop = useCallback(
@@ -34,7 +37,7 @@ const EmailSettingsModal = forwardRef<BottomSheetModal, EmailSettingsModalProps>
       backdropComponent={renderBackdrop}
       enablePanDownToClose={true}
       backgroundStyle={{ 
-        backgroundColor: Color.bg,
+        backgroundColor: colors.bg,
         borderTopLeftRadius: Border.br_30,
         borderTopRightRadius: Border.br_30 
       }}
@@ -65,23 +68,23 @@ const EmailSettingsModal = forwardRef<BottomSheetModal, EmailSettingsModalProps>
   );
 });
 
-const styles = StyleSheet.create({
-  sheetContent: {
-    paddingHorizontal: Padding.padding_20,
-    paddingTop: Padding.padding_15,
-    paddingBottom: 40,
-  },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  inputContainer: {
-    backgroundColor: '#F1F5F9', // Nền xám nhạt thể hiện ô input bị vô hiệu hóa
-    padding: Padding.padding_15,
-    borderRadius: Border.br_15,
-    marginBottom: Gap.gap_15,
-  },
-  emailText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.gray },
-  infoText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.gray, lineHeight: 22, marginBottom: Gap.gap_20 },
-  deleteButton: { width: '100%' }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      sheetContent: {
+        paddingHorizontal: Padding.padding_20,
+        paddingTop: Padding.padding_15,
+        paddingBottom: 40,
+      },
+      header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+      headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      inputContainer: {
+        backgroundColor: '#F1F5F9', // Nền xám nhạt thể hiện ô input bị vô hiệu hóa
+        padding: Padding.padding_15,
+        borderRadius: Border.br_15,
+        marginBottom: Gap.gap_15,
+      },
+      emailText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray },
+      infoText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: colors.gray, lineHeight: 22, marginBottom: Gap.gap_20 },
+      deleteButton: { width: '100%' }
+    });
 
 export default EmailSettingsModal;

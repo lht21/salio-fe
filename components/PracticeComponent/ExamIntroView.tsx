@@ -1,14 +1,20 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { ClockIcon, CrownIcon, TrophyIcon, XIcon } from 'phosphor-react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal } from 'react-native';
+import { ClockIcon, CrownIcon, TrophyIcon, XIcon, ArrowBendRightUpIcon } from 'phosphor-react-native';
+import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 // Import Design System & Components
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import IconButton from '../IconButton';
 import Button from '../Button';
 import ZenmodeBanner from '../ExamComponent/ZenmodeBanner';
+import { useTheme } from "@/contexts/ThemeContext";
 
-const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, onToggleZenmode }: any) => {
+const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, onToggleZenmode, onPreparationPress }: any) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+    const [showZenmodeSheet, setShowZenmodeSheet] = useState(false);
+
   const examTitle = data?.title || 'Bài thi trắc nghiệm';
 
   // Tính toán tổng thời gian (Phòng trường hợp duration trả về dạng Object { listening: 50, reading: 70 })
@@ -43,126 +49,235 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Image
-          source={require('../../assets/images/horani/horani_ei.png')}
-          style={styles.mascotImage}
-          resizeMode="contain"
-        />
+        <Animated.View entering={FadeInUp.duration(600)} style={styles.mainWrapper}>
+          <Image
+            source={require('../../assets/images/horani/horani_ei.png')}
+            style={styles.mascotImage}
+            resizeMode="contain"
+          />
 
-        <View style={styles.titleContainer}>
-          {data?.isPremium && (
-            <View style={styles.premiumBadge}>
-              <CrownIcon size={14} color={Color.bg} weight="fill" />
-              <Text style={styles.premiumText}>Premium</Text>
-            </View>
-          )}
-          <Text style={styles.examTitle}>{examTitle}</Text>
-        </View>
-        
-        <ZenmodeBanner isEnabled={isZenmodeEnabled} onToggle={onToggleZenmode} />
-
-        <View style={styles.infoCard}>
-          <Text style={styles.infoCardTitle}>Phần thi:</Text>
-          <View style={styles.skillsList}>
-            {dynamicSkills.length > 0 ? (
-              dynamicSkills.map((skill, index) => (
-                <View key={index} style={styles.skillItem}>
-                  <View style={styles.bulletPoint} />
-                  <Text style={styles.skillText}>
-                    {skill.name} ({skill.count} câu)
-                  </Text>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.skillText}>Chưa có câu hỏi nào</Text>
+          <View style={styles.titleContainer}>
+            {data?.isPremium && (
+              <View style={styles.premiumBadge}>
+                <CrownIcon size={14} color={colors.bg} weight="fill" />
+                <Text style={styles.premiumText}>Premium</Text>
+              </View>
             )}
+            <Text style={styles.examTitle}>{examTitle}</Text>
           </View>
-        </View>
 
-        <View style={styles.statsContainer}>
-          <View style={styles.statsRow}>
-            <ClockIcon size={20} color={Color.cam} weight="fill" />
-            <Text style={styles.statsText}>Thời gian: {durationDisplay}</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoCardTitle}>Phần thi:</Text>
+            <View style={styles.skillsList}>
+              {dynamicSkills.length > 0 ? (
+                dynamicSkills.map((skill, index) => (
+                  <View key={index} style={styles.skillItem}>
+                    <View style={styles.bulletPoint} />
+                    <Text style={styles.skillText}>
+                      {skill.name} ({skill.count} câu)
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.skillText}>Chưa có câu hỏi nào</Text>
+              )}
+            </View>
           </View>
-          <View style={styles.statsRow}>
-            <TrophyIcon size={20} color={Color.vang} weight="fill" />
-            <Text style={styles.statsText}>Tổng điểm: {data?.totalScore || 0}</Text>
+
+          <View style={styles.timeContainer}>
+            <ClockIcon size={20} color={colors.main50 || '#F8FAFC'} weight="regular" />
+            <Text style={styles.timeText}>Thời gian: {durationDisplay}</Text>
           </View>
-        </View>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.duration(600).delay(600)} style={styles.actionCardsContainer}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onPreparationPress || (() => {})}
+            style={[
+              styles.actionCard,
+              {
+                backgroundColor: colors.blue200 || '#BFDBFE',
+                borderColor: colors.blue400 || '#60A5FA',
+              }
+            ]}
+          >
+            <Text style={styles.actionCardText}>Ôn từ vựng và ngữ pháp trước khi thi</Text>
+            <View style={styles.actionCardIcon}>
+              <ArrowBendRightUpIcon size={50} color={colors.blue400 || '#60A5FA'} weight="bold" />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setShowZenmodeSheet(true)}
+            style={[
+              styles.actionCard,
+              {
+                backgroundColor: colors.orange50 || '#FFF7ED',
+                borderColor: colors.orange300 || '#FDBA74',
+              }
+            ]}
+          >
+            <Text style={styles.actionCardText}>Luyện thi luôn!</Text>
+            <View style={styles.actionCardIcon}>
+              <ArrowBendRightUpIcon size={50} color={colors.orange300 || '#FDBA74'} weight="bold" />
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        <Text style={styles.readyText}>Bạn đã sẵn sàng chưa?</Text>
-        <Button
-          title={isStarting ? "Đang xử lý..." : "Sẵn sàng"}
-          variant="Green"
-          onPress={onStart}
-          style={{ width: '100%', opacity: isStarting ? 0.7 : 1 }}
-          disabled={isStarting}
-        />
-      </View>
+      <Modal visible={showZenmodeSheet} transparent animationType="slide" onRequestClose={() => setShowZenmodeSheet(false)}>
+        <View style={styles.bottomSheetOverlay}>
+          <TouchableOpacity style={styles.bottomSheetBackdrop} activeOpacity={1} onPress={() => setShowZenmodeSheet(false)} />
+          <View style={styles.bottomSheetContainer}>
+            <View style={styles.bottomSheetHeader}>
+              <Text style={styles.bottomSheetTitle}>Chuẩn bị thi</Text>
+              <IconButton Icon={XIcon} onPress={() => setShowZenmodeSheet(false)} />
+            </View>
+            
+            <ZenmodeBanner isEnabled={isZenmodeEnabled} onToggle={onToggleZenmode} />
+            
+            <Button
+              title={isStarting ? "Đang xử lý..." : "Bắt đầu thi"}
+              variant="Green"
+              onPress={() => {
+                setShowZenmodeSheet(false);
+                onStart();
+              }}
+              style={{ width: '100%', opacity: isStarting ? 0.7 : 1 }}
+              disabled={isStarting}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  viewContainer: { flex: 1 },
-  header: {
-    alignItems: 'flex-end',
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: Padding.padding_20,
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
-  mascotImage: { width: 200, height: 200, marginBottom: Gap.gap_20 },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: Gap.gap_20,
-    gap: Gap.gap_8,
-  },
-  premiumBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F59E0B',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: Border.br_10,
-    gap: 4,
-  },
-  premiumText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_12,
-    color: Color.bg,
-  },
-  examTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.text,
-    textAlign: 'center',
-  },
-  infoCard: {
-    width: '100%',
-    backgroundColor: '#F8FAFC',
-    borderRadius: Border.br_15,
-    padding: Padding.padding_20,
-    marginBottom: Gap.gap_20,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-  },
-  infoCardTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: Gap.gap_15 },
-  skillsList: { gap: Gap.gap_10 },
-  skillItem: { flexDirection: 'row', alignItems: 'center' },
-  bulletPoint: { width: 6, height: 6, borderRadius: 3, backgroundColor: Color.gray, marginRight: Gap.gap_10 },
-  skillText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.gray },
-  statsContainer: { alignSelf: 'flex-start', gap: Gap.gap_10, paddingLeft: Padding.padding_5 },
-  statsRow: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_8 },
-  statsText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
-  footer: { paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, paddingBottom: Padding.padding_30, alignItems: 'center', gap: Gap.gap_10 },
-  readyText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.gray },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      viewContainer: { flex: 1 },
+      header: {
+        alignItems: 'flex-end',
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+        marginBottom: Gap.gap_20,
+      },
+      scrollContent: {
+        flexGrow: 1,
+        paddingHorizontal: Padding.padding_20,
+        alignItems: 'center',
+        paddingBottom: 20,
+      },
+      mainWrapper: {
+        width: '100%',
+        backgroundColor: colors.main900 || '#2D5A27',
+        borderRadius: 30,
+        padding: Padding.padding_20,
+        alignItems: 'center',
+        marginBottom: Gap.gap_20,
+      },
+      mascotImage: { width: 180, height: 180, marginBottom: Gap.gap_15 },
+      titleContainer: {
+        alignItems: 'center',
+        marginBottom: Gap.gap_20,
+        gap: Gap.gap_8,
+      },
+      premiumBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F59E0B',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: Border.br_10,
+        gap: 4,
+      },
+      premiumText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_12,
+        color: colors.bg,
+      },
+      examTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.main50 || '#F8FAFC',
+        textAlign: 'center',
+      },
+      infoCard: {
+        width: '100%',
+        backgroundColor: colors.main50 || '#F8FAFC',
+        borderRadius: 20,
+        padding: Padding.padding_20,
+        marginBottom: Gap.gap_20,
+      },
+      infoCardTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_15 },
+      skillsList: { gap: Gap.gap_10 },
+      skillItem: { flexDirection: 'row', alignItems: 'center' },
+      bulletPoint: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.text, marginRight: Gap.gap_10 },
+      skillText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
+      timeContainer: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        gap: Gap.gap_8,
+        paddingBottom: Padding.padding_10,
+      },
+      timeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.main50 || '#F8FAFC' },
+      actionCardsContainer: {
+        width: '100%',
+        paddingTop: Gap.gap_10,
+        paddingBottom: Gap.gap_20,
+      },
+      actionCard: {
+        width: '100%',
+        padding: 24,
+        borderRadius: 25,
+        borderWidth: 1,
+        borderLeftWidth: 4,
+        borderBottomWidth: 7,
+        marginBottom: 15,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        minHeight: 90,
+      },
+      actionCardText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+        zIndex: 1,
+      },
+      actionCardIcon: {
+        position: 'absolute',
+        right: 15,
+        bottom: -5,
+        opacity: 0.3,
+      },
+      bottomSheetOverlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+      },
+      bottomSheetBackdrop: {
+        ...StyleSheet.absoluteFillObject,
+      },
+      bottomSheetContainer: {
+        backgroundColor: colors.bg || '#FFFFFF',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: Padding.padding_20,
+        paddingBottom: Padding.padding_30,
+      },
+      bottomSheetHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: Gap.gap_20,
+      },
+      bottomSheetTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+    });
 
 export default ExamIntroView;

@@ -3,9 +3,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import ExplanationScreen, { ExplanationQuestion } from '@/components/LessonReview/ExplanationScreen';
 import LessonService from '@/api/services/lesson.service';
-import { Color } from '@/constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ListeningExplanationScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const [loading, setLoading] = useState(true);
@@ -100,7 +103,7 @@ export default function ListeningExplanationScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }
@@ -116,15 +119,15 @@ export default function ListeningExplanationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+      },
+      loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+      },
+    });

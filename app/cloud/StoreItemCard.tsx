@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { CloudIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import { StoreItem } from '../../api/types/gamification.types';
 import Button from '../../components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface StoreItemCardProps {
   item: StoreItem;
@@ -23,6 +24,9 @@ const localImages: Record<string, any> = {
 };
 
 export default function StoreItemCard({ item, onExchange }: StoreItemCardProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   // Kiểm tra xem icon trả về là URL thật hay là Emoji (ví dụ: '❄️')
   const isUrlIcon = item.icon?.startsWith('http');
 
@@ -54,7 +58,7 @@ export default function StoreItemCard({ item, onExchange }: StoreItemCardProps) 
       {/* Hàng dưới: Giá tiền và Nút đổi */}
       <View style={styles.bottomRow}>
         <View style={styles.priceBadge}>
-          <CloudIcon size={18} color={Color.main} weight="fill" />
+          <CloudIcon size={18} color={colors.main} weight="fill" />
           <Text style={styles.priceText}>{item.price}</Text>
         </View>
 
@@ -69,72 +73,72 @@ export default function StoreItemCard({ item, onExchange }: StoreItemCardProps) 
   );
 }
 
-const styles = StyleSheet.create({
-  cardContainer: {
-    backgroundColor: Color.bg,
-    borderRadius: Border.br_20,
-    padding: Padding.padding_15,
-    marginBottom: Gap.gap_15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  topRow: {
-    flexDirection: 'row',
-  },
-  iconBox: {
-    width: 80,
-    height: 80,
-    borderRadius: Border.br_15,
-    backgroundColor: Color.bg2, // Nền xám nhạt cho khung ảnh
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Gap.gap_15,
-  },
-  itemImage: {
-    width: 60,
-    height: 60,
-  },
-  emojiIcon: {
-    fontSize: 40,
-  },
-  contentBox: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  itemTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-    marginBottom: 4,
-  },
-  itemDesc: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-    lineHeight: 18,
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: Gap.gap_15,
-  },
-  priceBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  priceText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_16,
-    color: Color.main2,
-  },
-  exchangeButton: {
-    marginVertical: 0, // Ghi đè margin mặc định của Button
-    height: 40, // Chỉnh lại chiều cao nhỏ hơn một chút cho hợp với nội dung thẻ
-    paddingHorizontal: 20,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      cardContainer: {
+        backgroundColor: colors.bg,
+        borderRadius: Border.br_20,
+        padding: Padding.padding_15,
+        marginBottom: Gap.gap_15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2,
+      },
+      topRow: {
+        flexDirection: 'row',
+      },
+      iconBox: {
+        width: 80,
+        height: 80,
+        borderRadius: Border.br_15,
+        backgroundColor: colors.bg2, // Nền xám nhạt cho khung ảnh
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Gap.gap_15,
+      },
+      itemImage: {
+        width: 60,
+        height: 60,
+      },
+      emojiIcon: {
+        fontSize: 40,
+      },
+      contentBox: {
+        flex: 1,
+        justifyContent: 'center',
+      },
+      itemTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+        marginBottom: 4,
+      },
+      itemDesc: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+        lineHeight: 18,
+      },
+      bottomRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: Gap.gap_15,
+      },
+      priceBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+      },
+      priceText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_16,
+        color: colors.main2,
+      },
+      exchangeButton: {
+        marginVertical: 0, // Ghi đè margin mặc định của Button
+        height: 40, // Chỉnh lại chiều cao nhỏ hơn một chút cho hợp với nội dung thẻ
+        paddingHorizontal: 20,
+      },
+    });

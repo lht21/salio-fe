@@ -37,6 +37,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   createSetText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_12 || 12,
-    color: '#FFFFFF',
+    color: colors.bg || '#1E1E1E',
   },
 });

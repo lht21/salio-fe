@@ -1,14 +1,14 @@
 import React, { useMemo, useCallback, forwardRef, useEffect } from 'react';
 import { Keyboard, StyleSheet, View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../contexts/ThemeContext';
 
 import Button from '../Button';
 import { CustomInput } from '../CustomInput';
 import IconButton from '../IconButton';
 import { XIcon } from 'phosphor-react-native';
-import { FontFamily, FontSize, Border, Padding, Gap, Color } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type ChangeUserNameModalProps = {
   currentUserName: string;
@@ -74,7 +74,7 @@ const ChangeUserNameModal = forwardRef<BottomSheetModal, ChangeUserNameModalProp
       bottomInset={40}
       style={styles.floatingSheet}
       backgroundStyle={{ 
-        backgroundColor: Color.main50,
+        backgroundColor: colors.main50,
         borderRadius: Border.br_30,
         borderBottomWidth: 7,
         borderLeftWidth: 4,

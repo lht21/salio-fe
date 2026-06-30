@@ -6,9 +6,13 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ArrowLeftIcon } from 'phosphor-react-native';
 
 // Constants
-import { Color, FontFamily, FontSize, Padding, Gap } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function CheckoutScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   // Lấy thêm planId từ URL nếu sau này cần dùng
   const { planId, url } = useLocalSearchParams();
@@ -60,7 +64,7 @@ export default function CheckoutScreen() {
       {/* --- HEADER --- */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
+          <ArrowLeftIcon size={24} color={colors.text} weight="bold" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thanh toán an toàn</Text>
       </View>
@@ -78,7 +82,7 @@ export default function CheckoutScreen() {
         {/* Hiển thị Loading mờ lên trên trong lúc WebView đang load */}
         {isLoading && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color={Color.main} />
+            <ActivityIndicator size="large" color={colors.main} />
           </View>
         )}
       </View>
@@ -86,27 +90,27 @@ export default function CheckoutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-    paddingBottom: Padding.padding_15,
-    backgroundColor: Color.bg,
-    borderBottomWidth: 1,
-    borderBottomColor: Color.stroke,
-  },
-  backButton: { marginRight: Gap.gap_15 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: Color.text },
-  webviewContainer: { flex: 1 },
-  webview: { flex: 1 },
-  loadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255, 255, 255, 0.7)', justifyContent: 'center', alignItems: 'center' },
-  
-  // State Lỗi
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
-  errorText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.gray, textAlign: 'center', marginBottom: Gap.gap_20 },
-  backButtonCenter: { backgroundColor: Color.main, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 20 },
-  backButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.color }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+        paddingBottom: Padding.padding_15,
+        backgroundColor: colors.bg,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.stroke,
+      },
+      backButton: { marginRight: Gap.gap_15 },
+      headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.text },
+      webviewContainer: { flex: 1 },
+      webview: { flex: 1 },
+      loadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255, 255, 255, 0.7)', justifyContent: 'center', alignItems: 'center' },
+      
+      // State Lỗi
+      errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
+      errorText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.gray, textAlign: 'center', marginBottom: Gap.gap_20 },
+      backButtonCenter: { backgroundColor: colors.main, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 20 },
+      backButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color }
+    });

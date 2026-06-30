@@ -1,7 +1,7 @@
-import { Color } from '@/constants/GlobalStyles';
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +11,9 @@ interface WindingPathProps {
 }
 
 const WindingPath = ({ isActive, isLeftToRight }: WindingPathProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   // Tính toán tâm tọa độ X tương đối cho các Node (Trái và Phải)
   const center = width / 2;
   const offset = 35; // Khoảng lệch so với tâm màn hình
@@ -18,7 +21,7 @@ const WindingPath = ({ isActive, isLeftToRight }: WindingPathProps) => {
   const startX = isLeftToRight ? center - offset : center + offset;
   const endX = isLeftToRight ? center + offset : center - offset;
 
-  const pathColor = isActive ? (Color.main || '#1877F2') : (Color.stroke || '#E2E8F0');
+  const pathColor = isActive ? (colors.main || '#1877F2') : (colors.stroke || '#E2E8F0');
 
   return (
     <View style={styles.svgContainer} pointerEvents="none">
@@ -37,14 +40,14 @@ const WindingPath = ({ isActive, isLeftToRight }: WindingPathProps) => {
   );
 };
 
-const styles = StyleSheet.create({
-  svgContainer: {
-    width: '100%',
-    height: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      svgContainer: {
+        width: '100%',
+        height: 70,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+      },
+    });
 
 export default WindingPath;

@@ -7,7 +7,8 @@ import {
   StackPlusIcon
 } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Border, Gap, Padding } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Gap, Padding } from '../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type MenuItemVariant = 'default' | 'favorite' | 'flashcardSet' | 'createSet' | 'danger';
 
@@ -19,11 +20,14 @@ interface MenuItemProps {
 }
 
 export default function ActionMenuItem({ label, variant = 'default', icon, onPress }: MenuItemProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   
   // Xác định style và icon dựa trên variant
   let textStyle = styles.defaultText;
   let iconBgStyle = styles.defaultIconBg;
-  let iconColor = Color.text;
+  let iconColor = colors.text;
   let LeftIconComponent = icon; 
   let showRightPlus = false;
 
@@ -39,8 +43,8 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
 
     case 'flashcardSet':
       // Lưu vào một bộ Flashcard đã có
-      iconColor = Color.color; // Màu xanh đậm
-      iconBgStyle = { backgroundColor: Color.greenLight }; // Xanh nhạt
+      iconColor = colors.color; // Màu xanh đậm
+      iconBgStyle = { backgroundColor: colors.greenLight }; // Xanh nhạt
       textStyle = { ...styles.defaultText, color: iconColor };
       LeftIconComponent = <CardsIcon size={24} color={iconColor} weight="fill" />;
       showRightPlus = true;
@@ -48,7 +52,7 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
 
     case 'createSet':
       // Tạo bộ Flashcard mới
-      iconColor = Color.gray;
+      iconColor = colors.gray;
       iconBgStyle = { backgroundColor: '#F1F5F9' }; 
       textStyle = { ...styles.defaultText, color: iconColor };
       LeftIconComponent = <StackPlusIcon size={24} color={iconColor} weight="bold" />;
@@ -56,7 +60,7 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
       
     case 'danger':
       // Nút Xóa / Cảnh báo
-      iconColor = Color.red || '#EF4444';
+      iconColor = colors.red || '#EF4444';
       iconBgStyle = { backgroundColor: '#FEE2E2' }; // Đỏ nhạt
       textStyle = { ...styles.defaultText, color: iconColor };
       break;
@@ -89,37 +93,37 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: Color.bg,
-    borderRadius: Border.br_15,
-    padding: Padding.padding_15,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  leftContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Gap.gap_15,
-  },
-  
-  // --- DEFAULT STYLES ---
-  defaultIconBg: {
-    backgroundColor: '#F1F5F9', // Xám mờ cho icon mặc định
-  },
-  defaultText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: colors.bg,
+        borderRadius: Border.br_15,
+        padding: Padding.padding_15,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+      },
+      leftContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      iconWrapper: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Gap.gap_15,
+      },
+      
+      // --- DEFAULT STYLES ---
+      defaultIconBg: {
+        backgroundColor: '#F1F5F9', // Xám mờ cho icon mặc định
+      },
+      defaultText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+    });

@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, TextInput, Pressable, Dimensions } from 'react-native';
-import { Color, FontFamily, FontSize, Padding } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding } from '../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +15,9 @@ const COLUMNS = 14; // Số cột trên 1 hàng (Có thể điều chỉnh)
 const CELL_SIZE = (width - Padding.padding_15 * 2) / COLUMNS;
 
 export default function WonGoJiGrid({ text, setText, maxChars = 700 }: WonGoJiGridProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const inputRef = useRef<TextInput>(null);
 
   const handlePressGrid = () => {
@@ -112,40 +116,40 @@ export default function WonGoJiGrid({ text, setText, maxChars = 700 }: WonGoJiGr
   );
 }
 
-const styles = StyleSheet.create({
-  gridWrapper: {
-    paddingHorizontal: Padding.padding_15,
-    position: 'relative',
-  },
-  hiddenInput: {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    opacity: 0, 
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderColor: '#D1E9D2',
-  },
-  gridCell: {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#D1E9D2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Color.bg,
-  },
-  gridCellActive: {
-    backgroundColor: '#F0FDF4', 
-  },
-  gridText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      gridWrapper: {
+        paddingHorizontal: Padding.padding_15,
+        position: 'relative',
+      },
+      hiddenInput: {
+        position: 'absolute',
+        width: 0,
+        height: 0,
+        opacity: 0, 
+      },
+      gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        borderTopWidth: 1,
+        borderLeftWidth: 1,
+        borderColor: '#D1E9D2',
+      },
+      gridCell: {
+        width: CELL_SIZE,
+        height: CELL_SIZE,
+        borderRightWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: '#D1E9D2',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.bg,
+      },
+      gridCellActive: {
+        backgroundColor: '#F0FDF4', 
+      },
+      gridText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+    });

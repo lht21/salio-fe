@@ -2,7 +2,8 @@ import React from 'react';
 import { Animated, Easing, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
-import { Border, Color, FontFamily, FontSize } from '../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize } from '../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type SpeakingIntroPopupProps = {
   visible: boolean;
@@ -29,6 +30,9 @@ export default function SpeakingIntroPopup({
   children,
   delayMs = 180,
 }: SpeakingIntroPopupProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const opacity = React.useRef(new Animated.Value(0)).current;
   const translateY = React.useRef(new Animated.Value(-54)).current;
   const [isMounted, setIsMounted] = React.useState(visible);
@@ -130,63 +134,63 @@ export default function SpeakingIntroPopup({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.32)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 22,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 320,
-    backgroundColor: '#FFFFFF',
-    borderRadius: Border.br_20,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 16,
-    alignItems: 'center',
-  },
-  mascotRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginTop: -100,
-    marginBottom: -30,
-  },
-  mascot: {
-    width: 180,
-    height: 180,
-  },
-  title: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    lineHeight: 22,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  text: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  button: {
-    marginTop: 16,
-    minWidth: 156,
-    borderRadius: 999,
-    backgroundColor: Color.cam,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  buttonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.32)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 22,
+      },
+      card: {
+        width: '100%',
+        maxWidth: 320,
+        backgroundColor: '#FFFFFF',
+        borderRadius: Border.br_20,
+        paddingHorizontal: 18,
+        paddingTop: 18,
+        paddingBottom: 16,
+        alignItems: 'center',
+      },
+      mascotRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        marginTop: -100,
+        marginBottom: -30,
+      },
+      mascot: {
+        width: 180,
+        height: 180,
+      },
+      title: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        lineHeight: 22,
+        textAlign: 'center',
+        marginBottom: 8,
+      },
+      text: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+        lineHeight: 22,
+        textAlign: 'center',
+      },
+      button: {
+        marginTop: 16,
+        minWidth: 156,
+        borderRadius: 999,
+        backgroundColor: colors.cam,
+        paddingHorizontal: 24,
+        paddingVertical: 10,
+      },
+      buttonText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_14,
+        color: '#FFFFFF',
+        textAlign: 'center',
+      },
+    });

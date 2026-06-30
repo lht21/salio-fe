@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { Color, FontFamily } from '../constants/GlobalStyles';
+import { FontFamily } from '../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export interface GrammarOption {
   id: string;
@@ -28,6 +29,9 @@ export default function GrammarQuestionForm({
   onSelectOption,
   showResultSheet,
 }: GrammarQuestionFormProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <View style={styles.container}>
       {/* Question Text */}
@@ -60,45 +64,45 @@ export default function GrammarQuestionForm({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  questionContainer: {
-    marginBottom: 60,
-  },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 18,
-    color: '#1E1E1E',
-    lineHeight: 34,
-  },
-  optionsContainer: {
-    gap: 15,
-  },
-  optionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#E6E9F0',
-    borderRadius: 25,
-    paddingVertical: 18,
-    paddingHorizontal: 25,
-    gap: 15,
-  },
-  optionButtonSelected: {
-    borderColor: '#98F291',
-    backgroundColor: '#F0FFF0',
-  },
-  optionLabel: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 16,
-    color: '#1E1E1E',
-  },
-  optionText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 16,
-    color: '#1E1E1E',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1,
+      },
+      questionContainer: {
+        marginBottom: 60,
+      },
+      questionText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 18,
+        color: '#1E1E1E',
+        lineHeight: 34,
+      },
+      optionsContainer: {
+        gap: 15,
+      },
+      optionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1.5,
+        borderColor: '#E6E9F0',
+        borderRadius: 25,
+        paddingVertical: 18,
+        paddingHorizontal: 25,
+        gap: 15,
+      },
+      optionButtonSelected: {
+        borderColor: '#98F291',
+        backgroundColor: '#F0FFF0',
+      },
+      optionLabel: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 16,
+        color: '#1E1E1E',
+      },
+      optionText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 16,
+        color: '#1E1E1E',
+      },
+    });

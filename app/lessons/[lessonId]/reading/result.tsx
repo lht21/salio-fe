@@ -3,10 +3,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import ResultSummaryScreen from '@/components/LessonReview/ResultSummaryScreen';
 import Button from '@/components/Button';
-import { Gap, Color } from '@/constants/GlobalStyles';
+import { Gap } from '@/constants/GlobalStyles';
 import LessonService from '@/api/services/lesson.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ReadingResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
 
@@ -112,7 +116,7 @@ export default function ReadingResultScreen() {
     loadResults();
   }, [lessonId]);
 
-  if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={Color.main} /></View>;
+  if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={colors.main} /></View>;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -140,6 +144,6 @@ export default function ReadingResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+    });

@@ -119,8 +119,10 @@ export const API_ENDPOINTS = {
 
   PRACTICE: {
     HISTORY: '/api/v1/practice/history',
+    SEARCH: '/api/v1/practice/search',
     GET_SETS_BY_TYPE: (type: string) => `/api/v1/practice/${type}/sets`,
     GET_SET_BY_ID: (type: string, setId: string) => `/api/v1/practice/${type}/sets/${setId}`,
+    GET_PREPARATION_MATERIALS: (type: string, setId: string) => `/api/v1/practice/${type}/sets/${setId}/preparation`,
     START_ATTEMPT: (type: string, setId: string) => `/api/v1/practice/${type}/sets/${setId}/start`,
   },
 

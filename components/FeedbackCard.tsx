@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface FeedbackCardProps {
   title: string;
@@ -9,6 +10,9 @@ interface FeedbackCardProps {
 }
 
 export default function FeedbackCard({ title, content, icon }: FeedbackCardProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <View style={styles.feedbackCard}>
       <View style={styles.fcHeader}>
@@ -20,29 +24,29 @@ export default function FeedbackCard({ title, content, icon }: FeedbackCardProps
   );
 }
 
-const styles = StyleSheet.create({
-  feedbackCard: {
-    backgroundColor: Color.bg,
-    borderRadius: Border.br_20,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-    padding: Padding.padding_15,
-  },
-  fcHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_10,
-    marginBottom: Gap.gap_20,
-  },
-  fcTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.color, 
-  },
-  fcContent: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    lineHeight: 22,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      feedbackCard: {
+        backgroundColor: colors.bg,
+        borderRadius: Border.br_20,
+        borderWidth: 1,
+        borderColor: colors.stroke,
+        padding: Padding.padding_15,
+      },
+      fcHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Gap.gap_10,
+        marginBottom: Gap.gap_20,
+      },
+      fcTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.color, 
+      },
+      fcContent: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        lineHeight: 22,
+      },
+    });

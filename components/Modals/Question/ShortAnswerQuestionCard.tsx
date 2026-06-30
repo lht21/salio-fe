@@ -4,9 +4,10 @@ import { CaretDownIcon, CheckIcon, XIcon } from 'phosphor-react-native';
 import { LinearTransition } from 'react-native-reanimated';
 import { MotiView, AnimatePresence } from 'moti';
 
-import { Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
 import Button from '../../Button';
 import ProgressBar from '../../ProgressBar';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type ShortAnswerQuestionCardProps = {
   progressLabel: string;
@@ -39,6 +40,9 @@ const ShortAnswerQuestionCard = ({
   onSubmit,
   disabled = false,
 }: ShortAnswerQuestionCardProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <MotiView layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
@@ -57,7 +61,7 @@ const ShortAnswerQuestionCard = ({
       <ProgressBar
         progress={progress}
         height={8}
-        color={Color.main}
+        color={colors.main}
         backgroundColor="#71809B"
       />
 
@@ -114,89 +118,89 @@ const ShortAnswerQuestionCard = ({
 
 export default memo(ShortAnswerQuestionCard);
 
-const styles = StyleSheet.create({
-  container: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: '#FFFFFF',
-    padding: 14,
-    gap: Gap.gap_14,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  progressPill: {
-    overflow: 'hidden',
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    backgroundColor: Color.main,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: '#FFFFFF',
-  },
-  iconButton: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  body: {
-    gap: Gap.gap_14,
-  },
-  question: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    lineHeight: 26,
-    color: Color.text,
-  },
-  input: {
-    minHeight: 92,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: Color.brown500,
-    backgroundColor: Color.brown50,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-    lineHeight: 22,
-    color: Color.brown500,
-  },
-  inputCorrect: {
-    borderColor: '#4CAF28',
-    backgroundColor: '#F5FFF1',
-  },
-  inputIncorrect: {
-    borderColor: '#FF4B4B',
-    backgroundColor: '#FFF7F7',
-  },
-  helperWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
-  },
-  helperWrapCorrect: {
-    backgroundColor: '#F2FCEB',
-  },
-  helperWrapIncorrect: {
-    backgroundColor: '#FFF2F2',
-  },
-  helperText: {
-    flex: 1,
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    lineHeight: 18,
-  },
-  helperTextCorrect: {
-    color: '#338E23',
-  },
-  helperTextIncorrect: {
-    color: '#D93030',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        backgroundColor: '#FFFFFF',
+        padding: 14,
+        gap: Gap.gap_14,
+      },
+      topRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      progressPill: {
+        overflow: 'hidden',
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+        backgroundColor: colors.main,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: '#FFFFFF',
+      },
+      iconButton: {
+        width: 30,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      body: {
+        gap: Gap.gap_14,
+      },
+      question: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        lineHeight: 26,
+        color: colors.text,
+      },
+      input: {
+        minHeight: 92,
+        borderRadius: 16,
+        borderWidth: 2,
+        borderColor: colors.brown500,
+        backgroundColor: colors.brown50,
+        paddingHorizontal: 14,
+        paddingVertical: 14,
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        lineHeight: 22,
+        color: colors.brown500,
+      },
+      inputCorrect: {
+        borderColor: '#4CAF28',
+        backgroundColor: '#F5FFF1',
+      },
+      inputIncorrect: {
+        borderColor: '#FF4B4B',
+        backgroundColor: '#FFF7F7',
+      },
+      helperWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: 14,
+      },
+      helperWrapCorrect: {
+        backgroundColor: '#F2FCEB',
+      },
+      helperWrapIncorrect: {
+        backgroundColor: '#FFF2F2',
+      },
+      helperText: {
+        flex: 1,
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+        lineHeight: 18,
+      },
+      helperTextCorrect: {
+        color: '#338E23',
+      },
+      helperTextIncorrect: {
+        color: '#D93030',
+      },
+    });

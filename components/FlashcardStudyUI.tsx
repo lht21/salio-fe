@@ -4,10 +4,11 @@ import { ArrowBendUpLeftIcon, ArrowBendUpRightIcon, ArrowUUpLeftIcon, XIcon } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConfirmModal } from './ModalResult/ConfirmModal';
-import { Color, FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap, Padding } from '../constants/GlobalStyles';
 import IconButton from './IconButton';
 import QuizHeader from './Modals/Question/QuizHeader';
 import SwipableFlashcard, { FlashcardData } from './SwipableFlashcard';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type FlashcardStudyUIProps = {
   cards: FlashcardData[];
@@ -40,6 +41,9 @@ export default function FlashcardStudyUI({
   headerSharedTransitionTag,
   emptyStateText = "Tuyệt vời! Bạn đã thành thạo tất cả từ vựng trong bài học này.",
 }: FlashcardStudyUIProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [showExitModal, setShowExitModal] = useState(false);
 
   const totalCards = cards.length;
@@ -56,7 +60,7 @@ export default function FlashcardStudyUI({
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </SafeAreaView>
     );
   }
@@ -102,7 +106,7 @@ export default function FlashcardStudyUI({
 
       <View style={styles.swipeHints}>
         <TouchableOpacity style={styles.hintColumn} onPress={onSwipedLeft}>
-          <ArrowBendUpLeftIcon size={40} color={Color.cam} weight="bold" />
+          <ArrowBendUpLeftIcon size={40} color={colors.cam} weight="bold" />
           <Text style={styles.hintText}>Học lại</Text>
         </TouchableOpacity>
 
@@ -119,7 +123,7 @@ export default function FlashcardStudyUI({
         )}
 
         <TouchableOpacity style={styles.hintColumn} onPress={onSwipedRight}>
-          <ArrowBendUpRightIcon size={40} color={Color.main} weight="bold" />
+          <ArrowBendUpRightIcon size={40} color={colors.main} weight="bold" />
           <Text style={styles.hintText}>Đã thuộc</Text>
         </TouchableOpacity>
       </View>
@@ -140,14 +144,14 @@ export default function FlashcardStudyUI({
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  counterRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Padding.padding_20, marginBottom: Gap.gap_10 },
-  counterLearn: { color: Color.cam, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
-  counterKnown: { color: (Color as any).main2 || Color.main, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
-  flashcardArea: { flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: Gap.gap_15 },
-  swipeHints: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Padding.padding_30, paddingBottom: Padding.padding_30 },
-  hintColumn: { alignItems: 'center' },
-  hintText: { color: Color.gray, fontFamily: FontFamily.lexendDecaBold, marginTop: Gap.gap_5 },
-  emptyText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.main, textAlign: 'center', paddingHorizontal: Padding.padding_20 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      counterRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Padding.padding_20, marginBottom: Gap.gap_10 },
+      counterLearn: { color: colors.cam, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
+      counterKnown: { color: colors.main2 || colors.main, fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16 },
+      flashcardArea: { flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: Gap.gap_15 },
+      swipeHints: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Padding.padding_30, paddingBottom: Padding.padding_30 },
+      hintColumn: { alignItems: 'center' },
+      hintText: { color: colors.gray, fontFamily: FontFamily.lexendDecaBold, marginTop: Gap.gap_5 },
+      emptyText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.main, textAlign: 'center', paddingHorizontal: Padding.padding_20 },
+    });

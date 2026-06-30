@@ -7,10 +7,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { XIcon } from 'phosphor-react-native';
 
 import Button from '../../../../components/Button';
-import { Border, Color, FontFamily, FontSize } from '../../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize } from '../../../../constants/GlobalStyles';
 import LessonService from '../../../../api/services/lesson.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SpeakingResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const resolvedLessonId = lessonId || '1';
@@ -103,7 +107,7 @@ export default function SpeakingResultScreen() {
   if (loading) {
     return (
       <View style={[styles.gradientScreen, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.cam} />
+        <ActivityIndicator size="large" color={colors.cam} />
       </View>
     );
   }
@@ -175,23 +179,23 @@ export default function SpeakingResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  gradientScreen: { flex: 1 },
-  safeArea: { flex: 1 },
-  content: { flex: 1, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 18 },
-  closeButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  heroImage: { width: 148, height: 148, alignSelf: 'center', marginTop: 12, marginBottom: 10 },
-  title: { fontFamily: FontFamily.lexendDecaBold, fontSize: 28, color: Color.cam, textAlign: 'center', marginBottom: 22 },
-  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, paddingHorizontal: 6 },
-  scoreLabel: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  scoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: '#C62B1F' },
-  metricsWrap: { marginTop: 8, gap: 14 },
-  metricsHeading: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  metricBlock: { gap: 8 },
-  metricLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text },
-  track: { height: 24, borderRadius: 999, backgroundColor: 'rgba(0, 0, 0, 0.14)', overflow: 'hidden', justifyContent: 'center' },
-  fill: { height: '100%', borderRadius: 999, justifyContent: 'center', alignItems: 'flex-end' },
-  trackValue: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#FFFFFF', paddingRight: 10 },
-  footer: { marginTop: 'auto', paddingTop: 16 },
-  primaryButton: { marginVertical: 0, borderRadius: Border.br_30 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      gradientScreen: { flex: 1 },
+      safeArea: { flex: 1 },
+      content: { flex: 1, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 18 },
+      closeButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+      heroImage: { width: 148, height: 148, alignSelf: 'center', marginTop: 12, marginBottom: 10 },
+      title: { fontFamily: FontFamily.lexendDecaBold, fontSize: 28, color: colors.cam, textAlign: 'center', marginBottom: 22 },
+      scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, paddingHorizontal: 6 },
+      scoreLabel: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      scoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: '#C62B1F' },
+      metricsWrap: { marginTop: 8, gap: 14 },
+      metricsHeading: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      metricBlock: { gap: 8 },
+      metricLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
+      track: { height: 24, borderRadius: 999, backgroundColor: 'rgba(0, 0, 0, 0.14)', overflow: 'hidden', justifyContent: 'center' },
+      fill: { height: '100%', borderRadius: 999, justifyContent: 'center', alignItems: 'flex-end' },
+      trackValue: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#FFFFFF', paddingRight: 10 },
+      footer: { marginTop: 'auto', paddingTop: 16 },
+      primaryButton: { marginVertical: 0, borderRadius: Border.br_30 },
+    });

@@ -1,10 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { FireIcon } from 'phosphor-react-native';
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize } from '../../constants/GlobalStyles';
 import { CalendarDay } from '../StreakComponent/types';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export const PlaceholderDot = () => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
     return (
         <View style={styles.dayCell}>
             <View style={styles.placeholderDot} />
@@ -18,6 +22,9 @@ const getTodayStr = () => {
 };
 
 export const DayDot = ({ item }: { item: CalendarDay }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
     const isToday = item.id === getTodayStr();
 
     let circleStyle = styles.circleInactive;
@@ -48,50 +55,50 @@ export const DayDot = ({ item }: { item: CalendarDay }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    dayCell: {
-        width: 44, // Kích thước cố định cho hiển thị dạng thanh trượt
-        height: 44,
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        padding: 2,
-    },
-    dayCellIsToday: {
-        width: 56,
-        height: 56,
-    },
-    placeholderDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: 'rgba(80, 141, 78, 0.18)',
-    },
-    dayCircle: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    circleIsToday: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
-    },
-    dayText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_12,
-    },
-    textIsToday: {
-        fontSize: FontSize.fs_16,
-    },
-    circleInactive: { backgroundColor: '#E2E8F0' },
-    dayTextInactive: { color: '#64748B' },
-    circleCompleted: { backgroundColor: Color.main2 },
-    dayTextWhite: { color: '#FFFFFF' },
-    circleMissed: { backgroundColor: '#EA580C' },
-    circleToday: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#4A9F00' },
-    dayTextToday: { color: '#4A9F00' },
-    fireWrap: { position: 'absolute', bottom: -1, right: 2, backgroundColor: Color.bg, borderRadius: 9, padding: 1 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+        dayCell: {
+            width: 44, // Kích thước cố định cho hiển thị dạng thanh trượt
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            padding: 2,
+        },
+        dayCellIsToday: {
+            width: 56,
+            height: 56,
+        },
+        placeholderDot: {
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: 'rgba(80, 141, 78, 0.18)',
+        },
+        dayCircle: {
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        circleIsToday: {
+            width: 42,
+            height: 42,
+            borderRadius: 21,
+        },
+        dayText: {
+            fontFamily: FontFamily.lexendDecaSemiBold,
+            fontSize: FontSize.fs_12,
+        },
+        textIsToday: {
+            fontSize: FontSize.fs_16,
+        },
+        circleInactive: { backgroundColor: '#E2E8F0' },
+        dayTextInactive: { color: '#64748B' },
+        circleCompleted: { backgroundColor: colors.main2 },
+        dayTextWhite: { color: '#FFFFFF' },
+        circleMissed: { backgroundColor: '#EA580C' },
+        circleToday: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#4A9F00' },
+        dayTextToday: { color: '#4A9F00' },
+        fireWrap: { position: 'absolute', bottom: -1, right: 2, backgroundColor: colors.bg, borderRadius: 9, padding: 1 },
+    });

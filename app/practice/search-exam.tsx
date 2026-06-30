@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -10,19 +10,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import SearchBar from '../../components/SearchBar';
 import CategoryChip from '../../components/CategoryChip';
 import IconButton from '../../components/IconButton';
+import PracticeService from '../../api/services/practice.service';
+import ExamCard from '../../components/ExamComponent/ExamCard';
 
-// Mock Data
-const MOCK_EXAMS = [
-  { id: '1', title: 'Đề thi TOPIK II Kỳ 83', type: 'TOPIK II', questions: 100, time: 180 },
-  { id: '2', title: 'Đề thi TOPIK II Kỳ 82', type: 'TOPIK II', questions: 100, time: 180 },
-  { id: '3', title: 'Đề thi TOPIK I Kỳ 83', type: 'TOPIK I', questions: 70, time: 100 },
-  { id: '4', title: 'Đề thi TOPIK I Kỳ 81', type: 'TOPIK I', questions: 70, time: 100 },
-  { id: '5', title: 'EPS-TOPIK Nông nghiệp 2024', type: 'EPS', questions: 40, time: 50 },
-  { id: '6', title: 'EPS-TOPIK Sản xuất 2024', type: 'EPS', questions: 40, time: 50 },
-  { id: '7', title: 'Luyện nghe TOPIK II', type: 'TOPIK II', questions: 50, time: 60 },
-  { id: '8', title: 'Luyện đọc TOPIK II', type: 'TOPIK II', questions: 50, time: 70 },
-  { id: '9', title: 'Đề thi EPS-TOPIK Xây dựng 2023', type: 'EPS', questions: 40, time: 50 },
-];
+// Trending Tags (can be dynamic later)
 
 const TRENDING_TAGS = ['TOPIK II', 'EPS', 'Kỳ 83', 'Nông nghiệp', 'TOPIK I', 'Nghe'];
 
@@ -34,15 +25,29 @@ export default function SearchExamScreen() {
 
   const [searchText, setSearchText] = useState('');
   const [recentSearches, setRecentSearches] = useState<string[]>(['TOPIK II', 'Đề thi 2024']);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  // Filter logic
-  const searchResults = useMemo(() => {
-    if (!searchText.trim()) return [];
-    const query = searchText.toLowerCase();
-    return MOCK_EXAMS.filter(exam => 
-      exam.title.toLowerCase().includes(query) || 
-      exam.type.toLowerCase().includes(query)
-    );
+  // Filter logic from Backend
+  useEffect(() => {
+    if (!searchText.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const response: any = await PracticeService.searchSets(searchText.trim());
+        setSearchResults(response?.data?.data || response?.data || response || []);
+      } catch (error) {
+        console.error('Error searching exams:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
   }, [searchText]);
 
   const handleSearch = (text: string) => {
@@ -57,38 +62,33 @@ export default function SearchExamScreen() {
     setRecentSearches(prev => prev.filter(item => item !== itemToRemove));
   };
 
-  const handleExamPress = (examType: string) => {
+  const handleExamPress = (examId: string, examType: string) => {
     // Điều hướng tạm thời
     Keyboard.dismiss();
-    const typeParam = examType === 'EPS' ? 'eps' : examType === 'TOPIK I' ? 'topik1' : 'topik2';
-    router.push(`/practice/full?examType=${typeParam}`);
+    router.push(`/practice/full/${examId}/intro`);
   };
 
-  const renderExamItem = ({ item }: { item: typeof MOCK_EXAMS[0] }) => (
-    <TouchableOpacity 
-      style={styles.examCard} 
-      activeOpacity={0.7}
-      onPress={() => handleExamPress(item.type)}
-    >
-      <View style={styles.examHeader}>
-        <View style={styles.examBadge}>
-          <Text style={styles.examBadgeText}>{item.type}</Text>
-        </View>
+  const renderExamItem = ({ item }: { item: any }) => {
+    const examData = {
+      id: item.id,
+      title: item.title,
+      edition: 1,
+      year: new Date(item.createdAt || Date.now()).getFullYear(),
+      isUnlocked: !item.isPremium,
+      isFeatured: false,
+      questionCount: item.questions,
+      duration: item.time,
+    };
+
+    return (
+      <View style={{ marginBottom: Gap.gap_15 }}>
+        <ExamCard 
+          exam={examData} 
+          onPress={() => handleExamPress(item.id, item.type)} 
+        />
       </View>
-      <Text style={styles.examTitle}>{item.title}</Text>
-      
-      <View style={styles.examMeta}>
-        <View style={styles.metaItem}>
-          <ListChecksIcon size={14} color={colors.gray} weight="bold" />
-          <Text style={styles.metaText}>{item.questions} câu</Text>
-        </View>
-        <View style={styles.metaItem}>
-          <ClockIcon size={14} color={colors.gray} weight="bold" />
-          <Text style={styles.metaText}>{item.time} phút</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>

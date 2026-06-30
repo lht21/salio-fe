@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SealQuestionIcon, XIcon } from 'phosphor-react-native';
-import { FontFamily, FontSize, Color } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize } from '../../constants/GlobalStyles';
 import IconButton from '../IconButton';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type PracticeHeaderProps = {
   lessonLabel?: string;
@@ -11,6 +12,9 @@ type PracticeHeaderProps = {
 };
 
 export default function PracticeHeader({ lessonLabel, instruction, onClose }: PracticeHeaderProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
@@ -29,34 +33,34 @@ export default function PracticeHeader({ lessonLabel, instruction, onClose }: Pr
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 12,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    gap: 12,
-    marginBottom: 12,
-  },
-  headerTextWrap: {
-    flex: 1,
-  },
-  lessonLabel: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: '#4B8E37',
-    marginBottom: 2,
-  },
-  instruction: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-    marginBottom: 12,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        marginBottom: 12,
+      },
+      headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-start',
+        gap: 12,
+        marginBottom: 12,
+      },
+      headerTextWrap: {
+        flex: 1,
+      },
+      lessonLabel: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: '#4B8E37',
+        marginBottom: 2,
+      },
+      instruction: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+        marginBottom: 12,
+      },
+      headerActions: {
+        flexDirection: 'row',
+        gap: 8,
+      },
+    });

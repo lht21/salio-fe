@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import ResultSummaryScreen from '@/components/LessonReview/ResultSummaryScreen';
-import { Color } from '@/constants/GlobalStyles';
 import GrammarService from '@/api/services/grammar.service';
 import LessonService from '@/api/services/lesson.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId, sessionId } = useLocalSearchParams<{ lessonId: string, sessionId: string }>();
   
@@ -53,7 +56,7 @@ export default function GrammarResultScreen() {
   if (loading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }
@@ -64,7 +67,7 @@ export default function GrammarResultScreen() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: Color.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ResultSummaryScreen
         title={isPassed ? "Hoàn thành xuất sắc!" : "Chưa hoàn thành!"}
         pointLabel={`${Math.round((quizScore + completionRate) / 2)} điểm`}
@@ -89,6 +92,6 @@ export default function GrammarResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Color.bg },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+    });

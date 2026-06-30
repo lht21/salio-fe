@@ -14,10 +14,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeftIcon, InfoIcon, CheckCircleIcon, WarningCircleIcon } from 'phosphor-react-native';
 
 import Button from '../../../../components/Button';
-import { Border, Color, FontFamily, FontSize } from '../../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize } from '../../../../constants/GlobalStyles';
 import LessonService from '../../../../api/services/lesson.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SpeakingExplanationScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   // Lấy lessonId và điểm trung bình từ màn hình Result truyền sang
   const { lessonId, avgScore } = useLocalSearchParams<{ lessonId: string, avgScore: string }>();
@@ -79,7 +83,7 @@ export default function SpeakingExplanationScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Color.cam} />
+        <ActivityIndicator size="large" color={colors.cam} />
         <Text style={styles.loadingText}>Đang phân tích kết quả...</Text>
       </View>
     );
@@ -92,7 +96,7 @@ export default function SpeakingExplanationScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Pressable style={styles.backButton} onPress={() => router.back()}>
-              <ArrowLeftIcon size={22} color={Color.text} weight="bold" />
+              <ArrowLeftIcon size={22} color={colors.text} weight="bold" />
             </Pressable>
             <View>
               <Text style={styles.heading}>Phân tích bài tập</Text>
@@ -107,7 +111,7 @@ export default function SpeakingExplanationScreen() {
               return (
                 <View key={index} style={styles.itemWrapper}>
                   <View style={styles.itemHeader}>
-                    <CheckCircleIcon size={20} color={Color.cam} weight="fill" />
+                    <CheckCircleIcon size={20} color={colors.cam} weight="fill" />
                     <Text style={styles.itemTitle}>{item.title}</Text>
                   </View>
 
@@ -157,7 +161,7 @@ export default function SpeakingExplanationScreen() {
               onPress={handleBottomAction}
               style={[
                 styles.primaryButton, 
-                { backgroundColor: isPassed ? Color.main : '#555555' }
+                { backgroundColor: isPassed ? colors.main : '#555555' }
               ]}
             />
           </View>
@@ -168,75 +172,80 @@ export default function SpeakingExplanationScreen() {
 }
 
 // Component hiển thị các ô điểm nhỏ
-const ScoreBadge = ({ label, score }: { label: string, score: number }) => (
+const ScoreBadge = ({ label, score }: { label: string, score: number }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
+return 
   <View style={styles.badge}>
     <Text style={styles.badgeLabel}>{label}</Text>
     <Text style={[styles.badgeScore, { color: score >= 80 ? '#4CAF50' : score >= 50 ? '#FF9800' : '#F44336' }]}>
       {score || 0}%
     </Text>
   </View>
-);
+;
+};
 
-const styles = StyleSheet.create({
-  gradientScreen: { flex: 1 },
-  safeArea: { flex: 1 },
-  content: { flex: 1, paddingHorizontal: 18, paddingTop: 12 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' },
-  loadingText: { marginTop: 12, fontFamily: FontFamily.lexendDecaMedium, color: '#666' },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20 },
-  backButton: { 
-    width: 40, 
-    height: 40, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    borderRadius: 20, 
-    backgroundColor: '#FFFFFF',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  heading: { fontFamily: FontFamily.lexendDecaBold, fontSize: 22, color: Color.text },
-  subheading: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#666' },
-  scrollContent: { paddingBottom: 30 },
-  itemWrapper: { marginBottom: 24 },
-  itemHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  itemTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.text },
-  feedbackCard: { 
-    flexDirection: 'row', 
-    backgroundColor: '#FFF9F0', 
-    padding: 14, 
-    borderRadius: 12, 
-    gap: 10, 
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#FFE0B2'
-  },
-  feedbackText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#855E28', lineHeight: 18 },
-  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 },
-  badge: { alignItems: 'center', backgroundColor: '#F8F8F8', paddingVertical: 10, borderRadius: 10, width: '23%', borderWidth: 1, borderColor: '#EEE' },
-  badgeLabel: { fontSize: 10, fontFamily: FontFamily.lexendDecaRegular, color: '#888', marginBottom: 4 },
-  badgeScore: { fontSize: 14, fontFamily: FontFamily.lexendDecaBold },
-  suggestionBox: { padding: 14, backgroundColor: '#F0F7FF', borderRadius: 12, borderLeftWidth: 4, borderLeftColor: '#1976D2' },
-  suggestionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 13, color: '#1976D2', marginBottom: 4 },
-  suggestionContent: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 13, color: '#444', lineHeight: 18 },
-  divider: { height: 1, backgroundColor: '#F0F0F0', marginTop: 24 },
-  footer: { 
-    paddingVertical: 16, 
-    borderTopWidth: 1, 
-    borderTopColor: '#EEE',
-    backgroundColor: '#FFF' 
-  },
-  alertBox: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#FFF1F0', 
-    padding: 10, 
-    borderRadius: 8, 
-    gap: 8, 
-    marginBottom: 12 
-  },
-  alertText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: '#C62B1F' },
-  primaryButton: { borderRadius: Border.br_30, height: 52 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      gradientScreen: { flex: 1 },
+      safeArea: { flex: 1 },
+      content: { flex: 1, paddingHorizontal: 18, paddingTop: 12 },
+      loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' },
+      loadingText: { marginTop: 12, fontFamily: FontFamily.lexendDecaMedium, color: '#666' },
+      header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20 },
+      backButton: { 
+        width: 40, 
+        height: 40, 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        borderRadius: 20, 
+        backgroundColor: '#FFFFFF',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      heading: { fontFamily: FontFamily.lexendDecaBold, fontSize: 22, color: colors.text },
+      subheading: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#666' },
+      scrollContent: { paddingBottom: 30 },
+      itemWrapper: { marginBottom: 24 },
+      itemHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+      itemTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: colors.text },
+      feedbackCard: { 
+        flexDirection: 'row', 
+        backgroundColor: '#FFF9F0', 
+        padding: 14, 
+        borderRadius: 12, 
+        gap: 10, 
+        marginBottom: 14,
+        borderWidth: 1,
+        borderColor: '#FFE0B2'
+      },
+      feedbackText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#855E28', lineHeight: 18 },
+      scoreRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 },
+      badge: { alignItems: 'center', backgroundColor: '#F8F8F8', paddingVertical: 10, borderRadius: 10, width: '23%', borderWidth: 1, borderColor: '#EEE' },
+      badgeLabel: { fontSize: 10, fontFamily: FontFamily.lexendDecaRegular, color: '#888', marginBottom: 4 },
+      badgeScore: { fontSize: 14, fontFamily: FontFamily.lexendDecaBold },
+      suggestionBox: { padding: 14, backgroundColor: '#F0F7FF', borderRadius: 12, borderLeftWidth: 4, borderLeftColor: '#1976D2' },
+      suggestionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 13, color: '#1976D2', marginBottom: 4 },
+      suggestionContent: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 13, color: '#444', lineHeight: 18 },
+      divider: { height: 1, backgroundColor: '#F0F0F0', marginTop: 24 },
+      footer: { 
+        paddingVertical: 16, 
+        borderTopWidth: 1, 
+        borderTopColor: '#EEE',
+        backgroundColor: '#FFF' 
+      },
+      alertBox: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        backgroundColor: '#FFF1F0', 
+        padding: 10, 
+        borderRadius: 8, 
+        gap: 8, 
+        marginBottom: 12 
+      },
+      alertText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: '#C62B1F' },
+      primaryButton: { borderRadius: Border.br_30, height: 52 },
+    });

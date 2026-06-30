@@ -3,9 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { CaretLeftIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Color, FontFamily, FontSize, Padding } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding } from '../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GroupDetailScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const { groupId } = useLocalSearchParams();
   const router = useRouter();
 
@@ -13,7 +17,7 @@ export default function GroupDetailScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <CaretLeftIcon size={24} color={Color.text} weight="bold" />
+          <CaretLeftIcon size={24} color={colors.text} weight="bold" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Chi tiết Gia tộc</Text>
         <View style={{ width: 24 }} />
@@ -26,14 +30,14 @@ export default function GroupDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Color.bg },
-  header: { 
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
-    paddingHorizontal: Padding.padding_20, paddingVertical: 15,
-    borderBottomWidth: 1, borderBottomColor: Color.stroke
-  },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  text: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: Color.gray },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: { flex: 1, backgroundColor: colors.bg },
+      header: { 
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
+        paddingHorizontal: Padding.padding_20, paddingVertical: 15,
+        borderBottomWidth: 1, borderBottomColor: colors.stroke
+      },
+      headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+      text: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.gray },
+    });

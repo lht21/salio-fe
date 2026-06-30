@@ -5,8 +5,9 @@ import { LinearTransition } from 'react-native-reanimated';
 import { MotiView, AnimatePresence } from 'moti';
 
 import MultipleChoiceOption, { MultipleChoiceOptionState } from './MultipleChoiceOption';
-import { FontFamily, FontSize, Gap, Color } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
 import ProgressBar from '../../ProgressBar';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type ChoiceOption = {
   id: string;
@@ -37,6 +38,9 @@ const MultipleChoiceQuestionCard = ({
   onSelectOption,
   footer,
 }: MultipleChoiceQuestionCardProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <MotiView layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
@@ -63,7 +67,7 @@ const MultipleChoiceQuestionCard = ({
       <ProgressBar
         progress={progress}
         height={8}
-        color={Color.main}
+        color={colors.main}
         backgroundColor="#71809B"
       />
 
@@ -98,49 +102,49 @@ const MultipleChoiceQuestionCard = ({
 
 export default memo(MultipleChoiceQuestionCard);
 
-const styles = StyleSheet.create({
-  container: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: '#FFFFFF',
-    padding: 14,
-    gap: Gap.gap_14,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  progressPill: {
-    overflow: 'hidden',
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    backgroundColor: Color.main,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: '#FFFFFF',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  iconButton: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  body: {
-    gap: Gap.gap_14,
-  },
-  question: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    lineHeight: 26,
-    color: '#2D3345',
-  },
-  optionsWrap: {
-    gap: 12,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        backgroundColor: '#FFFFFF',
+        padding: 14,
+        gap: Gap.gap_14,
+      },
+      topRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      progressPill: {
+        overflow: 'hidden',
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+        backgroundColor: colors.main,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: '#FFFFFF',
+      },
+      actions: {
+        flexDirection: 'row',
+        gap: 8,
+      },
+      iconButton: {
+        width: 30,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      body: {
+        gap: Gap.gap_14,
+      },
+      question: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        lineHeight: 26,
+        color: '#2D3345',
+      },
+      optionsWrap: {
+        gap: 12,
+      },
+    });

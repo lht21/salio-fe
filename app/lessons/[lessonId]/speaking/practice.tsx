@@ -22,9 +22,10 @@ import IntroPopup from '../../../../components/Modals/Popup/IntroPopup';
 import { QuizHeader } from '../../../../components/Modals/Question';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import Button from '../../../../components/Button';
-import { Border, Color, FontFamily, FontSize, Gap } from '../../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap } from '../../../../constants/GlobalStyles';
 import LessonService from '../../../../api/services/lesson.service';
 import { SpeakingItem as BESpeakingItem } from '../../../../api/types/lesson.types';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // --- CONFIG CHUYÊN SÂU ---
 type VoiceSlot = 'woman1' | 'woman2' | 'man1' | 'man2';
@@ -61,6 +62,9 @@ const avatarBySpeaker: Record<string, any> = {
 const waveformBars = [18, 28, 40, 24, 34, 48, 30, 22, 38, 26, 20];
 
 export default function SpeakingPracticeScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const resolvedLessonId = lessonId || '1';
@@ -289,7 +293,7 @@ export default function SpeakingPracticeScreen() {
     }
   };
 
-  if (isLoading) return <ActivityIndicator style={{ flex: 1 }} size="large" color={Color.cam} />;
+  if (isLoading) return <ActivityIndicator style={{ flex: 1 }} size="large" color={colors.cam} />;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -391,7 +395,7 @@ export default function SpeakingPracticeScreen() {
 
         <View style={styles.bottomAction}>
           <Pressable style={[styles.micButtonOuter, recordingState === 'recording' && styles.micButtonOuterActive]} onPress={handleMicPress}>
-            <View style={styles.micButtonInner}><MicrophoneIcon size={30} color={Color.color} weight="fill" /></View>
+            <View style={styles.micButtonInner}><MicrophoneIcon size={30} color={colors.color} weight="fill" /></View>
           </Pressable>
         </View>
       </View>
@@ -422,25 +426,38 @@ export default function SpeakingPracticeScreen() {
 }
 
 // --- Sub-components (Avatar mapping) ---
-const SectionTitle = ({ title }: { title: string }) => (
+const SectionTitle = ({ title }: { title: string }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
+return 
   <View style={styles.sectionTitleRow}>
-    <BookOpenIcon size={18} color={Color.cam} weight="fill" />
+    <BookOpenIcon size={18} color={colors.cam} weight="fill" />
     <Text style={styles.sectionTitle}>{title}</Text>
   </View>
-);
+;
+};
 
-const LineRow = ({ line, isPlaying, onPressSpeaker }: any) => (
+const LineRow = ({ line, isPlaying, onPressSpeaker }: any) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
+return 
   <View style={styles.lineRow}>
     <Image source={avatarBySpeaker[line.speaker] || avatarBySpeaker.man1} style={styles.avatar} />
     <View style={styles.lineContent}>
       <Text style={styles.lineKoreanSmall}>{line.korean}</Text>
       <Text style={styles.lineTranslationSmall}>{line.vietnamese}</Text>
     </View>
-    <Pressable onPress={onPressSpeaker}><SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : Color.cam} weight="fill" /></Pressable>
+    <Pressable onPress={onPressSpeaker}><SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : colors.cam} weight="fill" /></Pressable>
   </View>
-);
+;
+};
 
 const DialogueBubble = ({ line, isPlaying, onPressSpeaker }: any) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const speakerRole = line.speaker;
   const isWoman = speakerRole.includes('woman');
   return (
@@ -450,14 +467,18 @@ const DialogueBubble = ({ line, isPlaying, onPressSpeaker }: any) => {
         <Text style={styles.lineKorean}>{line.korean}</Text>
         <Text style={styles.lineTranslation}>{line.vietnamese}</Text>
         <Pressable onPress={onPressSpeaker} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
-            <SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : Color.cam} weight="fill" />
+            <SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : colors.cam} weight="fill" />
         </Pressable>
       </View>
     </View>
   );
 };
 
-const RecordPad = ({ recordingState, waveTick, onPress, instruction }: any) => (
+const RecordPad = ({ recordingState, waveTick, onPress, instruction }: any) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
+return 
   <Pressable style={[styles.answerPad, recordingState === 'recording' && styles.answerPadRecording]} onPress={onPress}>
     <View style={styles.waveformRow}>
       {waveformBars.map((b, i) => (
@@ -467,45 +488,46 @@ const RecordPad = ({ recordingState, waveTick, onPress, instruction }: any) => (
     <Text style={styles.answerPadText}>{recordingState === 'recording' ? 'Đang ghi âm... Nhấn để dừng' : 'Nhấn vào Micro để bắt đầu ghi âm'}</Text>
     <Text style={styles.hintText}>{instruction}</Text>
   </Pressable>
-);
+;
+};
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  sheet: { flex: 1, backgroundColor: Color.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden' },
-  sheetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-  counter: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.text },
-  progressTrack: { height: 4, backgroundColor: '#E5E5E5' },
-  progressFill: { height: '100%', backgroundColor: Color.main },
-  scrollView: { flex: 1 },
-  scrollContent: { padding: 16, paddingBottom: 40 },
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, margin: 4 },
-  sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: Color.text },
-  instructionText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#666', lineHeight: 20 },
-  card: { backgroundColor: '#FFF', borderRadius: 18, padding: 14, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, gap: 12 },
-  lineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 28, height: 28, borderRadius: 14 },
-  avatarLarge: { width: 36, height: 36, borderRadius: 18 },
-  lineContent: { flex: 1 },
-  lineKorean: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: Color.text, lineHeight: 24 },
-  lineTranslation: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#888', fontStyle: 'italic' },
-  lineKoreanSmall: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.text },
-  lineTranslationSmall: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 12, color: '#AAA' },
-  sampleAnswerBox: { paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', marginBottom: 5 },
-  answerPad: { borderWidth: 1, borderStyle: 'dashed', borderColor: '#CCC', borderRadius: 15, padding: 20, alignItems: 'center', backgroundColor: '#FFFDF9' },
-  answerPadRecording: { borderColor: Color.main, backgroundColor: '#F0FFF4' },
-  answerPadText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#666', marginTop: 10 },
-  hintText: { fontSize: 11, color: '#AAA', textAlign: 'center', marginTop: 4 },
-  waveformRow: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 30 },
-  waveformBar: { width: 3, backgroundColor: Color.main, borderRadius: 2 },
-  evaluationArea: { gap: 10, marginTop: 10 },
-  dialogueWrap: { gap: 16 },
-  dialogueRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  dialogueRowReverse: { flexDirection: 'row-reverse' },
-  dialogueBubble: { maxWidth: '80%', padding: 14, borderRadius: 18, backgroundColor: '#FFF', elevation: 2 },
-  dialogueBubbleLeft: { borderTopLeftRadius: 2 },
-  dialogueBubbleRight: { borderTopRightRadius: 2, backgroundColor: '#FFF9F2' },
-  bottomAction: { paddingBottom: 25, alignItems: 'center' },
-  micButtonOuter: { width: 72, height: 72, borderRadius: 36, backgroundColor: Color.main75, alignItems: 'center', justifyContent: 'center' },
-  micButtonOuterActive: { backgroundColor: Color.main50 },
-  micButtonInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: Color.main, alignItems: 'center', justifyContent: 'center' },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      sheet: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden' },
+      sheetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
+      counter: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: colors.text },
+      progressTrack: { height: 4, backgroundColor: '#E5E5E5' },
+      progressFill: { height: '100%', backgroundColor: colors.main },
+      scrollView: { flex: 1 },
+      scrollContent: { padding: 16, paddingBottom: 40 },
+      sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, margin: 4 },
+      sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: colors.text },
+      instructionText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#666', lineHeight: 20 },
+      card: { backgroundColor: '#FFF', borderRadius: 18, padding: 14, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, gap: 12 },
+      lineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+      avatar: { width: 28, height: 28, borderRadius: 14 },
+      avatarLarge: { width: 36, height: 36, borderRadius: 18 },
+      lineContent: { flex: 1 },
+      lineKorean: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: colors.text, lineHeight: 24 },
+      lineTranslation: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#888', fontStyle: 'italic' },
+      lineKoreanSmall: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: colors.text },
+      lineTranslationSmall: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 12, color: '#AAA' },
+      sampleAnswerBox: { paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', marginBottom: 5 },
+      answerPad: { borderWidth: 1, borderStyle: 'dashed', borderColor: '#CCC', borderRadius: 15, padding: 20, alignItems: 'center', backgroundColor: '#FFFDF9' },
+      answerPadRecording: { borderColor: colors.main, backgroundColor: '#F0FFF4' },
+      answerPadText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#666', marginTop: 10 },
+      hintText: { fontSize: 11, color: '#AAA', textAlign: 'center', marginTop: 4 },
+      waveformRow: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 30 },
+      waveformBar: { width: 3, backgroundColor: colors.main, borderRadius: 2 },
+      evaluationArea: { gap: 10, marginTop: 10 },
+      dialogueWrap: { gap: 16 },
+      dialogueRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+      dialogueRowReverse: { flexDirection: 'row-reverse' },
+      dialogueBubble: { maxWidth: '80%', padding: 14, borderRadius: 18, backgroundColor: '#FFF', elevation: 2 },
+      dialogueBubbleLeft: { borderTopLeftRadius: 2 },
+      dialogueBubbleRight: { borderTopRightRadius: 2, backgroundColor: '#FFF9F2' },
+      bottomAction: { paddingBottom: 25, alignItems: 'center' },
+      micButtonOuter: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.main75, alignItems: 'center', justifyContent: 'center' },
+      micButtonOuterActive: { backgroundColor: colors.main50 },
+      micButtonInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.main, alignItems: 'center', justifyContent: 'center' },
+    });

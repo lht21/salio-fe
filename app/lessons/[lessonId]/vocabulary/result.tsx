@@ -6,7 +6,7 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import { Audio } from 'expo-av';
 import { StatusBar } from 'expo-status-bar';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
 import VocabularyService from '../../../../api/services/vocabulary.service';
 import LessonService from '../../../../api/services/lesson.service';
 import { LessonProgressResponse } from '../../../../api/types/lesson.types';
@@ -17,8 +17,12 @@ import Button from '../../../../components/Button';
 import SaveToFolderModal from '../../../../components/ModalOption/SaveToFolderModal';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import VocabularyCard from '../../../../components/VocabularyCard';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function VocabularyResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId, correctCount, totalCount } = useLocalSearchParams();
 
@@ -115,7 +119,7 @@ export default function VocabularyResultScreen() {
     setShowSaveModal(true);
   };
 
-  if (loading) return <SafeAreaView style={styles.loadingContainer}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.loadingContainer}><ActivityIndicator size="large" color={colors.main} /></SafeAreaView>;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -126,12 +130,12 @@ export default function VocabularyResultScreen() {
       <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.celebrationSection}>
           <Image source={isPassed ? require('../../../../assets/images/horani/result-levelup.png') : require('../../../../assets/images/horani/failure.png')} style={styles.illustration} resizeMode="contain" />
-          <Text style={[styles.titleText, !isPassed && { color: Color.red }]}>{isPassed ? 'Hoàn thành!' : 'Cố gắng thêm nhé!'}</Text>
+          <Text style={[styles.titleText, !isPassed && { color: colors.red }]}>{isPassed ? 'Hoàn thành!' : 'Cố gắng thêm nhé!'}</Text>
         </View>
 
         <View style={[styles.scoreBanner, !isPassed && {backgroundColor: '#FFE5E5'}]}>
-          <Text style={[styles.scoreText, !isPassed && {color: Color.red}]}>Đúng {correctCount}/{totalCount}</Text>
-          <Text style={[styles.scoreText, !isPassed && {color: Color.red}]}>{score} điểm {isPassed ? '✓' : '✗'}</Text>
+          <Text style={[styles.scoreText, !isPassed && {color: colors.red}]}>Đúng {correctCount}/{totalCount}</Text>
+          <Text style={[styles.scoreText, !isPassed && {color: colors.red}]}>{score} điểm {isPassed ? '✓' : '✗'}</Text>
         </View>
 
         <View style={styles.contentSection}>
@@ -174,17 +178,17 @@ export default function VocabularyResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
-  scrollArea: { flex: 1 },
-  scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
-  celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
-  illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
-  titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.xanh },
-  scoreBanner: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: Color.greenLight, padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20 },
-  scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: Color.main2 },
-  contentSection: { width: '100%' },
-  footer: { paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20, backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+      header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
+      scrollArea: { flex: 1 },
+      scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
+      celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
+      illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
+      titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.xanh },
+      scoreBanner: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.greenLight, padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20 },
+      scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.main2 },
+      contentSection: { width: '100%' },
+      footer: { paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke }
+    });

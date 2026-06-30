@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Ani
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Color, FontFamily, FontSize, Padding, Gap } from '../../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../../../../constants/GlobalStyles';
 import Button from '../../../../components/Button';
 import QuizHeader from '../../../../components/Modals/Question/QuizHeader';
 import FeedbackSheet from '../../../../components/Modals/Popup/FeedbackPopup';
@@ -11,8 +11,12 @@ import WhiteboardArea from '../../../../components/QuizComponent/WhiteboardArea'
 import WordMatchArea from '../../../../components/QuizComponent/WordMatchArea';
 import GrammarService from '@/api/services/grammar.service';
 import LessonService from '@/api/services/lesson.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarExerciseScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const { lessonId } = useLocalSearchParams();
   
   const [questions, setQuestions] = useState<any[]>([]);
@@ -173,7 +177,7 @@ const handleContinue = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
         <Text style={{ marginTop: 10, fontFamily: FontFamily.lexendDecaMedium }}>Đang chuẩn bị bài tập...</Text>
       </SafeAreaView>
     );
@@ -258,35 +262,35 @@ const handleContinue = () => {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: Color.bg 
-  },
-  keyboardAvoid: { 
-    flex: 1 
-  },
-  scrollContent: { 
-    flexGrow: 1, 
-    alignItems: 'center', 
-    paddingHorizontal: Padding.padding_20, 
-    paddingTop: Padding.padding_20,
-    justifyContent: 'center', 
-    paddingBottom: 30
-  },
-  instructionTitle: { 
-    fontFamily: FontFamily.lexendDecaBold, 
-    fontSize: 18, 
-    color: Color.text, 
-    textAlign: 'center', 
-    marginTop: -100,
-  },
-  footer: { 
-    paddingHorizontal: Padding.padding_20, 
-    paddingBottom: Platform.OS === 'ios' ? 10 : 20, 
-    paddingTop: 10, 
-    backgroundColor: Color.bg,
-    borderTopWidth: 1,
-    borderTopColor: Color.stroke,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: { 
+        flex: 1, 
+        backgroundColor: colors.bg 
+      },
+      keyboardAvoid: { 
+        flex: 1 
+      },
+      scrollContent: { 
+        flexGrow: 1, 
+        alignItems: 'center', 
+        paddingHorizontal: Padding.padding_20, 
+        paddingTop: Padding.padding_20,
+        justifyContent: 'center', 
+        paddingBottom: 30
+      },
+      instructionTitle: { 
+        fontFamily: FontFamily.lexendDecaBold, 
+        fontSize: 18, 
+        color: colors.text, 
+        textAlign: 'center', 
+        marginTop: -100,
+      },
+      footer: { 
+        paddingHorizontal: Padding.padding_20, 
+        paddingBottom: Platform.OS === 'ios' ? 10 : 20, 
+        paddingTop: 10, 
+        backgroundColor: colors.bg,
+        borderTopWidth: 1,
+        borderTopColor: colors.stroke,
+      },
+    });

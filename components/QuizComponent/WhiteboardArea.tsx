@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput, Image, Dimensions } from 'react-native';
-import { Color, FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap } from '../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -22,6 +23,9 @@ export interface WhiteboardAreaProps {
 }
 
 const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   
   //Tính toán số lượng dấu gạch dựa trên đáp án đúng
   const answerLength = question.correctAnswerStr?.length || 3;
@@ -47,12 +51,12 @@ const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) =>
           <TextInput
             style={[
               styles.input,
-              { borderBottomColor: answer ? Color.color : Color.stroke }
+              { borderBottomColor: answer ? colors.color : colors.stroke }
             ]}
             defaultValue={answer}
             onChangeText={setAnswer}
             placeholder={resolvedPlaceholder}
-            placeholderTextColor={Color.stroke}
+            placeholderTextColor={colors.stroke}
             autoCapitalize="none"
             autoCorrect={false}
             // Đã gỡ bỏ maxLength để tránh xung đột với bộ gõ tiếng Hàn (IME)
@@ -69,59 +73,59 @@ const WhiteboardArea = ({ question, answer, setAnswer }: WhiteboardAreaProps) =>
   );
 };
 
-const styles = StyleSheet.create({
-  whiteboardContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Gap.gap_20,
-    position: 'relative',
-  },
-  illustration: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH,
-  },
-  whiteboardOverlay: {
-    position: 'absolute',
-    top: '22%',
-    left: '25%',
-    right: '5%',
-    minHeight: '45%',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    gap: Gap.gap_10,
-    paddingHorizontal: 12,
-  },
-  sentenceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-    width: '100%',
-  },
-  sentenceText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 20,
-    color: Color.text,
-    flexShrink: 1,
-  },
-  input: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 20, 
-    color: Color.color, 
-    textAlign: 'center',
-    paddingTop: 0,
-    paddingBottom: 2,
-    marginHorizontal: 4,
-  },
-  vietnameseMeaning: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    marginTop: Gap.gap_15, 
-    textAlign: 'center',
-    width: '100%',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      whiteboardContainer: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: Gap.gap_20,
+        position: 'relative',
+      },
+      illustration: {
+        width: SCREEN_WIDTH,
+        height: SCREEN_WIDTH,
+      },
+      whiteboardOverlay: {
+        position: 'absolute',
+        top: '22%',
+        left: '25%',
+        right: '5%',
+        minHeight: '45%',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        gap: Gap.gap_10,
+        paddingHorizontal: 12,
+      },
+      sentenceRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        justifyContent: 'flex-start',
+        flexWrap: 'wrap',
+        width: '100%',
+      },
+      sentenceText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 20,
+        color: colors.text,
+        flexShrink: 1,
+      },
+      input: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 20, 
+        color: colors.color, 
+        textAlign: 'center',
+        paddingTop: 0,
+        paddingBottom: 2,
+        marginHorizontal: 4,
+      },
+      vietnameseMeaning: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+        marginTop: Gap.gap_15, 
+        textAlign: 'center',
+        width: '100%',
+      },
+    });
 
 export default WhiteboardArea;

@@ -460,6 +460,12 @@ export interface CreateLessonRequest {
   isPremium?: boolean;
   estimatedDuration?: number;
   isPublished?: boolean;
+  rewardBadge?: string;
+  badgeInfo?: {
+    name: string;
+    description?: string;
+    imageUrl: string;
+  };
 }
 
 export interface UpdateLessonRequest extends Partial<CreateLessonRequest> {}

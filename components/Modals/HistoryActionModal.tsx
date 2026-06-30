@@ -6,10 +6,11 @@ import {
   TrashIcon
 } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import IconButton from '../IconButton';
 import { XIcon } from 'phosphor-react-native';
 import ActionMenuItem from '../ActionMenuItem';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface HistoryActionModalProps {
   isVisible: boolean;
@@ -22,6 +23,9 @@ interface HistoryActionModalProps {
 export default function HistoryActionModal({ 
   isVisible, onClose, onRetry, onShare, onDelete 
 }: HistoryActionModalProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   
   return (
     <Modal
@@ -44,18 +48,18 @@ export default function HistoryActionModal({
           <View style={styles.menuContainer}>
             <ActionMenuItem 
               label="Luyện tập lại đề này" 
-              icon={<ArrowsClockwiseIcon size={24} color={Color.text} weight="regular" />} 
+              icon={<ArrowsClockwiseIcon size={24} color={colors.text} weight="regular" />} 
               onPress={onRetry} 
             />
             <ActionMenuItem 
               label="Chia sẻ kết quả" 
-              icon={<ExportIcon size={24} color={Color.text} weight="regular" />} 
+              icon={<ExportIcon size={24} color={colors.text} weight="regular" />} 
               onPress={onShare} 
             />
             <ActionMenuItem 
               label="Xóa khỏi lịch sử" 
               variant="danger"
-              icon={<TrashIcon size={24} color={Color.red || '#EF4444'} weight="regular" />} 
+              icon={<TrashIcon size={24} color={colors.red || '#EF4444'} weight="regular" />} 
               onPress={onDelete} 
             />
           </View>
@@ -65,16 +69,16 @@ export default function HistoryActionModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
-  backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
-  sheetContent: {
-    backgroundColor: Color.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
-    paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
-    shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10,
-  },
-  dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  menuContainer: { gap: Gap.gap_10 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
+      backgroundTouchable: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+      sheetContent: {
+        backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
+        paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
+        shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10,
+      },
+      dragHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', alignSelf: 'center', marginBottom: Gap.gap_15 },
+      header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+      headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      menuContainer: { gap: Gap.gap_10 },
+    });

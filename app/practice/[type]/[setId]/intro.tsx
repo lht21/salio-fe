@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 // Import Design System & Components
-import { Color } from '../../../../constants/GlobalStyles';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import ZenmodeCheckModal from '../../../../components/Modals/ZenmodeCheckModal';
 import PracticeService from '../../../../api/services/practice.service';
@@ -12,9 +11,13 @@ import { PracticeType } from '../../../../api/types/practice.types';
 
 import ExamIntroView from '../../../../components/PracticeComponent/ExamIntroView';
 import WritingIntroView from '../../../../components/PracticeComponent/WritingIntroView';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // --- MAIN SCREEN ---
 export default function PracticeIntroScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { type, setId } = useLocalSearchParams();
   
@@ -103,7 +106,7 @@ export default function PracticeIntroScreen() {
     <SafeAreaView style={styles.safeArea}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Color.main} />
+          <ActivityIndicator size="large" color={colors.main} />
         </View>
       ) : practiceType === 'writing' ? (
         <WritingIntroView 
@@ -122,6 +125,7 @@ export default function PracticeIntroScreen() {
           isStarting={isStarting} 
           isZenmodeEnabled={isZenmodeEnabled}
           onToggleZenmode={setIsZenmodeEnabled}
+          onPreparationPress={() => router.push({ pathname: `/practice/${practiceType}/${resolvedSetId}/preparation`, params: { title: introData?.title } } as any)}
         />
       )}
 
@@ -145,14 +149,14 @@ export default function PracticeIntroScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    });

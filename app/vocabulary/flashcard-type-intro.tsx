@@ -6,14 +6,15 @@ import { XIcon, Keyboard } from 'phosphor-react-native';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 
-import { useTheme } from '../../contexts/ThemeContext';
-import { FontFamily, FontSize, Gap, Padding, Border, Color } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap, Padding, Border } from '../../constants/GlobalStyles';
 import IconButton from '../../components/IconButton';
 import Button from '../../components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width, height } = Dimensions.get('window');
 
 export default function FlashcardTypeIntroScreen() {
+
   const router = useRouter();
   const { setId } = useLocalSearchParams<{ setId: string }>();
   const { colors } = useTheme();
@@ -54,7 +55,7 @@ export default function FlashcardTypeIntroScreen() {
       {/* Content */}
       <View style={styles.content}>
         <Animated.View entering={FadeInUp.duration(600)} style={styles.topSection}>
-          <Keyboard size={120} color={Color.brown800} weight="fill" />
+          <Keyboard size={120} color={colors.brown800} weight="fill" />
           <Text style={styles.heading}>TẬP VIẾT</Text>
         </Animated.View>
 
@@ -134,7 +135,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   heading: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 32,
-    color: Color.brown800,
+    color: colors.brown800,
     marginTop: Gap.gap_15,
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
     textShadowOffset: { width: 0, height: 2 },

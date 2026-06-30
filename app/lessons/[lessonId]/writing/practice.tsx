@@ -20,7 +20,7 @@ import {
   ArrowRightIcon 
 } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
 import TimerHeader from '../../../../components/TimerHeader';
 import InstructionCard from '../../../../components/InstructionCard';
 import IconButton from '../../../../components/IconButton';
@@ -29,6 +29,7 @@ import WonGoJiGrid from '../../../../components/WonGoJiGrid';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import LessonService from '../../../../api/services/lesson.service';
 import { WritingItem } from '../../../../api/types/lesson.types';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // DANH SÁCH QUY TẮC VIẾT
 const WRITING_RULES = [
@@ -41,6 +42,9 @@ const WRITING_RULES = [
 ];
 
 export default function WritingPracticeScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId, attemptId } = useLocalSearchParams();
   
@@ -127,7 +131,7 @@ export default function WritingPracticeScreen() {
     });
   };
 
-  if (loading) return <View style={[styles.safeArea, { justifyContent: 'center' }]}><ActivityIndicator size="large" color={Color.main} /></View>;
+  if (loading) return <View style={[styles.safeArea, { justifyContent: 'center' }]}><ActivityIndicator size="large" color={colors.main} /></View>;
   if (writingItems.length === 0) return <View style={styles.safeArea}><Text>Không có bài tập nào.</Text></View>;
 
   const currentItem = writingItems[currentIndex];
@@ -160,7 +164,7 @@ export default function WritingPracticeScreen() {
                 setShowInstructionModal(true);
             }}>
               <Text style={styles.topicTitle} numberOfLines={2}>Đề bài: {currentItem?.prompt}</Text>
-              <CaretDownIcon size={16} color={Color.text} />
+              <CaretDownIcon size={16} color={colors.text} />
             </TouchableOpacity>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -176,7 +180,7 @@ export default function WritingPracticeScreen() {
                 {currentIndex < writingItems.length - 1 && (
                   <TouchableOpacity style={[styles.navBtn, styles.nextBtn]} onPress={handleNext}>
                     <Text style={styles.nextBtnText}>Câu tiếp theo</Text>
-                    <ArrowRightIcon size={18} color={Color.bg} />
+                    <ArrowRightIcon size={18} color={colors.bg} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -190,7 +194,7 @@ export default function WritingPracticeScreen() {
                   Keyboard.dismiss();
                   setShowRulesModal(true);
               }}>
-                <BookOpenIcon size={18} color={Color.color} weight="fill" />
+                <BookOpenIcon size={18} color={colors.color} weight="fill" />
                 <Text style={styles.rulesText}>Quy tắc viết</Text>
               </TouchableOpacity>
             </View>
@@ -204,7 +208,7 @@ export default function WritingPracticeScreen() {
             <View style={styles.modalContent}>
                <View style={styles.modalHeader}>
                   <Text style={styles.modalHeaderTitle}>Đề bài chi tiết</Text>
-                  <TouchableOpacity onPress={() => setShowInstructionModal(false)}><XIcon size={20} color={Color.text} /></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowInstructionModal(false)}><XIcon size={20} color={colors.text} /></TouchableOpacity>
                </View>
                <InstructionCard data={currentItem} isModal={true} />
             </View>
@@ -240,32 +244,32 @@ export default function WritingPracticeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
-  keyboardAvoid: { flex: 1 },
-  introWrapper: { flex: 1, padding: Padding.padding_15 },
-  editorContainer: { flex: 1 },
-  stepIndicator: { paddingHorizontal: 20, paddingTop: 10 },
-  stepText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 14, color: Color.main },
-  topicBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: Color.bg, padding: 15, margin: 15, borderRadius: 15, borderWidth: 1, borderColor: Color.stroke },
-  topicTitle: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: Color.color },
-  bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke },
-  charCountPill: { backgroundColor: Color.main, paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20 },
-  charCountText: { color: Color.color, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 12 },
-  rulesButton: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  rulesText: { color: Color.color, fontSize: 12, fontFamily: FontFamily.lexendDecaMedium },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: Color.bg, borderTopLeftRadius: 30, borderTopRightRadius: 30, height: '70%', padding: 20 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  modalHeaderTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16 },
-  navigationButtons: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' },
-  navBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, backgroundColor: Color.stroke, justifyContent: 'center' },
-  nextBtn: { backgroundColor: Color.color, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  navBtnText: { fontFamily: FontFamily.lexendDecaMedium, color: Color.text },
-  nextBtnText: { fontFamily: FontFamily.lexendDecaMedium, color: Color.bg },
-  // Styles cho Rule Item
-  ruleItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
-  ruleBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
-  ruleBadgeText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.color },
-  ruleText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: '#64748B', lineHeight: 22 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
+      keyboardAvoid: { flex: 1 },
+      introWrapper: { flex: 1, padding: Padding.padding_15 },
+      editorContainer: { flex: 1 },
+      stepIndicator: { paddingHorizontal: 20, paddingTop: 10 },
+      stepText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 14, color: colors.main },
+      topicBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.bg, padding: 15, margin: 15, borderRadius: 15, borderWidth: 1, borderColor: colors.stroke },
+      topicTitle: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: colors.color },
+      bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke },
+      charCountPill: { backgroundColor: colors.main, paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20 },
+      charCountText: { color: colors.color, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 12 },
+      rulesButton: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+      rulesText: { color: colors.color, fontSize: 12, fontFamily: FontFamily.lexendDecaMedium },
+      modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+      modalContent: { backgroundColor: colors.bg, borderTopLeftRadius: 30, borderTopRightRadius: 30, height: '70%', padding: 20 },
+      modalHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+      modalHeaderTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16 },
+      navigationButtons: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' },
+      navBtn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, backgroundColor: colors.stroke, justifyContent: 'center' },
+      nextBtn: { backgroundColor: colors.color, flexDirection: 'row', alignItems: 'center', gap: 8 },
+      navBtnText: { fontFamily: FontFamily.lexendDecaMedium, color: colors.text },
+      nextBtnText: { fontFamily: FontFamily.lexendDecaMedium, color: colors.bg },
+      // Styles cho Rule Item
+      ruleItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
+      ruleBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+      ruleBadgeText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: colors.color },
+      ruleText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: '#64748B', lineHeight: 22 },
+    });

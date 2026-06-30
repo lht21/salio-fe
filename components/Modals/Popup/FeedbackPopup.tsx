@@ -4,8 +4,9 @@ import { Image } from 'expo-image';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 
-import { Border, Color, FontFamily, FontSize } from '../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize } from '../../../constants/GlobalStyles';
 import Button from '../../../components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type FeedbackType = 'success' | 'failure';
 
@@ -28,6 +29,9 @@ export default function SpeakingFeedbackPopup({
   imageSource,
   onOverrideCorrect,
 }: SpeakingFeedbackPopupProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const isSuccess = type === 'success';
 
   useEffect(() => {
@@ -114,100 +118,100 @@ export default function SpeakingFeedbackPopup({
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    paddingHorizontal: 15,
-    paddingBottom: 20, // Tạo khoảng cách để popup lơ lửng cách đáy
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.18)',
-  },
-  successCard: {
-    margin: 0,
-    minHeight: 150,
-    backgroundColor: Color.main75,
-    borderRadius: 30, // Bo tròn cả 4 góc
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 20,
-    borderBottomWidth: 7,
-    borderLeftWidth: 4,
-    borderWidth: 2,
-    borderColor: Color.main700
+const getStyles = (colors: any) => StyleSheet.create({
+      wrapper: {
+        paddingHorizontal: 15,
+        paddingBottom: 20, // Tạo khoảng cách để popup lơ lửng cách đáy
+      },
+      overlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.18)',
+      },
+      successCard: {
+        margin: 0,
+        minHeight: 150,
+        backgroundColor: colors.main75,
+        borderRadius: 30, // Bo tròn cả 4 góc
+        paddingHorizontal: 20,
+        paddingTop: 18,
+        paddingBottom: 20,
+        borderBottomWidth: 7,
+        borderLeftWidth: 4,
+        borderWidth: 2,
+        borderColor: colors.main700
 
-  },
-  failureCard: {
-    margin: 0,
-    borderRadius: 30, // Bo tròn cả 4 góc
-    backgroundColor: Color.orange300,
-    paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 24,
-    borderBottomWidth: 7,
-    borderLeftWidth: 4,
-    borderWidth: 2,
-    borderColor: Color.orange700
-    
-  },
-  contentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
-  textWrap: {
-    flex: 1,
-  },
-  successLabel: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 10,
-    color: '#2E8E19',
-    marginBottom: 6,
-  },
-  successText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_16,
-    color: '#2F7D1F',
-    fontWeight: '700',
-  },
-  failureText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#8B1B00',
-    fontWeight: '700',
-  },
-  successImage: {
-    width: 130,
-    height: 130,
-  },
-  failureImage: {
-    width: 118,
-    height: 118,
-  },
-  overrideButton: {
-    marginTop: 15,
-    marginBottom: 5,
-    alignItems: 'center',
-  },
-  overrideButtonText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 14,
-    color: '#8B1B00',
-    textDecorationLine: 'underline',
-  },
-  button: {
-    marginTop: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: Border.br_30,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-});
+      },
+      failureCard: {
+        margin: 0,
+        borderRadius: 30, // Bo tròn cả 4 góc
+        backgroundColor: colors.orange300,
+        paddingHorizontal: 24,
+        paddingTop: 28,
+        paddingBottom: 24,
+        borderBottomWidth: 7,
+        borderLeftWidth: 4,
+        borderWidth: 2,
+        borderColor: colors.orange700
+        
+      },
+      contentRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+      },
+      textWrap: {
+        flex: 1,
+      },
+      successLabel: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 10,
+        color: '#2E8E19',
+        marginBottom: 6,
+      },
+      successText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_16,
+        color: '#2F7D1F',
+        fontWeight: '700',
+      },
+      failureText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 16,
+        lineHeight: 24,
+        color: '#8B1B00',
+        fontWeight: '700',
+      },
+      successImage: {
+        width: 130,
+        height: 130,
+      },
+      failureImage: {
+        width: 118,
+        height: 118,
+      },
+      overrideButton: {
+        marginTop: 15,
+        marginBottom: 5,
+        alignItems: 'center',
+      },
+      overrideButtonText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 14,
+        color: '#8B1B00',
+        textDecorationLine: 'underline',
+      },
+      button: {
+        marginTop: 20,
+        backgroundColor: '#FFFFFF',
+        borderRadius: Border.br_30,
+        paddingVertical: 16,
+        alignItems: 'center',
+      },
+      buttonText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+    });

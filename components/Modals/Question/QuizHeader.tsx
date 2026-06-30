@@ -3,11 +3,11 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../../constants/GlobalStyles';
 import IconButton from '../../IconButton';
 import { XIcon } from 'phosphor-react-native';
 import ProgressBar from '../../ProgressBar';
-
+import { useTheme } from "@/contexts/ThemeContext";
 
 type QuizHeaderProps = {
   current: number;
@@ -28,6 +28,9 @@ export default function QuizHeader({
   icon,
   sharedTransitionTag
 }: QuizHeaderProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const progress = total > 0 ? (current / total) * 100 : 0;
 
@@ -68,57 +71,57 @@ export default function QuizHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: Padding.padding_20,
-    paddingTop: Padding.padding_10,
-    backgroundColor: Color.bg,
-  },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Gap.gap_15,
-  },
-  leftGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_10,
-  },
-  progressPill: {
-    backgroundColor: Color.main,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: Border.br_20,
-  },
-  progressText: {
-    color: Color.bg,
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-  },
-  incorrectPill: {
-    backgroundColor: Color.red,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: Border.br_20,
-  },
-  incorrectText: {
-    color: Color.bg,
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-  },
-  timerPill: {
-    backgroundColor: Color.cam || '#FF6B00',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: Border.br_20,
-  },
-  timerText: {
-    color: Color.bg,
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-  },
-  spacer: {
-    flex: 1,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        paddingHorizontal: Padding.padding_20,
+        paddingTop: Padding.padding_10,
+        backgroundColor: colors.bg,
+      },
+      topRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: Gap.gap_15,
+      },
+      leftGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Gap.gap_10,
+      },
+      progressPill: {
+        backgroundColor: colors.main,
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        borderRadius: Border.br_20,
+      },
+      progressText: {
+        color: colors.bg,
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+      },
+      incorrectPill: {
+        backgroundColor: colors.red,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: Border.br_20,
+      },
+      incorrectText: {
+        color: colors.bg,
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+      },
+      timerPill: {
+        backgroundColor: colors.cam || '#FF6B00',
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: Border.br_20,
+      },
+      timerText: {
+        color: colors.bg,
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+      },
+      spacer: {
+        flex: 1,
+      },
+    });

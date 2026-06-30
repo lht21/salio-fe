@@ -3,8 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
 import { CaretDownIcon, CaretUpIcon, CheckCircleIcon } from 'phosphor-react-native';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding, Stroke } from '../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding, Stroke } from '../../constants/GlobalStyles';
 import Button from '../Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type LessonSectionDetailItem = {
   id: string;
@@ -38,8 +39,8 @@ const LessonSectionAccordion = ({
   progressText,
   progressValue,
   progressColor,
-  progressTrackColor = Color.brown50,
-  backgroundColor = Color.bg,
+  progressTrackColor,
+  backgroundColor,
   expandable = false,
   initiallyExpanded = false,
   details = [],
@@ -47,6 +48,9 @@ const LessonSectionAccordion = ({
   onActionPress,
   actionText,
 }: LessonSectionAccordionProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [expanded, setExpanded] = React.useState(initiallyExpanded);
   const canExpand = expandable && details.length > 0;
 
@@ -55,7 +59,7 @@ const LessonSectionAccordion = ({
       from={{ opacity: 0, translateY: 12 }}
       animate={{ opacity: 1, translateY: 0 }}
       transition={{ type: 'timing', duration: 350, delay } as any}
-      style={[styles.card, { backgroundColor }]}
+      style={[styles.card, { backgroundColor: backgroundColor || colors.bg }]}
     >
       <View style={styles.header}>
         <Pressable style={styles.contentPressable} onPress={onPress} disabled={!onPress}>
@@ -76,12 +80,12 @@ const LessonSectionAccordion = ({
         >
           {canExpand ? (
             expanded ? (
-              <CaretUpIcon size={18} color={Color.gray} weight="bold" />
+              <CaretUpIcon size={18} color={colors.gray} weight="bold" />
             ) : (
-              <CaretDownIcon size={18} color={Color.gray} weight="bold" />
+              <CaretDownIcon size={18} color={colors.gray} weight="bold" />
             )
           ) : (
-            <CaretDownIcon size={18} color={Color.stroke} weight="bold" />
+            <CaretDownIcon size={18} color={colors.stroke} weight="bold" />
           )}
         </Pressable>
       </View>
@@ -127,7 +131,7 @@ const LessonSectionAccordion = ({
               },
             ]}
           />
-          <View style={[styles.progressRemaining, { backgroundColor: progressTrackColor }]} />
+          <View style={[styles.progressRemaining, { backgroundColor: progressTrackColor || colors.brown50 }]} />
         </View>
 
         <View style={styles.progressFooterRow}>
@@ -148,127 +152,127 @@ const LessonSectionAccordion = ({
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: Border.br_30,
-    borderWidth: Stroke.stroke,
-    borderColor: Color.stroke,
-    padding: 16,
-    gap: Gap.gap_10,
-    borderBottomWidth: 5
-  },
-  contentPressable: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Gap.gap_10,
-  },
-  headerInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_10,
-  },
-  iconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textWrap: {
-    flex: 1,
-    gap: 3,
-  },
-  expandButton: {
-    width: 28,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-  subtitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-  },
-  body: {
-    gap: Gap.gap_10,
-    paddingTop: 2,
-  },
-  bodyWrap: {
-    overflow: 'hidden',
-    backgroundColor: Color.main50,
-    borderRadius: Border.br_20,
-    padding: Padding.padding_20,
-    gap: Gap.gap_10,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  detailLeft: {
-    width: 56,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_12,
-    color: Color.text,
-  },
-  detailRight: {
-    flex: 1,
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-  },
-  footer: {
-    gap: Gap.gap_8,
-  },
-  progressTrack: {
-    height: 6,
-    borderRadius: Border.br_10,
-    overflow: 'hidden',
-    flexDirection: 'row',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: Border.br_10,
-  },
-  progressRemaining: {
-    flex: 1,
-    height: '100%',
-  },
-  progressFooterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  progressLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  progressText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-  },
-  actionBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: Border.br_10,
-    backgroundColor: '#F3F4F6',
-  },
-  actionBtnText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_12,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      card: {
+        borderRadius: Border.br_30,
+        borderWidth: Stroke.stroke,
+        borderColor: colors.stroke,
+        padding: 16,
+        gap: Gap.gap_10,
+        borderBottomWidth: 5
+      },
+      contentPressable: {
+        flex: 1,
+      },
+      header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: Gap.gap_10,
+      },
+      headerInfo: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Gap.gap_10,
+      },
+      iconWrap: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      textWrap: {
+        flex: 1,
+        gap: 3,
+      },
+      expandButton: {
+        width: 28,
+        height: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      title: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+      subtitle: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+      },
+      body: {
+        gap: Gap.gap_10,
+        paddingTop: 2,
+      },
+      bodyWrap: {
+        overflow: 'hidden',
+        backgroundColor: colors.main50,
+        borderRadius: Border.br_20,
+        padding: Padding.padding_20,
+        gap: Gap.gap_10,
+      },
+      detailRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+      },
+      detailLeft: {
+        width: 56,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_12,
+        color: colors.text,
+      },
+      detailRight: {
+        flex: 1,
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+      },
+      footer: {
+        gap: Gap.gap_8,
+      },
+      progressTrack: {
+        height: 6,
+        borderRadius: Border.br_10,
+        overflow: 'hidden',
+        flexDirection: 'row',
+      },
+      progressFill: {
+        height: '100%',
+        borderRadius: Border.br_10,
+      },
+      progressRemaining: {
+        flex: 1,
+        height: '100%',
+      },
+      progressFooterRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 2,
+      },
+      progressLabel: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+      },
+      progressText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+      },
+      actionBtn: {
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: Border.br_10,
+        backgroundColor: '#F3F4F6',
+      },
+      actionBtnText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_12,
+      },
+    });
 
 export default LessonSectionAccordion;

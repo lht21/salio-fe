@@ -15,9 +15,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "../../../../components/Button";
 import IconButton from "../../../../components/IconButton";
 import { XIcon } from "phosphor-react-native";
-import { Color, FontFamily, FontSize, Padding, Gap } from "../../../../constants/GlobalStyles";
+import { FontFamily, FontSize, Padding, Gap } from "../../../../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function AudioCheckScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { type, setId, attemptId, zenmode } = useLocalSearchParams();
   
@@ -203,62 +207,62 @@ export default function AudioCheckScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  header: { alignItems: "flex-end", paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10 },
-  body: { flex: 1, justifyContent: "center", alignItems: "center" },
-  mascotContainer: { alignItems: "center", justifyContent: "center", width: 250, height: 250 },
-  mascotCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 4,
-    borderColor: Color.main || "#98F291",
-    zIndex: 2,
-    shadowColor: Color.main || "#98F291",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 8,
-  },
-  mascotImage: { width: 110, height: 110 },
-  ripple: {
-    position: "absolute",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: Color.main || "#98F291",
-    zIndex: 1,
-  },
-  footer: { paddingHorizontal: Padding.padding_15, paddingBottom: 40, gap: Gap.gap_15 },
-  textContainer: { alignItems: "center", marginBottom: Gap.gap_15 },
-  titleText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-    marginBottom: Gap.gap_8,
-  },
-  subtitleText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    textAlign: "center",
-    paddingHorizontal: Padding.padding_20,
-    lineHeight: 22,
-  },
-  progressContainer: {
-    width: '50%',
-    height: 6,
-    backgroundColor: Color.stroke,
-    borderRadius: 3,
-    marginTop: 40,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: Color.main,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      header: { alignItems: "flex-end", paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10 },
+      body: { flex: 1, justifyContent: "center", alignItems: "center" },
+      mascotContainer: { alignItems: "center", justifyContent: "center", width: 250, height: 250 },
+      mascotCircle: {
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 4,
+        borderColor: colors.main || "#98F291",
+        zIndex: 2,
+        shadowColor: colors.main || "#98F291",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 8,
+      },
+      mascotImage: { width: 110, height: 110 },
+      ripple: {
+        position: "absolute",
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: colors.main || "#98F291",
+        zIndex: 1,
+      },
+      footer: { paddingHorizontal: Padding.padding_15, paddingBottom: 40, gap: Gap.gap_15 },
+      textContainer: { alignItems: "center", marginBottom: Gap.gap_15 },
+      titleText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+        marginBottom: Gap.gap_8,
+      },
+      subtitleText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+        textAlign: "center",
+        paddingHorizontal: Padding.padding_20,
+        lineHeight: 22,
+      },
+      progressContainer: {
+        width: '50%',
+        height: 6,
+        backgroundColor: colors.stroke,
+        borderRadius: 3,
+        marginTop: 40,
+        overflow: 'hidden',
+      },
+      progressBar: {
+        height: '100%',
+        backgroundColor: colors.main,
+      },
+    });

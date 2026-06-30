@@ -6,12 +6,13 @@ import { useToast } from 'react-native-toast-notifications';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 // --- IMPORT COMPONENTS & CONSTANTS ---
-import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Border, Gap } from '../../../../constants/GlobalStyles';
 import IconButton from '../../../../components/IconButton';
 import { XIcon, QuestionIcon } from 'phosphor-react-native';
 import Button from '../../../../components/Button';
 import { ConfirmModal } from '../../../../components/ModalResult/ConfirmModal';
 import VocabularyService from '../../../../api/services/vocabulary.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // --- TYPE & MOCK DATA ---
 type LearningStatus = 'remembered' | 'learning' | 'forgotten';
@@ -24,10 +25,10 @@ interface VocabItem {
 
 const getStatusColor = (status: LearningStatus) => {
   switch (status) {
-    case 'remembered': return Color.main || '#98F291'; // Xanh chính
+    case 'remembered': return colors.main || '#98F291'; // Xanh chính
     case 'learning': return '#3B82F6';               // Blue
-    case 'forgotten': return Color.cam || '#F59E0B'; // Cam
-    default: return Color.stroke;
+    case 'forgotten': return colors.cam || '#F59E0B'; // Cam
+    default: return colors.stroke;
   }
 };
 
@@ -41,6 +42,9 @@ const getStatusText = (status: LearningStatus) => {
 };
 
 const VocabularyReviewItem = ({ item, onPress }: { item: VocabItem; onPress: () => void }) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const color = getStatusColor(item.status);
   
   return (
@@ -60,6 +64,9 @@ const VocabularyReviewItem = ({ item, onPress }: { item: VocabItem; onPress: () 
 };
 
 export default function VocabularyIntroScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
   const toast = useToast();
@@ -178,7 +185,7 @@ Thay vì học vẹt, bạn sẽ đi qua vòng lặp ghi nhớ tự nhiên: Nh�
         <View style={styles.previewSection}>
           <Text style={styles.previewHeader}>Xem trước từ vựng</Text>
           {isLoading ? (
-            <ActivityIndicator size="large" color={Color.main} />
+            <ActivityIndicator size="large" color={colors.main} />
           ) : (
             <View style={styles.gridContainer}>
               {vocabList.map(item => (
@@ -222,8 +229,8 @@ Thay vì học vẹt, bạn sẽ đi qua vòng lặp ghi nhớ tự nhiên: Nh�
         ref={tipSheetRef}
         snapPoints={['40%']}
         backdropComponent={renderBackdrop}
-        backgroundStyle={{ backgroundColor: Color.bg, borderRadius: Border.br_30 }}
-        handleIndicatorStyle={{ backgroundColor: Color.stroke }}
+        backgroundStyle={{ backgroundColor: colors.bg, borderRadius: Border.br_30 }}
+        handleIndicatorStyle={{ backgroundColor: colors.stroke }}
       >
         <BottomSheetView style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Mẹo</Text>
@@ -244,160 +251,160 @@ Thay vì học vẹt, bạn sẽ đi qua vòng lặp ghi nhớ tự nhiên: Nh�
 }
 
 // --- STYLES ---
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      
+      header: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+      },
+      headerActions: {
+        flexDirection: 'row',
+        gap: 12,
+      },
 
-  content: {
-    flex: 1,
-  },
+      content: {
+        flex: 1,
+      },
 
-  scrollContent: {
-    paddingHorizontal: Padding.padding_20,
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
+      scrollContent: {
+        paddingHorizontal: Padding.padding_20,
+        alignItems: 'center',
+        paddingBottom: 20,
+      },
 
-  illustration: {
-    width: 250,
-    height: 250,
-    marginBottom: Gap.gap_20,
-  },
+      illustration: {
+        width: 250,
+        height: 250,
+        marginBottom: Gap.gap_20,
+      },
 
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: Gap.gap_20,
-  },
-  
-  roundText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_24,
-    color: Color.text,
-  },
-  
-  titleText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_24,
-    color: Color.cam,
-  },
+      titleRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: Gap.gap_20,
+      },
+      
+      roundText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_24,
+        color: colors.text,
+      },
+      
+      titleText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_24,
+        color: colors.cam,
+      },
 
-  descriptionBox: {
-    width: '100%',
-    backgroundColor: Color.greenLight,
-    padding: Padding.padding_20,
-    borderRadius: Border.br_30,
-    borderWidth: 1.5,
-    borderColor: Color.main,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-  },
-  
-  descriptionText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
+      descriptionBox: {
+        width: '100%',
+        backgroundColor: colors.greenLight,
+        padding: Padding.padding_20,
+        borderRadius: Border.br_30,
+        borderWidth: 1.5,
+        borderColor: colors.main,
+        borderStyle: 'dashed',
+        alignItems: 'center',
+      },
+      
+      descriptionText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        textAlign: 'center',
+        lineHeight: 22,
+      },
 
-  previewSection: {
-    width: '100%',
-    marginTop: Gap.gap_20,
-    alignItems: 'center',
-  },
-  previewHeader: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 20,
-    color: Color.main,
-    marginBottom: Gap.gap_20,
-    textAlign: 'center',
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  reviewItemContainer: {
-    width: '31%', // 3 cột
-    alignItems: 'center',
-    marginBottom: Gap.gap_20,
-  },
-  reviewSquare: {
-    width: '100%',
-    aspectRatio: 1, // Chiều cao = chiều rộng, tạo thành hình vuông
-    backgroundColor: '#FFFFFF',
-    borderRadius: 40, // Bo góc 30
-    borderWidth: 3, // Viền dày 3
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-    padding: 5,
-  },
-  reviewWord: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 24, // Cỡ chữ sẽ được tự động điều chỉnh vừa vặn nhờ adjustsFontSizeToFit
-    color: Color.text,
-    textAlign: 'center',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statusText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 10,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
+      previewSection: {
+        width: '100%',
+        marginTop: Gap.gap_20,
+        alignItems: 'center',
+      },
+      previewHeader: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 20,
+        color: colors.main,
+        marginBottom: Gap.gap_20,
+        textAlign: 'center',
+      },
+      gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        width: '100%',
+      },
+      reviewItemContainer: {
+        width: '31%', // 3 cột
+        alignItems: 'center',
+        marginBottom: Gap.gap_20,
+      },
+      reviewSquare: {
+        width: '100%',
+        aspectRatio: 1, // Chiều cao = chiều rộng, tạo thành hình vuông
+        backgroundColor: '#FFFFFF',
+        borderRadius: 40, // Bo góc 30
+        borderWidth: 3, // Viền dày 3
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+        padding: 5,
+      },
+      reviewWord: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 24, // Cỡ chữ sẽ được tự động điều chỉnh vừa vặn nhờ adjustsFontSizeToFit
+        color: colors.text,
+        textAlign: 'center',
+      },
+      statusBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      statusText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 10,
+        color: '#FFFFFF',
+        textAlign: 'center',
+      },
 
-  footer: {
-    paddingHorizontal: Padding.padding_15,
-    paddingBottom: Padding.padding_30,
-    paddingTop: Padding.padding_10,
-  },
+      footer: {
+        paddingHorizontal: Padding.padding_15,
+        paddingBottom: Padding.padding_30,
+        paddingTop: Padding.padding_10,
+      },
 
-  // STYLES BOTTOM SHEET MẸO
-  sheetContent: {
-    paddingHorizontal: 24,
-    paddingTop: 10,
-    paddingBottom: 30,
-    alignItems: 'center',
-  },
-  sheetTitle: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-    marginBottom: 15,
-  },
-  sheetDesc: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  sheetButton: {
-    width: '100%',
-  },
-});
+      // STYLES BOTTOM SHEET MẸO
+      sheetContent: {
+        paddingHorizontal: 24,
+        paddingTop: 10,
+        paddingBottom: 30,
+        alignItems: 'center',
+      },
+      sheetTitle: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+        marginBottom: 15,
+      },
+      sheetDesc: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: 20,
+      },
+      sheetButton: {
+        width: '100%',
+      },
+    });

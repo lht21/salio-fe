@@ -3,8 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AnimatePresence, MotiView } from 'moti';
 import { CheckCircleIcon, XCircleIcon } from 'phosphor-react-native';
 
-import { FontFamily, FontSize, Color } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize } from '../../constants/GlobalStyles';
 import Button from '../Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type ImmediateFeedbackBarProps = {
   visible: boolean;
@@ -17,6 +18,9 @@ export default function ImmediateFeedbackBar({
   isCorrect,
   onNext,
 }: ImmediateFeedbackBarProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <AnimatePresence>
       {visible && (
@@ -58,49 +62,49 @@ export default function ImmediateFeedbackBar({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    paddingBottom: 30, // Safe area padding
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  containerCorrect: {
-    backgroundColor: '#E8F8E3',
-  },
-  containerIncorrect: {
-    backgroundColor: '#FFECEC',
-  },
-  messageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flex: 1,
-  },
-  messageText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_16,
-  },
-  textCorrect: {
-    color: '#2F7D1F',
-  },
-  textIncorrect: {
-    color: '#8B1B00',
-  },
-  button: {
-    marginVertical: 0,
-    minWidth: 120,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 20,
+        paddingBottom: 30, // Safe area padding
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      containerCorrect: {
+        backgroundColor: '#E8F8E3',
+      },
+      containerIncorrect: {
+        backgroundColor: '#FFECEC',
+      },
+      messageRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        flex: 1,
+      },
+      messageText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_16,
+      },
+      textCorrect: {
+        color: '#2F7D1F',
+      },
+      textIncorrect: {
+        color: '#8B1B00',
+      },
+      button: {
+        marginVertical: 0,
+        minWidth: 120,
+      },
+    });

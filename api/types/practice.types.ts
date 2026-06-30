@@ -60,6 +60,11 @@ export interface PracticeSetDetail {
   recordingLimit?: number;
 }
 
+export interface PreparationMaterials {
+  vocabularies: any[];
+  grammars: any[];
+}
+
 // --- 4. Interfaces cho Attempts (Làm bài) ---
 
 export interface StartAttemptData {
@@ -121,6 +126,8 @@ export type PracticeSetsResponse = BaseResponse<{
 }>;
 
 export type PracticeSetDetailResponse = BaseResponse<PracticeSetDetail>;
+
+export type PreparationMaterialsResponse = BaseResponse<PreparationMaterials>;
 
 export type StartAttemptResponse = BaseResponse<StartAttemptData>;
 

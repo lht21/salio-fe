@@ -20,9 +20,13 @@ import Button from '../../../components/Button';
 import { ConfirmModal } from '../../../components/ModalResult/ConfirmModal';
 
 // --- Constants ---
-import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function RegisterVerifyOtpScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { email } = useLocalSearchParams<{ email: string }>();
   const [isLoading, setIsLoading] = useState(false);
@@ -133,7 +137,7 @@ export default function RegisterVerifyOtpScreen() {
 
   return (
     <LinearGradient
-      colors={[Color.main, Color.bg]}
+      colors={[colors.main, colors.bg]}
       locations={[0, 0.5]}
       style={styles.gradientBackground}
     >
@@ -220,110 +224,110 @@ export default function RegisterVerifyOtpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  keyboardAvoiding: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    padding: Padding.padding_15,
-  },
-  
-  // --- TOP SECTION ---
-  topSection: {
-    alignItems: 'center',
-    paddingTop: Padding.padding_30,
-    gap: Gap.gap_20,
-  },
-  logo: {
-    height: Height.height_113, 
-    aspectRatio: 1, 
-    marginBottom: Padding.padding_10,
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      gradientBackground: {
+        flex: 1,
+      },
+      safeArea: {
+        flex: 1,
+      },
+      keyboardAvoiding: {
+        flex: 1,
+      },
+      scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'space-between',
+        padding: Padding.padding_15,
+      },
+      
+      // --- TOP SECTION ---
+      topSection: {
+        alignItems: 'center',
+        paddingTop: Padding.padding_30,
+        gap: Gap.gap_20,
+      },
+      logo: {
+        height: Height.height_113, 
+        aspectRatio: 1, 
+        marginBottom: Padding.padding_10,
+      },
 
-  // --- BOTTOM SECTION ---
-  bottomSection: {
-    width: '100%',
-    gap: Gap.gap_15,
-    paddingTop: Padding.padding_30,
-  },
-  heading: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.color,
-    textAlign: 'left',
-    marginBottom: Padding.padding_5,
-  },
-  subHeading: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    textAlign: 'left',
-    marginBottom: Gap.gap_10,
-    lineHeight: 20,
-  },
-  
-  // --- OTP SECTION ---
-  otpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginVertical: Padding.padding_10,
-  },
-  otpInput: {
-    width: 50,
-    height: 50,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-    borderRadius: Border.br_10,
-    backgroundColor: Color.stroke,
-    textAlign: 'center',
-    fontSize: FontSize.fs_20,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    color: Color.text,
-  },
+      // --- BOTTOM SECTION ---
+      bottomSection: {
+        width: '100%',
+        gap: Gap.gap_15,
+        paddingTop: Padding.padding_30,
+      },
+      heading: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.color,
+        textAlign: 'left',
+        marginBottom: Padding.padding_5,
+      },
+      subHeading: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+        textAlign: 'left',
+        marginBottom: Gap.gap_10,
+        lineHeight: 20,
+      },
+      
+      // --- OTP SECTION ---
+      otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginVertical: Padding.padding_10,
+      },
+      otpInput: {
+        width: 50,
+        height: 50,
+        borderWidth: 1,
+        borderColor: colors.stroke,
+        borderRadius: Border.br_10,
+        backgroundColor: colors.stroke,
+        textAlign: 'center',
+        fontSize: FontSize.fs_20,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        color: colors.text,
+      },
 
-  loginButton: {
-    marginTop: Padding.padding_5,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  divider: {
-    width: 76,
-    height: 3,
-    borderStyle: "solid",
-    borderColor: Color.gray,
-    borderTopWidth: 3,
-    alignSelf: 'center',
-    margin: Gap.gap_20,
-  },
-  resendContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: Padding.padding_20,
-  },
-  resendText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-  },
-  resendButtonText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.main, 
-  },
-  resendButtonDisabled: {
-    color: Color.stroke,
-  },
-});
+      loginButton: {
+        marginTop: Padding.padding_5,
+      },
+      actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      },
+      divider: {
+        width: 76,
+        height: 3,
+        borderStyle: "solid",
+        borderColor: colors.gray,
+        borderTopWidth: 3,
+        alignSelf: 'center',
+        margin: Gap.gap_20,
+      },
+      resendContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: Padding.padding_20,
+      },
+      resendText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+      },
+      resendButtonText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.main, 
+      },
+      resendButtonDisabled: {
+        color: colors.stroke,
+      },
+    });

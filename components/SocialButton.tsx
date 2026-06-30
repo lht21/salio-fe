@@ -1,7 +1,8 @@
 import React from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { GoogleLogoIcon, AppleLogoIcon, FacebookLogoIcon } from "phosphor-react-native";
-import { Padding, Color } from "../constants/GlobalStyles";
+import { Padding } from "../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Định nghĩa kiểu icon hỗ trợ
 export type SocialType = "google" | "apple" | "facebook";
@@ -26,9 +27,12 @@ const SocialButton = ({
   size = 35,
   iconColor,
 }: SocialButtonType) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const IconComponent = SOCIAL_ICONS[social];
   // Nếu không truyền iconColor từ ngoài vào thì lấy mặc định từ Color.stroke
-  const finalIconColor = iconColor || Color.stroke;
+  const finalIconColor = iconColor || colors.stroke;
 
   return (
     <Pressable
@@ -47,23 +51,23 @@ const SocialButton = ({
   );
 };
 
-const styles = StyleSheet.create({
-  wrapper: {
-    height: 65,
-    width: 65,
-    borderRadius: 43,
-    backgroundColor: Color.bg,
-    borderStyle: "solid",
-    borderColor: Color.stroke,
-    borderWidth: 2,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: Padding.padding_10,
-  },
-  wrapperPressed: {
-    opacity: 0.7,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      wrapper: {
+        height: 65,
+        width: 65,
+        borderRadius: 43,
+        backgroundColor: colors.bg,
+        borderStyle: "solid",
+        borderColor: colors.stroke,
+        borderWidth: 2,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: Padding.padding_10,
+      },
+      wrapperPressed: {
+        opacity: 0.7,
+      },
+    });
 
 export default SocialButton;

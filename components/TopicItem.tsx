@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { CheckCircleIcon, ClockIcon, CircleIcon, StarIcon } from 'phosphor-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, Easing } from 'react-native-reanimated';
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../constants/GlobalStyles';
 import { useTheme } from '../contexts/ThemeContext';
 
 export interface TopicItemData {
@@ -80,8 +80,8 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
       {isSelectionMode && (
         <View style={styles.checkboxContainer}>
           {isSelected 
-            ? <CheckCircleIcon size={24} color={colors.main2 || Color.main} weight="fill" />
-            : <CircleIcon size={24} color={colors.gray || Color.gray} weight="light" />
+            ? <CheckCircleIcon size={24} color={colors.main2 || colors.main} weight="fill" />
+            : <CircleIcon size={24} color={colors.gray || colors.gray} weight="light" />
           }
         </View>
       )}
@@ -122,15 +122,15 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
 const createStyles = (colors: any) => StyleSheet.create({
   topicItemCard: {
     flexDirection: 'row',
-    backgroundColor: colors.bg || Color.bg,
+    backgroundColor: colors.bg || colors.bg,
     borderRadius: Border.br_20,
     padding: Padding.padding_15,
     borderWidth: 2,
-    borderColor: colors.stroke || Color.stroke,
+    borderColor: colors.stroke || colors.stroke,
     alignItems: 'center',
   },
   cardSelected: {
-    borderColor: colors.main2 || Color.main,
+    borderColor: colors.main2 || colors.main,
     backgroundColor: colors.historySelectedBg || '#F0FDF4',
   },
   checkboxContainer: {
@@ -158,7 +158,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flex: 1,
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14,
-    color: colors.text || Color.text,
+    color: colors.text || colors.text,
   },
   starIcon: {
     marginLeft: 8,
@@ -166,7 +166,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   topicItemDesc: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: colors.gray || Color.gray,
+    color: colors.gray || colors.gray,
   },
   
   // --- STYLES CHO LỊCH SỬ ---

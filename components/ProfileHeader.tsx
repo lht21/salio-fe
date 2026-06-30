@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { GearSixIcon } from 'phosphor-react-native';
@@ -9,6 +9,8 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import IconButton from './IconButton';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay, withTiming } from 'react-native-reanimated';
+import { BellIcon } from 'phosphor-react-native';
 
 interface ProfileHeaderProps {
   username?: string;
@@ -16,13 +18,39 @@ interface ProfileHeaderProps {
   avatarUrl?: string;
   level?: string;
   isPremium?: boolean;
+  hasNewNotification?: boolean;
 }
 
-const ProfileHeader = ({ username, email, avatarUrl, level, isPremium }: ProfileHeaderProps) => {
+const ProfileHeader = ({ username, email, avatarUrl, level, isPremium, hasNewNotification = true }: ProfileHeaderProps) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const wrapperWidth = useSharedValue(38);
+  const textOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (hasNewNotification) {
+      wrapperWidth.value = withDelay(300, withSpring(80, { damping: 15, stiffness: 100 }));
+      textOpacity.value = withDelay(400, withTiming(1, { duration: 300 }));
+    } else {
+      wrapperWidth.value = 38;
+      textOpacity.value = 0;
+    }
+  }, [hasNewNotification]);
+
+  const animatedWrapperStyle = useAnimatedStyle(() => {
+    return {
+      width: wrapperWidth.value,
+    };
+  });
+
+  const animatedTextStyle = useAnimatedStyle(() => {
+    return {
+      opacity: textOpacity.value,
+    };
+  });
 
   return (
     <View style={styles.container}>
@@ -32,9 +60,26 @@ const ProfileHeader = ({ username, email, avatarUrl, level, isPremium }: Profile
         style={styles.gradientBg}
       />
       
-      {/* Settings Icon */}
-      <IconButton Icon={GearSixIcon} onPress={() => router.push('/settings' as any)} style={styles.settingsBtn} />
-      
+      {/* Top Right Buttons */}
+      <View style={styles.topRightContainer}>
+        {/* Notification Button */}
+        <Animated.View style={[styles.notificationWrapper, animatedWrapperStyle]}>
+          <TouchableOpacity 
+            style={styles.notificationBtn} 
+            onPress={() => router.push('/notifications' as any)}
+            activeOpacity={0.7}
+          >
+            <BellIcon size={24} color={colors.gray} weight="bold" />
+            <Animated.Text style={[styles.notificationText, animatedTextStyle]} numberOfLines={1}>
+              mới!
+            </Animated.Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Settings Icon */}
+        <IconButton Icon={GearSixIcon} variant='Main' onPress={() => router.push('/settings' as any)} />
+      </View>
+
 
       {/* Avatar & Info */}
       <View style={styles.infoWrapper}>
@@ -91,16 +136,32 @@ const createStyles = (colors: any) => StyleSheet.create({
     zIndex: 0,
     backgroundColor: colors.main200 || '#98F291',
   },
-  settingsBtn: {
+  topRightContainer: {
     position: 'absolute',
     top: 50,
     right: 20,
     zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  settingsIconBg: {
-    backgroundColor: colors.gray,
-    padding: 8,
-    borderRadius: 20,
+  notificationWrapper: {
+    backgroundColor: colors.stroke,
+    borderRadius: 19,
+    height: 38,
+    overflow: 'hidden',
+  },
+  notificationBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 38,
+    paddingHorizontal: 7,
+    gap: 4,
+  },
+  notificationText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12 || 12,
+    color: colors.orange500 || '#F97316',
   },
   infoWrapper: {
     alignItems: 'center',

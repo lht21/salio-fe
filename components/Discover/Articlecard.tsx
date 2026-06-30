@@ -14,7 +14,8 @@ import {
 } from 'phosphor-react-native';
 import PosBadge from '../PracticeComponent/PosBadge';
 import Animated from 'react-native-reanimated';
-import { Border, Color, FontFamily } from '@/constants/GlobalStyles';
+import { Border, FontFamily } from '@/constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 export interface ArticleItem {
@@ -49,7 +50,9 @@ const TAG_COLORS = [
 
 const getTagColor = (index: number) => TAG_COLORS[index % TAG_COLORS.length];
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
+const AnimatedImage = Animated.createAnimatedComponent(
+  Image as React.ComponentType<React.ComponentProps<typeof Image> & { sharedTransitionTag?: string }>
+);
 
 // ─── VARIANT 1 : ĐỌC NHIỀU / NỔI BẬT (horizontal, giống hình mẫu) ──────────
 export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
@@ -57,6 +60,8 @@ export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
   onPress,
   onSave,
 }) => {
+    const { colors } = useTheme();
+
   return (
     <View style={featured.cardOuter}>
       <TouchableOpacity
@@ -95,9 +100,9 @@ export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
 
             {/* Match row */}
             {article.matchPercent !== undefined && (
-              <View style={featured.matchRow}>
+              <View style={[featured.matchRow, { backgroundColor: colors.greenLight }]}>
                 <SparkleIcon size={13} color="#4CAF50" weight="fill" />
-                <Text style={featured.matchText}>
+                <Text style={[featured.matchText, { color: colors.main2 }]}>
                   Phù hợp với bạn {article.matchPercent}%
                 </Text>
               </View>
@@ -106,11 +111,11 @@ export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
         </View>
 
         {/* ── Footer: lượt đọc + thích + bookmark ── */}
-        <View style={featured.footer}>
+        <View style={[featured.footer, { backgroundColor: colors.bg2 }]}>
           <View style={featured.statsRow}>
-            <CursorClickIcon size={20} color={Color.gray} weight="fill" />
+            <CursorClickIcon size={20} color={colors.gray} weight="fill" />
             <Text style={featured.statsText}>{article.views} lượt</Text>
-            <HeartIcon size={20} color={Color.gray} weight="fill" style={{ marginLeft: 8 }} />
+            <HeartIcon size={20} color={colors.gray} weight="fill" style={{ marginLeft: 8 }} />
             <Text style={featured.statsText}>{article.likes}</Text>
           </View>
         </View>
@@ -257,7 +262,6 @@ const featured = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: Color.greenLight,
     alignSelf: 'flex-start',
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -267,7 +271,6 @@ const featured = StyleSheet.create({
   matchText: {
     fontSize: 12,
     fontFamily: FontFamily.lexendDecaMedium,
-    color: Color.main2,
   },
   footer: {
     flexDirection: 'row',
@@ -275,7 +278,6 @@ const featured = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: Color.bg2,
     margin: 2,
   },
   statsRow: {

@@ -6,12 +6,13 @@ import { PenNibIcon } from 'phosphor-react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { Color, FontFamily, FontSize, Gap, Padding, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap, Padding, Border } from '../../constants/GlobalStyles';
 import { QuizHeader } from '../../components/Modals/Question';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import Button from '../../components/Button';
 import FlashcardService from '../../api/services/flashcard.service';
 import VocabularyService from '../../api/services/vocabulary.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const CHO_SUNG = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 const JUNG_SUNG = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'];
@@ -50,6 +51,9 @@ function disassembleHangul(str: string) {
 }
 
 export default function FlashcardTypeScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { setId } = useLocalSearchParams<{ setId: string }>();
 
@@ -188,7 +192,7 @@ export default function FlashcardTypeScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </SafeAreaView>
     );
   }
@@ -208,7 +212,7 @@ export default function FlashcardTypeScreen() {
         total={currentRoundCards.length}
         incorrectCount={incorrectCount}
         onClose={() => setShowExitModal(true)}
-        icon={<PenNibIcon size={32} color={Color.text} />}
+        icon={<PenNibIcon size={32} color={colors.text} />}
         sharedTransitionTag="type_icon"
       />
 
@@ -232,7 +236,7 @@ export default function FlashcardTypeScreen() {
               value={inputText}
               onChangeText={handleTextChange}
               placeholder="Gõ từ tiếng Hàn..."
-              placeholderTextColor={Color.gray}
+              placeholderTextColor={colors.gray}
               editable={!isMistake}
               autoCapitalize="none"
               autoCorrect={false}
@@ -268,79 +272,79 @@ export default function FlashcardTypeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Padding.padding_20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  meaningText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_24,
-    color: Color.text,
-    textAlign: 'center',
-    marginBottom: Gap.gap_10,
-  },
-  phoneticText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-    color: Color.gray,
-    textAlign: 'center',
-    marginBottom: Gap.gap_20,
-  },
-  inputContainer: {
-    width: '100%',
-    marginBottom: Gap.gap_20,
-  },
-  input: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.text,
-    backgroundColor: '#F5F5F5',
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    borderRadius: Border.br_20,
-    paddingHorizontal: Padding.padding_20,
-    paddingVertical: Padding.padding_15,
-    textAlign: 'center',
-  },
-  inputError: {
-    borderColor: Color.red,
-    color: Color.red,
-    backgroundColor: '#FFF2F2',
-  },
-  feedbackContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: Gap.gap_20,
-  },
-  correctAnswerBox: {
-    backgroundColor: '#E5F4E2', // Xanh nhạt
-    padding: Padding.padding_20,
-    borderRadius: Border.br_20,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: Gap.gap_20,
-    borderWidth: 1,
-    borderColor: Color.main,
-  },
-  feedbackTitle: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.main,
-    marginBottom: 5,
-  },
-  correctWord: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 32,
-    color: Color.main,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      container: {
+        flex: 1,
+      },
+      content: {
+        flex: 1,
+        paddingHorizontal: Padding.padding_20,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      meaningText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_24,
+        color: colors.text,
+        textAlign: 'center',
+        marginBottom: Gap.gap_10,
+      },
+      phoneticText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        color: colors.gray,
+        textAlign: 'center',
+        marginBottom: Gap.gap_20,
+      },
+      inputContainer: {
+        width: '100%',
+        marginBottom: Gap.gap_20,
+      },
+      input: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.text,
+        backgroundColor: '#F5F5F5',
+        borderWidth: 2,
+        borderColor: '#E0E0E0',
+        borderRadius: Border.br_20,
+        paddingHorizontal: Padding.padding_20,
+        paddingVertical: Padding.padding_15,
+        textAlign: 'center',
+      },
+      inputError: {
+        borderColor: colors.red,
+        color: colors.red,
+        backgroundColor: '#FFF2F2',
+      },
+      feedbackContainer: {
+        width: '100%',
+        alignItems: 'center',
+        marginTop: Gap.gap_20,
+      },
+      correctAnswerBox: {
+        backgroundColor: '#E5F4E2', // Xanh nhạt
+        padding: Padding.padding_20,
+        borderRadius: Border.br_20,
+        width: '100%',
+        alignItems: 'center',
+        marginBottom: Gap.gap_20,
+        borderWidth: 1,
+        borderColor: colors.main,
+      },
+      feedbackTitle: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.main,
+        marginBottom: 5,
+      },
+      correctWord: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 32,
+        color: colors.main,
+      },
+    });

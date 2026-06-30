@@ -7,13 +7,17 @@ import { CheckFatIcon, CheckIcon, XIcon } from 'phosphor-react-native';
 
 // Components & Constants
 import IconButton from '../../components/IconButton';
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import Button from '@/components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Lấy kích thước màn hình để định vị các họa tiết mờ
 const { width, height } = Dimensions.get('window');
 
 export default function PaymentSuccessScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
 
   // Hàm xử lý khi nhấn Bắt đầu hoặc nút X
@@ -26,7 +30,7 @@ export default function PaymentSuccessScreen() {
   return (
     <LinearGradient
       // Cập nhật dải gradient: Xanh lá -> Trắng -> Vàng
-      colors={[Color.main, Color.bg, Color.vang]} 
+      colors={[colors.main, colors.bg, colors.vang]} 
       locations={[0, 0.4, 1]} // Điểm dừng màu để chuyển sắc mượt mà hơn
       style={styles.container}
     >
@@ -55,7 +59,7 @@ export default function PaymentSuccessScreen() {
         <View style={styles.content}>
           {/* Icon Check chính */}
           <View style={styles.mainIconContainer}>
-            <CheckFatIcon size={80} color={Color.green} weight="fill" />
+            <CheckFatIcon size={80} color={colors.green} weight="fill" />
           </View>
 
           <Text style={styles.title}>Thanh toán thành công</Text>
@@ -79,79 +83,79 @@ export default function PaymentSuccessScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Padding.padding_15,
-  },
-  
-  // Họa tiết nền
-  bgPattern: {
-    position: 'absolute',
-    opacity: 0.5, // Mờ ảo để không lấn át nội dung chính
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1,
+      },
+      safeArea: {
+        flex: 1,
+        paddingHorizontal: Padding.padding_15,
+      },
+      
+      // Họa tiết nền
+      bgPattern: {
+        position: 'absolute',
+        opacity: 0.5, // Mờ ảo để không lấn át nội dung chính
+      },
 
-  sText: {
-    fontFamily: FontFamily.lexendDecaSemiBold, // Font đậm để tạo khối tốt
-    color: Color.main, // Dùng màu xanh đậm mờ trên nền sáng sẽ rất sang trọng
-  },
+      sText: {
+        fontFamily: FontFamily.lexendDecaSemiBold, // Font đậm để tạo khối tốt
+        color: colors.main, // Dùng màu xanh đậm mờ trên nền sáng sẽ rất sang trọng
+      },
 
-  // Header
-  header: {
-    alignItems: 'flex-end', // Căn nút X sang phải
-    paddingTop: Padding.padding_15,
-    paddingBottom: Padding.padding_30,
-  },
+      // Header
+      header: {
+        alignItems: 'flex-end', // Căn nút X sang phải
+        paddingTop: Padding.padding_15,
+        paddingBottom: Padding.padding_30,
+      },
 
-  // Nội dung chính
-  content: {
-    flex: 1,// Căn giữa màn hình theo chiều dọc
-    paddingHorizontal: Padding.padding_10,
-    marginBottom: height * 0.1, // Đẩy nhẹ nội dung lên trên một chút
-  },
-  mainIconContainer: {
-    marginBottom: Gap.gap_20,
-    // Không căn giữa (alignItems) ở đây để icon căn lề trái cùng dòng chữ nếu thiết kế yêu cầu lề trái
-    // Dựa theo prompt "nội dung căn trái", tôi để mặc định căn trái. Nếu muốn icon giữa thì thêm alignItems: 'center'
-    alignItems: 'flex-start', 
-  },
-  title: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.color, // Vàng chanh
-    marginBottom: Gap.gap_15,
-    textAlign: 'left',
-  },
-  message: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text, // Màu trắng
-    textAlign: 'left',
-    lineHeight: 24, // Tạo độ thoáng cho đoạn văn
-  },
+      // Nội dung chính
+      content: {
+        flex: 1,// Căn giữa màn hình theo chiều dọc
+        paddingHorizontal: Padding.padding_10,
+        marginBottom: height * 0.1, // Đẩy nhẹ nội dung lên trên một chút
+      },
+      mainIconContainer: {
+        marginBottom: Gap.gap_20,
+        // Không căn giữa (alignItems) ở đây để icon căn lề trái cùng dòng chữ nếu thiết kế yêu cầu lề trái
+        // Dựa theo prompt "nội dung căn trái", tôi để mặc định căn trái. Nếu muốn icon giữa thì thêm alignItems: 'center'
+        alignItems: 'flex-start', 
+      },
+      title: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.color, // Vàng chanh
+        marginBottom: Gap.gap_15,
+        textAlign: 'left',
+      },
+      message: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.text, // Màu trắng
+        textAlign: 'left',
+        lineHeight: 24, // Tạo độ thoáng cho đoạn văn
+      },
 
-  // Nút bấm
-  footer: {
-    paddingBottom: Padding.padding_30,
-  },
-  primaryButton: {
-    backgroundColor: Color.vang, // Nền vàng chanh sáng
-    paddingVertical: 16,
-    borderRadius: 100, // Bo góc hình oval tối đa
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4, // Đổ bóng nhẹ cho Android
-  },
-  primaryButtonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text, // Chữ màu đen đậm
-  },
-});
+      // Nút bấm
+      footer: {
+        paddingBottom: Padding.padding_30,
+      },
+      primaryButton: {
+        backgroundColor: colors.vang, // Nền vàng chanh sáng
+        paddingVertical: 16,
+        borderRadius: 100, // Bo góc hình oval tối đa
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 4, // Đổ bóng nhẹ cho Android
+      },
+      primaryButtonText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text, // Chữ màu đen đậm
+      },
+    });

@@ -8,8 +8,9 @@ import { XIcon } from 'phosphor-react-native';
 import { ConfirmModal } from './ModalResult/ConfirmModal';
 import FeedbackPopup from './Modals/Popup/FeedbackPopup';
 import { AnswerOption, QuizHeader, type OptionStatus } from './Modals/Question';
-import { Color, FontFamily, Gap, Padding } from '../constants/GlobalStyles';
+import { FontFamily, Gap, Padding } from '../constants/GlobalStyles';
 import IconButton from './IconButton';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type QuizQuestion = {
   id: string;
@@ -60,6 +61,9 @@ export default function QuizStudyUI({
   emptyStateText = "Không có câu hỏi nào để hiển thị.",
   renderCustomOptions
 }: QuizStudyUIProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [showExitModal, setShowExitModal] = useState(false);
 
   const currentQuestion = quizData[currentIndex];
@@ -80,7 +84,7 @@ export default function QuizStudyUI({
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </SafeAreaView>
     );
   }
@@ -178,32 +182,32 @@ export default function QuizStudyUI({
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  scrollArea: { flex: 1 },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: Padding.padding_20,
-    paddingTop: Padding.padding_30,
-    paddingBottom: 40,
-  },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 30,
-    color: Color.text,
-    marginBottom: Gap.gap_20,
-    textAlign: 'left',
-  },
-  optionsContainer: { width: '100%' },
-  dontKnowButton: {
-    marginBottom: Gap.gap_15,
-    alignSelf: "flex-end"
-  },
-  dontKnowText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 16,
-    color: Color.cam,
-    textDecorationLine: 'underline',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      scrollArea: { flex: 1 },
+      scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'space-between',
+        paddingHorizontal: Padding.padding_20,
+        paddingTop: Padding.padding_30,
+        paddingBottom: 40,
+      },
+      questionText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 30,
+        color: colors.text,
+        marginBottom: Gap.gap_20,
+        textAlign: 'left',
+      },
+      optionsContainer: { width: '100%' },
+      dontKnowButton: {
+        marginBottom: Gap.gap_15,
+        alignSelf: "flex-end"
+      },
+      dontKnowText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 16,
+        color: colors.cam,
+        textDecorationLine: 'underline',
+      },
+    });

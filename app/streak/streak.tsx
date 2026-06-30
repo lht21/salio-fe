@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FireIcon, TrophyIcon, CalendarBlankIcon } from 'phosphor-react-native';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import ScreenHeader from '../../components/ScreenHeader';
 import { CalendarDay, MonthSection, DayState } from '../../components/StreakComponent/types';
 import { MonthBlock } from '../../components/StreakComponent/MonthBlock';
@@ -13,6 +13,7 @@ import { MonthConnector } from '../../components/StreakComponent/MonthConnector'
 import StreakRewardsModal from '../../components/Modals/StreakRewardsModal';
 import Button from '../../components/Button';
 import { useUser } from '../../contexts/UserContext';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const generateStreakMonths = (activeDates: string[], numMonths: number, createdAtStr?: string): MonthSection[] => {
     const sections: MonthSection[] = [];
@@ -106,6 +107,9 @@ const getStreakImage = (streak: number) => {
 };
 
 export default function StreakScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
     const router = useRouter();
     const { stats, user } = useUser();
     const scrollRef = React.useRef<ScrollView>(null);
@@ -216,95 +220,95 @@ export default function StreakScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: Color.bg,
-    },
-    scroll: {
-        flex: 1,
-        backgroundColor: Color.bg2,
-    },
-    scrollContent: {
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: 6,
-        paddingBottom: 24,
-    },
-    summaryRowWrap: {
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: 14,
-        paddingBottom: 12,
-        backgroundColor: Color.bg,
-        
-    },
-    summaryRow: {
-        flexDirection: 'row',
-        gap: 14,
-    },
-    summaryCard: {
-        flex: 1,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 74,
-        paddingVertical: 10,
-        paddingHorizontal: 6,
-        position: 'relative',
-        overflow: 'hidden',
-    },
-    summaryWatermark: {
-        position: 'absolute',
-        right: -15,
-        bottom: -15,
-        transform: [{ rotate: '-15deg' }],
-    },
-    summaryValue: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_24,
-        lineHeight: 30,
-        color: Color.main || '#98F291',
-    },
-    summaryLabel: {
-        marginTop: 2,
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: '#CBD5E1',
-        textAlign: 'center',
-    },
-    encouragementCard: {
-        marginTop: 10,
-        backgroundColor: '#FFF7ED',
-        borderRadius: Border.br_30,
-        padding: 16,
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 16,
-    },
-    encouragementIconWrap: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: '#FFEDD5',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    encouragementTextWrap: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    encouragementTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: '#EA580C',
-        marginBottom: 4,
-        textAlign: 'center',
-    },
-    encouragementDesc: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: '#9A3412',
-        lineHeight: 18,
-        textAlign: 'center',
-    },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+        safeArea: {
+            flex: 1,
+            backgroundColor: colors.bg,
+        },
+        scroll: {
+            flex: 1,
+            backgroundColor: colors.bg2,
+        },
+        scrollContent: {
+            paddingHorizontal: Padding.padding_15,
+            paddingTop: 6,
+            paddingBottom: 24,
+        },
+        summaryRowWrap: {
+            paddingHorizontal: Padding.padding_15,
+            paddingTop: 14,
+            paddingBottom: 12,
+            backgroundColor: colors.bg,
+            
+        },
+        summaryRow: {
+            flexDirection: 'row',
+            gap: 14,
+        },
+        summaryCard: {
+            flex: 1,
+            borderRadius: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 74,
+            paddingVertical: 10,
+            paddingHorizontal: 6,
+            position: 'relative',
+            overflow: 'hidden',
+        },
+        summaryWatermark: {
+            position: 'absolute',
+            right: -15,
+            bottom: -15,
+            transform: [{ rotate: '-15deg' }],
+        },
+        summaryValue: {
+            fontFamily: FontFamily.lexendDecaSemiBold,
+            fontSize: FontSize.fs_24,
+            lineHeight: 30,
+            color: colors.main || '#98F291',
+        },
+        summaryLabel: {
+            marginTop: 2,
+            fontFamily: FontFamily.lexendDecaRegular,
+            fontSize: FontSize.fs_12,
+            color: '#CBD5E1',
+            textAlign: 'center',
+        },
+        encouragementCard: {
+            marginTop: 10,
+            backgroundColor: '#FFF7ED',
+            borderRadius: Border.br_30,
+            padding: 16,
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 16,
+        },
+        encouragementIconWrap: {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: '#FFEDD5',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        encouragementTextWrap: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        encouragementTitle: {
+            fontFamily: FontFamily.lexendDecaSemiBold,
+            fontSize: FontSize.fs_16,
+            color: '#EA580C',
+            marginBottom: 4,
+            textAlign: 'center',
+        },
+        encouragementDesc: {
+            fontFamily: FontFamily.lexendDecaRegular,
+            fontSize: FontSize.fs_12,
+            color: '#9A3412',
+            lineHeight: 18,
+            textAlign: 'center',
+        },
+    });

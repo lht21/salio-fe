@@ -6,10 +6,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import GrammarService from '@/api/services/grammar.service';
 import LessonService from '@/api/services/lesson.service';
 import QuizStudyUI, { QuizQuestion } from '../../../../components/QuizStudyUI';
-import { Color, FontFamily, Gap, Padding } from '../../../../constants/GlobalStyles';
+import { FontFamily, Gap, Padding } from '../../../../constants/GlobalStyles';
 import { QuizHeader } from '../../../../components/Modals/Question';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarQuizScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
 
@@ -140,20 +144,20 @@ export default function GrammarQuizScreen() {
     ]).start(moveNext);
   };
 
-  if (loading) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={colors.main} /></SafeAreaView>;
 
   if (errorMsg) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <QuizHeader current={0} total={0} incorrectCount={0} onClose={() => router.back()} />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: Color.text }}>{errorMsg}</Text>
+          <Text style={{ fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: colors.text }}>{errorMsg}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  if (!session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={Color.main} /></SafeAreaView>;
+  if (!session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={colors.main} /></SafeAreaView>;
 
   return (
     <QuizStudyUI
@@ -198,12 +202,12 @@ export default function GrammarQuizScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  inputContainer: { width: '100%', marginTop: Gap.gap_20 },
-  textInput: { backgroundColor: Color.whiteText, borderWidth: 2, borderColor: Color.colorBlack, borderRadius: 20, padding: Padding.padding_15, fontSize: 18, fontFamily: FontFamily.lexendDecaMedium, color: Color.text, minHeight: 60 },
-  inputSuccess: { borderColor: Color.main },
-  inputError: { borderColor: Color.red },
-  submitBtn: { backgroundColor: Color.main, paddingVertical: Padding.padding_15, borderRadius: 12, marginTop: Gap.gap_20, alignItems: 'center' },
-  submitBtnText: { color: Color.whiteText, fontFamily: FontFamily.lexendDecaBold, fontSize: 18 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      inputContainer: { width: '100%', marginTop: Gap.gap_20 },
+      textInput: { backgroundColor: colors.whiteText, borderWidth: 2, borderColor: colors.colorBlack, borderRadius: 20, padding: Padding.padding_15, fontSize: 18, fontFamily: FontFamily.lexendDecaMedium, color: colors.text, minHeight: 60 },
+      inputSuccess: { borderColor: colors.main },
+      inputError: { borderColor: colors.red },
+      submitBtn: { backgroundColor: colors.main, paddingVertical: Padding.padding_15, borderRadius: 12, marginTop: Gap.gap_20, alignItems: 'center' },
+      submitBtnText: { color: colors.whiteText, fontFamily: FontFamily.lexendDecaBold, fontSize: 18 },
+    });

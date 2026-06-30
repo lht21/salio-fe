@@ -6,13 +6,17 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 import Animated from 'react-native-reanimated';
 
-import { Color, FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
 import SearchVocaModal from '../../components/Modals/SearchVocaModal';
 import ScreenHeader from '../../components/ScreenHeader';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 export default function ArticleDetailScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const { articleId, imageUrl } = useLocalSearchParams();
   const router = useRouter();
   const searchVocaSheetRef = useRef<BottomSheetModal>(null);
@@ -77,22 +81,22 @@ export default function ArticleDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Color.bg },
-  header: { 
-    borderBottomWidth: 1,
-    borderBottomColor: Color.stroke
-  },
-  content: { padding: Padding.padding_20 },
-  heroImage: { width: '100%', height: 200, borderRadius: 12, marginBottom: 20 },
-  title: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: Color.text, marginBottom: 20 },
-  
-  // Styles cho Text Parser
-  paragraphContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  wordTouchable: { marginRight: 4, marginBottom: 6, paddingVertical: 2 },
-  wordText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: '#334155', lineHeight: 28 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: { flex: 1, backgroundColor: colors.bg },
+      header: { 
+        borderBottomWidth: 1,
+        borderBottomColor: colors.stroke
+      },
+      content: { padding: Padding.padding_20 },
+      heroImage: { width: '100%', height: 200, borderRadius: 12, marginBottom: 20 },
+      title: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: colors.text, marginBottom: 20 },
+      
+      // Styles cho Text Parser
+      paragraphContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+      },
+      wordTouchable: { marginRight: 4, marginBottom: 6, paddingVertical: 2 },
+      wordText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: '#334155', lineHeight: 28 },
+    });

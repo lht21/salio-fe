@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 // Import thêm Color từ GlobalStyles
-import { FontFamily, Color } from '@/constants/GlobalStyles';
+import { FontFamily } from '@/constants/GlobalStyles';
 
 // Component bọc Icon và Text để tạo hiệu ứng hình viên thuốc (Capsule)
 const AnimatedTabItem = ({ 
@@ -25,10 +25,12 @@ const AnimatedTabItem = ({
   label: string; 
   children: React.ReactNode 
 }) => {
+    const { colors } = useTheme();
+
   return (
     <MotiView
       animate={{
-        backgroundColor: focused ? Color.main : 'transparent', // Dùng Color.main khi active
+        backgroundColor: focused ? colors.main : 'transparent', // Dùng Color.main khi active
         paddingHorizontal: focused ? 24 : 10, // Tăng padding ngang để rộng rãi, không bị cắt chữ
       }}
       transition={{
@@ -61,7 +63,10 @@ const AnimatedTabItem = ({
 };
 
 export default function TabLayout() {
-  const { colors } = useTheme();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
+
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
@@ -155,8 +160,8 @@ export default function TabLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1,
+      },
+    });

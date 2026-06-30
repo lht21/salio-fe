@@ -21,7 +21,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import HistoryCardSlider from '../../components/HistoryCardSlider';
 import IndustryCard from '../../components/IndustryCard';
 import SafetyCard from '../../components/SafetyCard';
-import AlertBanner from '../../components/AlertBanner';
 import CreateSetButton from '../../components/CreateSetButton';
 
 export type Level = 'EPS' | 'TOPIK I' | 'TOPIK II';
@@ -33,7 +32,6 @@ export default function PracticeScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [selectedLevel, setSelectedLevel] = useState<Level>('TOPIK II');
-  const [showAlert, setShowAlert] = useState(true);
 
   // Hàm helper getExamType(level: string) để map selectedLevel sang mã tương ứng của backend
   const getExamType = (level: string) => {
@@ -175,22 +173,12 @@ export default function PracticeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       
-      {showAlert && (
-        <View style={{ paddingTop: 20 }}>
-          <AlertBanner 
-            text={t('practice.alert_text', "Bạn đã đạt 200 điểm TOPIK từ lần thi thử trước đó nên trình độ TOPIK sẽ tự động thay đổi theo số điểm của bạn. Nhưng bạn cũng có thể lựa chọn lại các trình độ khác ngoài trình độ hiện tại này!")}
-            buttonTitle={t('practice.close', "Đóng")}
-            onPress={() => setShowAlert(false)}
-          />
-        </View>
-      )}
-
       {/* Header Section */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('practice.title', 'Luyện thi')}</Text>
         <CreateSetButton 
           title="Tìm mọi đề"
-          icon={<MagnifyingGlassIcon size={15} color="#FFFFFF" weight="bold" />}
+          icon={<MagnifyingGlassIcon size={15} color={colors.bg} weight="bold" />}
           onPress={() => router.push('/practice/search-exam')}
         />
       </View>

@@ -71,7 +71,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bg,
     borderRadius: 28.5, // 30 - 1.5 để khít với góc bo bên ngoài
     paddingBottom: 15,
     overflow: 'visible',

@@ -9,8 +9,9 @@ import { Audio } from 'expo-av';
 
 const { width, height } = Dimensions.get('window');
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import Button from '../Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ScoreCardProps {
   title: string;
@@ -18,13 +19,18 @@ interface ScoreCardProps {
   score: string | number;
 }
 
-const ScoreCard = ({ title, koreanTitle, score }: ScoreCardProps) => (
+const ScoreCard = ({ title, koreanTitle, score }: ScoreCardProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
+return (
   <View style={styles.scoreCard}>
     <Text style={styles.skillTitle}>{title}</Text>
     <Text style={styles.skillKorean}>{koreanTitle}</Text>
     <Text style={styles.skillScore}>{score}</Text>
   </View>
 );
+};
 
 interface FeedbackSectionProps {
   totalScore: number;
@@ -35,6 +41,9 @@ interface FeedbackSectionProps {
 }
 
 const FeedbackSection = ({ totalScore, maxScore, onHomePress, onReviewPress, onRetryPress }: FeedbackSectionProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const getFeedbackMessage = (score: number, max: number) => {
     if (max === 0) return "Chúc mừng bạn đã hoàn thành bài thi!";
     const ratio = score / max;
@@ -51,7 +60,7 @@ const FeedbackSection = ({ totalScore, maxScore, onHomePress, onReviewPress, onR
       </Text>
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.homeButton} onPress={onHomePress} activeOpacity={0.8}>
-          <HouseIcon size={24} color={Color.bg || '#FFFFFF'} weight="bold" />
+          <HouseIcon size={24} color={colors.bg || '#FFFFFF'} weight="bold" />
         </TouchableOpacity>
         
         <Button 
@@ -81,6 +90,9 @@ interface ExamResultUIProps {
 }
 
 export default function ExamResultUI({ type, data, onHomePress, onReviewPress, onRetryPress }: ExamResultUIProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   useEffect(() => {
     let sound: Audio.Sound;
 
@@ -110,7 +122,7 @@ export default function ExamResultUI({ type, data, onHomePress, onReviewPress, o
   const maxScore = type === 'full' ? 300 : 100;
 
   return (
-    <LinearGradient colors={['#CEF9B4', Color.bg || '#FFFFFF']} style={styles.container}>
+    <LinearGradient colors={['#CEF9B4', colors.bg || '#FFFFFF']} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.mascotContainer}>
@@ -158,26 +170,26 @@ export default function ExamResultUI({ type, data, onHomePress, onReviewPress, o
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  safeArea: { flex: 1 },
-  scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40, alignItems: 'center' },
-  mascotContainer: { alignItems: 'center', marginTop: 30, marginBottom: Gap.gap_20 },
-  mascotImage: { width: 180, height: 180, marginBottom: Gap.gap_15 },
-  rankLabel: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: Color.text, marginBottom: 4 },
-  levelName: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: Color.color || '#0C5F35', lineHeight: 40, textAlign: 'center' },
-  totalScoreContainer: { alignItems: 'center', marginBottom: 30 },
-  totalScoreLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.gray, marginBottom: 4 },
-  totalScoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 40, color: Color.cam || '#F59E0B' },
-  totalScoreMax: { fontSize: FontSize.fs_16, color: Color.gray },
-  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
-  scoreCard: { flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.5)', borderRadius: Border.br_20, padding: Padding.padding_15, alignItems: 'center', borderWidth: 1, borderBottomWidth: 5, borderBottomColor: Color.stroke, borderColor: 'rgba(255, 255, 255, 0.8)' },
-  skillTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: Color.text },
-  skillKorean: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray, marginBottom: Gap.gap_10 },
-  skillScore: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.color || '#0C5F35' },
-  feedbackContainer: { backgroundColor: '#E8F5E9', borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, padding: Padding.padding_20, paddingBottom: 40 },
-  feedbackText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: Color.text, textAlign: 'center', lineHeight: 22, marginBottom: Gap.gap_20 },
-  actionRow: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_15 },
-  homeButton: { width: 52, height: 52, borderRadius: 26, backgroundColor: Color.main2 || '#166534', justifyContent: 'center', alignItems: 'center' },
-  actionButton: { flex: 1, marginVertical: 0, paddingHorizontal: 0 },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: { flex: 1 },
+      safeArea: { flex: 1 },
+      scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40, alignItems: 'center' },
+      mascotContainer: { alignItems: 'center', marginTop: 30, marginBottom: Gap.gap_20 },
+      mascotImage: { width: 180, height: 180, marginBottom: Gap.gap_15 },
+      rankLabel: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: 4 },
+      levelName: { fontFamily: FontFamily.lexendDecaBold, fontSize: 32, color: colors.color || '#0C5F35', lineHeight: 40, textAlign: 'center' },
+      totalScoreContainer: { alignItems: 'center', marginBottom: 30 },
+      totalScoreLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray, marginBottom: 4 },
+      totalScoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 40, color: colors.cam || '#F59E0B' },
+      totalScoreMax: { fontSize: FontSize.fs_16, color: colors.gray },
+      scoreRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
+      scoreCard: { flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.5)', borderRadius: Border.br_20, padding: Padding.padding_15, alignItems: 'center', borderWidth: 1, borderBottomWidth: 5, borderBottomColor: colors.stroke, borderColor: 'rgba(255, 255, 255, 0.8)' },
+      skillTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.text },
+      skillKorean: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray, marginBottom: Gap.gap_10 },
+      skillScore: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.color || '#0C5F35' },
+      feedbackContainer: { backgroundColor: '#E8F5E9', borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30, padding: Padding.padding_20, paddingBottom: 40 },
+      feedbackText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14, color: colors.text, textAlign: 'center', lineHeight: 22, marginBottom: Gap.gap_20 },
+      actionRow: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_15 },
+      homeButton: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.main2 || '#166534', justifyContent: 'center', alignItems: 'center' },
+      actionButton: { flex: 1, marginVertical: 0, paddingHorizontal: 0 },
+    });

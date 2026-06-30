@@ -20,7 +20,7 @@ import PracticeHeader from '../../../../components/Shared/PracticeHeader';
 import AudioPlayerControls from '../../../../components/Listening/AudioPlayerControls';
 import TranscriptBox from '../../../../components/Listening/TranscriptBox';
 import ImmediateFeedbackBar from '../../../../components/Listening/ImmediateFeedbackBar';
-import { Color } from '../../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const SPEED_OPTIONS = [
   { label: 'x0.5', value: 0.55 },
@@ -32,6 +32,9 @@ const SPEED_OPTIONS = [
 ];
 
 export default function ListeningPracticeScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const resolvedLessonId = lessonId as string;
@@ -327,9 +330,9 @@ export default function ListeningPracticeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: Color.main200 }]} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.main200 }]} edges={['top']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <LinearGradient colors={[Color.main200, '#FFFFFF']} style={styles.container}>
+        <LinearGradient colors={[colors.main200, '#FFFFFF']} style={styles.container}>
           <ScrollView 
             style={styles.content}
             contentContainerStyle={styles.contentInner}
@@ -394,23 +397,23 @@ const formatTime = (ms: number) => {
   return `${Math.floor(totalSec / 60)}:${(totalSec % 60).toString().padStart(2, '0')}`;
 };
 
-const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  safeArea: { flex: 1 },
-  container: {
-    flex: 1,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 14,
-    overflow: 'hidden',
-  },
-  content: {
-    flex: 1,
-  },
-  contentInner: {
-    paddingBottom: 24,
-  },
-  footerSlot: {
-    marginTop: 'auto',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      screen: { flex: 1 },
+      safeArea: { flex: 1 },
+      container: {
+        flex: 1,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        padding: 14,
+        overflow: 'hidden',
+      },
+      content: {
+        flex: 1,
+      },
+      contentInner: {
+        paddingBottom: 24,
+      },
+      footerSlot: {
+        marginTop: 'auto',
+      },
+    });

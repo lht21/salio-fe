@@ -4,9 +4,10 @@ import { AnimatePresence, MotiView } from 'moti';
 import { useRouter } from 'expo-router';
 import { CaretDownIcon, CaretUpIcon, SpeakerHighIcon } from 'phosphor-react-native';
 
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import HangulTracingGlyph from './HangulTracingGlyph';
 import { getHangulWritingIndex } from './hangulWritingSequence';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type HangulCharacterAccordionProps = {
   lessonId: string;
@@ -23,6 +24,9 @@ const HangulCharacterAccordion = ({
   example,
   initiallyExpanded = false,
 }: HangulCharacterAccordionProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [expanded, setExpanded] = React.useState(initiallyExpanded);
   const router = useRouter();
 
@@ -54,14 +58,14 @@ const HangulCharacterAccordion = ({
 
           <View style={styles.headerActions}>
             <Pressable style={styles.iconButton} hitSlop={8} onPress={handleOpenWritingScreen}>
-              <SpeakerHighIcon size={20} color={Color.text} weight="regular" />
+              <SpeakerHighIcon size={20} color={colors.text} weight="regular" />
             </Pressable>
 
             <Pressable style={styles.iconButton} onPress={() => setExpanded((value) => !value)} hitSlop={8}>
               {expanded ? (
-                <CaretUpIcon size={18} color={Color.gray} weight="bold" />
+                <CaretUpIcon size={18} color={colors.gray} weight="bold" />
               ) : (
-                <CaretDownIcon size={18} color={Color.gray} weight="bold" />
+                <CaretDownIcon size={18} color={colors.gray} weight="bold" />
               )}
             </Pressable>
           </View>
@@ -89,62 +93,62 @@ const HangulCharacterAccordion = ({
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: Border.br_15,
-    borderWidth: 1,
-    borderColor: '#D6DFEA',
-    backgroundColor: Color.bg,
-    paddingHorizontal: Padding.padding_15,
-    paddingVertical: 14,
-    gap: Gap.gap_10,
-  },
-  cardExpanded: {
-    paddingBottom: 18,
-  },
-  cardContent: {
-    gap: Gap.gap_10,
-  },
-  headerMain: {
-    flex: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Gap.gap_10,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  iconButton: {
-    width: 28,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  label: {
-    flex: 1,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: '#63B900',
-  },
-  bodyWrap: {
-    overflow: 'hidden',
-  },
-  body: {
-    alignItems: 'center',
-    gap: Gap.gap_15,
-    paddingTop: 4,
-  },
-  example: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    textAlign: 'center',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      card: {
+        borderRadius: Border.br_15,
+        borderWidth: 1,
+        borderColor: '#D6DFEA',
+        backgroundColor: colors.bg,
+        paddingHorizontal: Padding.padding_15,
+        paddingVertical: 14,
+        gap: Gap.gap_10,
+      },
+      cardExpanded: {
+        paddingBottom: 18,
+      },
+      cardContent: {
+        gap: Gap.gap_10,
+      },
+      headerMain: {
+        flex: 1,
+      },
+      headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: Gap.gap_10,
+      },
+      headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+      },
+      iconButton: {
+        width: 28,
+        height: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      label: {
+        flex: 1,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: '#63B900',
+      },
+      bodyWrap: {
+        overflow: 'hidden',
+      },
+      body: {
+        alignItems: 'center',
+        gap: Gap.gap_15,
+        paddingTop: 4,
+      },
+      example: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        textAlign: 'center',
+      },
+    });
 
 export default HangulCharacterAccordion;

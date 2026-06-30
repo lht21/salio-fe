@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, ActivityIndicator } fr
 import { Audio } from 'expo-av';
 import { MicrophoneIcon, BellSlashIcon, WarningCircleIcon, CheckCircleIcon } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../constants/GlobalStyles';
 import Button from '../Button';
 import IconButton from '../IconButton';
 import { XIcon } from 'phosphor-react-native';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ZenmodeCheckModalProps {
   isVisible: boolean;
@@ -15,6 +16,9 @@ interface ZenmodeCheckModalProps {
 }
 
 export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: ZenmodeCheckModalProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [micStatus, setMicStatus] = useState<'checking' | 'quiet' | 'loud' | 'error'>('checking');
   const [dndChecked, setDndChecked] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
@@ -105,26 +109,26 @@ export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: Zen
           {/* CHECK 1: TIẾNG ỒN MÔI TRƯỜNG */}
           <View style={styles.checkItem}>
             <View style={styles.iconBox}>
-              <MicrophoneIcon size={24} color={Color.purple || '#8B5CF6'} weight="fill" />
+              <MicrophoneIcon size={24} color={colors.purple || '#8B5CF6'} weight="fill" />
             </View>
             <View style={styles.itemContent}>
               <Text style={styles.itemTitle}>Đo tiếng ồn môi trường</Text>
               {micStatus === 'checking' && (
                 <View style={styles.statusRow}>
-                  <ActivityIndicator size="small" color={Color.purple || '#8B5CF6'} />
+                  <ActivityIndicator size="small" color={colors.purple || '#8B5CF6'} />
                   <Text style={styles.statusText}>Đang phân tích...</Text>
                 </View>
               )}
               {micStatus === 'quiet' && (
                 <View style={styles.statusRow}>
-                  <CheckCircleIcon size={16} color={Color.main || '#22C55E'} weight="fill" />
-                  <Text style={[styles.statusText, { color: Color.main || '#22C55E' }]}>Khá yên tĩnh, tuyệt vời!</Text>
+                  <CheckCircleIcon size={16} color={colors.main || '#22C55E'} weight="fill" />
+                  <Text style={[styles.statusText, { color: colors.main || '#22C55E' }]}>Khá yên tĩnh, tuyệt vời!</Text>
                 </View>
               )}
               {micStatus === 'loud' && (
                 <View style={styles.statusRow}>
-                  <WarningCircleIcon size={16} color={Color.cam || '#F59E0B'} weight="fill" />
-                  <Text style={[styles.statusText, { color: Color.cam || '#F59E0B' }]}>Môi trường đang hơi ồn ào.</Text>
+                  <WarningCircleIcon size={16} color={colors.cam || '#F59E0B'} weight="fill" />
+                  <Text style={[styles.statusText, { color: colors.cam || '#F59E0B' }]}>Môi trường đang hơi ồn ào.</Text>
                 </View>
               )}
               {micStatus === 'error' && (
@@ -160,18 +164,18 @@ export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: Zen
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
-  modalContainer: { width: '100%', backgroundColor: Color.bg || '#FFFFFF', borderRadius: Border.br_20, padding: Padding.padding_20 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  title: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: Color.text },
-  checkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Color.stroke || '#E2E8F0' },
-  iconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: Color.purplePastel || '#EDE9FE', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  itemContent: { flex: 1 },
-  itemTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: Color.text, marginBottom: 4 },
-  itemDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray, lineHeight: 18 },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  statusText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: Color.gray },
-  checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: Color.stroke || '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginLeft: 12 },
-  checkboxChecked: { backgroundColor: Color.main || '#22C55E', borderColor: Color.main || '#22C55E' },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
+      modalContainer: { width: '100%', backgroundColor: colors.bg || '#FFFFFF', borderRadius: Border.br_20, padding: Padding.padding_20 },
+      header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+      title: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+      checkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.stroke || '#E2E8F0' },
+      iconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.purplePastel || '#EDE9FE', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+      itemContent: { flex: 1 },
+      itemTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text, marginBottom: 4 },
+      itemDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray, lineHeight: 18 },
+      statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+      statusText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray },
+      checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: colors.stroke || '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginLeft: 12 },
+      checkboxChecked: { backgroundColor: colors.main || '#22C55E', borderColor: colors.main || '#22C55E' },
+    });

@@ -19,9 +19,12 @@ import {
 } from '../../../../components/Modals/Question';
 import ImmediateFeedbackBar from '../../../../components/Listening/ImmediateFeedbackBar';
 import PracticeHeader from '../../../../components/Shared/PracticeHeader';
-import { Color } from '../../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ReadingPracticeScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const resolvedLessonId = lessonId as string;
@@ -251,9 +254,9 @@ export default function ReadingPracticeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: Color.main200 }]} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.main200 }]} edges={['top']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <LinearGradient colors={[Color.main200, '#FFFFFF']} style={styles.container}>
+        <LinearGradient colors={[colors.main200, '#FFFFFF']} style={styles.container}>
           <ScrollView 
             style={styles.content}
             contentContainerStyle={styles.contentInner}
@@ -297,24 +300,24 @@ export default function ReadingPracticeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  safeArea: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  container: {
-    flex: 1,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 14,
-    overflow: 'hidden',
-  },
-  content: {
-    flex: 1,
-  },
-  contentInner: {
-    paddingBottom: 24,
-  },
-  footerSlot: {
-    marginTop: 'auto',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      screen: { flex: 1 },
+      safeArea: { flex: 1 },
+      center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+      container: {
+        flex: 1,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        padding: 14,
+        overflow: 'hidden',
+      },
+      content: {
+        flex: 1,
+      },
+      contentInner: {
+        paddingBottom: 24,
+      },
+      footerSlot: {
+        marginTop: 'auto',
+      },
+    });

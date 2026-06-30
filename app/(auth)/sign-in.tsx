@@ -25,9 +25,13 @@ import { useUser } from '../../contexts/UserContext';
 
 
 // --- Constants ---
-import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Height, Border } from '../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SignInScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -73,7 +77,7 @@ export default function SignInScreen() {
 
   return (
     <LinearGradient
-      colors={[Color.main, Color.bg]}
+      colors={[colors.main, colors.bg]}
       locations={[0, 0.5]}
       style={styles.gradientBackground}
     >
@@ -100,9 +104,9 @@ export default function SignInScreen() {
             {/* --- PHẦN DƯỚI: Form Đăng Nhập --- */}
             <View style={styles.bottomSection}>
               <View style={styles.socialContainer}>
-                <SocialButton social="google" iconColor={Color.red} />
-                <SocialButton social="facebook" iconColor={Color.blueFb} />
-                <SocialButton social="apple" iconColor={Color.text} />
+                <SocialButton social="google" iconColor={colors.red} />
+                <SocialButton social="facebook" iconColor={colors.blueFb} />
+                <SocialButton social="apple" iconColor={colors.text} />
               </View>
 
               <View style={styles.divider} />
@@ -116,14 +120,14 @@ export default function SignInScreen() {
                   autoCapitalize="none"
                   value={email}
                   onChangeText={setEmail}
-                  leftIcon={<EnvelopeSimpleIcon size={24} color={Color.gray} weight='fill' />}
+                  leftIcon={<EnvelopeSimpleIcon size={24} color={colors.gray} weight='fill' />}
                 />
                 <CustomInput
                   placeholder="Mật khẩu"
                   isPassword
                   value={password}
                   onChangeText={setPassword}
-                  leftIcon={<LockKeyIcon size={24} color={Color.gray} weight='fill' />}
+                  leftIcon={<LockKeyIcon size={24} color={colors.gray} weight='fill' />}
                 />
               </View>
 
@@ -145,7 +149,7 @@ export default function SignInScreen() {
                 <Text style={{ 
                   fontFamily: FontFamily.lexendDecaRegular,
                   fontSize: FontSize.fs_12,
-                  color: Color.color,
+                  color: colors.color,
                 }}>
                   Quên mật khẩu?
                 </Text>
@@ -159,83 +163,83 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  keyboardAvoiding: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
-    justifyContent: 'space-between',
-    padding: Padding.padding_15,
-  },
-  
-  // --- TOP SECTION ---
-  topSection: {
-    alignItems: 'center',
-    paddingTop: Padding.padding_30,
-    gap: Gap.gap_20,
-  },
-  logo: {
-    height: 270, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
-    aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
-    marginBottom: Padding.padding_10,
-  },
-  socialContainer: {
-    width: '100%',
-    gap: Gap.gap_20,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      gradientBackground: {
+        flex: 1,
+      },
+      safeArea: {
+        flex: 1,
+      },
+      keyboardAvoiding: {
+        flex: 1,
+      },
+      scrollContent: {
+        flexGrow: 1,
+        // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
+        justifyContent: 'space-between',
+        padding: Padding.padding_15,
+      },
+      
+      // --- TOP SECTION ---
+      topSection: {
+        alignItems: 'center',
+        paddingTop: Padding.padding_30,
+        gap: Gap.gap_20,
+      },
+      logo: {
+        height: 270, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
+        aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
+        marginBottom: Padding.padding_10,
+      },
+      socialContainer: {
+        width: '100%',
+        gap: Gap.gap_20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+      },
 
-  // --- BOTTOM SECTION ---
-  bottomSection: {
-    width: '100%',
-    gap: Gap.gap_15,
-    paddingTop: Padding.padding_30,
+      // --- BOTTOM SECTION ---
+      bottomSection: {
+        width: '100%',
+        gap: Gap.gap_15,
+        paddingTop: Padding.padding_30,
 
-  },
-  heading: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.color,
-    textAlign: 'left',
-    marginBottom: Padding.padding_5,
-  },
-  formContainer: {
-    width: '100%',
-    gap: Gap.gap_15,
-  },
-  loginButton: {
-    marginTop: Padding.padding_5,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+      },
+      heading: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.color,
+        textAlign: 'left',
+        marginBottom: Padding.padding_5,
+      },
+      formContainer: {
+        width: '100%',
+        gap: Gap.gap_15,
+      },
+      loginButton: {
+        marginTop: Padding.padding_5,
+      },
+      actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
 
-  forgotPasswordButton: {
-    marginTop: Padding.padding_10,
-    backgroundColor: Color.greenLight,
-    paddingVertical: Padding.padding_10,
-    borderRadius: Border.br_10,
-    alignItems: 'center',
-  },
+      forgotPasswordButton: {
+        marginTop: Padding.padding_10,
+        backgroundColor: colors.greenLight,
+        paddingVertical: Padding.padding_10,
+        borderRadius: Border.br_10,
+        alignItems: 'center',
+      },
 
-  divider: {
-    width: 76,
-    height: 3,
-    borderStyle: "solid",
-    borderColor: Color.gray,
-    borderTopWidth: 3,
-    alignSelf: 'center',
-    margin: Gap.gap_20,
-  },
-});
+      divider: {
+        width: 76,
+        height: 3,
+        borderStyle: "solid",
+        borderColor: colors.gray,
+        borderTopWidth: 3,
+        alignSelf: 'center',
+        margin: Gap.gap_20,
+      },
+    });

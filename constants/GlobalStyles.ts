@@ -15,17 +15,68 @@ export const FontSize = {
   fs_12: 12,
   fs_14: 14,
   fs_16: 16,
+  fs_18: 18,
   fs_20: 20,
   fs_24: 24,
 };
+
+export const baseColor = {
+
+  main: "#9FD52C",
+  main50: "#F2FCD0",
+  main75: "#E8F7C0",
+  main100: '#DFF5A0',
+  main200: "#C8ED6A",
+  main300: '#AEDD40',
+  main400: "#90CC18",
+  main500: '#6EAA00',
+  main700: '#4E7A00',
+  main900: '#2F4D00',
+
+  brown50: "#FDF7F0",
+  brown200: "#D4B896",
+  brown500: "#7A5530",
+  brown800: "#4A3218",
+
+  blue50: '#E0F2FF',
+  blue200: '#A8DAFF',
+  blue400: '#60B8F8',
+  blue600: '#2896E0',
+
+  orange50: '#FFF0E0',
+  orange100: '#FFD0A0',
+  orange300: '#FFAB58',
+  orange500: '#F07C18',
+  orange700: '#B05200',
+
+  neutral0: "#FAFEF5",
+  neutral50: "#F1F6EA",
+  neutral100: "#E2E9D8",
+  neutral200: "#C8D2BC",
+  neutral300: "#A8B59A",
+  neutral400: "#879678",
+  neutral500: "#67785A",
+  neutral600: "#4C5C40",
+  neutral700: "#354229",
+  neutral800: "#222D17",
+  neutral900: "#141C0C",
+  neutral950: "#0A1006",
+
+}
+  
+
 /* Colors - Refactored for Theme support */
 export const lightTheme = {
+
+  headerSection: baseColor.main200,
+  textGreen: baseColor.main900,
+  bgFlashCardSet: '#FAFEF5',
   // --- BASE ---
-  bg: "#FFFFFF",
+  bg: "#FAFEF5",
   bg2: "#F6FBF5",
-  text: "#1E1E1E",
+  text: "#141C0C",
   stroke: "#E2E8F0",
-  gray: "#64748B",
+  gray: "#4C5C40",
 
   // --- new colors ---
   main: "#9FD52C",
@@ -50,16 +101,32 @@ export const lightTheme = {
   blue600: '#2896E0',
 
   orange50: '#FFF0E0',
+  orange100: '#FFD0A0',
   orange300: '#FFAB58',
   orange500: '#F07C18',
   orange700: '#B05200',
 
+  neutral0: "#FAFEF5",
+  neutral50: "#F1F6EA",
+  neutral100: "#E2E9D8",
+  neutral200: "#C8D2BC",
+  neutral300: "#A8B59A",
+  neutral400: "#879678",
+  neutral500: "#67785A",
+  neutral600: "#4C5C40",
+  neutral700: "#354229",
+  neutral800: "#222D17",
+  neutral900: "#141C0C",
+  neutral950: "#0A1006",
+
+  
+  // --- BLUE ---
   mainLighter: "rgba(152, 242, 145, 0.10)",
   main2: "#6FAE6C",
   green: "#059669",
   greenLight: "#ECFFEB",
 
-  // --- BLUE ---
+  
   bluePastel: "#BFD7FF",
   blue: "#2F6DF6",
   blueFb: "#1877F2",
@@ -173,19 +240,62 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
+  headerSection: '#303030',
+  textGreen: baseColor.main900,
+  bgFlashCardSet: '#212121',
   // --- BASE ---
-  bg: "#121212",
-  bg2: "#1E1E1E",
-  text: "#FFFFFF",
-  stroke: "#333333",
-  gray: "#A0AAB5",
+  bg: "#0D0D0D",
+  bg2: "#1C2C0E",
+  text: "#F2FCD0",
+  stroke: "#616161",
+  gray: "#7A9068",
+
+  main50: "#F2FCD0",
+  main75: "#E8F7C0",
+  main100: '#DFF5A0',
+  main200: "#C8ED6A",
+  main300: '#AEDD40',
+  main400: "#90CC18",
+  main500: '#6EAA00',
+  main700: '#4E7A00',
+  main900: '#2F4D00',
+
+  brown50: "#2E2408",
+  brown200: "#F5D87A",
+  brown500: "#E8C030",
+  brown800: "#4A3218",
+
+  blue50: '#0D2D4A',
+  blue200: '#A8DAFF',
+  blue400: '#60B8F8',
+  blue600: '#2896E0',
+
+  orange50: '#2E1400',
+  orange100: '#FFD0A0',
+  orange300: '#FFAB58',
+  orange500: '#F07C18',
+  orange700: '#B05200',
+
+  neutral0: "#FAFEF5",
+  neutral50: "#F1F6EA",
+  neutral100: "#DDE8D0",
+  neutral200: "#C8D2BC",
+  neutral300: "#B0C0A0",
+  neutral400: "#879678",
+  neutral500: "#7A9068",
+  neutral600: "#4A5C3A",
+  neutral700: "#3A4A2C",
+  neutral800: "#2A3820",
+  neutral900: "#1C2A14",
+  neutral950: "#141F08",
+  neutral1000: "#0A1006",
 
   // --- GREEN ---
-  main: "#6FAE6C", 
-  mainLighter: "rgba(111, 174, 108, 0.20)",
-  main2: "#98F291",
-  green: "#10B981",
-  greenLight: "#064E3B",
+  main: "#AEDD40", 
+  mainLighter: "rgba(174, 221, 64, 0.20)",
+  main2: "#C8ED6A",
+  green: "#AEDD40",
+  greenLight: "#4E7A00",
 
   // --- BLUE ---
   bluePastel: "#1E3A8A",
@@ -219,12 +329,12 @@ export const darkTheme = {
   redDark: "#991B1B",
 
   // --- TEXT / BRAND EXTRA ---
-  color: "#6EE7B7",
+  color: baseColor.main300,
   bgTest: "#121212",
   colorBlack: "#FFFFFF",
 
-  fireIcon: '#EF4444',   // Đổi sang đỏ sáng trong dark mode
-  trophyIcon: '#F59E0B', // Đổi sang vàng sáng hơn trong dark mode
+  fireIcon: '#FFAB58',   // Đổi sang đỏ sáng trong dark mode
+  trophyIcon: '#F5D87A', // Đổi sang vàng sáng hơn trong dark mode
   monthBlockBorder: 'rgba(80, 141, 78, 0.40)', // Viền lịch chuỗi ngày sáng hơn trong dark mode
 
   upgradeBannerGradientStart: '#0F172A',

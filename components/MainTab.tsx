@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { FontFamily, FontSize, Border, Color } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Border } from '../constants/GlobalStyles';
 import { useTheme } from '../contexts/ThemeContext';
 import { MotiView } from 'moti';
 
@@ -25,14 +25,15 @@ const MainTab = ({
   activeBorderColor,
   style
 }: MainTabProps) => {
+
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   // Áp dụng các màu mặc định theo yêu cầu (kèm màu fallback nếu Theme không có)
-  const resolvedActiveBgColor =  Color.main400 || '#3AB878';
-  const resolvedActiveTextColor =  Color.main50 || '#F0FFF0';
-  const resolvedInactiveBgColor = Color.main75 || '#E6FFD1';
-  const resolvedInactiveTextColor = Color.main400 || '#3AB878';
+  const resolvedActiveBgColor =  colors.main400 || '#3AB878';
+  const resolvedActiveTextColor =  colors.main50 || '#F0FFF0';
+  const resolvedInactiveBgColor = colors.main75 || '#E6FFD1';
+  const resolvedInactiveTextColor = colors.main400 || '#3AB878';
 
   return (
     <TouchableOpacity

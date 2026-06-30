@@ -7,7 +7,8 @@ import {
   BookOpenTextIcon,
   CardsIcon,
   TextAaIcon,
-  HeadphonesIcon
+  HeadphonesIcon,
+  BellIcon
 } from 'phosphor-react-native';
 import { StyleSheet, View, Text, TouchableOpacity, RefreshControl } from 'react-native';
 import { useEffect, useState, useCallback, useMemo } from 'react';
@@ -113,7 +114,10 @@ export default function ProfileScreen() {
           <Text style={styles.stickyHeaderTitle}>{user?.username || t('profile.header.guest', 'Khách')}</Text>
         </View>
       
-        <IconButton Icon={GearSixIcon} onPress={() => router.push('/settings' as any)} style={styles.stickySettingsBtn} />
+        <View style={styles.stickyTopRightContainer}>
+          <IconButton Icon={BellIcon} onPress={() => router.push('/notifications' as any)} />
+          <IconButton Icon={GearSixIcon} variant='Main' onPress={() => router.push('/settings' as any)} />
+        </View>
       </Animated.View>
 
       <Animated.ScrollView
@@ -239,10 +243,13 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: FontSize.fs_16,
     color: colors.text,
   },
-  stickySettingsBtn: {
+  stickyTopRightContainer: {
     position: 'absolute',
     right: 20,
     bottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   settingsIconBg: {
     backgroundColor: colors.gray,

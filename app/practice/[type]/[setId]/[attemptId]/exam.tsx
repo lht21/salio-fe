@@ -4,17 +4,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 // Import Design System & Components
-import { Color } from '../../../../../constants/GlobalStyles';
 import MultipleChoiceUI from '../../../../../components/PracticeComponent/MultipleChoiceUI';
 import WritingUI from '../../../../../components/PracticeComponent/WritingUI';
 import PracticeService from '../../../../../api/services/practice.service';
 import { PracticeType } from '../../../../../api/types/practice.types';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // ============================================================================
 // CONTAINER: LOGIC DATA & STATE MANAGEMENT
 // ============================================================================
 
 export default function PracticeExamContainer() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { type, setId, attemptId } = useLocalSearchParams();
   const typeString = (type as string) || 'full';
@@ -208,7 +211,7 @@ export default function PracticeExamContainer() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </SafeAreaView>
     );
   }
@@ -239,6 +242,6 @@ export default function PracticeExamContainer() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg }
+    });

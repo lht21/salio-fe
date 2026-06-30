@@ -1,4 +1,4 @@
-﻿﻿import React, { forwardRef, useMemo, useCallback } from 'react';
+import React, { forwardRef, useMemo, useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetScrollView, BottomSheetFooter } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
@@ -14,7 +14,8 @@ import HangulLessonContent from './HangulLessonContent';
 import LessonSectionAccordion from './LessonSectionAccordion';
 import MiniTestCard from './MiniTestCard';
 import { useLessonModules } from './useLessonModules';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type LessonBottomSheetProps = {
   lessonId: string;
@@ -29,6 +30,8 @@ type LessonBottomSheetProps = {
     group: string;
     romanization?: string;
   }>;
+  rewardBadge?: any;
+  rewardClouds?: number;
   onClose?: () => void;
   onCloseRequest?: () => void;
   initialIndex?: number;
@@ -43,8 +46,10 @@ const MASCOTS = [
 ];
 
 const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
-  ({ lessonId, unit, title, lessonType, hangul, onClose, onCloseRequest, initialIndex = 0 }, ref) => {
+  ({ lessonId, unit, title, lessonType, hangul, rewardBadge, rewardClouds, onClose, onCloseRequest, initialIndex = 0 }, ref) => {
     const router = useRouter();
+    const { colors } = useTheme();
+    const styles = useMemo(() => getStyles(colors), [colors]);
     const isHangulLesson = lessonType === 'hangul' || lessonId === '0';
     const { modules, lessonProgress, isLoadingModules, sections } = useLessonModules(lessonId, isHangulLesson);
     const snapPoints = useMemo(() => isHangulLesson ? ['80%', '92%'] : ['80%', '85%'], [isHangulLesson]);
@@ -58,7 +63,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
       'intro-writing': `/lessons/${lessonId}/writing/intro`,
     };
     const progressSegments = sections.length > 0
-      ? sections.map((section) => section.progressValue >= 100 ? Color.green : section.progressValue > 0 ? Color.xanh : '#E5E7EB')
+      ? sections.map((section) => section.progressValue >= 100 ? colors.green : section.progressValue > 0 ? colors.xanh : '#E5E7EB')
       : ['#E5E7EB'];
 
     // Khắc phục lỗi Unwrapping: Kiểm tra trường data nếu có, nếu không lấy trực tiếp payload
@@ -72,6 +77,10 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
     
     const unitNumber = parseInt(unit.replace(/\D/g, ''), 10) || 0;
     const dynamicMascot = MASCOTS[unitNumber % MASCOTS.length];
+    const imageSource = typeof rewardBadge === 'object' && rewardBadge?.imageUrl
+      ? { uri: rewardBadge.imageUrl }
+      : null;
+      
     const dynamicProgressText = `${overallProgress}% hoàn thành`;
 
     const hasFinalTest = !!modules?.finalTest;
@@ -90,7 +99,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
       let frontierSection = null;
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];
-        const isLocked = section.progressColor === Color.gray && section.progressValue === 0 && section.progressText.toLowerCase().includes('khóa');
+        const isLocked = section.progressColor === colors.gray && section.progressValue === 0 && section.progressText.toLowerCase().includes('khóa');
         
         if (!isLocked) {
           frontierSection = section;
@@ -171,7 +180,11 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
                   <Text style={styles.lessonTitle}>{title}</Text>
                 </View>
 
-                <Image source={dynamicMascot} style={styles.lessonMascot} contentFit="contain" />
+                {imageSource ? (
+                  <Image source={imageSource} style={styles.lessonMascot} contentFit="contain" />
+                ) : (
+                  <View style={[styles.lessonMascot, { backgroundColor: '#E5E7EB', borderRadius: 12 }]} />
+                )}
               </View>
 
               <View style={styles.lessonSummaryRow}>
@@ -186,7 +199,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 
               {isLoadingModules ? (
                 <View style={styles.loadingBox}>
-                  <ActivityIndicator color={Color.main} />
+                  <ActivityIndicator color={colors.main} />
                   <Text style={styles.loadingText}>Đang tải module...</Text>
                 </View>
               ) : (
@@ -197,7 +210,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 
                   {sections.map((section, index) => {
                     const isLocked =
-                      section.progressColor === Color.gray &&
+                      section.progressColor === colors.gray &&
                       section.progressValue === 0 &&
                       section.progressText.toLowerCase().includes('khóa');
                     const introRoute = introRouteMap[section.id];
@@ -234,6 +247,8 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
             {!isLoadingModules && hasFinalTest && (
               <MiniTestCard 
                 isLocked={finalTestLocked}
+                rewardBadge={rewardBadge}
+                rewardClouds={rewardClouds}
                 onPress={() => {
                   if (onCloseRequest) onCloseRequest();
                   setTimeout(() => router.push(`/lessons/${lessonId}/final-test/exam` as any), 100);
@@ -250,100 +265,100 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 
 LessonBottomSheet.displayName = 'LessonBottomSheet';
 
-const styles = StyleSheet.create({
-  sheetBackground: {
-    backgroundColor: Color.bg,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-  },
-  sheetHandle: {
-    backgroundColor: Color.stroke,
-    width: 56,
-  },
-  sheetContent: {
-    paddingHorizontal: Padding.padding_15,
-    paddingBottom: 32,
-    gap: Gap.gap_15,
-  },
-  lessonHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Gap.gap_15,
-  },
-  lessonHeaderText: {
-    flex: 1,
-    gap: Gap.gap_5,
-  },
-  lessonUnit: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-  },
-  lessonTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-  },
-  lessonMascot: {
-    width: 58,
-    height: 58,
-  },
-  lessonSummaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_10,
-  },
-  lessonSummaryBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  lessonSummarySegment: {
-    flex: 1,
-    height: 4,
-    borderRadius: Border.br_5,
-  },
-  lessonSummaryText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    color: Color.xanh,
-  },
-  sections: {
-    gap: Gap.gap_14,
-  },
-  loadingBox: {
-    minHeight: 140,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Gap.gap_10,
-  },
-  loadingText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-  },
-  emptyText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    textAlign: 'center',
-    paddingVertical: 24,
-  },
-  // Style cho Sticky Footer
-  footerContainer: {
-    backgroundColor: Color.bg,
-    paddingHorizontal: Padding.padding_20,
-    paddingVertical: Padding.padding_15,
-    borderTopWidth: 1,
-    borderColor: Color.stroke,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      sheetBackground: {
+        backgroundColor: colors.bg,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+      },
+      sheetHandle: {
+        backgroundColor: colors.stroke,
+        width: 56,
+      },
+      sheetContent: {
+        paddingHorizontal: Padding.padding_15,
+        paddingBottom: 32,
+        gap: Gap.gap_15,
+      },
+      lessonHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: Gap.gap_15,
+      },
+      lessonHeaderText: {
+        flex: 1,
+        gap: Gap.gap_5,
+      },
+      lessonUnit: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+      },
+      lessonTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+      },
+      lessonMascot: {
+        width: 58,
+        height: 58,
+      },
+      lessonSummaryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Gap.gap_10,
+      },
+      lessonSummaryBar: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+      },
+      lessonSummarySegment: {
+        flex: 1,
+        height: 4,
+        borderRadius: Border.br_5,
+      },
+      lessonSummaryText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+        color: colors.xanh,
+      },
+      sections: {
+        gap: Gap.gap_14,
+      },
+      loadingBox: {
+        minHeight: 140,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: Gap.gap_10,
+      },
+      loadingText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+      },
+      emptyText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+        textAlign: 'center',
+        paddingVertical: 24,
+      },
+      // Style cho Sticky Footer
+      footerContainer: {
+        backgroundColor: colors.bg,
+        paddingHorizontal: Padding.padding_20,
+        paddingVertical: Padding.padding_15,
+        borderTopWidth: 1,
+        borderColor: colors.stroke,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 10,
+      },
+    });
 
 export default LessonBottomSheet;

@@ -15,9 +15,13 @@ import {
   getHangulWritingItemAt,
   getHangulWritingIndex,
 } from '../../../../components/Modals/hangulWritingSequence';
-import { Border, Color, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap, Padding } from '../../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const WritingPracticeScreen = () => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const params = useLocalSearchParams<{
     lessonId?: string;
@@ -187,7 +191,7 @@ const WritingPracticeScreen = () => {
       <View style={styles.screen}>
         <View style={styles.header}>
           <Pressable style={styles.closeButton} onPress={handleClose}>
-            <XIcon size={24} color={Color.gray} weight="bold" />
+            <XIcon size={24} color={colors.gray} weight="bold" />
           </Pressable>
         </View>
 
@@ -200,7 +204,7 @@ const WritingPracticeScreen = () => {
             <Text style={styles.letterLabel}>{currentItem.label}</Text>
 
             <Pressable style={styles.speakerButton}>
-              <SpeakerHighIcon size={20} color={Color.text} weight="regular" />
+              <SpeakerHighIcon size={20} color={colors.text} weight="regular" />
             </Pressable>
           </Pressable>
 
@@ -244,98 +248,98 @@ const WritingPracticeScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  header: {
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-    paddingBottom: Padding.padding_10,
-  },
-  closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  progressTrack: {
-    height: 4,
-    backgroundColor: '#A3A3A3',
-  },
-  progressFill: {
-    height: 4,
-    backgroundColor: Color.main,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 28,
-    paddingTop: 18,
-    paddingBottom: 24,
-    gap: Gap.gap_20,
-  },
-  letterCard: {
-    borderWidth: 1,
-    borderColor: '#D6DFEA',
-    borderRadius: Border.br_20,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Gap.gap_10,
-  },
-  letterLabel: {
-    flex: 1,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: '#63B900',
-  },
-  speakerButton: {
-    width: 28,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  glyphWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 220,
-  },
-  practiceCard: {
-    flex: 1,
-    borderRadius: 30,
-    overflow: 'hidden',
-    backgroundColor: '#E9E9E9',
-  },
-  practiceHeader: {
-    backgroundColor: Color.vang,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  practiceTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-  },
-  footer: {
-    paddingHorizontal: 28,
-    paddingBottom: Padding.padding_30,
-    gap: Gap.gap_10,
-  },
-  resetButton: {
-    marginVertical: 0,
-  },
-  nextButton: {
-    marginVertical: 0,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      screen: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      header: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+        paddingBottom: Padding.padding_10,
+      },
+      closeButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#E2E8F0',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      progressTrack: {
+        height: 4,
+        backgroundColor: '#A3A3A3',
+      },
+      progressFill: {
+        height: 4,
+        backgroundColor: colors.main,
+      },
+      content: {
+        flex: 1,
+        paddingHorizontal: 28,
+        paddingTop: 18,
+        paddingBottom: 24,
+        gap: Gap.gap_20,
+      },
+      letterCard: {
+        borderWidth: 1,
+        borderColor: '#D6DFEA',
+        borderRadius: Border.br_20,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: Gap.gap_10,
+      },
+      letterLabel: {
+        flex: 1,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: '#63B900',
+      },
+      speakerButton: {
+        width: 28,
+        height: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      glyphWrap: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 220,
+      },
+      practiceCard: {
+        flex: 1,
+        borderRadius: 30,
+        overflow: 'hidden',
+        backgroundColor: '#E9E9E9',
+      },
+      practiceHeader: {
+        backgroundColor: colors.vang,
+        paddingVertical: 12,
+        alignItems: 'center',
+      },
+      practiceTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+      },
+      footer: {
+        paddingHorizontal: 28,
+        paddingBottom: Padding.padding_30,
+        gap: Gap.gap_10,
+      },
+      resetButton: {
+        marginVertical: 0,
+      },
+      nextButton: {
+        marginVertical: 0,
+      },
+    });
 
 export default WritingPracticeScreen;

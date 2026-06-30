@@ -22,9 +22,10 @@ import { MotiView } from 'moti';
 import { SpeakerHighIcon, CaretRightIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
 import * as Speech from 'expo-speech';
 
-import { Color, FontFamily, FontSize } from '../constants/GlobalStyles';
+import { FontFamily, FontSize } from '../constants/GlobalStyles';
 import FlashcardIcon from './icons/FlashcardIcon'; 
 import { useUser } from '../contexts/UserContext';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
@@ -53,6 +54,9 @@ interface SwipableFlashcardProps {
 }
 
 export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, onToggleFavorite }: SwipableFlashcardProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const { user } = useUser();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   
@@ -218,7 +222,7 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
                     onToggleFavorite?.();
                   }}
                 >
-                  <BookmarkSimpleIcon size={40} color={card.isFavorite ? Color.cam : Color.bg} weight={card.isFavorite ? "fill" : "fill"} />
+                  <BookmarkSimpleIcon size={40} color={card.isFavorite ? colors.cam : colors.bg} weight={card.isFavorite ? "fill" : "fill"} />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
@@ -228,7 +232,7 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
                     handleSpeak(card.word);
                   }}
                 >
-                  <SpeakerHighIcon size={24} color={Color.bg} weight="regular" />
+                  <SpeakerHighIcon size={24} color={colors.bg} weight="regular" />
                 </TouchableOpacity>
 
                 <Text style={styles.koreanWord}>{card.word}</Text>
@@ -265,7 +269,7 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
                     onToggleFavorite?.();
                   }}
                 >
-                  <BookmarkSimpleIcon size={40} color={card.isFavorite ? Color.cam : '#B45309'} weight={card.isFavorite ? "fill" : "regular"} />
+                  <BookmarkSimpleIcon size={40} color={card.isFavorite ? colors.cam : '#B45309'} weight={card.isFavorite ? "fill" : "regular"} />
                 </TouchableOpacity>
                 
                 {/* Ý NGHĨA & HÁN TỰ */}
@@ -282,7 +286,7 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
                         {card.hanja.map((h, i) => (
                           <TouchableOpacity key={i} style={styles.hanjaBtn}>
                             <Text style={styles.hanjaBtnText}>{h}</Text>
-                            <CaretRightIcon size={16} color={Color.text} />
+                            <CaretRightIcon size={16} color={colors.text} />
                           </TouchableOpacity>
                         ))}
                       </View>
@@ -306,7 +310,7 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
                         handleSpeak(card.example);
                       }}
                     >
-                      <SpeakerHighIcon size={24} color={Color.bg} weight="regular" />
+                      <SpeakerHighIcon size={24} color={colors.bg} weight="regular" />
                     </TouchableOpacity>
                     <View style={styles.stepContainer}>
                       <Image source={{ uri: card.image }} style={styles.exampleImage} />
@@ -331,136 +335,136 @@ export default function SwipableFlashcard({ card, onSwipedLeft, onSwipedRight, o
   );
 }
 
-const styles = StyleSheet.create({
-  cardContainer: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 15,
-    elevation: 10,
-  },
-  pressableArea: {
-    width: '100%',
-    height: '100%',
-  },
-  cardFace: {
-    position: 'absolute', 
-    top: 0, left: 0, right: 0, bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  
-  contentMask: {
-    margin: 4, 
-    borderRadius: 26, 
-    overflow: 'hidden',
-  },
-  
-  // --- CARD CONTENT ---
-  cardContentWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  koreanWord: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 50,
-    color: Color.text,
-    marginBottom: 15,
-  },
-  phoneticPill: {
-    backgroundColor: Color.main2 || '#166534', 
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  phoneticText: { color: Color.bg, fontSize: FontSize.fs_16, fontFamily: FontFamily.lexendDecaRegular },
-  audioBtn: {
-    position: 'absolute',
-    top: 20,
-    right: 40,
-    width: 44, height: 44, borderRadius: 22,
+const getStyles = (colors: any) => StyleSheet.create({
+      cardContainer: {
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.15,
+        shadowRadius: 15,
+        elevation: 10,
+      },
+      pressableArea: {
+        width: '100%',
+        height: '100%',
+      },
+      cardFace: {
+        position: 'absolute', 
+        top: 0, left: 0, right: 0, bottom: 0,
+        width: '100%',
+        height: '100%',
+      },
+      
+      contentMask: {
+        margin: 4, 
+        borderRadius: 26, 
+        overflow: 'hidden',
+      },
+      
+      // --- CARD CONTENT ---
+      cardContentWrapper: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+      },
+      koreanWord: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: 50,
+        color: colors.text,
+        marginBottom: 15,
+      },
+      phoneticPill: {
+        backgroundColor: colors.main2 || '#166534', 
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderRadius: 20,
+      },
+      phoneticText: { color: colors.bg, fontSize: FontSize.fs_16, fontFamily: FontFamily.lexendDecaRegular },
+      audioBtn: {
+        position: 'absolute',
+        top: 20,
+        right: 40,
+        width: 44, height: 44, borderRadius: 22,
 
-    justifyContent: 'center', alignItems: 'center',
-    
-    zIndex: 10,
-  },
-  bookmarkBtn: {
-    position: 'absolute',
-    top: -10,
-    left: 53,
-    width: 44, height: 44, borderRadius: 22,
-    justifyContent: 'center', alignItems: 'center',
-    zIndex: 10,
-  },
-  wordSpeakerRipple: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: Color.cam || '#F97316',
-  },
-  
-  // --- MẶT SAU ---
-  stepContainer: {
-    alignItems: 'center',
-    width: '100%'
-  },
-  vietnameseMeaning: {
-    fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 40, color: Color.text, marginBottom: 15,
-  },
-  wordTypePill: {
-    backgroundColor: '#3F6212', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, marginBottom: 40,
-  },
-  wordTypeText: { color: '#FFF', fontFamily: FontFamily.lexendDecaMedium },
-  hanjaSection: { alignItems: 'center', width: '100%' },
-  hanjaLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: Color.gray, marginBottom: 10 },
-  hanjaRow: { flexDirection: 'row', gap: 10 },
-  hanjaBtn: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFB800',
-    paddingHorizontal: 15, paddingVertical: 10, borderRadius: 20, gap: 5,
-    borderWidth: 2, borderColor: '#B45309'
-  },
-  hanjaBtnText: { fontFamily: FontFamily.lexendDecaRegular, color: Color.text },
-  sinoVietnameseSection: { marginTop: 15, alignItems: 'center' },
-  sinoVietnameseLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: Color.gray, marginBottom: 5 },
-  sinoVietnameseText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: Color.main2 },
-  exampleImage: {
-    width: '100%', height: 180, borderRadius: 15, borderWidth: 1, borderColor: '#CBD5E1',
-  },
-  exampleText: {
-    fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 22, color: Color.text, marginTop: 15, textAlign: 'center'
-  },
-  sentenceAudioBtn: {
-    marginTop: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sentenceSpeakerRipple: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Color.cam || '#F97316',
-  },
-  highlightText: {
-    color: '#166534', 
-    textDecorationLine: 'underline',
-  },
+        justifyContent: 'center', alignItems: 'center',
+        
+        zIndex: 10,
+      },
+      bookmarkBtn: {
+        position: 'absolute',
+        top: -10,
+        left: 53,
+        width: 44, height: 44, borderRadius: 22,
+        justifyContent: 'center', alignItems: 'center',
+        zIndex: 10,
+      },
+      wordSpeakerRipple: {
+        position: 'absolute',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: colors.cam || '#F97316',
+      },
+      
+      // --- MẶT SAU ---
+      stepContainer: {
+        alignItems: 'center',
+        width: '100%'
+      },
+      vietnameseMeaning: {
+        fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 40, color: colors.text, marginBottom: 15,
+      },
+      wordTypePill: {
+        backgroundColor: '#3F6212', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, marginBottom: 40,
+      },
+      wordTypeText: { color: '#FFF', fontFamily: FontFamily.lexendDecaMedium },
+      hanjaSection: { alignItems: 'center', width: '100%' },
+      hanjaLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: colors.gray, marginBottom: 10 },
+      hanjaRow: { flexDirection: 'row', gap: 10 },
+      hanjaBtn: {
+        flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFB800',
+        paddingHorizontal: 15, paddingVertical: 10, borderRadius: 20, gap: 5,
+        borderWidth: 2, borderColor: '#B45309'
+      },
+      hanjaBtnText: { fontFamily: FontFamily.lexendDecaRegular, color: colors.text },
+      sinoVietnameseSection: { marginTop: 15, alignItems: 'center' },
+      sinoVietnameseLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 12, color: colors.gray, marginBottom: 5 },
+      sinoVietnameseText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: colors.main2 },
+      exampleImage: {
+        width: '100%', height: 180, borderRadius: 15, borderWidth: 1, borderColor: '#CBD5E1',
+      },
+      exampleText: {
+        fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 22, color: colors.text, marginTop: 15, textAlign: 'center'
+      },
+      sentenceAudioBtn: {
+        marginTop: 20,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      sentenceSpeakerRipple: {
+        position: 'absolute',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.cam || '#F97316',
+      },
+      highlightText: {
+        color: '#166534', 
+        textDecorationLine: 'underline',
+      },
 
-  // --- TAP INSTRUCTIONS ---
-  tapInstruction: {
-    position: 'absolute',
-    bottom: -60,
-    alignItems: 'center',
-    width: '100%',
-  },
-  stepIndicator: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 12, color: Color.stroke, marginBottom: 2 },
-  tapText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: '#94A3B8' },
-});
+      // --- TAP INSTRUCTIONS ---
+      tapInstruction: {
+        position: 'absolute',
+        bottom: -60,
+        alignItems: 'center',
+        width: '100%',
+      },
+      stepIndicator: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 12, color: colors.stroke, marginBottom: 2 },
+      tapText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: '#94A3B8' },
+    });

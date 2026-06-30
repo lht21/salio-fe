@@ -7,12 +7,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ClockCounterClockwiseIcon, CheckCircleIcon, CrownIcon, CaretRightIcon, BookOpenIcon, QuestionIcon, InfoIcon } from 'phosphor-react-native';
 
 // Constants & Components
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import Button from '../../components/Button';
 import CancelAutoRenewModal from '../../components/Modals/CancelAutoRenewModal';
 import ScreenHeader from '../../components/ScreenHeader';
 import SubscriptionService from '../../api/services/subscription.service';
 import { UserSubscription, SubscriptionPlan } from '../../api/types/subscription.types';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Danh sách quyền lợi mặc định dự phòng (nếu không lấy được từ API)
 const FALLBACK_BENEFITS = [
@@ -22,6 +23,9 @@ const FALLBACK_BENEFITS = [
 ];
 
 export default function ManageSubscriptionScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
 
   const [currentSub, setCurrentSub] = useState<UserSubscription | null>(null);
@@ -91,7 +95,7 @@ export default function ManageSubscriptionScreen() {
       >
         
         {isLoading ? (
-          <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 50 }} />
+          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 50 }} />
         ) : currentSub?.isActive === true ? (
           /* =========================================
              TRẠNG THÁI 1: ĐÃ CÓ GÓI HỌC TẬP (ACTIVE)
@@ -125,7 +129,7 @@ export default function ManageSubscriptionScreen() {
               activeOpacity={0.7}
               onPress={() => router.push('/subscription/history')}
             >
-              <ClockCounterClockwiseIcon size={20} color={Color.gray} weight="regular" />
+              <ClockCounterClockwiseIcon size={20} color={colors.gray} weight="regular" />
               <Text style={styles.historyButtonText}>Lịch sử thanh toán</Text>
             </TouchableOpacity>
 
@@ -155,28 +159,28 @@ export default function ManageSubscriptionScreen() {
                 {/* Item: Thông tin gói */}
                 <TouchableOpacity style={styles.supportItem} activeOpacity={0.7}>
                   <View style={styles.supportItemLeft}>
-                    <InfoIcon size={24} color={Color.gray} weight="regular" />
+                    <InfoIcon size={24} color={colors.gray} weight="regular" />
                     <Text style={styles.supportText}>Thông tin gói học tập</Text>
                   </View>
-                  <CaretRightIcon size={20} color={Color.gray} weight="bold" />
+                  <CaretRightIcon size={20} color={colors.gray} weight="bold" />
                 </TouchableOpacity>
 
                 {/* Item: Câu hỏi thường gặp */}
                 <TouchableOpacity style={styles.supportItem} activeOpacity={0.7}>
                   <View style={styles.supportItemLeft}>
-                    <QuestionIcon size={24} color={Color.gray} weight="regular" />
+                    <QuestionIcon size={24} color={colors.gray} weight="regular" />
                     <Text style={styles.supportText}>Câu hỏi thường gặp</Text>
                   </View>
-                  <CaretRightIcon size={20} color={Color.gray} weight="bold" />
+                  <CaretRightIcon size={20} color={colors.gray} weight="bold" />
                 </TouchableOpacity>
 
                 {/* Item: Hướng dẫn sử dụng */}
                 <TouchableOpacity style={styles.supportItem} activeOpacity={0.7}>
                   <View style={styles.supportItemLeft}>
-                    <BookOpenIcon size={24} color={Color.gray} weight="regular" />
+                    <BookOpenIcon size={24} color={colors.gray} weight="regular" />
                     <Text style={styles.supportText}>Hướng dẫn sử dụng</Text>
                   </View>
-                  <CaretRightIcon size={20} color={Color.gray} weight="bold" />
+                  <CaretRightIcon size={20} color={colors.gray} weight="bold" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -187,7 +191,7 @@ export default function ManageSubscriptionScreen() {
              ========================================= */
           <View style={styles.emptyStateContainer}>
             <View style={styles.emptyIconWrapper}>
-              <CrownIcon size={64} color={Color.main} weight="duotone" />
+              <CrownIcon size={64} color={colors.main} weight="duotone" />
             </View>
             <Text style={styles.emptyTitle}>Chưa có gói học tập nào</Text>
             <Text style={styles.emptyDescription}>
@@ -233,195 +237,195 @@ export default function ManageSubscriptionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  
-  // --- SCROLL CONTENT ---
-  scrollContent: {
-    paddingHorizontal: Padding.padding_15,
-    paddingBottom: 40,
-    flexGrow: 1, // Đảm bảo Scroll giãn đủ không gian để căn giữa Empty State
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      
+      // --- SCROLL CONTENT ---
+      scrollContent: {
+        paddingHorizontal: Padding.padding_15,
+        paddingBottom: 40,
+        flexGrow: 1, // Đảm bảo Scroll giãn đủ không gian để căn giữa Empty State
+      },
 
-  // --- ACTIVE PLAN CARD ---
-  activePlanCard: {
-    borderRadius: Border.br_30, // Bo góc lớn
-    padding: 24,
-    marginBottom: Gap.gap_20,
-    marginTop: Gap.gap_20,
-    overflow: 'hidden', // Đảm bảo lớp phủ không tràn ra ngoài viền bo góc
-  },
-  cardOverlay: {
-    ...StyleSheet.absoluteFillObject, // Trải đầy component cha
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Màu đen mờ 40%
-    borderRadius: Border.br_30, // Đảm bảo lớp phủ cũng được bo góc
-  },
-  planTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.bg, // Đổi thành màu trắng để nổi bật trên nền tối
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Gap.gap_10,
-    marginBottom: Gap.gap_20,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#51AD00', // Xanh lá hiển thị trạng thái active
-    marginRight: Gap.gap_8,
-  },
-  statusText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.bg, // Đổi thành màu trắng
-  },
-  billingCycleText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.bg, // Đổi thành màu trắng
-    opacity: 0.8, // Giảm độ sáng một chút để phân cấp thông tin
-  },
+      // --- ACTIVE PLAN CARD ---
+      activePlanCard: {
+        borderRadius: Border.br_30, // Bo góc lớn
+        padding: 24,
+        marginBottom: Gap.gap_20,
+        marginTop: Gap.gap_20,
+        overflow: 'hidden', // Đảm bảo lớp phủ không tràn ra ngoài viền bo góc
+      },
+      cardOverlay: {
+        ...StyleSheet.absoluteFillObject, // Trải đầy component cha
+        backgroundColor: 'rgba(0, 0, 0, 0.4)', // Màu đen mờ 40%
+        borderRadius: Border.br_30, // Đảm bảo lớp phủ cũng được bo góc
+      },
+      planTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.bg, // Đổi thành màu trắng để nổi bật trên nền tối
+      },
+      statusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: Gap.gap_10,
+        marginBottom: Gap.gap_20,
+      },
+      statusDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#51AD00', // Xanh lá hiển thị trạng thái active
+        marginRight: Gap.gap_8,
+      },
+      statusText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.bg, // Đổi thành màu trắng
+      },
+      billingCycleText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.bg, // Đổi thành màu trắng
+        opacity: 0.8, // Giảm độ sáng một chút để phân cấp thông tin
+      },
 
-  // --- HISTORY BUTTON ---
-  historyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 100, // Bo tròn dạng viên thuốc
-    borderWidth: 1,
-    borderColor: Color.stroke, // Viền xám mờ
-    backgroundColor: Color.bg,
-    gap: Gap.gap_8,
-    marginBottom: Gap.gap_20,
-  },
-  historyButtonText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-  },
+      // --- HISTORY BUTTON ---
+      historyButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 100, // Bo tròn dạng viên thuốc
+        borderWidth: 1,
+        borderColor: colors.stroke, // Viền xám mờ
+        backgroundColor: colors.bg,
+        gap: Gap.gap_8,
+        marginBottom: Gap.gap_20,
+      },
+      historyButtonText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+      },
 
-  divider: {
-    height: 1,
-    backgroundColor: Color.stroke,
-    opacity: 0.5,
-    marginBottom: Gap.gap_20,
-  },
+      divider: {
+        height: 1,
+        backgroundColor: colors.stroke,
+        opacity: 0.5,
+        marginBottom: Gap.gap_20,
+      },
 
-  // --- BENEFITS SECTION ---
-  benefitsSection: {
-    marginBottom: Gap.gap_20,
-  },
-  sectionTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text, // Có thể điều chỉnh sang xám đậm theo nhu cầu
-    marginBottom: Gap.gap_15,
-  },
-  benefitsList: {
-    gap: 16,
-  },
-  benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_10,
-  },
-  benefitText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
+      // --- BENEFITS SECTION ---
+      benefitsSection: {
+        marginBottom: Gap.gap_20,
+      },
+      sectionTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text, // Có thể điều chỉnh sang xám đậm theo nhu cầu
+        marginBottom: Gap.gap_15,
+      },
+      benefitsList: {
+        gap: 16,
+      },
+      benefitItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Gap.gap_10,
+      },
+      benefitText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+      },
 
-  // --- FOOTER (DANGER ACTION) ---
-  footer: {
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_15,
-    paddingBottom: Padding.padding_30, // Đẩy lên tránh thanh Home Bar
-    backgroundColor: Color.bg,
-  },
-  cancelButton: {
-    // Ghi đè lại style của baseButton để có chiều cao và bo góc mong muốn
-    height: 56,
-    borderRadius: 20, // Bo tròn mạnh
-  },
+      // --- FOOTER (DANGER ACTION) ---
+      footer: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_15,
+        paddingBottom: Padding.padding_30, // Đẩy lên tránh thanh Home Bar
+        backgroundColor: colors.bg,
+      },
+      cancelButton: {
+        // Ghi đè lại style của baseButton để có chiều cao và bo góc mong muốn
+        height: 56,
+        borderRadius: 20, // Bo tròn mạnh
+      },
 
-  // --- EMPTY STATE STYLES ---
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 60, // Đẩy xuống một chút để cân đối
-  },
-  emptyIconWrapper: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: Color.greenLight, // Nền xanh nhạt tạo viền cho icon vương miện
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Gap.gap_20,
-  },
-  emptyTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-    marginBottom: Gap.gap_10,
-    textAlign: 'center',
-  },
-  emptyDescription: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-    textAlign: 'center',
-    lineHeight: 22,
-    paddingHorizontal: Padding.padding_15,
-    marginBottom: 30,
-  },
-  upgradeButton: {
-    width: '100%',
-  },
+      // --- EMPTY STATE STYLES ---
+      emptyStateContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 60, // Đẩy xuống một chút để cân đối
+      },
+      emptyIconWrapper: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: colors.greenLight, // Nền xanh nhạt tạo viền cho icon vương miện
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: Gap.gap_20,
+      },
+      emptyTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+        marginBottom: Gap.gap_10,
+        textAlign: 'center',
+      },
+      emptyDescription: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+        textAlign: 'center',
+        lineHeight: 22,
+        paddingHorizontal: Padding.padding_15,
+        marginBottom: 30,
+      },
+      upgradeButton: {
+        width: '100%',
+      },
 
-  // --- SUPPORT SECTION (THÊM MỚI STYLES NÀY) ---
-  supportSection: {
-    marginBottom: Gap.gap_20,
-  },
-  supportList: {
-    backgroundColor: Color.bg,
-    borderRadius: Border.br_15,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-    overflow: 'hidden', // Giữ viền bo góc khi click item
-  },
-  supportItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Padding.padding_15,
-    borderBottomWidth: 1,
-    borderBottomColor: Color.stroke, // Line ngăn cách giữa các item
-  },
-  supportItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Gap.gap_15,
-  },
-  supportText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
-  cancelTextInfo: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-    textAlign: 'center',
-    paddingVertical: Padding.padding_10,
-  },
-});
+      // --- SUPPORT SECTION (THÊM MỚI STYLES NÀY) ---
+      supportSection: {
+        marginBottom: Gap.gap_20,
+      },
+      supportList: {
+        backgroundColor: colors.bg,
+        borderRadius: Border.br_15,
+        borderWidth: 1,
+        borderColor: colors.stroke,
+        overflow: 'hidden', // Giữ viền bo góc khi click item
+      },
+      supportItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: Padding.padding_15,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.stroke, // Line ngăn cách giữa các item
+      },
+      supportItemLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Gap.gap_15,
+      },
+      supportText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+      },
+      cancelTextInfo: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+        textAlign: 'center',
+        paddingVertical: Padding.padding_10,
+      },
+    });

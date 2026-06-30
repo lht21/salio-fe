@@ -3,7 +3,7 @@ import { View, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Color, Padding } from '../../constants/GlobalStyles';
+import { Padding } from '../../constants/GlobalStyles';
 import GamificationService from '../../api/services/gamification.service';
 import { useUser } from '../../contexts/UserContext';
 import { StoreItem } from '../../api/types/gamification.types';
@@ -12,8 +12,12 @@ import { useModal } from '../../contexts/ModalContext';
 import StoreHeader from '../cloud/StoreHeader';
 import StoreItemCard from '../cloud/StoreItemCard';
 import DailyMissionsModal from '../../components/Modals/DailyMissionsModal';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function StoreScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { stats, refreshUser } = useUser();
   const { showModal } = useModal();
@@ -102,7 +106,7 @@ export default function StoreScreen() {
 
       {isLoading || isPurchasing ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Color.main} />
+          <ActivityIndicator size="large" color={colors.main} />
         </View>
       ) : (
         <FlatList
@@ -126,18 +130,18 @@ export default function StoreScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Color.bg2, // Nền màu xám nhạt để các thẻ màu trắng nổi bật bóng đổ
-  },
-  listContent: {
-    paddingHorizontal: Padding.padding_20,
-    paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: colors.bg2, // Nền màu xám nhạt để các thẻ màu trắng nổi bật bóng đổ
+      },
+      listContent: {
+        paddingHorizontal: Padding.padding_20,
+        paddingBottom: 40,
+      },
+      loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    });

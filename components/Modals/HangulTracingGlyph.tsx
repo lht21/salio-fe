@@ -8,9 +8,8 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-
-import { Color } from '../../constants/GlobalStyles';
 import { HANGUL_STROKE_DATA } from './hangulStrokeData';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -22,6 +21,8 @@ type AnimatedStrokeProps = {
 };
 
 const AnimatedStroke = ({ d, delay, strokeWidth, baseDelayMs }: AnimatedStrokeProps) => {
+    const { colors } = useTheme();
+
   const pathRef = React.useRef<Path>(null);
   const [pathLength, setPathLength] = React.useState(0);
   const progress = useSharedValue(0);
@@ -88,7 +89,7 @@ const AnimatedStroke = ({ d, delay, strokeWidth, baseDelayMs }: AnimatedStrokePr
         strokeDasharray={pathLength}
         strokeLinecap="round"
         strokeLinejoin="round"
-        stroke={Color.colorBlack}
+        stroke={colors.colorBlack}
         strokeWidth={strokeWidth}
         fill="none"
       />
@@ -102,6 +103,9 @@ type HangulTracingGlyphProps = {
 };
 
 const HangulTracingGlyph = ({ glyph, baseDelayMs = 1000 }: HangulTracingGlyphProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const glyphData = HANGUL_STROKE_DATA[glyph];
 
   if (!glyphData) {
@@ -143,24 +147,24 @@ const HangulTracingGlyph = ({ glyph, baseDelayMs = 1000 }: HangulTracingGlyphPro
   );
 };
 
-const styles = StyleSheet.create({
-  wrapper: {
-    width: 220,
-    height: 220,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fallbackWrap: {
-    width: 220,
-    height: 220,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fallbackText: {
-    fontSize: 156,
-    lineHeight: 170,
-    color: Color.colorBlack,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      wrapper: {
+        width: 220,
+        height: 220,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      fallbackWrap: {
+        width: 220,
+        height: 220,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      fallbackText: {
+        fontSize: 156,
+        lineHeight: 170,
+        color: colors.colorBlack,
+      },
+    });
 
 export default HangulTracingGlyph;

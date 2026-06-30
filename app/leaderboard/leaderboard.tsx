@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { Color, Padding, Gap } from '../../constants/GlobalStyles';
+import { Padding, Gap } from '../../constants/GlobalStyles';
 import ScreenHeader from '../../components/ScreenHeader';
 import CategoryChip from '../../components/CategoryChip';
 import TopRankCard from '../../components/CommunityComponent/TopRankCard';
 import RankCard from '../../components/CommunityComponent/RankCard';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // --- MOCK DATA ---
 const MOCK_LEADERBOARD = [
@@ -26,6 +27,9 @@ const CURRENT_USER = { id: 'u1', rank: 42, name: 'Bạn', avatar: 'https://i.pra
 // --- MAIN SCREEN ---
 
 export default function LeaderboardScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('Điểm TOPIK');
 
@@ -83,43 +87,43 @@ export default function LeaderboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  listContent: {
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: 10,
-    paddingBottom: 20,
-    backgroundColor: Color.bg2
-  },
-  listHeader: {
-    marginBottom: Gap.gap_20,
-  },
-  chipRow: {
-    flexDirection: 'row',
-    gap: Gap.gap_10,
-    marginBottom: 30,
-  },
-  
-  // --- TOP 3 RANK CARDS ---
-  top3Container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    gap: Gap.gap_12,
-    paddingHorizontal: Gap.gap_10,
-    paddingTop: 10,
-    marginBottom: 20,
-  },
-  // Cố định bottom
-  fixedBottom: {
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-    paddingBottom: 10,
-    backgroundColor: Color.bg,
-    borderTopWidth: 1,
-    borderTopColor: Color.stroke,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      listContent: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: 10,
+        paddingBottom: 20,
+        backgroundColor: colors.bg2
+      },
+      listHeader: {
+        marginBottom: Gap.gap_20,
+      },
+      chipRow: {
+        flexDirection: 'row',
+        gap: Gap.gap_10,
+        marginBottom: 30,
+      },
+      
+      // --- TOP 3 RANK CARDS ---
+      top3Container: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: Gap.gap_12,
+        paddingHorizontal: Gap.gap_10,
+        paddingTop: 10,
+        marginBottom: 20,
+      },
+      // Cố định bottom
+      fixedBottom: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+        paddingBottom: 10,
+        backgroundColor: colors.bg,
+        borderTopWidth: 1,
+        borderTopColor: colors.stroke,
+      },
+    });

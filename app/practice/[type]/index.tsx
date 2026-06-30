@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import Svg, { Path } from 'react-native-svg';
 
 // Import Design System
-import { FontFamily, FontSize, Padding, Gap, Border, Color } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../../constants/GlobalStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../components/ScreenHeader';
 import TopicItem from '../../../components/TopicItem';
@@ -72,6 +72,7 @@ const checkIsUnlocked = (exam: any, user: any) => {
 
 // --- VIEW CHO FULL EXAM ---
 const FullExamView = ({ examType }: { examType?: string }) => {
+
   const router = useRouter();
   const type = 'full';
   const { data, isLoading } = usePracticeData(type, examType);
@@ -152,6 +153,7 @@ const FullExamView = ({ examType }: { examType?: string }) => {
 
 // --- VIEW CHO READING / LISTENING (Giống mock-exam nhưng không có Zenmode) ---
 const ReadingListeningView = ({ type, examType }: { type: string; examType?: string }) => {
+
   const router = useRouter();
   const { data, isLoading } = usePracticeData(type, examType);
   const { user } = useUser();
@@ -214,6 +216,7 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
 
 // --- VIEW CHO WRITING / SPEAKING (Giữ nguyên hiện tại) ---
 const WritingSpeakingView = ({ type, examType }: { type: string; examType?: string }) => {
+
   const router = useRouter();
   const { data, isLoading } = usePracticeData(type, examType);
   const { t } = useTranslation();
@@ -377,7 +380,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   featuredSectionTitle: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: FontSize.fs_24, // Chữ to và đậm hơn
-    color: Color.color,
+    color: colors.color,
     paddingHorizontal: Padding.padding_20, // Thụt lề lại để bằng với nội dung bên dưới
     marginBottom: Gap.gap_15,
   },

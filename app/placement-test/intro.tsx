@@ -6,14 +6,18 @@ import { ScrollView, StyleSheet, Text, View } from "react-native"; // Thêm Scro
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "../../components/Button";
-import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
+import { FontFamily, FontSize } from "../../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function PlacementTestIntro() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
 
   return (
     <LinearGradient
-      colors={["#CEF9B4", Color.main || "#98F291"]}
+      colors={["#CEF9B4", colors.main || "#98F291"]}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -46,7 +50,7 @@ export default function PlacementTestIntro() {
             <View style={styles.instructionRow}>
               <ShootingStar
                 size={32}
-                color={Color.cam || "#FF6B00"}
+                color={colors.cam || "#FF6B00"}
                 weight="fill"
               />
               <Text style={styles.instructionText}>
@@ -58,7 +62,7 @@ export default function PlacementTestIntro() {
             {/* Info Capsules */}
             <View style={styles.infoContainer}>
               <View style={styles.infoCapsule}>
-                <Clock size={20} color={Color.cam || "#FF6B00"} weight="bold" />
+                <Clock size={20} color={colors.cam || "#FF6B00"} weight="bold" />
                 <Text style={styles.infoText}>
                   Thời gian:{" "}
                   <Text style={styles.boldInfoText}>Chỉ 3 phút.</Text>
@@ -68,7 +72,7 @@ export default function PlacementTestIntro() {
               <View style={styles.infoCapsule}>
                 <Headphones
                   size={20}
-                  color={Color.cam || "#FF6B00"}
+                  color={colors.cam || "#FF6B00"}
                   weight="bold"
                 />
                 <Text style={styles.infoText}>
@@ -100,122 +104,122 @@ export default function PlacementTestIntro() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  safeArea: {
-    flex: 1
-  },
-  scrollContent: {
-    flexGrow: 1, // Giúp nội dung giãn đều và hỗ trợ justifyContent
-    justifyContent: "center" // Căn giữa nội dung nếu màn hình còn dư chỗ
-  },
-  content: {
-    paddingHorizontal: 25,
-    paddingTop: 20,
-    paddingBottom: 30,
-    alignItems: "center"
-  },
-  mascotContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 30
-  },
-  mascotHalo: {
-    width: 180,
-    height: 180,
-    backgroundColor: "#FFFFFF", // Sửa thành nền trắng để hợp với gradient xanh
-    borderRadius: 90, // Tăng thành 90 (một nửa 180) để ra hình tròn hoàn hảo
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 5, // Dày thêm chút cho phần hào quang
-    borderColor: "rgba(255, 255, 255, 0.5)", // Viền nửa trong suốt mượt mà hơn
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
-    elevation: 5
-  },
-  mascotImage: {
-    width: 150,
-    height: 150
-  },
-  greetingWrapper: {
-    width: "100%",
-    paddingHorizontal: 10,
-    marginBottom: 25
-  },
-  greetingText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20 || 20, // Tăng size cho câu chào mừng nổi bật
-    color: Color.text || "#1E1E1E",
-    textAlign: "center",
-    lineHeight: 30
-  },
-  highlightText: {
-    color: Color.cam || "#FF6B00", // Đổi đỏ đậm thành cam cho cùng tone
-    fontFamily: FontFamily.lexendDecaBold
-  },
-  instructionRow: {
-    flexDirection: "row",
-    alignItems: "flex-start", // Đẩy icon lên ngang hàng với chữ dòng đầu
-    gap: 12,
-    marginBottom: 25,
-    width: "100%",
-    paddingHorizontal: 10
-  },
-  instructionText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 14,
-    color: Color.text || "#1E1E1E",
-    flex: 1,
-    lineHeight: 22,
-    paddingTop: 4 // Căn nhẹ cho chữ ngang tầm với icon
-  },
-  infoContainer: {
-    width: "100%",
-    gap: 12,
-    marginBottom: 35
-  },
-  infoCapsule: {
-    backgroundColor: "rgba(255, 255, 255, 0.8)", // Nền trắng hơi mờ hòa vào nền gradient
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start", // Căn trái cho text 2 nang thẳng hàng
-    paddingVertical: 14,
-    paddingHorizontal: 25,
-    borderRadius: 20, // Bo góc cong mềm mại hơn thay vì hình thoi
-    gap: 12,
-    width: "100%"
-  },
-  infoText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 12,
-    color: Color.text || "#1E1E1E"
-  },
-  boldInfoText: {
-    fontFamily: FontFamily.lexendDecaSemiBold
-  },
-  buttonGroup: {
-    width: "100%",
-    gap: 12
-  },
-  primaryButton: {
-    width: "100%",
-    height: 56,
-    borderRadius: 30
-  },
-  secondaryButton: {
-    width: "100%",
-    height: 56,
-    borderRadius: 30,
-    backgroundColor: "#FFFFFF",
-    borderColor: Color.cam || "#FF6B00",
-    borderWidth: 2
-  },
-  secondaryButtonText: {
-    color: Color.cam || "#FF6B00"
-  }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1
+      },
+      safeArea: {
+        flex: 1
+      },
+      scrollContent: {
+        flexGrow: 1, // Giúp nội dung giãn đều và hỗ trợ justifyContent
+        justifyContent: "center" // Căn giữa nội dung nếu màn hình còn dư chỗ
+      },
+      content: {
+        paddingHorizontal: 25,
+        paddingTop: 20,
+        paddingBottom: 30,
+        alignItems: "center"
+      },
+      mascotContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 30
+      },
+      mascotHalo: {
+        width: 180,
+        height: 180,
+        backgroundColor: "#FFFFFF", // Sửa thành nền trắng để hợp với gradient xanh
+        borderRadius: 90, // Tăng thành 90 (một nửa 180) để ra hình tròn hoàn hảo
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 5, // Dày thêm chút cho phần hào quang
+        borderColor: "rgba(255, 255, 255, 0.5)", // Viền nửa trong suốt mượt mà hơn
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.08,
+        shadowRadius: 15,
+        elevation: 5
+      },
+      mascotImage: {
+        width: 150,
+        height: 150
+      },
+      greetingWrapper: {
+        width: "100%",
+        paddingHorizontal: 10,
+        marginBottom: 25
+      },
+      greetingText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20 || 20, // Tăng size cho câu chào mừng nổi bật
+        color: colors.text || "#1E1E1E",
+        textAlign: "center",
+        lineHeight: 30
+      },
+      highlightText: {
+        color: colors.cam || "#FF6B00", // Đổi đỏ đậm thành cam cho cùng tone
+        fontFamily: FontFamily.lexendDecaBold
+      },
+      instructionRow: {
+        flexDirection: "row",
+        alignItems: "flex-start", // Đẩy icon lên ngang hàng với chữ dòng đầu
+        gap: 12,
+        marginBottom: 25,
+        width: "100%",
+        paddingHorizontal: 10
+      },
+      instructionText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 14,
+        color: colors.text || "#1E1E1E",
+        flex: 1,
+        lineHeight: 22,
+        paddingTop: 4 // Căn nhẹ cho chữ ngang tầm với icon
+      },
+      infoContainer: {
+        width: "100%",
+        gap: 12,
+        marginBottom: 35
+      },
+      infoCapsule: {
+        backgroundColor: "rgba(255, 255, 255, 0.8)", // Nền trắng hơi mờ hòa vào nền gradient
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start", // Căn trái cho text 2 nang thẳng hàng
+        paddingVertical: 14,
+        paddingHorizontal: 25,
+        borderRadius: 20, // Bo góc cong mềm mại hơn thay vì hình thoi
+        gap: 12,
+        width: "100%"
+      },
+      infoText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 12,
+        color: colors.text || "#1E1E1E"
+      },
+      boldInfoText: {
+        fontFamily: FontFamily.lexendDecaSemiBold
+      },
+      buttonGroup: {
+        width: "100%",
+        gap: 12
+      },
+      primaryButton: {
+        width: "100%",
+        height: 56,
+        borderRadius: 30
+      },
+      secondaryButton: {
+        width: "100%",
+        height: 56,
+        borderRadius: 30,
+        backgroundColor: "#FFFFFF",
+        borderColor: colors.cam || "#FF6B00",
+        borderWidth: 2
+      },
+      secondaryButtonText: {
+        color: colors.cam || "#FF6B00"
+      }
+    });

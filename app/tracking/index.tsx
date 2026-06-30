@@ -13,15 +13,15 @@ import { useTranslation } from 'react-i18next';
 import { LineChart } from 'react-native-chart-kit';
 
 // Import Design System
-import { FontFamily, FontSize, Padding, Gap, Border, Color } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import ScreenHeader from '../../components/ScreenHeader';
 import CategoryChip from '../../components/CategoryChip';
-import { useTheme } from '../../contexts/ThemeContext';
 import SkillHistoryCard from '../../components/ExamComponent/SkillHistoryCard';
 
 // Import API Services & Types
 import ProgressService from '../../api/services/progress.service';
 import { SkillHistory, SkillType } from '../../api/types/progress.type';
+import { useTheme } from "@/contexts/ThemeContext";
 
 /**
  * Tiện ích chuyển đổi Hex sang RGBA dùng cho react-native-chart-kit
@@ -35,6 +35,7 @@ const hexToRgba = (hex: string, opacity: number) => {
 };
 
 export default function HistoryScreen() {
+
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -207,7 +208,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   insightText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text, lineHeight: 22 },
   emptyText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray, textAlign: 'center', marginTop: 40 },
   listContainer: { 
-    backgroundColor: Color.bg, 
+    backgroundColor: colors.bg, 
     borderRadius: Border.br_15, 
     overflow: 'hidden' 
   },

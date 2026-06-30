@@ -5,10 +5,11 @@ import { ArrowLeftIcon } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Constants & Components
-import { Color, FontFamily, FontSize, Border, Padding, Gap } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Border, Padding, Gap } from '../../../constants/GlobalStyles';
 import Button from '../../../components/Button';
 import SubscriptionService from '../../../api/services/subscription.service';
 import { SubscriptionPlan, CheckoutRequest } from '../../../api/types/subscription.types';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Mock Data cho các phương thức thanh toán (Đã cập nhật ID để match với backend)
 const PAYMENT_METHODS = [
@@ -16,6 +17,9 @@ const PAYMENT_METHODS = [
 ];
 
 export default function OrderDetailsScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   // Lấy planId từ route nếu cần (ví dụ: để fetch dữ liệu đơn hàng thật)
   const { planId } = useLocalSearchParams(); 
@@ -75,7 +79,7 @@ export default function OrderDetailsScreen() {
         {/* --- HEADER --- */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <ArrowLeftIcon size={24} color={Color.text} weight="bold" />
+            <ArrowLeftIcon size={24} color={colors.text} weight="bold" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chi tiết đơn hàng</Text>
         </View>
@@ -86,7 +90,7 @@ export default function OrderDetailsScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {isLoading ? (
-            <ActivityIndicator size="large" color={Color.main} style={{ marginTop: 50 }} />
+            <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 50 }} />
           ) : planDetail ? (
             <>
               {/* Order Summary Card */}
@@ -131,7 +135,7 @@ export default function OrderDetailsScreen() {
               </View>
             </>
           ) : (
-            <Text style={{ textAlign: 'center', marginTop: 50, color: Color.gray }}>Không tìm thấy thông tin gói cước</Text>
+            <Text style={{ textAlign: 'center', marginTop: 50, color: colors.gray }}>Không tìm thấy thông tin gói cước</Text>
           )}
 
         </ScrollView>
@@ -153,119 +157,119 @@ export default function OrderDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  container: {
-    flex: 1,
-  },
-  
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_10,
-    paddingBottom: Padding.padding_15,
-    backgroundColor: Color.bg,
-  },
-  backButton: {
-    marginRight: Gap.gap_15,
-  },
-  headerTitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_20,
-    color: Color.text,
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      container: {
+        flex: 1,
+      },
+      
+      // Header
+      header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_10,
+        paddingBottom: Padding.padding_15,
+        backgroundColor: colors.bg,
+      },
+      backButton: {
+        marginRight: Gap.gap_15,
+      },
+      headerTitle: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_20,
+        color: colors.text,
+      },
 
-  // Body
-  scrollContent: {
-    paddingHorizontal: Padding.padding_15,
-    paddingBottom: 40,
-  },
-  
-  // Summary Card
-  summaryCard: {
-    backgroundColor: "#F3F3F3", // Xám nhạt
-    borderRadius: Border.br_15,
-    padding: Padding.padding_15,
-    marginTop: Gap.gap_20,
-    marginBottom: Gap.gap_20,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: Padding.padding_10,
-  },
-  summaryLabel: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.gray,
-  },
-  summaryValue: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
-  totalPrice: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: Color.color, // Xanh lá đậm theo design system của bạn
-  },
+      // Body
+      scrollContent: {
+        paddingHorizontal: Padding.padding_15,
+        paddingBottom: 40,
+      },
+      
+      // Summary Card
+      summaryCard: {
+        backgroundColor: "#F3F3F3", // Xám nhạt
+        borderRadius: Border.br_15,
+        padding: Padding.padding_15,
+        marginTop: Gap.gap_20,
+        marginBottom: Gap.gap_20,
+      },
+      summaryRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: Padding.padding_10,
+      },
+      summaryLabel: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.gray,
+      },
+      summaryValue: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+      },
+      totalPrice: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: colors.color, // Xanh lá đậm theo design system của bạn
+      },
 
-  // Payment Section
-  sectionTitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    marginBottom: Gap.gap_15,
-  },
-  paymentList: {
-    gap: Gap.gap_10,
-  },
-  paymentCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Padding.padding_15,
-    borderRadius: Border.br_15,
-    borderWidth: 1,
-    backgroundColor: Color.bg,
-  },
-  paymentCardUnselected: {
-    borderColor: Color.stroke, // Viền xám mờ
-  },
-  paymentCardSelected: {
-    borderColor: Color.color, // Viền xanh lá đậm khi được chọn
-    borderLeftWidth: 8
-  },
-  paymentIcon: {
-    width: 32,
-    height: 32,
-    marginRight: Gap.gap_15,
-  },
-  paymentTitle: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
+      // Payment Section
+      sectionTitle: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        marginBottom: Gap.gap_15,
+      },
+      paymentList: {
+        gap: Gap.gap_10,
+      },
+      paymentCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: Padding.padding_15,
+        borderRadius: Border.br_15,
+        borderWidth: 1,
+        backgroundColor: colors.bg,
+      },
+      paymentCardUnselected: {
+        borderColor: colors.stroke, // Viền xám mờ
+      },
+      paymentCardSelected: {
+        borderColor: colors.color, // Viền xanh lá đậm khi được chọn
+        borderLeftWidth: 8
+      },
+      paymentIcon: {
+        width: 32,
+        height: 32,
+        marginRight: Gap.gap_15,
+      },
+      paymentTitle: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+      },
 
-  // Footer
-  footer: {
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: Padding.padding_15,
-    paddingBottom: Padding.padding_30, // Đẩy lên để tránh thanh điều hướng ảo
-    backgroundColor: Color.bg,
-    borderTopWidth: 1,
-    borderTopColor: Color.stroke,
-  },
-  secureText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.cam,
-    textAlign: 'center',
-    marginBottom: Gap.gap_10,
-  },
-});
+      // Footer
+      footer: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_15,
+        paddingBottom: Padding.padding_30, // Đẩy lên để tránh thanh điều hướng ảo
+        backgroundColor: colors.bg,
+        borderTopWidth: 1,
+        borderTopColor: colors.stroke,
+      },
+      secureText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.cam,
+        textAlign: 'center',
+        marginBottom: Gap.gap_10,
+      },
+    });

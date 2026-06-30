@@ -2,8 +2,9 @@ import React from 'react';
 import { LayoutChangeEvent, PanResponder, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { Border, Color } from '../../constants/GlobalStyles';
+import { Border } from '../../constants/GlobalStyles';
 import { HANGUL_STROKE_DATA } from './hangulStrokeData';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type HangulPracticeCanvasProps = {
   glyph: string;
@@ -18,6 +19,9 @@ type StrokePath = {
 const VIEWBOX_SIZE = 120;
 
 const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const [paths, setPaths] = React.useState<StrokePath[]>([]);
   const [currentPath, setCurrentPath] = React.useState('');
   const [canvasSize, setCanvasSize] = React.useState({ width: 1, height: 1 });
@@ -129,7 +133,7 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
           <Path
             key={path.id}
             d={path.d}
-            stroke={Color.colorBlack}
+            stroke={colors.colorBlack}
             strokeWidth={8}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -140,7 +144,7 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
         {currentPath ? (
           <Path
             d={currentPath}
-            stroke={Color.colorBlack}
+            stroke={colors.colorBlack}
             strokeWidth={8}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -152,14 +156,14 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
   );
 };
 
-const styles = StyleSheet.create({
-  canvasWrap: {
-    flex: 1,
-    margin: 10,
-    borderRadius: Border.br_20,
-    backgroundColor: '#F8F8F8',
-    overflow: 'hidden',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      canvasWrap: {
+        flex: 1,
+        margin: 10,
+        borderRadius: Border.br_20,
+        backgroundColor: '#F8F8F8',
+        overflow: 'hidden',
+      },
+    });
 
 export default HangulPracticeCanvas;

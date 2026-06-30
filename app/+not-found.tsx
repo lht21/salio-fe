@@ -3,10 +3,14 @@ import { Stack, useRouter } from 'expo-router';
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { WarningCircleIcon } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../constants/GlobalStyles';
 import Button from '../components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function NotFoundScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
 
   return (
@@ -16,7 +20,7 @@ export default function NotFoundScreen() {
       
       <View style={styles.container}>
         {/* Icon cảnh báo */}
-        <WarningCircleIcon size={80} color={Color.cam || '#FFA054'} weight="fill" />
+        <WarningCircleIcon size={80} color={colors.cam || '#FFA054'} weight="fill" />
         
         {/* Nội dung thông báo */}
         <Text style={styles.title}>Ôi không!</Text>
@@ -36,36 +40,36 @@ export default function NotFoundScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg || '#FFFFFF',
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Padding.padding_15 || 15,
-  },
-  title: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 24,
-    color: Color.text || '#1E1E1E',
-    marginTop: Gap.gap_20 || 20,
-    marginBottom: Gap.gap_10 || 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14 || 14,
-    color: Color.gray || '#64748B',
-    textAlign: 'center',
-    marginBottom: 40,
-    paddingHorizontal: 20,
-    lineHeight: 22,
-  },
-  button: {
-    width: '100%',
-    maxWidth: 250, // Giới hạn chiều rộng nút để trông cân đối hơn trên màn hình to
-  }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg || '#FFFFFF',
+      },
+      container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: Padding.padding_15 || 15,
+      },
+      title: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: 24,
+        color: colors.text || '#1E1E1E',
+        marginTop: Gap.gap_20 || 20,
+        marginBottom: Gap.gap_10 || 10,
+        textAlign: 'center',
+      },
+      subtitle: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14 || 14,
+        color: colors.gray || '#64748B',
+        textAlign: 'center',
+        marginBottom: 40,
+        paddingHorizontal: 20,
+        lineHeight: 22,
+      },
+      button: {
+        width: '100%',
+        maxWidth: 250, // Giới hạn chiều rộng nút để trông cân đối hơn trên màn hình to
+      }
+    });

@@ -4,8 +4,9 @@ import { CaretDownIcon, CornersOutIcon } from 'phosphor-react-native';
 import { LinearTransition } from 'react-native-reanimated';
 import { MotiView, AnimatePresence } from 'moti';
 
-import { Border, Color, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
+import { Border, FontFamily, FontSize, Gap } from '../../../constants/GlobalStyles';
 import ProgressBar from '../../ProgressBar';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type OXChoice = 'O' | 'X';
 type AnswerState = 'default' | 'correct' | 'incorrect';
@@ -39,6 +40,9 @@ const OXQuestionAccordion = ({
   onSelect,
   footer,
 }: OXQuestionAccordionProps) => {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <MotiView layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
       <View style={styles.topRow}>
@@ -65,7 +69,7 @@ const OXQuestionAccordion = ({
       <ProgressBar
         progress={progress}
         height={8}
-        color={Color.main}
+        color={colors.main}
         backgroundColor="#71809B"
       />
 
@@ -113,6 +117,9 @@ function OXAnswerButton({
   state: AnswerState;
   onPress: () => void;
 }) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <Pressable
       style={[
@@ -136,85 +143,85 @@ function OXAnswerButton({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: '#FFFFFF',
-    padding: 14,
-    gap: Gap.gap_14,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
-    elevation: 15,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  progressPill: {
-    overflow: 'hidden',
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    backgroundColor: Color.main,
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_20,
-    color: '#FFFFFF',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  iconButton: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  body: {
-    gap: Gap.gap_14,
-  },
-  question: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-    lineHeight: 26,
-    color: Color.text,
-  },
-  answerButton: {
-    minHeight: 52,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#C9D2E1',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 18,
-    justifyContent: 'center',
-  },
-  answerButtonSelected: {
-    borderColor: '#94A7C5',
-    backgroundColor: '#F6F9FE',
-  },
-  answerButtonCorrect: {
-    borderColor: '#4CAF28',
-    borderStyle: 'dashed',
-  },
-  answerButtonIncorrect: {
-    borderColor: '#FF4B4B',
-  },
-  answerText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-  answerTextCorrect: {
-    color: '#3C9A24',
-  },
-  answerTextIncorrect: {
-    color: '#E03131',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        backgroundColor: '#FFFFFF',
+        padding: 14,
+        gap: Gap.gap_14,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: -2,
+        },
+        shadowOpacity: 0.08,
+        shadowRadius: 15,
+        elevation: 15,
+      },
+      topRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      progressPill: {
+        overflow: 'hidden',
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 5,
+        backgroundColor: colors.main,
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_20,
+        color: '#FFFFFF',
+      },
+      actions: {
+        flexDirection: 'row',
+        gap: 8,
+      },
+      iconButton: {
+        width: 30,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      body: {
+        gap: Gap.gap_14,
+      },
+      question: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        lineHeight: 26,
+        color: colors.text,
+      },
+      answerButton: {
+        minHeight: 52,
+        borderRadius: 18,
+        borderWidth: 1,
+        borderColor: '#C9D2E1',
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 18,
+        justifyContent: 'center',
+      },
+      answerButtonSelected: {
+        borderColor: '#94A7C5',
+        backgroundColor: '#F6F9FE',
+      },
+      answerButtonCorrect: {
+        borderColor: '#4CAF28',
+        borderStyle: 'dashed',
+      },
+      answerButtonIncorrect: {
+        borderColor: '#FF4B4B',
+      },
+      answerText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+      answerTextCorrect: {
+        color: '#3C9A24',
+      },
+      answerTextIncorrect: {
+        color: '#E03131',
+      },
+    });

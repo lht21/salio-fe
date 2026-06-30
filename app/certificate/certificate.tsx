@@ -3,8 +3,9 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
 
-import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import ScreenHeader from '../../components/ScreenHeader';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type BadgeItem = {
     id: string;
@@ -31,6 +32,9 @@ const BADGES: BadgeItem[] = [
 ];
 
 export default function CertificateScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
     const router = useRouter();
 
     return (
@@ -65,44 +69,44 @@ export default function CertificateScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: Color.bg,
-    },
-    badgesRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_15,
-        gap: 8,
-    },
-    badgeItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    badgeImageWrap: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
-        borderWidth: 2,
-        borderColor: Color.stroke,
-        backgroundColor: '#F7F9FC',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-    },
-    badgeImage: {
-        width: 90,
-        height: 90,
-        borderRadius: 45,
-    },
-    badgeTitle: {
-        marginTop: Gap.gap_8,
-        textAlign: 'center',
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_12,
-        color: Color.green,
-        lineHeight: 18,
-    },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+        safeArea: {
+            flex: 1,
+            backgroundColor: colors.bg,
+        },
+        badgesRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: Padding.padding_15,
+            paddingTop: Padding.padding_15,
+            gap: 8,
+        },
+        badgeItem: {
+            flex: 1,
+            alignItems: 'center',
+        },
+        badgeImageWrap: {
+            width: 96,
+            height: 96,
+            borderRadius: 48,
+            borderWidth: 2,
+            borderColor: colors.stroke,
+            backgroundColor: '#F7F9FC',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+        },
+        badgeImage: {
+            width: 90,
+            height: 90,
+            borderRadius: 45,
+        },
+        badgeTitle: {
+            marginTop: Gap.gap_8,
+            textAlign: 'center',
+            fontFamily: FontFamily.lexendDecaSemiBold,
+            fontSize: FontSize.fs_12,
+            color: colors.green,
+            lineHeight: 18,
+        },
+    });

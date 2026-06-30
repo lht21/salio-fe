@@ -18,11 +18,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import PlacementTestService from "@/api/services/placement-test.service";
-import { Color, FontFamily, FontSize } from "../../constants/GlobalStyles";
+import { FontFamily, FontSize } from "../../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
 
 export default function AudioCheckScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const soundRef = useRef<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -129,7 +133,7 @@ export default function AudioCheckScreen() {
 
   return (
     <LinearGradient
-      colors={["#CEF9B4", Color.main || "#98F291"]}
+      colors={["#CEF9B4", colors.main || "#98F291"]}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -176,7 +180,7 @@ export default function AudioCheckScreen() {
             </View>
             {/* Alert Banner */}
             <View style={styles.alertBanner}>
-              <WarningIcon size={40} color={Color.cam || "#FF6B00"} weight="fill" />
+              <WarningIcon size={40} color={colors.cam || "#FF6B00"} weight="fill" />
               <View style={styles.alertTextWrapper}>
                 <Text style={styles.alertTitle}>Cảnh báo</Text>
                 <Text style={styles.alertSubtitle}>Kẻ địch đang đến gần!</Text>
@@ -218,142 +222,142 @@ export default function AudioCheckScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  safeArea: {
-    flex: 1
-  },
-  scrollContent: {
-    flexGrow: 1, // Đảm bảo nội dung có thể giãn ra để căn giữa
-    justifyContent: "center" // Căn giữa nội dung theo chiều dọc nếu màn hình dài
-  },
-  content: {
-    paddingHorizontal: 25,
-    paddingTop: 10, // Giảm paddingTop xuống vì đã có header chiếm chỗ
-    paddingBottom: 40,
-    alignItems: "center"
-  },
-  header: {
-    width: "100%",
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    zIndex: 10
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.6)", // Nền trong suốt mờ ảo
-  },
-  cardsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    gap: -20,
-    marginBottom: 40
-  },
-  sideCard: {
-    width: 90,
-    height: 120,
-    backgroundColor: "rgba(255, 255, 255, 0.9)", // Nền trong trẻo hòa vào background
-    borderRadius: 35,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 3,
-    borderColor: "rgba(255, 255, 255, 0.5)", // Viền mờ đồng bộ
-    zIndex: 1
-  },
-  sideImage:{
-    width: 100,
-    height: 100
-  },
-  middleCard: {
-    width: 150, // Nới rộng thành hình vuông để bo tròn
-    height: 150,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 75, // Bo góc thành hình tròn hoàn hảo (một nửa 150)
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 5,
-    borderColor: "rgba(255, 255, 255, 0.5)", // Viền hào quang
-    zIndex: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
-    elevation: 5
-  },
-  mascotImage: {
-    width: 120, // Tăng size mascot tương ứng
-    height: 120
-  },
-  alertBanner: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 25, 
-    width: "100%",
-    gap: 15,
-    shadowColor: Color.cam || "#FF6B00",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6
-  },
-  alertTextWrapper: {
-    flex: 1,
-  },
-  alertTitle: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 18,
-    color: Color.cam || "#FF6B00"
-  },
-  alertSubtitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 14,
-    color: Color.text || "#1E1E1E"
-  },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaSemiBold, // In đậm câu hỏi
-    fontSize: 18, // Tăng size để thu hút sự chú ý
-    color: Color.text || "#1E1E1E",
-    textAlign: "center",
-    marginBottom: 35,
-    lineHeight: 28
-  },
-  buttonGroup: {
-    width: "100%",
-    gap: 12
-  },
-  primaryButton: {
-    backgroundColor: Color.cam || "#FF6B00",
-    width: "100%",
-    height: 56,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  primaryButtonText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: 14,
-    color: "#FFFFFF"
-  },
-  secondaryButton: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: Color.cam || "#FF6B00",
-    width: "100%",
-    height: 56,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  secondaryButtonText: {
-    color: Color.cam || "#FF6B00"
-  }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1
+      },
+      safeArea: {
+        flex: 1
+      },
+      scrollContent: {
+        flexGrow: 1, // Đảm bảo nội dung có thể giãn ra để căn giữa
+        justifyContent: "center" // Căn giữa nội dung theo chiều dọc nếu màn hình dài
+      },
+      content: {
+        paddingHorizontal: 25,
+        paddingTop: 10, // Giảm paddingTop xuống vì đã có header chiếm chỗ
+        paddingBottom: 40,
+        alignItems: "center"
+      },
+      header: {
+        width: "100%",
+        paddingHorizontal: 20,
+        paddingTop: 10,
+        zIndex: 10
+      },
+      backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: "rgba(255, 255, 255, 0.6)", // Nền trong suốt mờ ảo
+      },
+      cardsRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        gap: -20,
+        marginBottom: 40
+      },
+      sideCard: {
+        width: 90,
+        height: 120,
+        backgroundColor: "rgba(255, 255, 255, 0.9)", // Nền trong trẻo hòa vào background
+        borderRadius: 35,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 3,
+        borderColor: "rgba(255, 255, 255, 0.5)", // Viền mờ đồng bộ
+        zIndex: 1
+      },
+      sideImage:{
+        width: 100,
+        height: 100
+      },
+      middleCard: {
+        width: 150, // Nới rộng thành hình vuông để bo tròn
+        height: 150,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 75, // Bo góc thành hình tròn hoàn hảo (một nửa 150)
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 5,
+        borderColor: "rgba(255, 255, 255, 0.5)", // Viền hào quang
+        zIndex: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.08,
+        shadowRadius: 15,
+        elevation: 5
+      },
+      mascotImage: {
+        width: 120, // Tăng size mascot tương ứng
+        height: 120
+      },
+      alertBanner: {
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        borderRadius: 25, 
+        width: "100%",
+        gap: 15,
+        shadowColor: colors.cam || "#FF6B00",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 6
+      },
+      alertTextWrapper: {
+        flex: 1,
+      },
+      alertTitle: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 18,
+        color: colors.cam || "#FF6B00"
+      },
+      alertSubtitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: 14,
+        color: colors.text || "#1E1E1E"
+      },
+      questionText: {
+        fontFamily: FontFamily.lexendDecaSemiBold, // In đậm câu hỏi
+        fontSize: 18, // Tăng size để thu hút sự chú ý
+        color: colors.text || "#1E1E1E",
+        textAlign: "center",
+        marginBottom: 35,
+        lineHeight: 28
+      },
+      buttonGroup: {
+        width: "100%",
+        gap: 12
+      },
+      primaryButton: {
+        backgroundColor: colors.cam || "#FF6B00",
+        width: "100%",
+        height: 56,
+        borderRadius: 30,
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      primaryButtonText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: 14,
+        color: "#FFFFFF"
+      },
+      secondaryButton: {
+        backgroundColor: "#FFFFFF",
+        borderWidth: 2,
+        borderColor: colors.cam || "#FF6B00",
+        width: "100%",
+        height: 56,
+        borderRadius: 30,
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      secondaryButtonText: {
+        color: colors.cam || "#FF6B00"
+      }
+    });

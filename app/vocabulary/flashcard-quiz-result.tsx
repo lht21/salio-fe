@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { Audio } from 'expo-av';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import IconButton from '../../components/IconButton';
 import { XIcon } from 'phosphor-react-native';
 
@@ -15,8 +15,12 @@ import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import FlashcardService from '../../api/services/flashcard.service';
 import VocabularyCard from '../../components/VocabularyCard';
 import apiClient from '../../api/client';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function FlashcardQuizResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { setId, correctCount, totalCount, history } = useLocalSearchParams();
   
@@ -125,7 +129,7 @@ export default function FlashcardQuizResultScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </SafeAreaView>
     );
   }
@@ -164,8 +168,8 @@ export default function FlashcardQuizResultScreen() {
 
         {/* MISSION D2 BANNER */}
         {missionD2 && (
-          <View style={[styles.scoreBanner, { backgroundColor: missionD2.isCompleted ? Color.greenLight : Color.bg2, marginTop: -10 }]}>
-            <Text style={[styles.scoreText, { color: missionD2.isCompleted ? Color.main2 : Color.text }]}>
+          <View style={[styles.scoreBanner, { backgroundColor: missionD2.isCompleted ? colors.greenLight : colors.bg2, marginTop: -10 }]}>
+            <Text style={[styles.scoreText, { color: missionD2.isCompleted ? colors.main2 : colors.text }]}>
               {missionD2.isCompleted 
                 ? '🎉 Đã hoàn thành nhiệm vụ D2: Học 10 từ vựng!' 
                 : `Nhiệm vụ D2: Học từ vựng (${missionD2.progress}/10)`}
@@ -237,35 +241,35 @@ export default function FlashcardQuizResultScreen() {
 }
 
 // --- STYLES ---
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
-  scrollArea: { flex: 1 },
-  scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
-  
-  celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
-  illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
-  titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: Color.xanh },
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
+      scrollArea: { flex: 1 },
+      scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
+      
+      celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
+      illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
+      titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.xanh },
 
-  scoreBanner: {
-    flexDirection: 'row', justifyContent: 'space-between', backgroundColor: Color.greenLight,
-    padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20,
-  },
-  scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: Color.main2 },
-  
-  listSection: { width: '100%' },
+      scoreBanner: {
+        flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.greenLight,
+        padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20,
+      },
+      scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.main2 },
+      
+      listSection: { width: '100%' },
 
-  resultLabel: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_14,
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  textCorrect: { color: Color.main2 },
-  textIncorrect: { color: Color.red },
+      resultLabel: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_14,
+        marginBottom: 8,
+        marginLeft: 4,
+      },
+      textCorrect: { color: colors.main2 },
+      textIncorrect: { color: colors.red },
 
-  footer: {
-    paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
-    backgroundColor: Color.bg, borderTopWidth: 1, borderTopColor: Color.stroke,
-  }
-});
+      footer: {
+        paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
+        backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke,
+      }
+    });

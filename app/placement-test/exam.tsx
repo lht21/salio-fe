@@ -30,7 +30,8 @@ import AnswerResultBottomSheet, {
 } from "../../components/Modals/AnswerResultBottomSheet";
 import IntroPopup from "../../components/Modals/Popup/IntroPopup";
 import QuizHeader from "../../components/Modals/Question/QuizHeader";
-import { Color, FontFamily } from "../../constants/GlobalStyles";
+import { FontFamily } from "../../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const DEFAULT_TIME_LIMIT_SECONDS = 180;
 
@@ -169,6 +170,9 @@ const flattenQuestions = (data?: PlacementSessionData): UiPlacementQuestion[] =>
 };
 
 export default function PlacementTestExam() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const params = useLocalSearchParams<{ sessionId?: string }>();
   const sessionId = Array.isArray(params.sessionId) ? params.sessionId[0] : params.sessionId;
@@ -394,7 +398,7 @@ export default function PlacementTestExam() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <ActivityIndicator color={Color.main} size="large" />
+        <ActivityIndicator color={colors.main} size="large" />
         <Text style={styles.loadingText}>Đang tải bài kiểm tra...</Text>
       </SafeAreaView>
     );
@@ -454,54 +458,54 @@ export default function PlacementTestExam() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  keyboardAvoiding: {
-    flex: 1
-  },
-  innerContainer: {
-    flex: 1
-  },
-  centered: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24
-  },
-  content: { flex: 1, paddingHorizontal: 30, paddingTop: 25 },
-  loadingText: {
-    marginTop: 12,
-    fontFamily: FontFamily.lexendDecaRegular,
-    color: Color.text
-  },
-  emptyText: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    color: Color.text,
-    textAlign: "center"
-  },
-  shortAnswerWrap: {
-    flex: 1
-  },
-  shortAnswerQuestion: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: 18,
-    color: Color.text || "#1E1E1E",
-    lineHeight: 30,
-    marginBottom: 24
-  },
-  shortAnswerInput: {
-    minHeight: 140,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: "#E6E9F0",
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 15,
-    color: Color.text || "#1E1E1E",
-    textAlignVertical: "top"
-  },
-  shortAnswerButton: {
-    marginTop: 20
-  }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: { flex: 1, backgroundColor: "#FFFFFF" },
+      keyboardAvoiding: {
+        flex: 1
+      },
+      innerContainer: {
+        flex: 1
+      },
+      centered: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 24
+      },
+      content: { flex: 1, paddingHorizontal: 30, paddingTop: 25 },
+      loadingText: {
+        marginTop: 12,
+        fontFamily: FontFamily.lexendDecaRegular,
+        color: colors.text
+      },
+      emptyText: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        color: colors.text,
+        textAlign: "center"
+      },
+      shortAnswerWrap: {
+        flex: 1
+      },
+      shortAnswerQuestion: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: 18,
+        color: colors.text || "#1E1E1E",
+        lineHeight: 30,
+        marginBottom: 24
+      },
+      shortAnswerInput: {
+        minHeight: 140,
+        borderRadius: 18,
+        borderWidth: 1.5,
+        borderColor: "#E6E9F0",
+        backgroundColor: "#FFFFFF",
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 15,
+        color: colors.text || "#1E1E1E",
+        textAlignVertical: "top"
+      },
+      shortAnswerButton: {
+        marginTop: 20
+      }
+    });

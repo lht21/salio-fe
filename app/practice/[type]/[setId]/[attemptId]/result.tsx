@@ -4,9 +4,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import PracticeService from '../../../../../api/services/practice.service';
 import ExamResultUI from '../../../../../components/PracticeComponent/ExamResultUI';
 import WritingResultUI from '../../../../../components/PracticeComponent/WritingResultUI';
-import { Color } from '../../../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function PracticeResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const { type, setId, attemptId } = useLocalSearchParams();
   const router = useRouter();
   
@@ -52,7 +55,7 @@ export default function PracticeResultScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Color.color} />
+        <ActivityIndicator size="large" color={colors.color} />
       </View>
     );
   }
@@ -72,6 +75,6 @@ export default function PracticeResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Color.bg }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }
+    });

@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MagnifyingGlassIcon, UsersThreeIcon, CaretRightIcon, BookmarkSimpleIcon } from 'phosphor-react-native';
 import { Image } from 'expo-image';
-import { Color, FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
-import { useTheme } from '../../contexts/ThemeContext';
+import { FontFamily, FontSize, Padding, Border, Gap } from '../../constants/GlobalStyles';
 import { useRouter } from 'expo-router';
 import CategoryChip from '../../components/CategoryChip';
 import { ArticleCardList, ArticleCardFeatured } from '../../components/Discover/Articlecard';
@@ -13,6 +12,7 @@ import CreateSetButton from '../../components/CreateSetButton';
 import MainTab from '../../components/MainTab';
 import DiscoverGroupIcon from '../../components/icons/DiscoverGroupIcon';
 import Award04Icon from '../../components/icons/Award04Icon';
+import { useTheme } from "@/contexts/ThemeContext";
 
 // MOCK DATA CHO MÀN HÌNH KHÁM PHÁ MỚI
 const ARTICLE_TAGS = ['Tất cả', 'Văn hoá Hàn Quốc', 'Tin tức TOPIK', 'K-Pop & Đời sống', 'Luyện dịch'];
@@ -84,7 +84,9 @@ const FadeInView = ({ children, index }: { children: React.ReactNode, index: num
 };
 
 export default function DiscoverScreen() {
-  const { colors } = useTheme();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   // Tab Switcher State: 'social' (Nhóm & Xếp hạng) | 'content' (Báo chí)
   const [activeTab, setActiveTab] = useState<'social' | 'content'>('content');
@@ -237,236 +239,236 @@ export default function DiscoverScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Padding.padding_20,
-    marginBottom: Gap.gap_15,
-  },
-  pageTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold, 
-    fontSize: FontSize.fs_24, 
-    color: Color.text 
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    marginHorizontal: Padding.padding_20,
-    gap: 10,
-    marginBottom: Gap.gap_20,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  tabSection: {
-    flex: 1,
-  },
-  
-  // --- STYLES BÁO CHÍ ---
-  chipRow: {
-    marginBottom: 16,
-  },
-  chipScroll: {
-    paddingHorizontal: Padding.padding_20,
-    gap: 10,
-  },
-  articlesList: {
-    paddingHorizontal: Padding.padding_20,
-    gap: 16,
-  },
-  articleGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -8, // Bù trừ cho padding của gridItem
-  },
-  gridItem: {
-    width: '50%',
-    paddingHorizontal: 8,
-    marginBottom: 16,
-  },
-  articleCard: {
-    flexDirection: 'row',
-    backgroundColor: Color.bg,
-    borderRadius: Border.br_15,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-    padding: 12,
-    gap: 12,
-  },
-  articleImage: {
-    width: 80,
-    height: 80,
-    borderRadius: Border.br_10,
-  },
-  articleInfo: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  articleMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  articleCategory: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 11,
-    color: Color.main2,
-  },
-  levelBadge: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  levelText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 10,
-    color: Color.gray,
-  },
-  articleTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    lineHeight: 20,
-  },
-  articleFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  articleStats: {
-    flexDirection: 'row',
-  },
-  articleViews: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 11,
-    color: Color.gray,
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: Padding.padding_20,
+        marginBottom: Gap.gap_15,
+      },
+      pageTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold, 
+        fontSize: FontSize.fs_24, 
+        color: colors.text 
+      },
+      tabContainer: {
+        flexDirection: 'row',
+        marginHorizontal: Padding.padding_20,
+        gap: 10,
+        marginBottom: Gap.gap_20,
+      },
+      scrollContent: {
+        paddingBottom: 40,
+      },
+      tabSection: {
+        flex: 1,
+      },
+      
+      // --- STYLES BÁO CHÍ ---
+      chipRow: {
+        marginBottom: 16,
+      },
+      chipScroll: {
+        paddingHorizontal: Padding.padding_20,
+        gap: 10,
+      },
+      articlesList: {
+        paddingHorizontal: Padding.padding_20,
+        gap: 16,
+      },
+      articleGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginHorizontal: -8, // Bù trừ cho padding của gridItem
+      },
+      gridItem: {
+        width: '50%',
+        paddingHorizontal: 8,
+        marginBottom: 16,
+      },
+      articleCard: {
+        flexDirection: 'row',
+        backgroundColor: colors.bg,
+        borderRadius: Border.br_15,
+        borderWidth: 1,
+        borderColor: colors.stroke,
+        padding: 12,
+        gap: 12,
+      },
+      articleImage: {
+        width: 80,
+        height: 80,
+        borderRadius: Border.br_10,
+      },
+      articleInfo: {
+        flex: 1,
+        justifyContent: 'space-between',
+      },
+      articleMeta: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
+      articleCategory: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 11,
+        color: colors.main2,
+      },
+      levelBadge: {
+        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+      },
+      levelText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 10,
+        color: colors.gray,
+      },
+      articleTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        lineHeight: 20,
+      },
+      articleFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 4,
+      },
+      articleStats: {
+        flexDirection: 'row',
+      },
+      articleViews: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 11,
+        color: colors.gray,
+      },
 
-  // --- STYLES SOCIAL ---
-  myGroupCard: {
-    marginHorizontal: Padding.padding_20,
-    backgroundColor: '#9BF08A', // Màu xanh lá chủ đạo
-    borderRadius: Border.br_20,
-    padding: 20,
-    marginBottom: Gap.gap_20,
-  },
-  myGroupHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  myGroupSub: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    color: '#2F7A4D', // Xanh đậm
-    marginBottom: 4,
-  },
-  myGroupTitle: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-  myGroupRank: {
-    backgroundColor: Color.bg,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: Border.br_10,
-  },
-  myGroupRankText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
-  progressLabel: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: 11,
-    color: '#2F7A4D',
-    marginBottom: 6,
-  },
-  progressTrack: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Color.text,
-  },
-  leaderboardSection: {
-    paddingHorizontal: Padding.padding_20,
-  },
-  leaderboardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16,
-    color: Color.text,
-  },
-  viewAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  viewAllText: {
-    fontFamily: FontFamily.lexendDecaMedium,
-    fontSize: FontSize.fs_12,
-    color: Color.main2,
-  },
-  leaderboardList: {
-    gap: 10,
-  },
-  leaderboardItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Color.bg,
-    borderWidth: 1,
-    borderColor: Color.stroke,
-    padding: 12,
-    borderRadius: Border.br_15,
-  },
-  leaderboardItemActive: {
-    borderColor: Color.main,
-    backgroundColor: '#F8FFF7',
-  },
-  rankBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  rankText: {
-    fontFamily: FontFamily.lexendDecaBold,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-  },
-  groupInfo: {
-    flex: 1,
-  },
-  groupName: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_14,
-    color: Color.text,
-    marginBottom: 2,
-  },
-  groupPoints: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_12,
-    color: Color.gray,
-  },
-});
+      // --- STYLES SOCIAL ---
+      myGroupCard: {
+        marginHorizontal: Padding.padding_20,
+        backgroundColor: '#9BF08A', // Màu xanh lá chủ đạo
+        borderRadius: Border.br_20,
+        padding: 20,
+        marginBottom: Gap.gap_20,
+      },
+      myGroupHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+      },
+      myGroupSub: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+        color: '#2F7A4D', // Xanh đậm
+        marginBottom: 4,
+      },
+      myGroupTitle: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+      myGroupRank: {
+        backgroundColor: colors.bg,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: Border.br_10,
+      },
+      myGroupRankText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+      },
+      progressLabel: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: 11,
+        color: '#2F7A4D',
+        marginBottom: 6,
+      },
+      progressTrack: {
+        height: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        borderRadius: 4,
+        overflow: 'hidden',
+      },
+      progressFill: {
+        height: '100%',
+        backgroundColor: colors.text,
+      },
+      leaderboardSection: {
+        paddingHorizontal: Padding.padding_20,
+      },
+      leaderboardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+      },
+      sectionTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: colors.text,
+      },
+      viewAllBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+      },
+      viewAllText: {
+        fontFamily: FontFamily.lexendDecaMedium,
+        fontSize: FontSize.fs_12,
+        color: colors.main2,
+      },
+      leaderboardList: {
+        gap: 10,
+      },
+      leaderboardItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.bg,
+        borderWidth: 1,
+        borderColor: colors.stroke,
+        padding: 12,
+        borderRadius: Border.br_15,
+      },
+      leaderboardItemActive: {
+        borderColor: colors.main,
+        backgroundColor: '#F8FFF7',
+      },
+      rankBox: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#F1F5F9',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+      },
+      rankText: {
+        fontFamily: FontFamily.lexendDecaBold,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+      },
+      groupInfo: {
+        flex: 1,
+      },
+      groupName: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_14,
+        color: colors.text,
+        marginBottom: 2,
+      },
+      groupPoints: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: colors.gray,
+      },
+    });

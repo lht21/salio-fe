@@ -3,7 +3,8 @@ import { Pause, Play } from "phosphor-react-native";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Color, FontFamily } from "../constants/GlobalStyles";
+import { FontFamily } from "../constants/GlobalStyles";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Giữ nguyên các Interface cũ của bạn
 export interface ListeningOption {
@@ -33,6 +34,9 @@ export default function ListeningQuestionForm({
   onSelectOption,
   showResultSheet
 }: ListeningQuestionFormProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   // --- Giữ nguyên State cũ ---
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -207,120 +211,120 @@ export default function ListeningQuestionForm({
 }
 
 // --- Giữ nguyên toàn bộ Style cũ của bạn ---
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  audioCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 30,
-    padding: 25,
-    alignItems: "center",
-    marginBottom: 40,
-    shadowColor:  "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 20,
-    elevation: 10,
-    borderWidth: 0.5,
-    borderColor: Color.stroke || "#F0F0F0"
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        flex: 1
+      },
+      audioCard: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 30,
+        padding: 25,
+        alignItems: "center",
+        marginBottom: 40,
+        shadowColor:  "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.05,
+        shadowRadius: 20,
+        elevation: 10,
+        borderWidth: 0.5,
+        borderColor: colors.stroke || "#F0F0F0"
+      },
 
-  playButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#98F291",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20
-  },
-  timerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 8
-  },
-  timeText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 12,
-    color: Color.text || "#1E1E1E"
-  },
-  audioProgressBg: {
-    height: 4,
-    backgroundColor: "#64748B40",
-    width: "100%",
-    borderRadius: 2,
-    marginBottom: 20
-  },
-  audioProgressFill: {
-    height: "100%",
-    backgroundColor: "#64748B",
-    borderRadius: 2,
-    position: "relative"
-  },
-  progressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#98F291",
-    position: "absolute",
-    right: -5,
-    top: -3
-  },
-  speedRow: {
-    flexDirection: "row",
-    gap: 15
-  },
-  speedBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-    backgroundColor: "#E6E9F0"
-  },
-  speedBtnActive: {
-    backgroundColor: "#000000"
-  },
-  speedText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 9,
-    color: Color.gray || "#64748B"
-  },
-  speedTextActive: {
-    color: "#98F291"
-  },
-  questionText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 18,
-    color: "#1E1E1E",
-    marginBottom: 40
-  },
-  optionsContainer: {
-    gap: 15
-  },
-  optionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Color.bg || "#FFFFFF",
-    borderWidth: 1.5,
-    borderColor: "#E6E9F0",
-    borderRadius: 24,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    gap: 11
-  },
-  optionButtonSelected: {
-    borderColor: Color.main2 || "#98F291",
-    backgroundColor: Color.mainLighter || "#F0FFF0"
-  },
-  optionLabel: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 16,
-    color: Color.text || "#1E1E1E"
-  },
-  optionText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: 16,
-    color: Color.text || "#1E1E1E"
-  }
-});
+      playButton: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: "#98F291",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 20
+      },
+      timerRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        marginBottom: 8
+      },
+      timeText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 12,
+        color: colors.text || "#1E1E1E"
+      },
+      audioProgressBg: {
+        height: 4,
+        backgroundColor: "#64748B40",
+        width: "100%",
+        borderRadius: 2,
+        marginBottom: 20
+      },
+      audioProgressFill: {
+        height: "100%",
+        backgroundColor: "#64748B",
+        borderRadius: 2,
+        position: "relative"
+      },
+      progressDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: "#98F291",
+        position: "absolute",
+        right: -5,
+        top: -3
+      },
+      speedRow: {
+        flexDirection: "row",
+        gap: 15
+      },
+      speedBtn: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 15,
+        backgroundColor: "#E6E9F0"
+      },
+      speedBtnActive: {
+        backgroundColor: "#000000"
+      },
+      speedText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 9,
+        color: colors.gray || "#64748B"
+      },
+      speedTextActive: {
+        color: "#98F291"
+      },
+      questionText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 18,
+        color: "#1E1E1E",
+        marginBottom: 40
+      },
+      optionsContainer: {
+        gap: 15
+      },
+      optionButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: colors.bg || "#FFFFFF",
+        borderWidth: 1.5,
+        borderColor: "#E6E9F0",
+        borderRadius: 24,
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        gap: 11
+      },
+      optionButtonSelected: {
+        borderColor: colors.main2 || "#98F291",
+        backgroundColor: colors.mainLighter || "#F0FFF0"
+      },
+      optionLabel: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 16,
+        color: colors.text || "#1E1E1E"
+      },
+      optionText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: 16,
+        color: colors.text || "#1E1E1E"
+      }
+    });

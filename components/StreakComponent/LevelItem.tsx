@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
-import { Color, FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap } from '../../constants/GlobalStyles';
 import { MotiView } from 'moti';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type StreakMilestone = {
     id: string;
@@ -18,6 +19,9 @@ interface LevelItemProps {
 }
 
 export default function LevelItem({ item }: LevelItemProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
     // Tính toán kích thước ngọn lửa: Mặc định cấp 1 là 60, mỗi cấp tăng thêm 8px
     const level = parseInt(item.id) || 1;
     const dynamicSize = 60 + (level - 1) * 8;
@@ -55,81 +59,81 @@ export default function LevelItem({ item }: LevelItemProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        marginBottom: 8,
-    },
-    card: {
-        backgroundColor: Color.bg,
-        borderWidth: 1,
-        borderColor: '#F1F5F9', // Xám rất nhạt
-        borderRadius: 24,
-        padding: Padding.padding_15,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
-        zIndex: 2,
-    },
-    infoWrap: {
-        flex: 1,
-    },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 6,
-    },
-    title: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_16,
-        color: Color.text,
-    },
-    badge: {
-        backgroundColor: '#222222',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    badgeText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_12,
-        color: '#F59E0B', // Vàng cam rực rỡ
-    },
-    description: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: Color.gray, // textSecondary
-        lineHeight: 20,
-    },
-    bubbleWrapper: { marginTop: 8, marginLeft: 40, position: 'relative', zIndex: 1 },
-    tail: { position: 'absolute', top: -8, left: 20, width: 0, height: 0, borderLeftWidth: 8, borderRightWidth: 8, borderBottomWidth: 10, borderStyle: 'solid', backgroundColor: 'transparent', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: '#DCFCE7' },
-    bubble: {
-        backgroundColor: Color.mintPastel, // Xanh lá nhạt
-        padding: Padding.padding_15,
-        borderRadius: 20,
-        borderTopLeftRadius: 4, // Bất đối xứng tạo hình bong bóng
-        borderWidth: 1,
-        borderColor: '#BBF7D0',
-    },
-    storyText: { 
-        fontFamily: FontFamily.lexendDecaRegular, 
-        fontSize: FontSize.fs_14, 
-        color: '#065F46', 
-        lineHeight: 22, 
-        marginBottom: 8 
-    },
-    motivationText: { 
-        fontFamily: FontFamily.lexendDecaSemiBold, 
-        fontSize: FontSize.fs_14, 
-        color: '#047857', 
-        lineHeight: 22,
-        fontStyle: 'italic',
-    },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+        container: {
+            marginBottom: 8,
+        },
+        card: {
+            backgroundColor: colors.bg,
+            borderWidth: 1,
+            borderColor: '#F1F5F9', // Xám rất nhạt
+            borderRadius: 24,
+            padding: Padding.padding_15,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: Gap.gap_15,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 8,
+            elevation: 2,
+            zIndex: 2,
+        },
+        infoWrap: {
+            flex: 1,
+        },
+        headerRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 8,
+            marginBottom: 6,
+        },
+        title: {
+            fontFamily: FontFamily.lexendDecaBold,
+            fontSize: FontSize.fs_16,
+            color: colors.text,
+        },
+        badge: {
+            backgroundColor: '#222222',
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: 12,
+        },
+        badgeText: {
+            fontFamily: FontFamily.lexendDecaSemiBold,
+            fontSize: FontSize.fs_12,
+            color: '#F59E0B', // Vàng cam rực rỡ
+        },
+        description: {
+            fontFamily: FontFamily.lexendDecaRegular,
+            fontSize: FontSize.fs_14,
+            color: colors.gray, // textSecondary
+            lineHeight: 20,
+        },
+        bubbleWrapper: { marginTop: 8, marginLeft: 40, position: 'relative', zIndex: 1 },
+        tail: { position: 'absolute', top: -8, left: 20, width: 0, height: 0, borderLeftWidth: 8, borderRightWidth: 8, borderBottomWidth: 10, borderStyle: 'solid', backgroundColor: 'transparent', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: '#DCFCE7' },
+        bubble: {
+            backgroundColor: colors.mintPastel, // Xanh lá nhạt
+            padding: Padding.padding_15,
+            borderRadius: 20,
+            borderTopLeftRadius: 4, // Bất đối xứng tạo hình bong bóng
+            borderWidth: 1,
+            borderColor: '#BBF7D0',
+        },
+        storyText: { 
+            fontFamily: FontFamily.lexendDecaRegular, 
+            fontSize: FontSize.fs_14, 
+            color: '#065F46', 
+            lineHeight: 22, 
+            marginBottom: 8 
+        },
+        motivationText: { 
+            fontFamily: FontFamily.lexendDecaSemiBold, 
+            fontSize: FontSize.fs_14, 
+            color: '#047857', 
+            lineHeight: 22,
+            fontStyle: 'italic',
+        },
+    });

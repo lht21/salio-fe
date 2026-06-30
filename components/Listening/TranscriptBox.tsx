@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Color, FontFamily, FontSize } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize } from '../../constants/GlobalStyles';
 import Button from '../Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type TranscriptBoxProps = {
   transcript?: string;
@@ -24,6 +25,9 @@ export default function TranscriptBox({
   onToggleTranscript,
   onPressShadowing,
 }: TranscriptBoxProps) {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   return (
     <View style={styles.container}>
       {showTranscriptButton ? (
@@ -51,20 +55,20 @@ export default function TranscriptBox({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    gap: 12,
-    marginTop: 12,
-  },
-  transcriptWrap: {
-    borderRadius: 16,
-    backgroundColor: '#F7FAFF',
-    padding: 14,
-  },
-  transcriptText: {
-    fontFamily: FontFamily.lexendDecaRegular,
-    fontSize: FontSize.fs_14,
-    lineHeight: 22,
-    color: Color.text,
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      container: {
+        gap: 12,
+        marginTop: 12,
+      },
+      transcriptWrap: {
+        borderRadius: 16,
+        backgroundColor: '#F7FAFF',
+        padding: 14,
+      },
+      transcriptText: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_14,
+        lineHeight: 22,
+        color: colors.text,
+      },
+    });

@@ -4,14 +4,18 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HouseIcon, TextAUnderlineIcon, TranslateIcon, BookOpenIcon, LinkIcon } from 'phosphor-react-native';
 
-import { Color, FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Border } from '../../../../constants/GlobalStyles';
 import CategoryChip from '../../../../components/CategoryChip';
 import FeedbackCard from '../../../../components/FeedbackCard';
 import DetailedCorrectionView from '../../../../components/DetailedCorrectionView';
 import LessonService from '../../../../api/services/lesson.service';
 import Button from '../../../../components/Button';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function WritingResultScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId, payload, timeUsed } = useLocalSearchParams();
   
@@ -51,16 +55,16 @@ export default function WritingResultScreen() {
 
   // Hàm lấy Icon tương ứng với title trong mảng feedback của DB
   const getIconByTitle = (title: string) => {
-    if (title.includes("Nội dung")) return <TextAUnderlineIcon size={24} color={Color.color} weight="fill" />;
-    if (title.includes("Từ vựng")) return <TranslateIcon size={24} color={Color.color} weight="fill" />;
-    if (title.includes("Ngữ pháp")) return <BookOpenIcon size={24} color={Color.color} weight="fill" />;
-    if (title.includes("mạch lạc")) return <LinkIcon size={24} color={Color.color} weight="fill" />;
-    return <TextAUnderlineIcon size={24} color={Color.color} weight="fill" />;
+    if (title.includes("Nội dung")) return <TextAUnderlineIcon size={24} color={colors.color} weight="fill" />;
+    if (title.includes("Từ vựng")) return <TranslateIcon size={24} color={colors.color} weight="fill" />;
+    if (title.includes("Ngữ pháp")) return <BookOpenIcon size={24} color={colors.color} weight="fill" />;
+    if (title.includes("mạch lạc")) return <LinkIcon size={24} color={colors.color} weight="fill" />;
+    return <TextAUnderlineIcon size={24} color={colors.color} weight="fill" />;
   };
 
   if (isLoading) return (
     <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={Color.main} />
+      <ActivityIndicator size="large" color={colors.main} />
       <Text style={styles.loadingText}>AI đang phân tích bài viết của bạn...</Text>
     </View>
   );
@@ -136,7 +140,7 @@ export default function WritingResultScreen() {
           style={styles.homeBtn} 
           onPress={() => router.replace('/(tabs)')}
         >
-          <HouseIcon size={24} color={Color.text} />
+          <HouseIcon size={24} color={colors.text} />
         </TouchableOpacity>
         
         <Button 
@@ -150,32 +154,32 @@ export default function WritingResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Color.bg },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 15, fontFamily: FontFamily.lexendDecaMedium, color: Color.gray },
-  header: { padding: 15, backgroundColor: Color.bg, borderBottomWidth: 1, borderBottomColor: Color.stroke },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 18, marginBottom: 15, color: Color.text },
-  tabContainer: { gap: 10 },
-  content: { padding: 15 },
-  scoreBanner: { 
-    flexDirection: 'row', alignItems: 'center', 
-    backgroundColor: Color.main, padding: 20, 
-    borderRadius: Border.br_20, marginBottom: 25 
-  },
-  scoreCircle: { 
-    width: 80, height: 80, borderRadius: 40, 
-    backgroundColor: Color.bg, justifyContent: 'center', 
-    alignItems: 'center', marginRight: 20 
-  },
-  scoreText: { fontSize: 28, fontFamily: FontFamily.lexendDecaSemiBold, color: Color.color },
-  maxScore: { fontSize: 12, color: Color.gray },
-  scoreInfo: { flex: 1 },
-  scoreStatus: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 20, color: Color.color, marginBottom: 5 },
-  charCountText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: Color.color, opacity: 0.8 },
-  sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, marginBottom: 15, color: Color.text },
-  feedbackContainer: { gap: 15 },
-  emptyText: { textAlign: 'center', fontFamily: FontFamily.lexendDecaRegular, color: Color.gray, marginTop: 10 },
-  footer: { flexDirection: 'row', padding: 15, borderTopWidth: 1, borderTopColor: Color.stroke, gap: 15, backgroundColor: Color.bg },
-  homeBtn: { width: 50, height: 50, borderRadius: 25, borderWidth: 1, borderColor: Color.stroke, justifyContent: 'center', alignItems: 'center' }
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: { flex: 1, backgroundColor: colors.bg },
+      loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+      loadingText: { marginTop: 15, fontFamily: FontFamily.lexendDecaMedium, color: colors.gray },
+      header: { padding: 15, backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: colors.stroke },
+      headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 18, marginBottom: 15, color: colors.text },
+      tabContainer: { gap: 10 },
+      content: { padding: 15 },
+      scoreBanner: { 
+        flexDirection: 'row', alignItems: 'center', 
+        backgroundColor: colors.main, padding: 20, 
+        borderRadius: Border.br_20, marginBottom: 25 
+      },
+      scoreCircle: { 
+        width: 80, height: 80, borderRadius: 40, 
+        backgroundColor: colors.bg, justifyContent: 'center', 
+        alignItems: 'center', marginRight: 20 
+      },
+      scoreText: { fontSize: 28, fontFamily: FontFamily.lexendDecaSemiBold, color: colors.color },
+      maxScore: { fontSize: 12, color: colors.gray },
+      scoreInfo: { flex: 1 },
+      scoreStatus: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 20, color: colors.color, marginBottom: 5 },
+      charCountText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: colors.color, opacity: 0.8 },
+      sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, marginBottom: 15, color: colors.text },
+      feedbackContainer: { gap: 15 },
+      emptyText: { textAlign: 'center', fontFamily: FontFamily.lexendDecaRegular, color: colors.gray, marginTop: 10 },
+      footer: { flexDirection: 'row', padding: 15, borderTopWidth: 1, borderTopColor: colors.stroke, gap: 15, backgroundColor: colors.bg },
+      homeBtn: { width: 50, height: 50, borderRadius: 25, borderWidth: 1, borderColor: colors.stroke, justifyContent: 'center', alignItems: 'center' }
+    });

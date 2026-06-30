@@ -6,14 +6,15 @@ import { XIcon } from 'phosphor-react-native';
 import PuzzleIcon from '../../components/icons/PuzzleIcon';
 import * as Haptics from 'expo-haptics';
 
-import { Color, FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
+import { FontFamily, FontSize, Gap, Padding } from '../../constants/GlobalStyles';
 import { QuizHeader } from '../../components/Modals/Question';
 import { ConfirmModal } from '../../components/ModalResult/ConfirmModal';
 import IconButton from '../../components/IconButton';
 import FlashcardService from '../../api/services/flashcard.service';
 import VocabularyService from '../../api/services/vocabulary.service';
 import apiClient from '../../api/client';
-import MatchCard from '../../components/MatchCard'; // We will create this
+import MatchCard from '../../components/MatchCard';
+import { useTheme } from "@/contexts/ThemeContext";
 
 type CardType = 'word' | 'meaning';
 
@@ -27,6 +28,9 @@ export interface MatchCardData {
 const BATCH_SIZE = 6; // Số cặp từ mỗi vòng (12 thẻ)
 
 export default function FlashcardMatchScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { setId } = useLocalSearchParams<{ setId: string }>();
 
@@ -170,7 +174,7 @@ export default function FlashcardMatchScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </SafeAreaView>
     );
   }
@@ -240,24 +244,24 @@ export default function FlashcardMatchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Color.bg,
-  },
-  gameArea: {
-    flex: 1,
-    paddingHorizontal: Padding.padding_15,
-    paddingTop: 20,
-  },
-  gameAreaContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingBottom: 40,
-  },
-  cardsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-});
+const getStyles = (colors: any) => StyleSheet.create({
+      safeArea: {
+        flex: 1,
+        backgroundColor: colors.bg,
+      },
+      gameArea: {
+        flex: 1,
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: 20,
+      },
+      gameAreaContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingBottom: 40,
+      },
+      cardsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+      },
+    });

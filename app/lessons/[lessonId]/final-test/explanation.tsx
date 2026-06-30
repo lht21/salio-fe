@@ -3,9 +3,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import ExplanationScreen from '@/components/LessonReview/ExplanationScreen';
 import LessonService from '../../../../api/services/lesson.service';
-import { Color } from '../../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function FinalTestExplanationScreen() {
+    const { colors } = useTheme();
+
   const router = useRouter();
   const { lessonId, sessionId } = useLocalSearchParams<{ lessonId: string, sessionId: string }>();
   const [explanationData, setExplanationData] = useState<any[]>([]);
@@ -97,7 +99,7 @@ export default function FinalTestExplanationScreen() {
     loadData();
   }, [sessionId]);
 
-  if (loading) return <View style={{flex:1, justifyContent:'center'}}><ActivityIndicator color={Color.main}/></View>;
+  if (loading) return <View style={{flex:1, justifyContent:'center'}}><ActivityIndicator color={colors.main}/></View>;
 
   return (
     <ExplanationScreen

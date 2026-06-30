@@ -20,10 +20,14 @@ import { CustomInput } from '../../../components/CustomInput';
 import { useModal } from '../../../contexts/ModalContext';
 
 // --- Constants ---
-import { Color, FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
+import { FontFamily, FontSize, Padding, Gap, Height, Border } from '../../../constants/GlobalStyles';
 import AuthService from '../../../api/services/auth.service';
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ForgotPasswordEmailScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +73,7 @@ export default function ForgotPasswordEmailScreen() {
 
   return (
     <LinearGradient
-      colors={[Color.main, Color.bg]}
+      colors={[colors.main, colors.bg]}
       locations={[0, 0.5]}
       style={styles.gradientBackground}
     >
@@ -135,83 +139,83 @@ export default function ForgotPasswordEmailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  keyboardAvoiding: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
-    justifyContent: 'space-between',
-    padding: Padding.padding_15,
-  },
-  
-  // --- TOP SECTION ---
-  topSection: {
-    alignItems: 'center',
-    paddingTop: Padding.padding_30,
-    gap: Gap.gap_20,
-  },
-  logo: {
-    height: Height.height_113, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
-    aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
-    marginBottom: Padding.padding_10,
-  },
-  socialContainer: {
-    width: '100%',
-    gap: Gap.gap_20,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
+const getStyles = (colors: any) => StyleSheet.create({
+      gradientBackground: {
+        flex: 1,
+      },
+      safeArea: {
+        flex: 1,
+      },
+      keyboardAvoiding: {
+        flex: 1,
+      },
+      scrollContent: {
+        flexGrow: 1,
+        // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
+        justifyContent: 'space-between',
+        padding: Padding.padding_15,
+      },
+      
+      // --- TOP SECTION ---
+      topSection: {
+        alignItems: 'center',
+        paddingTop: Padding.padding_30,
+        gap: Gap.gap_20,
+      },
+      logo: {
+        height: Height.height_113, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
+        aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
+        marginBottom: Padding.padding_10,
+      },
+      socialContainer: {
+        width: '100%',
+        gap: Gap.gap_20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+      },
 
-  // --- BOTTOM SECTION ---
-  bottomSection: {
-    width: '100%',
-    gap: Gap.gap_15,
-    paddingTop: Padding.padding_30,
+      // --- BOTTOM SECTION ---
+      bottomSection: {
+        width: '100%',
+        gap: Gap.gap_15,
+        paddingTop: Padding.padding_30,
 
-  },
-  heading: {
-    fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_24,
-    color: Color.color,
-    textAlign: 'left',
-    marginBottom: Padding.padding_5,
-  },
-  formContainer: {
-    width: '100%',
-    gap: Gap.gap_15,
-  },
-  loginButton: {
-    marginTop: Padding.padding_5,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+      },
+      heading: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        color: colors.color,
+        textAlign: 'left',
+        marginBottom: Padding.padding_5,
+      },
+      formContainer: {
+        width: '100%',
+        gap: Gap.gap_15,
+      },
+      loginButton: {
+        marginTop: Padding.padding_5,
+      },
+      actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
 
-  forgotPasswordButton: {
-    marginTop: Padding.padding_10,
-    backgroundColor: Color.greenLight,
-    paddingVertical: Padding.padding_10,
-    borderRadius: Border.br_10,
-    alignItems: 'center',
-  },
+      forgotPasswordButton: {
+        marginTop: Padding.padding_10,
+        backgroundColor: colors.greenLight,
+        paddingVertical: Padding.padding_10,
+        borderRadius: Border.br_10,
+        alignItems: 'center',
+      },
 
-  divider: {
-    width: 76,
-    height: 3,
-    borderStyle: "solid",
-    borderColor: Color.gray,
-    borderTopWidth: 3,
-    alignSelf: 'center',
-    margin: Gap.gap_20,
-  },
-});
+      divider: {
+        width: 76,
+        height: 3,
+        borderStyle: "solid",
+        borderColor: colors.gray,
+        borderTopWidth: 3,
+        alignSelf: 'center',
+        margin: Gap.gap_20,
+      },
+    });

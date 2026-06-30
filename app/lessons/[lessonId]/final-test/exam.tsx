@@ -19,7 +19,7 @@ import {
 } from '../../../../components/Modals/Question';
 import PracticeHeader from '../../../../components/Shared/PracticeHeader';
 import AudioPlayerControls from '../../../../components/Listening/AudioPlayerControls';
-import { Color } from '../../../../constants/GlobalStyles';
+import { useTheme } from "@/contexts/ThemeContext";
 
 const SPEED_OPTIONS = [
   { label: 'x0.75', value: 0.75 },
@@ -30,6 +30,9 @@ const SPEED_OPTIONS = [
 ];
 
 export default function FinalTestExamScreen() {
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
+
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
 
@@ -432,7 +435,7 @@ export default function FinalTestExamScreen() {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={Color.main} />
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }
@@ -549,35 +552,35 @@ export default function FinalTestExamScreen() {
   );
 }
 
-const styles = StyleSheet.create({ 
-  safeArea: { flex: 1 },
-  container: {
-    flex: 1,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 14,
-    overflow: 'hidden',
-  },
-  center: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  content: {
-    flex: 1,
-  },
-  contentInner: {
-    paddingBottom: 24,
-  },
-  audioControlsWrapper: {
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  footerSlot: {
-    marginTop: 'auto',
-  },
-  questionContainer: {
-    minHeight: 180,
-    justifyContent: 'flex-end',
-  }
-});
+const getStyles = (colors: any) => StyleSheet.create({ 
+      safeArea: { flex: 1 },
+      container: {
+        flex: 1,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        padding: 14,
+        overflow: 'hidden',
+      },
+      center: { 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+      },
+      content: {
+        flex: 1,
+      },
+      contentInner: {
+        paddingBottom: 24,
+      },
+      audioControlsWrapper: {
+        marginTop: 20,
+        marginBottom: 20,
+      },
+      footerSlot: {
+        marginTop: 'auto',
+      },
+      questionContainer: {
+        minHeight: 180,
+        justifyContent: 'flex-end',
+      }
+    });

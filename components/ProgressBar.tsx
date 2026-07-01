@@ -19,17 +19,17 @@ export default function ProgressBar({
   backgroundColor,
   style,
 }: ProgressBarProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
-    
-    const finalColor = color || colors.main;
-    const finalBgColor = backgroundColor || colors.stroke;
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
+  const finalColor = color || colors.primary;
+  const finalBgColor = backgroundColor || colors.borderDefault;
 
   const widthPercentage = animatedProgress
     ? animatedProgress.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0%', '100%'],
-      })
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    })
     : `${Math.max(0, Math.min(progress, 1)) * 100}%`;
 
   return (
@@ -51,11 +51,11 @@ export default function ProgressBar({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      track: {
-        width: '100%',
-        overflow: 'hidden',
-      },
-      fill: {
-        height: '100%',
-      },
-    });
+  track: {
+    width: '100%',
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+  },
+});

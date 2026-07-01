@@ -12,14 +12,14 @@ type PracticeHeaderProps = {
 };
 
 export default function PracticeHeader({ lessonLabel, instruction, onClose }: PracticeHeaderProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <View style={styles.headerActions}>
-          <IconButton Icon={SealQuestionIcon} onPress={() => {}} variant='Main' />
+          <IconButton Icon={SealQuestionIcon} onPress={() => { }} variant='Main' />
           {onClose ? (
             <IconButton Icon={XIcon} onPress={onClose} />
           ) : null}
@@ -34,33 +34,33 @@ export default function PracticeHeader({ lessonLabel, instruction, onClose }: Pr
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        marginBottom: 12,
-      },
-      headerRow: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'flex-start',
-        gap: 12,
-        marginBottom: 12,
-      },
-      headerTextWrap: {
-        flex: 1,
-      },
-      lessonLabel: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_20,
-        color: '#4B8E37',
-        marginBottom: 2,
-      },
-      instruction: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text,
-        marginBottom: 12,
-      },
-      headerActions: {
-        flexDirection: 'row',
-        gap: 8,
-      },
-    });
+  container: {
+    marginBottom: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 12,
+  },
+  headerTextWrap: {
+    flex: 1,
+  },
+  lessonLabel: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20,
+    color: '#4B8E37',
+    marginBottom: 2,
+  },
+  instruction: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary,
+    marginBottom: 12,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+});

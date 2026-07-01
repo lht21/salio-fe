@@ -12,8 +12,8 @@ type HangulCompleteModalProps = {
 };
 
 const HangulCompleteModal = ({ visible, onClose }: HangulCompleteModalProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -56,73 +56,73 @@ const HangulCompleteModal = ({ visible, onClose }: HangulCompleteModalProps) => 
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      backdrop: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.22)',
-        justifyContent: 'center',
-        paddingHorizontal: 20,
-      },
-      sheet: {
-        borderRadius: 34,
-        backgroundColor: colors.bg,
-        overflow: 'hidden',
-      },
-      hero: {
-        alignItems: 'center',
-        paddingTop: 36,
-        paddingHorizontal: 24,
-        paddingBottom: 28,
-        backgroundColor: '#F7FFF6',
-      },
-      heroImage: {
-        width: 150,
-        height: 150,
-        marginBottom: 14,
-      },
-      kicker: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text,
-        marginBottom: 10,
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: 42,
-        color: '#48A800',
-        marginBottom: 18,
-      },
-      scorePill: {
-        minWidth: 220,
-        paddingHorizontal: 18,
-        paddingVertical: 14,
-        borderRadius: Border.br_15,
-        backgroundColor: '#F1FAF0',
-        alignItems: 'center',
-      },
-      scoreText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        textAlign: 'center',
-      },
-      messageCard: {
-        backgroundColor: '#9BF08A',
-        paddingHorizontal: 24,
-        paddingTop: 28,
-        paddingBottom: 26,
-        gap: Gap.gap_20,
-      },
-      messageText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        textAlign: 'center',
-        lineHeight: 24,
-      },
-      ctaButton: {
-        marginVertical: 0,
-        backgroundColor: colors.vang,
-      },
-    });
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.22)',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  sheet: {
+    borderRadius: 34,
+    backgroundColor: colors.background,
+    overflow: 'hidden',
+  },
+  hero: {
+    alignItems: 'center',
+    paddingTop: 36,
+    paddingHorizontal: 24,
+    paddingBottom: 28,
+    backgroundColor: '#F7FFF6',
+  },
+  heroImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 14,
+  },
+  kicker: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary,
+    marginBottom: 10,
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 42,
+    color: '#48A800',
+    marginBottom: 18,
+  },
+  scorePill: {
+    minWidth: 220,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: Border.br_15,
+    backgroundColor: '#F1FAF0',
+    alignItems: 'center',
+  },
+  scoreText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    textAlign: 'center',
+  },
+  messageCard: {
+    backgroundColor: '#9BF08A',
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 26,
+    gap: Gap.gap_20,
+  },
+  messageText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  ctaButton: {
+    marginVertical: 0,
+    backgroundColor: colors.vang,
+  },
+});
 
 export default HangulCompleteModal;

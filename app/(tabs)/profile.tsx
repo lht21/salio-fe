@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
-import { 
-  CertificateIcon, 
-  CloudIcon, 
-  GearSixIcon, 
-  CaretRightIcon, 
+import {
+  CertificateIcon,
+  CloudIcon,
+  GearSixIcon,
+  CaretRightIcon,
   BookOpenTextIcon,
   CardsIcon,
   TextAaIcon,
@@ -12,12 +12,12 @@ import {
 } from 'phosphor-react-native';
 import { StyleSheet, View, Text, TouchableOpacity, RefreshControl } from 'react-native';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedScrollHandler, 
-  useAnimatedStyle, 
-  interpolate, 
-  Extrapolation 
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation
 } from 'react-native-reanimated';
 import { FontFamily, FontSize, Padding, Gap, Border } from '../../constants/GlobalStyles';
 import { Image } from 'expo-image';
@@ -82,7 +82,7 @@ export default function ProfileScreen() {
   const stickyHeaderStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [100, 150], [0, 1], Extrapolation.CLAMP);
     const translateY = interpolate(scrollY.value, [100, 150], [-20, 0], Extrapolation.CLAMP);
-    
+
     return {
       opacity,
       transform: [{ translateY }],
@@ -91,7 +91,7 @@ export default function ProfileScreen() {
 
   // Dữ liệu mẫu (Mock data) cho lịch sử học
   const MOCK_HISTORY = [
-    { id: '1', type: 'vocabulary', title: '36 từ vựng', subtitle: 'Bài 1', iconColor: colors.blue || '#3B82F6' },
+    { id: '1', type: 'vocabulary', title: '36 từ vựng', subtitle: 'Bài 1', iconColor: colors.accent1 || '#3B82F6' },
     { id: '2', type: 'grammar', title: '4 ngữ pháp', subtitle: 'Bài 5', iconColor: colors.purple || '#A855F7' },
     { id: '3', type: 'listening', title: 'Hội thoại: Mua sắm', subtitle: 'Bài 4', iconColor: colors.mint || '#14B8A6' },
     { id: '4', type: 'reading', title: 'Đoạn văn: Trường học', subtitle: 'Bài 2', iconColor: colors.cam || '#F97316' },
@@ -102,18 +102,18 @@ export default function ProfileScreen() {
       {/* Sticky Header (Thanh dính trên cùng) */}
       <Animated.View style={[styles.stickyHeader, stickyHeaderStyle]}>
         <View style={styles.stickyUserInfo}>
-          <Image 
+          <Image
             source={
-              user?.avatarUrl 
-                ? { uri: user.avatarUrl } 
+              user?.avatarUrl
+                ? { uri: user.avatarUrl }
                 : require('../../assets/images/avatar/Ellipse 20-1.png')
-            } 
+            }
             style={styles.stickyAvatar}
             contentFit="cover"
           />
           <Text style={styles.stickyHeaderTitle}>{user?.username || t('profile.header.guest', 'Khách')}</Text>
         </View>
-      
+
         <View style={styles.stickyTopRightContainer}>
           <IconButton Icon={BellIcon} onPress={() => router.push('/notifications' as any)} />
           <IconButton Icon={GearSixIcon} variant='Main' onPress={() => router.push('/settings' as any)} />
@@ -129,13 +129,13 @@ export default function ProfileScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.main2}
+            tintColor={colors.primary}
           />
         }
       >
 
         {/* Header (Background xanh + Avatar + Info) */}
-        <ProfileHeader 
+        <ProfileHeader
           username={user?.username}
           email={user?.email}
           avatarUrl={user?.avatarUrl}
@@ -148,7 +148,7 @@ export default function ProfileScreen() {
           streak={stats?.gamification?.currentStreak}
           vocabCount={stats?.savedVocabulariesCount}
           score={stats?.statistics?.highestMockScore} // Hoặc thuộc tính tổng điểm tương đương
-          certificates={stats?.gamification?.inventory?.badges?.length} 
+          certificates={stats?.gamification?.inventory?.badges?.length}
           clouds={stats?.gamification?.clouds}
           onStreakPress={() => router.push('/streak/streak' as any)}
           onScorePress={() => router.push('/practice/full/history' as any)}
@@ -167,12 +167,12 @@ export default function ProfileScreen() {
         <View style={styles.historySection}>
           <View style={styles.headerRow}>
             <Text style={styles.title}>{t('history.title', 'Lịch sử học')}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.seeAllButton}
               onPress={() => router.push('/tracking/' as any)}
             >
               <Text style={styles.seeAllText}>{t('history.see_all', 'Xem tất cả')}</Text>
-              <CaretRightIcon size={14} color={colors.main2 || '#508D4E'} weight="bold" />
+              <CaretRightIcon size={14} color={colors.primary || '#508D4E'} weight="bold" />
             </TouchableOpacity>
           </View>
 
@@ -191,7 +191,7 @@ export default function ProfileScreen() {
                     <Text style={styles.historyCardSubtitle}>{item.subtitle}</Text>
                   </View>
                 </View>
-                <CaretRightIcon size={20} color={colors.gray} weight="bold" />
+                <CaretRightIcon size={20} color={colors.textSecondary} weight="bold" />
               </TouchableOpacity>
             ))}
           </View>
@@ -212,7 +212,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   stickyHeader: {
     position: 'absolute',
@@ -241,7 +241,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   stickyHeaderTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   stickyTopRightContainer: {
     position: 'absolute',
@@ -252,7 +252,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 8,
   },
   settingsIconBg: {
-    backgroundColor: colors.gray,
+    backgroundColor: colors.textSecondary,
     padding: 6,
     borderRadius: 16,
   },
@@ -270,7 +270,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
   seeAllButton: {
     flexDirection: 'row',
@@ -280,7 +280,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   seeAllText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.main2 || '#508D4E',
+    color: colors.primary || '#508D4E',
   },
   historyList: {
     gap: Gap.gap_10 || 10,
@@ -289,10 +289,10 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_30 || 30,
     borderWidth: 1,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
     padding: 16,
   },
   historyCardInfo: {
@@ -315,11 +315,11 @@ const createStyles = (colors: any) => StyleSheet.create({
   historyCardTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   historyCardSubtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
   }
 });

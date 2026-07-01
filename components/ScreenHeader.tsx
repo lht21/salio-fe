@@ -14,12 +14,12 @@ interface ScreenHeaderProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export default function ScreenHeader({ 
-  title, 
-  showBackButton = true, 
-  onBackPress, 
+export default function ScreenHeader({
+  title,
+  showBackButton = true,
+  onBackPress,
   rightContent,
-  style 
+  style
 }: ScreenHeaderProps) {
   const router = useRouter();
   const { colors } = useTheme();
@@ -53,14 +53,14 @@ export default function ScreenHeader({
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, paddingBottom: Padding.padding_15, backgroundColor: colors.bg },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10, paddingBottom: Padding.padding_15, backgroundColor: colors.background },
   leftContent: { flexDirection: 'row', alignItems: 'center' },
-  backButton: { 
+  backButton: {
     marginRight: Gap.gap_15,
     width: 32,
     height: 32,
     borderRadius: 16,
   },
-  headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.textPrimary },
   rightContent: { flexDirection: 'row', alignItems: 'center' },
 });

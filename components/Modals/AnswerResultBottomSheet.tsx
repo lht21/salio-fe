@@ -34,8 +34,8 @@ export default function AnswerResultBottomSheet({
   buttonText = "Chốt, câu tiếp theo",
   title = ""
 }: AnswerResultBottomSheetProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const insets = useSafeAreaInsets();
   const isGreen = variant === "green";
@@ -116,7 +116,7 @@ export default function AnswerResultBottomSheet({
             <Text
               style={[
                 styles.title,
-                { color: isGreen ? colors.main2 : colors.cam }
+                { color: isGreen ? colors.primary : colors.cam }
               ]}
             >
               {title}
@@ -141,43 +141,43 @@ export default function AnswerResultBottomSheet({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      overlay: {
-        flex: 1,
-        justifyContent: "flex-end"
-      },
-      backdrop: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: "rgba(0, 0, 0, 0.4)"
-      },
-      sheetContent: {
-        backgroundColor: "#FFFFFF",
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        paddingHorizontal: 25,
-        paddingTop: 10,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 10
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 20,
-        textAlign: "center"
-      },
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-end"
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)"
+  },
+  sheetContent: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 25,
+    paddingTop: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 20,
+    textAlign: "center"
+  },
 
-      buttonText: {
-        fontFamily: FontFamily.lexendDecaSemiBold
-      },
-      cancelButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 20,
-      },
-      cancelText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 14,
-        color: colors.gray || "#64748B",
-      },
-    });
+  buttonText: {
+    fontFamily: FontFamily.lexendDecaSemiBold
+  },
+  cancelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+  },
+  cancelText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    color: colors.textSecondary || "#64748B",
+  },
+});

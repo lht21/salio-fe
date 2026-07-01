@@ -63,7 +63,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
       'intro-writing': `/lessons/${lessonId}/writing/intro`,
     };
     const progressSegments = sections.length > 0
-      ? sections.map((section) => section.progressValue >= 100 ? colors.green : section.progressValue > 0 ? colors.xanh : '#E5E7EB')
+      ? sections.map((section) => section.progressValue >= 100 ? colors.primary : section.progressValue > 0 ? colors.accent1 : '#E5E7EB')
       : ['#E5E7EB'];
 
     // Khắc phục lỗi Unwrapping: Kiểm tra trường data nếu có, nếu không lấy trực tiếp payload
@@ -74,13 +74,13 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
         ? sections.reduce((sum, section) => sum + section.progressValue, 0) / sections.length
         : 0
     ));
-    
+
     const unitNumber = parseInt(unit.replace(/\D/g, ''), 10) || 0;
     const dynamicMascot = MASCOTS[unitNumber % MASCOTS.length];
     const imageSource = typeof rewardBadge === 'object' && rewardBadge?.imageUrl
       ? { uri: rewardBadge.imageUrl }
       : null;
-      
+
     const dynamicProgressText = `${overallProgress}% hoàn thành`;
 
     const hasFinalTest = !!modules?.finalTest;
@@ -99,8 +99,8 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
       let frontierSection = null;
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];
-        const isLocked = section.progressColor === colors.gray && section.progressValue === 0 && section.progressText.toLowerCase().includes('khóa');
-        
+        const isLocked = section.progressColor === colors.textSecondary && section.progressValue === 0 && section.progressText.toLowerCase().includes('khóa');
+
         if (!isLocked) {
           frontierSection = section;
           break;
@@ -115,7 +115,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 
         const route = introRouteMap[frontierSection.id];
         let text = 'Tiếp tục bài học';
-        
+
         if (frontierSection.id.includes('vocab')) text = 'Tiếp tục luyện Từ vựng';
         else if (frontierSection.id.includes('grammar')) text = 'Tiếp tục Ngữ pháp';
         else if (frontierSection.id.includes('listen')) text = 'Tiếp tục luyện Nghe';
@@ -136,7 +136,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
     // 4. Tạo nút Call-to-Action ghim cố định (Sticky Footer)
     const renderFooter = useCallback((props: any) => {
       if (isHangulLesson || !nextAction) return null;
-      
+
       return (
         <BottomSheetFooter {...props} bottomInset={0}>
           <View style={styles.footerContainer}>
@@ -144,9 +144,9 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
               title={nextAction.text}
               variant="Green"
               onPress={() => {
-            // Đóng modal rồi dùng setTimeout để chuyển trang mượt mà tránh xung đột animation
-            if (onCloseRequest) onCloseRequest();
-            setTimeout(() => router.push(nextAction.route as any), 100);
+                // Đóng modal rồi dùng setTimeout để chuyển trang mượt mà tránh xung đột animation
+                if (onCloseRequest) onCloseRequest();
+                setTimeout(() => router.push(nextAction.route as any), 100);
               }}
             />
           </View>
@@ -199,7 +199,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 
               {isLoadingModules ? (
                 <View style={styles.loadingBox}>
-                  <ActivityIndicator color={colors.main} />
+                  <ActivityIndicator color={colors.primary} />
                   <Text style={styles.loadingText}>Đang tải module...</Text>
                 </View>
               ) : (
@@ -210,7 +210,7 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 
                   {sections.map((section, index) => {
                     const isLocked =
-                      section.progressColor === colors.gray &&
+                      section.progressColor === colors.textSecondary &&
                       section.progressValue === 0 &&
                       section.progressText.toLowerCase().includes('khóa');
                     const introRoute = introRouteMap[section.id];
@@ -230,31 +230,31 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
                         expandable={section.expandable}
                         initiallyExpanded={section.initiallyExpanded}
                         details={section.details}
-                      // 1. Gỡ bỏ điều hướng của Accordion
-                      onPress={undefined} 
-                      onActionPress={isLocked ? undefined : () => {
-                        if (onCloseRequest) onCloseRequest();
-                        setTimeout(() => router.push(introRoute as any), 100);
-                      }}
-                      actionText={section.progressValue >= 100 ? 'Ôn tập' : (section.progressValue === 0 ? 'Bắt đầu' : 'Làm lại')}
+                        // 1. Gỡ bỏ điều hướng của Accordion
+                        onPress={undefined}
+                        onActionPress={isLocked ? undefined : () => {
+                          if (onCloseRequest) onCloseRequest();
+                          setTimeout(() => router.push(introRoute as any), 100);
+                        }}
+                        actionText={section.progressValue >= 100 ? 'Ôn tập' : (section.progressValue === 0 ? 'Bắt đầu' : 'Làm lại')}
                       />
                     );
                   })}
                 </View>
               )}
 
-            {/* 3. Đưa Mini Test vào danh sách UI (dạng Card) */}
-            {!isLoadingModules && hasFinalTest && (
-              <MiniTestCard 
-                isLocked={finalTestLocked}
-                rewardBadge={rewardBadge}
-                rewardClouds={rewardClouds}
-                onPress={() => {
-                  if (onCloseRequest) onCloseRequest();
-                  setTimeout(() => router.push(`/lessons/${lessonId}/final-test/exam` as any), 100);
-                }}
-              />
-            )}
+              {/* 3. Đưa Mini Test vào danh sách UI (dạng Card) */}
+              {!isLoadingModules && hasFinalTest && (
+                <MiniTestCard
+                  isLocked={finalTestLocked}
+                  rewardBadge={rewardBadge}
+                  rewardClouds={rewardClouds}
+                  onPress={() => {
+                    if (onCloseRequest) onCloseRequest();
+                    setTimeout(() => router.push(`/lessons/${lessonId}/final-test/exam` as any), 100);
+                  }}
+                />
+              )}
             </>
           )}
         </BottomSheetScrollView>
@@ -266,99 +266,99 @@ const LessonBottomSheet = forwardRef<BottomSheetModal, LessonBottomSheetProps>(
 LessonBottomSheet.displayName = 'LessonBottomSheet';
 
 const getStyles = (colors: any) => StyleSheet.create({
-      sheetBackground: {
-        backgroundColor: colors.bg,
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
-      },
-      sheetHandle: {
-        backgroundColor: colors.stroke,
-        width: 56,
-      },
-      sheetContent: {
-        paddingHorizontal: Padding.padding_15,
-        paddingBottom: 32,
-        gap: Gap.gap_15,
-      },
-      lessonHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: Gap.gap_15,
-      },
-      lessonHeaderText: {
-        flex: 1,
-        gap: Gap.gap_5,
-      },
-      lessonUnit: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: colors.gray,
-      },
-      lessonTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text,
-      },
-      lessonMascot: {
-        width: 58,
-        height: 58,
-      },
-      lessonSummaryRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_10,
-      },
-      lessonSummaryBar: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-      },
-      lessonSummarySegment: {
-        flex: 1,
-        height: 4,
-        borderRadius: Border.br_5,
-      },
-      lessonSummaryText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_12,
-        color: colors.xanh,
-      },
-      sections: {
-        gap: Gap.gap_14,
-      },
-      loadingBox: {
-        minHeight: 140,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: Gap.gap_10,
-      },
-      loadingText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_12,
-        color: colors.gray,
-      },
-      emptyText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.gray,
-        textAlign: 'center',
-        paddingVertical: 24,
-      },
-      // Style cho Sticky Footer
-      footerContainer: {
-        backgroundColor: colors.bg,
-        paddingHorizontal: Padding.padding_20,
-        paddingVertical: Padding.padding_15,
-        borderTopWidth: 1,
-        borderColor: colors.stroke,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 10,
-      },
-    });
+  sheetBackground: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
+  sheetHandle: {
+    backgroundColor: colors.borderDefault,
+    width: 56,
+  },
+  sheetContent: {
+    paddingHorizontal: Padding.padding_15,
+    paddingBottom: 32,
+    gap: Gap.gap_15,
+  },
+  lessonHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Gap.gap_15,
+  },
+  lessonHeaderText: {
+    flex: 1,
+    gap: Gap.gap_5,
+  },
+  lessonUnit: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: colors.textSecondary,
+  },
+  lessonTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary,
+  },
+  lessonMascot: {
+    width: 58,
+    height: 58,
+  },
+  lessonSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_10,
+  },
+  lessonSummaryBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  lessonSummarySegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: Border.br_5,
+  },
+  lessonSummaryText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: colors.accent1,
+  },
+  sections: {
+    gap: Gap.gap_14,
+  },
+  loadingBox: {
+    minHeight: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Gap.gap_10,
+  },
+  loadingText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: colors.textSecondary,
+  },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: 24,
+  },
+  // Style cho Sticky Footer
+  footerContainer: {
+    backgroundColor: colors.background,
+    paddingHorizontal: Padding.padding_20,
+    paddingVertical: Padding.padding_15,
+    borderTopWidth: 1,
+    borderColor: colors.borderDefault,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+});
 
 export default LessonBottomSheet;

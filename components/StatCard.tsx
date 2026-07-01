@@ -12,7 +12,7 @@ interface StatCardProps {
 export default function StatCard({ label, value, valueColor }: StatCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  
+
   return (
     <View style={styles.statCard}>
       <Text style={styles.statLabel}>{label}</Text>
@@ -24,7 +24,7 @@ export default function StatCard({ label, value, valueColor }: StatCardProps) {
 const createStyles = (colors: any) => StyleSheet.create({
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     padding: Padding.padding_20 || 20,
     borderRadius: Border.br_20 || 20,
     alignItems: 'center',
@@ -32,7 +32,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   statLabel: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.main2,
+    color: colors.primary,
     marginBottom: 4,
   },
   statValue: {

@@ -12,8 +12,8 @@ import { PaymentHistoryItem } from '../../api/types/subscription.types';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function PaymentHistoryScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
 
@@ -93,12 +93,12 @@ export default function PaymentHistoryScreen() {
   // Thành phần hiển thị khi không có dữ liệu (Empty State)
   const renderEmptyComponent = () => {
     if (isLoading) {
-      return <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 100 }} />;
+      return <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 100 }} />;
     }
     return (
       <View style={styles.emptyContainer}>
         <View style={styles.emptyIconWrapper}>
-          <ReceiptIcon size={48} color={colors.stroke} weight="duotone" />
+          <ReceiptIcon size={48} color={colors.borderDefault} weight="duotone" />
         </View>
         <Text style={styles.emptyTitle}>Chưa có giao dịch nào</Text>
         <Text style={styles.emptySubText}>
@@ -110,11 +110,11 @@ export default function PaymentHistoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* --- HEADER --- */}
       <ScreenHeader
         title="Lịch sử thanh toán" />
-       
+
       {/* --- LIST CONTENT --- */}
       <FlatList
         data={historyData}
@@ -125,7 +125,7 @@ export default function PaymentHistoryScreen() {
         showsVerticalScrollIndicator={false}
         // Thêm đường gạch mờ phân cách giữa các item
         ItemSeparatorComponent={() => <View style={styles.separator} />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.main} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       />
 
     </SafeAreaView>
@@ -133,122 +133,122 @@ export default function PaymentHistoryScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      
-      // --- HEADER ---
-      header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-        paddingBottom: Padding.padding_15,
-        backgroundColor: colors.bg,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.stroke, // Line mờ dưới header để tách biệt danh sách
-      },
-      backButton: {
-        marginRight: Gap.gap_15,
-      },
-      headerTitle: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_20,
-        color: colors.text,
-      },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
-      // --- LIST CONTENT ---
-      listContent: {
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-        paddingBottom: 40,
-        flexGrow: 1, // Để Empty State có thể căn giữa màn hình nếu list trống
-      },
-      separator: {
-        height: 1,
-        backgroundColor: colors.stroke,
-        opacity: 0.3,
-        marginVertical: Padding.padding_15,
-      },
+  // --- HEADER ---
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+    paddingBottom: Padding.padding_15,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDefault, // Line mờ dưới header để tách biệt danh sách
+  },
+  backButton: {
+    marginRight: Gap.gap_15,
+  },
+  headerTitle: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary,
+  },
 
-      // --- TRANSACTION ITEM ---
-      transactionItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: colors.bg,
-        borderRadius: Border.br_10,
-        paddingVertical: Padding.padding_15,
-      },
-      itemLeft: {
-        flex: 1,
-        paddingRight: Padding.padding_10,
-      },
-      planName: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        marginBottom: 4,
-      },
-      dateTimeText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: colors.gray,
-      },
-      itemRight: {
-        alignItems: 'flex-end',
-      },
-      amountText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        marginBottom: 4,
-      },
-      statusText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_12,
-      },
-      textSuccess: {
-        color: colors.green, // Xanh lá đậm cho thành công
-      },
-      textFailed: {
-        color: colors.red, // Đỏ cho thất bại
-      },
-      textPending: {
-        color: colors.cam, // Màu cam cho trạng thái chờ
-      },
-      textRefunded: {
-        color: colors.gray, // Xám cho trạng thái đã hoàn tiền
-      },
+  // --- LIST CONTENT ---
+  listContent: {
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+    paddingBottom: 40,
+    flexGrow: 1, // Để Empty State có thể căn giữa màn hình nếu list trống
+  },
+  separator: {
+    height: 1,
+    backgroundColor: colors.borderDefault,
+    opacity: 0.3,
+    marginVertical: Padding.padding_15,
+  },
 
-      // --- EMPTY STATE ---
-      emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 100, // Đẩy xuống giữa màn hình
-      },
-      emptyIconWrapper: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: colors.greenLight, // Hoặc Color.bgTest
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: Gap.gap_20,
-      },
-      emptyTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        marginBottom: Gap.gap_10,
-      },
-      emptySubText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: colors.gray,
-        textAlign: 'center',
-        paddingHorizontal: Padding.padding_30,
-      },
-    });
+  // --- TRANSACTION ITEM ---
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderRadius: Border.br_10,
+    paddingVertical: Padding.padding_15,
+  },
+  itemLeft: {
+    flex: 1,
+    paddingRight: Padding.padding_10,
+  },
+  planName: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  dateTimeText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: colors.textSecondary,
+  },
+  itemRight: {
+    alignItems: 'flex-end',
+  },
+  amountText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  statusText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+  },
+  textSuccess: {
+    color: colors.primary, // Xanh lá đậm cho thành công
+  },
+  textFailed: {
+    color: colors.red, // Đỏ cho thất bại
+  },
+  textPending: {
+    color: colors.cam, // Màu cam cho trạng thái chờ
+  },
+  textRefunded: {
+    color: colors.textSecondary, // Xám cho trạng thái đã hoàn tiền
+  },
+
+  // --- EMPTY STATE ---
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100, // Đẩy xuống giữa màn hình
+  },
+  emptyIconWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primaryLight, // Hoặc Color.bgTest
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+  },
+  emptyTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    marginBottom: Gap.gap_10,
+  },
+  emptySubText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: Padding.padding_30,
+  },
+});

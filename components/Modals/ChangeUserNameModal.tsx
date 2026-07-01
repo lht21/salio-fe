@@ -73,8 +73,8 @@ const ChangeUserNameModal = forwardRef<BottomSheetModal, ChangeUserNameModalProp
       detached={true}
       bottomInset={40}
       style={styles.floatingSheet}
-      backgroundStyle={{ 
-        backgroundColor: colors.main50,
+      backgroundStyle={{
+        backgroundColor: colors.primaryLight,
         borderRadius: Border.br_30,
         borderBottomWidth: 7,
         borderLeftWidth: 4,
@@ -86,7 +86,7 @@ const ChangeUserNameModal = forwardRef<BottomSheetModal, ChangeUserNameModalProp
       <BottomSheetView style={styles.sheetContent}>
         {/* Nút Close lơ lửng nằm trên cùng */}
         <View style={styles.closeButtonWrapper}>
-          <IconButton Icon={XIcon} onPress={onClose} variant='Main' style={styles.closeButton}/>
+          <IconButton Icon={XIcon} onPress={onClose} variant='Main' style={styles.closeButton} />
         </View>
 
         <View style={styles.header}>

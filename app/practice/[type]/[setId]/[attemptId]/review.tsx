@@ -16,8 +16,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 // --- SUB-COMPONENTS ---
 
 const QuestionNavigation = ({ questions, onJumpToQuestion }: { questions: any[], onJumpToQuestion: (id: string) => void }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.navContainer}>
@@ -43,8 +43,8 @@ const QuestionNavigation = ({ questions, onJumpToQuestion }: { questions: any[],
 };
 
 const ExamCover = ({ title, type }: { title: string, type: string }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const typeLabel = type === 'reading' ? '읽기' : type === 'listening' ? '듣기' : '종합';
   return (
@@ -59,8 +59,8 @@ const ExamCover = ({ title, type }: { title: string, type: string }) => {
 };
 
 const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -132,7 +132,7 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
   return (
     <View style={styles.audioPlayerContainer}>
       <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
-        {isPlaying ? <PauseIcon size={20} color={colors.bg} weight="fill" /> : <PlayIcon size={20} color={colors.bg} weight="fill" />}
+        {isPlaying ? <PauseIcon size={20} color={colors.background} weight="fill" /> : <PlayIcon size={20} color={colors.background} weight="fill" />}
       </TouchableOpacity>
       <View style={styles.progressContainer}>
         <ProgressBar progress={progressPercent / 100} height={6} style={{ marginBottom: 6 }} />
@@ -146,8 +146,8 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay }: { url: string,
 };
 
 export default function MockExamReviewScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { examId, attemptId, type } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -207,24 +207,24 @@ export default function MockExamReviewScreen() {
             const optId = isString ? a : (a._id || a.label || a.text || String(index));
             const content = isString ? a : (a.text || a.label || a.imageUrl || '');
             const optType = (!isString && (a.imageUrl || a.type === 'image')) ? 'image' : 'text';
-            return { 
-              id: String(optId), 
-              type: optType, 
+            return {
+              id: String(optId),
+              type: optType,
               content: String(content),
-              rawRef: a 
+              rawRef: a
             };
           });
 
           // 2. Tìm correctOptionId chuẩn
           const correctOptIndex = rawOptions.findIndex((a: any) => a.isCorrect === true || a.isCorrect === 'true');
           let correctOptionId = null;
-          
+
           if (correctOptIndex !== -1) {
             correctOptionId = options[correctOptIndex].id;
           } else if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
             const fallbackAns = String(q.correctAnswer);
-            const matchedOpt = options.find((o: any) => 
-              o.id === fallbackAns || o.content === fallbackAns || 
+            const matchedOpt = options.find((o: any) =>
+              o.id === fallbackAns || o.content === fallbackAns ||
               (o.rawRef && typeof o.rawRef !== 'string' && (String(o.rawRef._id) === fallbackAns || String(o.rawRef.label) === fallbackAns || String(o.rawRef.text) === fallbackAns))
             );
             correctOptionId = matchedOpt ? matchedOpt.id : fallbackAns;
@@ -233,8 +233,8 @@ export default function MockExamReviewScreen() {
           // 3. Tìm userOptionId chuẩn
           let userOptionId = (userAnswer !== undefined && userAnswer !== null) ? String(userAnswer) : null;
           if (userOptionId !== null) {
-            const matchedOpt = options.find((o: any) => 
-              o.id === userOptionId || o.content === userOptionId || 
+            const matchedOpt = options.find((o: any) =>
+              o.id === userOptionId || o.content === userOptionId ||
               (o.rawRef && typeof o.rawRef !== 'string' && (String(o.rawRef._id) === userOptionId || String(o.rawRef.label) === userOptionId || String(o.rawRef.text) === userOptionId))
             );
             if (matchedOpt) userOptionId = matchedOpt.id;
@@ -289,7 +289,7 @@ export default function MockExamReviewScreen() {
               >
                 <Image source={{ uri: opt.content }} style={styles.optionImage} />
                 <Text style={styles.optionLabel}>{`①②③④`[index]}</Text>
-                
+
                 {/* Huy hiệu Đúng/Sai cho ảnh */}
                 {isCorrect && <View style={styles.iconBadge}><CheckCircleIcon size={28} color="#16A34A" weight="fill" /></View>}
                 {isWrongChoice && <View style={styles.iconBadge}><XCircleIcon size={28} color="#DC2626" weight="fill" /></View>}
@@ -305,31 +305,31 @@ export default function MockExamReviewScreen() {
             const isCorrect = opt.id === correctOptionId;
             const isUserChoice = opt.id === userOptionId;
             const isWrongChoice = isUserChoice && !isCorrect;
-  
+
             return (
-            <View
-              key={opt.id}
-              style={[
-                styles.textOptionCard,
-                isCorrect && styles.optionCorrect,
-                isWrongChoice && styles.optionWrong,
-              ]}
-            >
-              <Text style={[
-                styles.textOptionContent, 
-                isCorrect && { color: '#16A34A', fontFamily: FontFamily.lexendDecaMedium },
-                isWrongChoice && { color: '#DC2626' }
-              ]}>
-                {opt.content}
-              </Text>
-              
-              {/* Icon đánh dấu câu hỏi Text */}
-              {isCorrect && <CheckCircleIcon size={24} color="#16A34A" weight="fill" />}
-              {isWrongChoice && <XCircleIcon size={24} color="#DC2626" weight="fill" />}
-            </View>
-          );
-        })}
-      </View>
+              <View
+                key={opt.id}
+                style={[
+                  styles.textOptionCard,
+                  isCorrect && styles.optionCorrect,
+                  isWrongChoice && styles.optionWrong,
+                ]}
+              >
+                <Text style={[
+                  styles.textOptionContent,
+                  isCorrect && { color: '#16A34A', fontFamily: FontFamily.lexendDecaMedium },
+                  isWrongChoice && { color: '#DC2626' }
+                ]}>
+                  {opt.content}
+                </Text>
+
+                {/* Icon đánh dấu câu hỏi Text */}
+                {isCorrect && <CheckCircleIcon size={24} color="#16A34A" weight="fill" />}
+                {isWrongChoice && <XCircleIcon size={24} color="#DC2626" weight="fill" />}
+              </View>
+            );
+          })}
+        </View>
       );
     }
 
@@ -359,7 +359,7 @@ export default function MockExamReviewScreen() {
           return (
             <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
               {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
-              
+
               {passageAudioUrl && (
                 <MiniAudioPlayer id={`item-${item._id || itemIndex}`} url={passageAudioUrl} currentlyPlayingId={playingAudioId} onPlay={setPlayingAudioId} />
               )}
@@ -369,7 +369,7 @@ export default function MockExamReviewScreen() {
               )}
 
               {(item.passage || item.content) ? <Text style={styles.passageText}>{item.passage || item.content}</Text> : null}
-              
+
               {item.questions?.map((q: any) => (
                 <View
                   key={q._id}
@@ -414,75 +414,75 @@ export default function MockExamReviewScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg },
-      scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
-      
-      coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
-      coverTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: colors.bg, textAlign: 'center', marginBottom: Gap.gap_15 },
-      coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
-      coverInfoChip: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: colors.stroke, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
-      sectionHeader: { borderBottomWidth: 2, borderColor: colors.stroke, paddingBottom: 10, marginBottom: 20 },
-      sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
-      instructionText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_10 },
-      passageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color, lineHeight: 24, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
-      
-      imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
-      imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: colors.stroke, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
-      optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
-      optionLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray, marginTop: 8 },
-      iconBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: colors.bg, borderRadius: 14 },
-      
-      textOptionsContainer: { gap: Gap.gap_10 },
-      textOptionCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 2, borderColor: colors.stroke, borderRadius: Border.br_15, padding: Padding.padding_15 },
-      textOptionContent: { flex: 1, fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: colors.text, lineHeight: 24 },
-      
-      // Trạng thái đáp án
-      optionCorrect: { borderColor: '#22C55E', backgroundColor: '#F0FDF4' },
-      optionWrong: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
 
-      explanationContainer: {
-        marginTop: Gap.gap_15,
-        padding: Padding.padding_15,
-        backgroundColor: '#F8FAFC',
-        borderRadius: Border.br_10,
-        borderLeftWidth: 3,
-        borderLeftColor: '#94A3B8',
-      },
-      explanationText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: '#64748B',
-        fontStyle: 'italic',
-        lineHeight: 22,
-      },
+  coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
+  coverTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_20, color: colors.background, textAlign: 'center', marginBottom: Gap.gap_15 },
+  coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
+  coverInfoChip: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: colors.borderDefault, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
+  sectionHeader: { borderBottomWidth: 2, borderColor: colors.borderDefault, paddingBottom: 10, marginBottom: 20 },
+  sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
+  instructionText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: Gap.gap_10 },
+  passageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textBrand, lineHeight: 24, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
 
-      // --- Question Navigation Styles ---
-      navContainer: {
-        backgroundColor: colors.bg,
-        borderTopWidth: 1,
-        borderTopColor: colors.stroke,
-        paddingVertical: Padding.padding_10,
-      },
-      navScrollContent: {
-        paddingHorizontal: Padding.padding_15,
-        gap: Gap.gap_10,
-      },
-      navButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 2,
-      },
-      navButtonCorrect: { backgroundColor: '#F0FDF4', borderColor: '#22C55E' },
-      navButtonWrong: { backgroundColor: '#FEF2F2', borderColor: '#EF4444' },
-      navButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
+  imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
+  imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: colors.borderDefault, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
+  optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
+  optionLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textSecondary, marginTop: 8 },
+  iconBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: colors.background, borderRadius: 14 },
 
-      audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: colors.stroke },
-      playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.main, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
-      progressContainer: { flex: 1, justifyContent: 'center' },
-      timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
-      timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray },
-      contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
-    });
+  textOptionsContainer: { gap: Gap.gap_10 },
+  textOptionCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 2, borderColor: colors.borderDefault, borderRadius: Border.br_15, padding: Padding.padding_15 },
+  textOptionContent: { flex: 1, fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: colors.textPrimary, lineHeight: 24 },
+
+  // Trạng thái đáp án
+  optionCorrect: { borderColor: '#22C55E', backgroundColor: '#F0FDF4' },
+  optionWrong: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
+
+  explanationContainer: {
+    marginTop: Gap.gap_15,
+    padding: Padding.padding_15,
+    backgroundColor: '#F8FAFC',
+    borderRadius: Border.br_10,
+    borderLeftWidth: 3,
+    borderLeftColor: '#94A3B8',
+  },
+  explanationText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: '#64748B',
+    fontStyle: 'italic',
+    lineHeight: 22,
+  },
+
+  // --- Question Navigation Styles ---
+  navContainer: {
+    backgroundColor: colors.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderDefault,
+    paddingVertical: Padding.padding_10,
+  },
+  navScrollContent: {
+    paddingHorizontal: Padding.padding_15,
+    gap: Gap.gap_10,
+  },
+  navButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  navButtonCorrect: { backgroundColor: '#F0FDF4', borderColor: '#22C55E' },
+  navButtonWrong: { backgroundColor: '#FEF2F2', borderColor: '#EF4444' },
+  navButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textPrimary },
+
+  audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: colors.borderDefault },
+  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
+  progressContainer: { flex: 1, justifyContent: 'center' },
+  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.textSecondary },
+  contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
+});

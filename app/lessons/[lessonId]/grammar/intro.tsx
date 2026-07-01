@@ -11,16 +11,16 @@ import { XIcon } from 'phosphor-react-native';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarIntroScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
-  
+
   // Lấy params động từ route (nếu có truyền), gán giá trị mặc định cho Vòng 3: Học Ngữ pháp
-  const { 
-    lessonId, 
-    roundNumber = '3', 
-    roundTitle = 'Học Ngữ pháp' 
+  const {
+    lessonId,
+    roundNumber = '3',
+    roundTitle = 'Học Ngữ pháp'
   } = useLocalSearchParams();
 
   // --- XỬ LÝ SỰ KIỆN ---
@@ -36,7 +36,7 @@ export default function GrammarIntroScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* 1. HEADER: Chỉ có nút X ở góc phải */}
       <View style={styles.header}>
         <IconButton Icon={XIcon} onPress={handleClose} />
@@ -44,7 +44,7 @@ export default function GrammarIntroScreen() {
 
       {/* 2. NỘI DUNG CHÍNH */}
       <View style={styles.content}>
-        
+
         {/* Phần 1: Hình ảnh minh họa */}
         <Image
           source={require('../../../../assets/images/horani/intro-grammar.jpeg')} // Sử dụng hình ảnh ngữ pháp
@@ -64,15 +64,15 @@ export default function GrammarIntroScreen() {
             Học cấu trúc ngữ pháp mới qua các ví dụ sinh động và bài tập thực hành. Cố gắng ghi nhớ cách sử dụng nhé!
           </Text>
         </View>
-        
+
       </View>
 
       {/* 3. FOOTER: Nút Bắt đầu */}
       <View style={styles.footer}>
-        <Button 
-          title="Bắt đầu" 
-          variant="Green" 
-          onPress={handleStart} 
+        <Button
+          title="Bắt đầu"
+          variant="Green"
+          onPress={handleStart}
         />
       </View>
 
@@ -82,74 +82,74 @@ export default function GrammarIntroScreen() {
 
 // --- STYLES ---
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      
-      header: {
-        alignItems: 'flex-end',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-      },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
-      content: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_20,
-        justifyContent: 'center', // Căn giữa toàn bộ cụm nội dung theo trục dọc
-        alignItems: 'center',
-      },
+  header: {
+    alignItems: 'flex-end',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+  },
 
-      illustration: {
-        width: 250,
-        height: 250,
-        borderRadius: 40, // Bo góc tròn lớn theo yêu cầu
-        marginBottom: 40,
-      },
+  content: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_20,
+    justifyContent: 'center', // Căn giữa toàn bộ cụm nội dung theo trục dọc
+    alignItems: 'center',
+  },
 
-      titleRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        marginBottom: Gap.gap_20,
-      },
-      
-      roundText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text, // Xám đậm / Đen (màu đen cho "Vòng 3" theo hình)
-      },
-      
-      titleText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_20,
-        color: colors.cam, // Màu cam từ thiết kế (màu cam cho "Học Ngữ pháp" theo hình)
-      },
+  illustration: {
+    width: 250,
+    height: 250,
+    borderRadius: 40, // Bo góc tròn lớn theo yêu cầu
+    marginBottom: 40,
+  },
 
-      descriptionBox: {
-        width: '100%',
-        backgroundColor: colors.greenLight, // Nền xanh mờ
-        paddingVertical: Padding.padding_20,
-        paddingHorizontal: Padding.padding_15,
-        borderRadius: Border.br_20,
-        borderWidth: 1.5,
-        borderColor: colors.main, // Viền xanh lá
-        borderStyle: 'dashed', // Nét đứt (viền đặc biệt)
-        alignItems: 'center',
-      },
-      
-      descriptionText: {
-        fontFamily: FontFamily.lexendDecaMedium, // Font mềm mại dễ đọc
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-        textAlign: 'center',
-        lineHeight: 22,
-      },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: Gap.gap_20,
+  },
 
-      footer: {
-        paddingHorizontal: Padding.padding_15,
-        paddingBottom: Padding.padding_30,
-        paddingTop: Padding.padding_10,
-      },
-    });
+  roundText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary, // Xám đậm / Đen (màu đen cho "Vòng 3" theo hình)
+  },
+
+  titleText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_20,
+    color: colors.cam, // Màu cam từ thiết kế (màu cam cho "Học Ngữ pháp" theo hình)
+  },
+
+  descriptionBox: {
+    width: '100%',
+    backgroundColor: colors.primaryLight, // Nền xanh mờ
+    paddingVertical: Padding.padding_20,
+    paddingHorizontal: Padding.padding_15,
+    borderRadius: Border.br_20,
+    borderWidth: 1.5,
+    borderColor: colors.primary, // Viền xanh lá
+    borderStyle: 'dashed', // Nét đứt (viền đặc biệt)
+    alignItems: 'center',
+  },
+
+  descriptionText: {
+    fontFamily: FontFamily.lexendDecaMedium, // Font mềm mại dễ đọc
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+
+  footer: {
+    paddingHorizontal: Padding.padding_15,
+    paddingBottom: Padding.padding_30,
+    paddingTop: Padding.padding_10,
+  },
+});

@@ -6,7 +6,7 @@ import LessonService from '../../../../api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function FinalTestExplanationScreen() {
-    const { colors } = useTheme();
+  const { colors } = useTheme();
 
   const router = useRouter();
   const { lessonId, sessionId } = useLocalSearchParams<{ lessonId: string, sessionId: string }>();
@@ -26,12 +26,12 @@ export default function FinalTestExplanationScreen() {
     if (!userAnswer || userAnswer === '') {
       return '(Không có câu trả lời)';
     }
-    
+
     // Nếu là array thì join lại
     if (Array.isArray(userAnswer)) {
       return userAnswer.join(', ');
     }
-    
+
     return String(userAnswer);
   };
 
@@ -55,15 +55,15 @@ export default function FinalTestExplanationScreen() {
           const original = allQuestions.find(q => q._id === ans.questionId);
           const correctAnswerFormatted = formatCorrectAnswer(original?.correctAnswer);
           const userAnswerFormatted = formatUserAnswer(ans.userAnswer, ans.isCorrect, original?.correctAnswer);
-          
+
           // Tạo mảng answers với style riêng cho từng đáp án
           const answers = [
-            { 
-              label: `Bạn đã chọn: ${userAnswerFormatted}`, 
+            {
+              label: `Bạn đã chọn: ${userAnswerFormatted}`,
               state: ans.isCorrect ? 'correct' : 'wrong'  // 'correct' hoặc 'wrong' để tô màu
             },
-            { 
-              label: `Đáp án đúng: ${correctAnswerFormatted}`, 
+            {
+              label: `Đáp án đúng: ${correctAnswerFormatted}`,
               state: 'correct'  // Luôn là 'correct' để tô xanh
             }
           ];
@@ -99,7 +99,7 @@ export default function FinalTestExplanationScreen() {
     loadData();
   }, [sessionId]);
 
-  if (loading) return <View style={{flex:1, justifyContent:'center'}}><ActivityIndicator color={colors.main}/></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>;
 
   return (
     <ExplanationScreen

@@ -18,8 +18,8 @@ export default function MultipleChoiceOption({
   state = 'default',
   onPress,
 }: MultipleChoiceOptionProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const showCorrect = state === 'correct';
   const showIncorrect = state === 'incorrect';
@@ -60,58 +60,58 @@ export default function MultipleChoiceOption({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      option: {
-        minHeight: 54,
-        borderRadius: 18,
-        borderWidth: 1,
-        borderColor: '#C9D2E1',
-        backgroundColor: '#FFFFFF',
-        paddingHorizontal: 18,
-        justifyContent: 'center',
-      },
-      content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-      },
-      optionSelected: {
-        backgroundColor: '#F4F7FD',
-        borderColor: '#94A7C5',
-      },
-      optionCorrect: {
-        borderColor: '#4CAF28',
-        borderStyle: 'dashed',
-        backgroundColor: '#FBFFF8',
-      },
-      optionIncorrect: {
-        borderColor: '#FF4B4B',
-        backgroundColor: '#FFF9F9',
-      },
-      iconWrap: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      },
-      iconWrapCorrect: {
-        backgroundColor: '#EEFBE8',
-      },
-      iconWrapIncorrect: {
-        backgroundColor: '#FFF0F0',
-      },
-      optionText: {
-        flex: 1,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        lineHeight: 22,
-        color: colors.text,
-      },
-      optionTextCorrect: {
-        color: '#3C9A24',
-      },
-      optionTextIncorrect: {
-        color: '#E03131',
-      },
-    });
+  option: {
+    minHeight: 54,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#C9D2E1',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 18,
+    justifyContent: 'center',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  optionSelected: {
+    backgroundColor: '#F4F7FD',
+    borderColor: '#94A7C5',
+  },
+  optionCorrect: {
+    borderColor: '#4CAF28',
+    borderStyle: 'dashed',
+    backgroundColor: '#FBFFF8',
+  },
+  optionIncorrect: {
+    borderColor: '#FF4B4B',
+    backgroundColor: '#FFF9F9',
+  },
+  iconWrap: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  iconWrapCorrect: {
+    backgroundColor: '#EEFBE8',
+  },
+  iconWrapIncorrect: {
+    backgroundColor: '#FFF0F0',
+  },
+  optionText: {
+    flex: 1,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    lineHeight: 22,
+    color: colors.textPrimary,
+  },
+  optionTextCorrect: {
+    color: '#3C9A24',
+  },
+  optionTextIncorrect: {
+    color: '#E03131',
+  },
+});

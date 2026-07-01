@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Pressable, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
   Image,
   ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { 
+import {
   ClockCounterClockwiseIcon
 } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
@@ -60,13 +60,13 @@ const usePracticeData = (type: string, examType?: string) => {
 // --- HELPER KIỂM TRA MỞ KHÓA ĐỀ THI ---
 const checkIsUnlocked = (exam: any, user: any) => {
   if (!exam.isPremium) return true; // Đề miễn phí luôn mở
-  
+
   // Kiểm tra trạng thái Premium
-  const isPremiumUser = !!(user?.subscription?.isActive && 
-                        user?.subscription?.type === 'premium' && 
-                        user?.subscription?.endDate &&
-                        new Date(user?.subscription?.endDate) > new Date());
-  
+  const isPremiumUser = !!(user?.subscription?.isActive &&
+    user?.subscription?.type === 'premium' &&
+    user?.subscription?.endDate &&
+    new Date(user?.subscription?.endDate) > new Date());
+
   return isPremiumUser;
 };
 
@@ -98,14 +98,14 @@ const FullExamView = ({ examType }: { examType?: string }) => {
         title={t('practice.choose_topik2_exam', "Chọn đề TOPIK II")}
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
-            <ClockCounterClockwiseIcon size={24} color={colors.text} weight="bold" />
+            <ClockCounterClockwiseIcon size={24} color={colors.textPrimary} weight="bold" />
           </Pressable>
         }
       />
 
-      
 
-      <ScrollView 
+
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -114,7 +114,7 @@ const FullExamView = ({ examType }: { examType?: string }) => {
         <FeaturedAICard onPress={() => handleStartExam('ai-generated', false)} />
 
         {isLoading ? (
-          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : data.length === 0 ? (
           <Text style={styles.emptyText}>{t('practice.empty_practice', 'Chưa có bài tập nào')}</Text>
         ) : (
@@ -167,17 +167,17 @@ const ReadingListeningView = ({ type, examType }: { type: string; examType?: str
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader 
-        title={title} 
+      <ScreenHeader
+        title={title}
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
-            <ClockCounterClockwiseIcon size={24} color={colors.text} weight="bold" />
+            <ClockCounterClockwiseIcon size={24} color={colors.textPrimary} weight="bold" />
           </Pressable>
         }
       />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {isLoading ? (
-          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : data.length === 0 ? (
           <Text style={styles.emptyText}>{t('practice.empty_practice', 'Chưa có bài tập nào')}</Text>
         ) : (
@@ -237,64 +237,64 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <ScreenHeader 
-        title={type === 'writing' ? t('practice.writing', "Luyện viết") : t('practice.speaking', "Luyện nói")} 
+      <ScreenHeader
+        title={type === 'writing' ? t('practice.writing', "Luyện viết") : t('practice.speaking', "Luyện nói")}
         rightContent={
           <Pressable onPress={() => router.push(`/practice/${type}/history` as any)} style={styles.iconButton}>
-            <ClockCounterClockwiseIcon size={24} color={colors.text} weight="bold" />
+            <ClockCounterClockwiseIcon size={24} color={colors.textPrimary} weight="bold" />
           </Pressable>
         }
       />
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
-          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : data.length === 0 ? (
           <Text style={styles.emptyText}>{t('practice.empty_practice', 'Chưa có bài tập nào')}</Text>
         ) : (
           <>
             {/* Phần 1: Chủ đề nổi bật */}
             {featuredTopics.length > 0 && (
-              <LinearGradient 
-                colors={['#CEF9B4', colors.main || '#98F291']} 
+              <LinearGradient
+                colors={['#CEF9B4', colors.primary || '#98F291']}
                 style={styles.featuredSectionGradient}
               >
                 <Text style={styles.featuredSectionTitle}>{t('practice.featured_topics', "Chủ đề nổi bật")}</Text>
-                <ScrollView 
-                  horizontal 
+                <ScrollView
+                  horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.featuredScrollContent}
                 >
                   {featuredTopics.map((topic) => (
                     <View key={topic._id} style={styles.featuredCardWrapper}>
-                      <FeaturedCard 
+                      <FeaturedCard
                         topic={{
                           ...topic,
                           id: topic._id,
                           image: getTopicImage(topic)
-                        }} 
-                        onPress={() => handlePressTopic(topic._id)} 
+                        }}
+                        onPress={() => handlePressTopic(topic._id)}
                       />
                     </View>
                   ))}
                 </ScrollView>
-              
-              {/* Đồ họa cắt lượn sóng biển ở đáy */}
-              <Svg
-                height="60"
-                width="100%"
-                viewBox="0 0 1440 320"
-                preserveAspectRatio="none"
-                style={styles.waveSvg}
-              >
-                <Path
-                  fill={colors.bg}
-                  d="M0,224L60,192C120,160,240,96,360,101.3C480,107,600,181,720,218.7C840,256,960,256,1080,218.7C1200,181,1320,107,1380,69.3L1440,32L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
-                />
-              </Svg>
+
+                {/* Đồ họa cắt lượn sóng biển ở đáy */}
+                <Svg
+                  height="60"
+                  width="100%"
+                  viewBox="0 0 1440 320"
+                  preserveAspectRatio="none"
+                  style={styles.waveSvg}
+                >
+                  <Path
+                    fill={colors.background}
+                    d="M0,224L60,192C120,160,240,96,360,101.3C480,107,600,181,720,218.7C840,256,960,256,1080,218.7C1200,181,1320,107,1380,69.3L1440,32L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+                  />
+                </Svg>
               </LinearGradient>
             )}
 
@@ -304,15 +304,15 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
                 <SectionHeader title={t('practice.other_topics', "Các chủ đề khác")} />
                 <View style={styles.listContainer}>
                   {otherTopics.map((topic) => (
-                    <TopicItem 
-                      key={topic._id} 
+                    <TopicItem
+                      key={topic._id}
                       topic={{
                         ...topic,
                         id: topic._id,
                         description: topic.prompt || topic.instruction,
                         image: getTopicImage(topic)
-                      }} 
-                      onPress={() => handlePressTopic(topic._id)} 
+                      }}
+                      onPress={() => handlePressTopic(topic._id)}
                     />
                   ))}
                 </View>
@@ -327,7 +327,7 @@ const WritingSpeakingView = ({ type, examType }: { type: string; examType?: stri
 
 // --- MÀN HÌNH CHÍNH (ĐIỀU HƯỚNG THEO TYPE) ---
 export default function PracticeListScreen() {
-  const { type, examType } = useLocalSearchParams(); 
+  const { type, examType } = useLocalSearchParams();
   const typeString = (type as string) || 'full';
   const examTypeString = examType as string;
 
@@ -347,7 +347,7 @@ export default function PracticeListScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   iconButton: {
     padding: Padding.padding_5,
@@ -357,7 +357,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     padding: Padding.padding_20,
     paddingTop: 0,
     paddingBottom: 40,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   section: {
     marginBottom: Gap.gap_20,
@@ -380,7 +380,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   featuredSectionTitle: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: FontSize.fs_24, // Chữ to và đậm hơn
-    color: colors.color,
+    color: colors.textBrand,
     paddingHorizontal: Padding.padding_20, // Thụt lề lại để bằng với nội dung bên dưới
     marginBottom: Gap.gap_15,
   },
@@ -410,7 +410,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   emptyText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: colors.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 40,
   }

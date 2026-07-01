@@ -17,7 +17,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const generateStreakMonths = (activeDates: string[], numMonths: number, createdAtStr?: string): MonthSection[] => {
     const sections: MonthSection[] = [];
-    
+
     // Hàm tiện ích format ngày thành YYYY-MM-DD theo giờ local
     const formatDate = (y: number, m: number, d: number) => {
         return `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
@@ -33,7 +33,7 @@ const generateStreakMonths = (activeDates: string[], numMonths: number, createdA
         createdAtDate = new Date(createdAtStr);
         createdAtDate.setHours(0, 0, 0, 0); // Đưa về 00:00:00 để so sánh chính xác theo ngày
     }
-    
+
     let currentStreak = 0; // Biến theo dõi chuỗi học liên tiếp
 
     // Lấy `numMonths` tháng gần nhất (bao gồm tháng hiện tại)
@@ -50,7 +50,7 @@ const generateStreakMonths = (activeDates: string[], numMonths: number, createdA
 
             const isToday = year === currentYear && month === currentMonth && d === currentDate;
             const isFuture = year > currentYear || (year === currentYear && month > currentMonth) || (year === currentYear && month === currentMonth && d > currentDate);
-            
+
             const currentIterDate = new Date(year, month - 1, d);
             const isBeforeCreation = createdAtDate ? currentIterDate < createdAtDate : false;
             const isPast = !isToday && !isFuture && !isBeforeCreation;
@@ -64,13 +64,13 @@ const generateStreakMonths = (activeDates: string[], numMonths: number, createdA
             } else if (isPast) {
                 const dateStr = formatDate(year, month, d);
                 const isCompleted = activeDates.includes(dateStr);
-                
+
                 if (isCompleted) {
                     state = 'completed';
                     currentStreak++;
                     // Hiện biểu tượng lửa cho các mốc chuỗi chia hết cho 7 (ví dụ)
                     if (currentStreak > 0 && currentStreak % 7 === 0) {
-                        fire = true; 
+                        fire = true;
                     }
                 } else {
                     state = 'missed';
@@ -127,17 +127,17 @@ export default function StreakScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <ScreenHeader 
-                title="Chuỗi học tập" 
-                onBackPress={() => router.back()} 
+            <ScreenHeader
+                title="Chuỗi học tập"
+                onBackPress={() => router.back()}
             />
 
             <View style={styles.summaryRowWrap}>
                 <View style={styles.summaryRow}>
-                    <LinearGradient 
-                        colors={['#1E293B', '#0F172A']} 
-                        start={{x:0, y:0}} 
-                        end={{x:1, y:1}} 
+                    <LinearGradient
+                        colors={['#1E293B', '#0F172A']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                         style={styles.summaryCard}
                     >
                         <View style={styles.summaryWatermark}>
@@ -146,10 +146,10 @@ export default function StreakScreen() {
                         <Text style={styles.summaryValue}>{currentStreak}</Text>
                         <Text style={styles.summaryLabel}>Chuỗi hiện tại</Text>
                     </LinearGradient>
-                    <LinearGradient 
-                        colors={['#1E293B', '#0F172A']} 
-                        start={{x:0, y:0}} 
-                        end={{x:1, y:1}} 
+                    <LinearGradient
+                        colors={['#1E293B', '#0F172A']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                         style={styles.summaryCard}
                     >
                         <View style={styles.summaryWatermark}>
@@ -158,10 +158,10 @@ export default function StreakScreen() {
                         <Text style={styles.summaryValue}>{highestStreak}</Text>
                         <Text style={styles.summaryLabel}>Dài nhất</Text>
                     </LinearGradient>
-                    <LinearGradient 
-                        colors={['#1E293B', '#0F172A']} 
-                        start={{x:0, y:0}} 
-                        end={{x:1, y:1}} 
+                    <LinearGradient
+                        colors={['#1E293B', '#0F172A']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                         style={styles.summaryCard}
                     >
                         <View style={styles.summaryWatermark}>
@@ -192,7 +192,7 @@ export default function StreakScreen() {
                         {index < MONTH_SECTIONS.length - 1 ? <MonthConnector /> : null}
                     </View>
                 ))}
-                
+
                 <View style={styles.encouragementCard}>
                     <View style={styles.encouragementIconWrap}>
                         <Image source={currentStreakImage} style={{ width: 36, height: 36 }} resizeMode="contain" />
@@ -203,112 +203,112 @@ export default function StreakScreen() {
                             Tuyệt vời! Bạn đang có chuỗi học rất tốt. Hãy tiếp tục giữ vững phong độ nhé!
                         </Text>
                     </View>
-                    <Button 
-                        title="Xem phần thưởng chuỗi" 
-                        variant="Orange" 
-                        onPress={() => setIsRewardsModalVisible(true)} 
-                        style={{ marginTop: 4 }} 
+                    <Button
+                        title="Xem phần thưởng chuỗi"
+                        variant="Orange"
+                        onPress={() => setIsRewardsModalVisible(true)}
+                        style={{ marginTop: 4 }}
                     />
                 </View>
             </ScrollView>
 
-            <StreakRewardsModal 
-                isVisible={isRewardsModalVisible} 
-                onClose={() => setIsRewardsModalVisible(false)} 
+            <StreakRewardsModal
+                isVisible={isRewardsModalVisible}
+                onClose={() => setIsRewardsModalVisible(false)}
             />
         </SafeAreaView>
     );
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-        safeArea: {
-            flex: 1,
-            backgroundColor: colors.bg,
-        },
-        scroll: {
-            flex: 1,
-            backgroundColor: colors.bg2,
-        },
-        scrollContent: {
-            paddingHorizontal: Padding.padding_15,
-            paddingTop: 6,
-            paddingBottom: 24,
-        },
-        summaryRowWrap: {
-            paddingHorizontal: Padding.padding_15,
-            paddingTop: 14,
-            paddingBottom: 12,
-            backgroundColor: colors.bg,
-            
-        },
-        summaryRow: {
-            flexDirection: 'row',
-            gap: 14,
-        },
-        summaryCard: {
-            flex: 1,
-            borderRadius: 20,
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: 74,
-            paddingVertical: 10,
-            paddingHorizontal: 6,
-            position: 'relative',
-            overflow: 'hidden',
-        },
-        summaryWatermark: {
-            position: 'absolute',
-            right: -15,
-            bottom: -15,
-            transform: [{ rotate: '-15deg' }],
-        },
-        summaryValue: {
-            fontFamily: FontFamily.lexendDecaSemiBold,
-            fontSize: FontSize.fs_24,
-            lineHeight: 30,
-            color: colors.main || '#98F291',
-        },
-        summaryLabel: {
-            marginTop: 2,
-            fontFamily: FontFamily.lexendDecaRegular,
-            fontSize: FontSize.fs_12,
-            color: '#CBD5E1',
-            textAlign: 'center',
-        },
-        encouragementCard: {
-            marginTop: 10,
-            backgroundColor: '#FFF7ED',
-            borderRadius: Border.br_30,
-            padding: 16,
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 16,
-        },
-        encouragementIconWrap: {
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            backgroundColor: '#FFEDD5',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        encouragementTextWrap: {
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        encouragementTitle: {
-            fontFamily: FontFamily.lexendDecaSemiBold,
-            fontSize: FontSize.fs_16,
-            color: '#EA580C',
-            marginBottom: 4,
-            textAlign: 'center',
-        },
-        encouragementDesc: {
-            fontFamily: FontFamily.lexendDecaRegular,
-            fontSize: FontSize.fs_12,
-            color: '#9A3412',
-            lineHeight: 18,
-            textAlign: 'center',
-        },
-    });
+    safeArea: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
+    scroll: {
+        flex: 1,
+        backgroundColor: colors.backgroundSubtle,
+    },
+    scrollContent: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: 6,
+        paddingBottom: 24,
+    },
+    summaryRowWrap: {
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: 14,
+        paddingBottom: 12,
+        backgroundColor: colors.background,
+
+    },
+    summaryRow: {
+        flexDirection: 'row',
+        gap: 14,
+    },
+    summaryCard: {
+        flex: 1,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 74,
+        paddingVertical: 10,
+        paddingHorizontal: 6,
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    summaryWatermark: {
+        position: 'absolute',
+        right: -15,
+        bottom: -15,
+        transform: [{ rotate: '-15deg' }],
+    },
+    summaryValue: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_24,
+        lineHeight: 30,
+        color: colors.primary || '#98F291',
+    },
+    summaryLabel: {
+        marginTop: 2,
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: '#CBD5E1',
+        textAlign: 'center',
+    },
+    encouragementCard: {
+        marginTop: 10,
+        backgroundColor: '#FFF7ED',
+        borderRadius: Border.br_30,
+        padding: 16,
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 16,
+    },
+    encouragementIconWrap: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: '#FFEDD5',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    encouragementTextWrap: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    encouragementTitle: {
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_16,
+        color: '#EA580C',
+        marginBottom: 4,
+        textAlign: 'center',
+    },
+    encouragementDesc: {
+        fontFamily: FontFamily.lexendDecaRegular,
+        fontSize: FontSize.fs_12,
+        color: '#9A3412',
+        lineHeight: 18,
+        textAlign: 'center',
+    },
+});

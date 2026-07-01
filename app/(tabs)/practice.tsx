@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { 
-  HeadphonesIcon, 
-  BookOpenTextIcon, 
-  FactoryIcon, 
+import {
+  HeadphonesIcon,
+  BookOpenTextIcon,
+  FactoryIcon,
   PictureInPictureIcon,
   ReceiptIcon,
   MagnifyingGlassIcon
@@ -50,21 +50,21 @@ export default function PracticeScreen() {
         return (
           <>
             <View style={styles.skillsRow}>
-              <SkillCard 
-                title={t('practice.listening', 'Luyện nghe')} 
+              <SkillCard
+                title={t('practice.listening', 'Luyện nghe')}
                 backgroundColor={colors.mintPastel}
                 onPress={() => router.push(`/practice/listening?examType=${getExamType(selectedLevel)}`)}
                 titleColor={colors.mint}
               />
-              <SkillCard 
-                title={t('practice.reading', 'Luyện đọc')} 
-                backgroundColor={colors.bluePastel}
+              <SkillCard
+                title={t('practice.reading', 'Luyện đọc')}
+                backgroundColor={colors.borderSkillCard}
                 onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
-                titleColor={colors.blue}
+                titleColor={colors.accent1}
               />
             </View>
             <View style={styles.mocktestContainer}>
-              <MocktestCard 
+              <MocktestCard
                 title={t('practice.mocktest_topik1', 'Thi thử TOPIK I')}
                 badges={[
                   { text: t('practice.listen_30', 'Nghe: 30 câu'), type: 'purple' },
@@ -75,32 +75,32 @@ export default function PracticeScreen() {
             </View>
           </>
         );
-      
+
       case 'TOPIK II':
         return (
           <>
             <View style={styles.skillsRow}>
-              <SkillCard 
-                title={t('practice.listening', 'Luyện nghe')} 
+              <SkillCard
+                title={t('practice.listening', 'Luyện nghe')}
                 backgroundColor={colors.mintPastel}
                 onPress={() => router.push(`/practice/listening?examType=${getExamType(selectedLevel)}`)}
                 titleColor={colors.mint}
               />
-              <SkillCard 
-                title={t('practice.reading', 'Luyện đọc')} 
-                backgroundColor={colors.bluePastel}
+              <SkillCard
+                title={t('practice.reading', 'Luyện đọc')}
+                backgroundColor={colors.borderSkillCard}
                 onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
-                titleColor={colors.blue}
+                titleColor={colors.accent1}
               />
-              <SkillCard 
-                title={t('practice.writing', 'Luyện viết')} 
+              <SkillCard
+                title={t('practice.writing', 'Luyện viết')}
                 backgroundColor={colors.orangePastel || '#FFEDD5'}
                 onPress={() => router.push(`/practice/writing?examType=${getExamType(selectedLevel)}`)}
                 titleColor={colors.cam || '#F97316'}
               />
             </View>
             <View style={styles.mocktestContainer}>
-              <MocktestCard 
+              <MocktestCard
                 title={t('practice.mocktest_topik2', 'Thi thử TOPIK II')}
                 badges={[
                   { text: t('practice.listen_write_read', 'Nghe, Viết, Đọc'), type: 'purple' },
@@ -116,29 +116,29 @@ export default function PracticeScreen() {
           <>
             {/* Nhóm các kỹ năng luyện tập */}
             <View style={styles.skillsRow}>
-              <SkillCard 
-                title={t('practice.listening_eps', 'Luyện nghe EPS')} 
+              <SkillCard
+                title={t('practice.listening_eps', 'Luyện nghe EPS')}
                 icon={<HeadphonesIcon size={24} color={colors.mint} weight="fill" />}
                 backgroundColor={colors.mintPastel}
                 onPress={() => router.push(`/practice/listening?examType=${getExamType(selectedLevel)}`)}
               />
-              <SkillCard 
-                title={t('practice.reading_eps', 'Luyện đọc EPS')} 
-                icon={<BookOpenTextIcon size={24} color={colors.blue} weight="fill" />}
-                backgroundColor={colors.bluePastel}
+              <SkillCard
+                title={t('practice.reading_eps', 'Luyện đọc EPS')}
+                icon={<BookOpenTextIcon size={24} color={colors.accent1} weight="fill" />}
+                backgroundColor={colors.borderSkillCard}
                 onPress={() => router.push(`/practice/reading?examType=${getExamType(selectedLevel)}`)}
               />
             </View>
             <View style={styles.skillsRow}>
-              <SkillCard 
-                title={t('practice.pic_vocab', 'Nhìn hình chọn từ')} 
-                icon={<PictureInPictureIcon size={24} color={colors.green} weight="fill" />}
-                backgroundColor={colors.picVocabBg || "#DCFCE7"}
+              <SkillCard
+                title={t('practice.pic_vocab', 'Nhìn hình chọn từ')}
+                icon={<PictureInPictureIcon size={24} color={colors.primary} weight="fill" />}
+                backgroundColor={colors.primaryLight || "#DCFCE7"}
                 titleColor={colors.picVocabText || "#16A34A"}
                 onPress={() => { /* TODO: Navigate */ }}
               />
-              <SkillCard 
-                title={t('practice.real_info', 'Thông tin thực tế')} 
+              <SkillCard
+                title={t('practice.real_info', 'Thông tin thực tế')}
                 icon={<ReceiptIcon size={24} color={colors.purple} weight="fill" />}
                 backgroundColor={colors.purplePastel}
                 onPress={() => { /* TODO: Navigate */ }}
@@ -146,16 +146,16 @@ export default function PracticeScreen() {
             </View>
 
             {/* Nhóm các thẻ đặc thù của EPS */}
-            <IndustryCard 
+            <IndustryCard
               title={t('practice.industry', 'Chọn ngành nghề')}
               subtitle={t('practice.industry_desc', 'Sản xuất, Xây dựng, Nông nghiệp, Ngư nghiệp')}
               icon={<FactoryIcon size={24} color={colors.factoryIcon || "#B45309"} weight="fill" />}
               onPress={() => { /* TODO: Navigate to industry selection */ }}
             />
             <SafetyCard onPress={() => { /* TODO: Navigate to safety practice */ }} />
-            
+
             {/* Thi thử */}
-            <MocktestCard 
+            <MocktestCard
               title={t('practice.mocktest_eps', 'Thi thử EPS-TOPIK')}
               badges={[
                 { text: t('practice.eps_20_20', '20 câu Đọc + 20 câu Nghe'), type: 'purple' },
@@ -172,13 +172,13 @@ export default function PracticeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      
+
       {/* Header Section */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('practice.title', 'Luyện thi')}</Text>
-        <CreateSetButton 
+        <CreateSetButton
           title="Tìm mọi đề"
-          icon={<MagnifyingGlassIcon size={15} color={colors.bg} weight="bold" />}
+          icon={<MagnifyingGlassIcon size={15} color={colors.background} weight="bold" />}
           onPress={() => router.push('/practice/search-exam')}
         />
       </View>
@@ -196,13 +196,13 @@ export default function PracticeScreen() {
         </ScrollView>
       </View>
 
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {/* Render content based on selected level */}
         {renderContentByLevel()}
-        
+
         {/* Lịch sử làm bài (History Slider) */}
         <View style={styles.historyContainer}>
           <HistoryCardSlider />
@@ -217,8 +217,8 @@ export default function PracticeScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.bg
-    
+    backgroundColor: colors.background
+
   },
   scrollContent: {
     paddingHorizontal: Padding.padding_15 || 15,
@@ -234,9 +234,9 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: 16,
   },
   headerTitle: {
-    fontFamily: FontFamily.lexendDecaSemiBold, 
-    fontSize: FontSize.fs_20 || 20, 
-    color: colors.text || '#1E1E1E' 
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20 || 20,
+    color: colors.textPrimary || '#1E1E1E'
   },
   chipRow: {
     marginBottom: Gap.gap_20 || 20,

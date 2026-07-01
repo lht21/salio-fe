@@ -55,48 +55,48 @@ const ChangeLanguageModal = forwardRef<BottomSheetModal, ChangeLanguageModalProp
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
       enablePanDownToClose={true}
-      backgroundStyle={{ 
-        backgroundColor: colors.bg,
+      backgroundStyle={{
+        backgroundColor: colors.background,
         borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30 
+        borderTopRightRadius: Border.br_30
       }}
       handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
       <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('settings.language', 'Ngôn ngữ')}</Text>
-            <IconButton Icon={XIcon} onPress={onClose} />
-          </View>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('settings.language', 'Ngôn ngữ')}</Text>
+          <IconButton Icon={XIcon} onPress={onClose} />
+        </View>
 
-          <View style={styles.body}>
-            {LANGUAGE_OPTIONS.map((option, index) => {
-              const isActive = option.value === language;
+        <View style={styles.body}>
+          {LANGUAGE_OPTIONS.map((option, index) => {
+            const isActive = option.value === language;
 
-              return (
-                <Pressable
-                  key={option.value}
-                  style={[
-                    styles.optionCard,
-                    isActive && styles.optionCardActive,
-                    index === LANGUAGE_OPTIONS.length - 1 && styles.optionCardLast,
-                  ]}
-                  onPress={() => onSelectLanguage(option.value)}
-                  accessibilityRole="button"
-                  accessibilityLabel={option.label}
-                >
-                  <View style={styles.optionContent}>
-                    <View style={styles.flagBadge}>
-                      <Text style={styles.flagText}>{option.flag}</Text>
-                    </View>
-
-                    <Text style={styles.optionLabel}>{option.label}</Text>
+            return (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.optionCard,
+                  isActive && styles.optionCardActive,
+                  index === LANGUAGE_OPTIONS.length - 1 && styles.optionCardLast,
+                ]}
+                onPress={() => onSelectLanguage(option.value)}
+                accessibilityRole="button"
+                accessibilityLabel={option.label}
+              >
+                <View style={styles.optionContent}>
+                  <View style={styles.flagBadge}>
+                    <Text style={styles.flagText}>{option.flag}</Text>
                   </View>
 
-                  {isActive ? <View style={styles.activeAccent} /> : null}
-                </Pressable>
-              );
-            })}
-          </View>
+                  <Text style={styles.optionLabel}>{option.label}</Text>
+                </View>
+
+                {isActive ? <View style={styles.activeAccent} /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -105,7 +105,7 @@ const ChangeLanguageModal = forwardRef<BottomSheetModal, ChangeLanguageModalProp
 const createStyles = (colors: any) => StyleSheet.create({
   sheetContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
   body: {
     minHeight: 288,
     paddingBottom: 4,
@@ -115,8 +115,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     minHeight: 74,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.optionCardBorder || '#C9D7E8',
-    backgroundColor: colors.bg,
+    borderColor: colors.borderDefault || '#C9D7E8',
+    backgroundColor: colors.background,
     marginBottom: 18,
     overflow: 'hidden',
   },
@@ -139,7 +139,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   flagText: {
     fontSize: 28,
@@ -148,7 +148,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   optionLabel: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   activeAccent: {
     position: 'absolute',
@@ -156,7 +156,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 5,
-    backgroundColor: colors.activeAccentBg || '#0B663B',
+    backgroundColor: colors.primary || '#0B663B',
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
   },

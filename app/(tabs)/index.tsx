@@ -17,7 +17,6 @@ import Animated, {
   withSpring,
   runOnJS
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import HeaderSection from '../../components/HeaderSection';
@@ -141,8 +140,8 @@ const STREAK_MILESTONES = [
 ];
 
 const StreakFiresList = ({ currentStreak }: { currentStreak: number }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -190,8 +189,8 @@ const StreakFiresList = ({ currentStreak }: { currentStreak: number }) => {
 };
 
 export default function HomeScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
 
 
@@ -205,7 +204,7 @@ export default function HomeScreen() {
   const visibleLessons = useMemo(() => {
     const currentIndex = lessons.findIndex((item) => item.id === currentLesson?.id);
     if (currentIndex === -1) return lessons.slice(0, 6);
-    
+
     // Formula: Math.max(6, Math.floor((currentIndex - 1) / 5) * 5 + 6)
     // E.g., currentIndex 0..5 -> shows 6. currentIndex 6..10 -> shows 11.
     const visibleCount = Math.max(6, Math.floor((currentIndex - 1) / 5) * 5 + 6);
@@ -455,8 +454,8 @@ export default function HomeScreen() {
         ref={infoSheetRef}
         snapPoints={infoSnapPoints}
         backdropComponent={renderInfoBackdrop}
-        backgroundStyle={{ backgroundColor: colors.bg, borderRadius: Border.br_30 }}
-        handleIndicatorStyle={{ backgroundColor: colors.stroke }}
+        backgroundStyle={{ backgroundColor: colors.background, borderRadius: Border.br_30 }}
+        handleIndicatorStyle={{ backgroundColor: colors.borderDefault }}
         detached={true}
         bottomInset={40} // Khoảng cách cách đáy (tùy chỉnh theo ý muốn)
         style={styles.floatingSheet}
@@ -520,108 +519,108 @@ export default function HomeScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: colors.bg || '#FFFFFF',
-      },
-      scrollContent: {
-        flexGrow: 1,
-        paddingBottom: 100,
-      },
-      stickyHeader: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100, // Đảm bảo nổi lên trên cùng
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 12,
-        paddingTop: 55, // Padding tạo không gian cho Thanh trạng thái của điện thoại (Tai thỏ / Pin)
-        paddingBottom: 15,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
-      },
-      mapArea: {
-        position: 'relative',
-        marginTop: -20,
-        zIndex: 20,
-      },
-      nodesWrapper: {
-        paddingTop: 80,
-        paddingBottom: 60,
-        zIndex: 2,
-      },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background || '#FFFFFF',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 100,
+  },
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100, // Đảm bảo nổi lên trên cùng
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    paddingTop: 55, // Padding tạo không gian cho Thanh trạng thái của điện thoại (Tai thỏ / Pin)
+    paddingBottom: 15,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5,
+  },
+  mapArea: {
+    position: 'relative',
+    marginTop: -20,
+    zIndex: 20,
+  },
+  nodesWrapper: {
+    paddingTop: 80,
+    paddingBottom: 60,
+    zIndex: 2,
+  },
 
-      floatingSheet: {
-        marginHorizontal: 15, // Khoảng cách 2 bên trái phải
-      },
+  floatingSheet: {
+    marginHorizontal: 15, // Khoảng cách 2 bên trái phải
+  },
 
-      // --- STYLES CHO BOTTOM SHEET ---
-      sheetContent: {
-        paddingHorizontal: 24,
-        paddingTop: 10,
-        paddingBottom: 40,
-        alignItems: 'center',
-      },
-      sheetTitle: {
-        fontSize: 18,
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        color: colors.text,
-        marginTop: 16,
-        marginBottom: 8,
-        textAlign: 'center',
-      },
-      sheetDesc: {
-        fontSize: 14,
-        fontFamily: FontFamily.lexendDecaRegular,
-        color: colors.gray,
-        textAlign: 'center',
-        lineHeight: 22,
-        marginBottom: 16,
-      },
+  // --- STYLES CHO BOTTOM SHEET ---
+  sheetContent: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: colors.textPrimary,
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  sheetDesc: {
+    fontSize: 14,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 16,
+  },
 
-      // --- STYLES CHO CUSTOM TOAST ---
-      toastContainer: {
-        position: 'absolute',
-        bottom: 120, // Hiển thị phía trên Bottom Tab bar
-        alignSelf: 'center',
-        backgroundColor: '#1E293B', // Màu xám đậm sang trọng
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 30, // Dạng viên thuốc (pill)
-        shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
-        zIndex: 9999, // Ưu tiên cao nhất
-      },
-      toastText: {
-        color: '#FFFFFF',
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 14,
-        textAlign: 'center',
-      },
+  // --- STYLES CHO CUSTOM TOAST ---
+  toastContainer: {
+    position: 'absolute',
+    bottom: 120, // Hiển thị phía trên Bottom Tab bar
+    alignSelf: 'center',
+    backgroundColor: '#1E293B', // Màu xám đậm sang trọng
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30, // Dạng viên thuốc (pill)
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6,
+    zIndex: 9999, // Ưu tiên cao nhất
+  },
+  toastText: {
+    color: '#FFFFFF',
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    textAlign: 'center',
+  },
 
-      // --- STYLES CHO STREAK FIRES LIST ---
-      streakIconWrapper: {
-        width: 80,
-        height: 80,
-        borderRadius: 35,
-        backgroundColor: '#F1F5F9',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 8,
-        borderWidth: 2,
-        borderColor: 'transparent',
-      },
-      streakIconWrapperActive: {
-        backgroundColor: '#F0FFF0',
-        borderColor: colors.main || '#98F291',
-      },
-      streakDayText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 12,
-        color: colors.gray,
-        textAlign: 'center',
-      },
-      streakDayTextActive: {
-        color: colors.color || '#0C5F35',
-      },
-    });
+  // --- STYLES CHO STREAK FIRES LIST ---
+  streakIconWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 35,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  streakIconWrapperActive: {
+    backgroundColor: '#F0FFF0',
+    borderColor: colors.primary || '#98F291',
+  },
+  streakDayText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  streakDayTextActive: {
+    color: colors.textBrand || '#0C5F35',
+  },
+});

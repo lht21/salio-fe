@@ -108,71 +108,71 @@ const ChangePasswordModal = forwardRef<BottomSheetModal, ChangePasswordModalProp
       enablePanDownToClose={true}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
-      backgroundStyle={{ 
-        backgroundColor: colors.bg,
+      backgroundStyle={{
+        backgroundColor: colors.background,
         borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30 
+        borderTopRightRadius: Border.br_30
       }}
       handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
       <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('settings.changePassword', 'Đổi mật khẩu')}</Text>
-            <IconButton Icon={XIcon} onPress={handleClose} />
-          </View>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('settings.changePassword', 'Đổi mật khẩu')}</Text>
+          <IconButton Icon={XIcon} onPress={handleClose} />
+        </View>
 
-          <View style={styles.body}>
-            <View style={styles.inputWrapper}>
-              <CustomInput
-                placeholder={t('settings.enterCurrentPwd', 'Nhập mật khẩu hiện tại')}
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                secureTextEntry={!showCurrent}
-                returnKeyType="next"
-                accessibilityLabel={t('settings.currentPwd', 'Mật khẩu hiện tại')}
-              />
-              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowCurrent(!showCurrent)} activeOpacity={0.7}>
-                {showCurrent ? <Eye size={20} color={colors.gray} /> : <EyeSlash size={20} color={colors.gray} />}
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <CustomInput
-                placeholder={t('settings.enterNewPwd', 'Nhập mật khẩu mới')}
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry={!showNew}
-                returnKeyType="next"
-                accessibilityLabel={t('settings.newPwd', 'Mật khẩu mới')}
-              />
-              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowNew(!showNew)} activeOpacity={0.7}>
-                {showNew ? <Eye size={20} color={colors.gray} /> : <EyeSlash size={20} color={colors.gray} />}
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <CustomInput
-                placeholder={t('settings.confirmNewPwd', 'Nhập lại mật khẩu mới')}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showConfirm}
-                returnKeyType="done"
-                onSubmitEditing={handleConfirm}
-                accessibilityLabel={t('settings.confirmNewPwdLabel', 'Xác nhận mật khẩu mới')}
-              />
-              <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirm(!showConfirm)} activeOpacity={0.7}>
-                {showConfirm ? <Eye size={20} color={colors.gray} /> : <EyeSlash size={20} color={colors.gray} />}
-              </TouchableOpacity>
-            </View>
-
-            <Button
-              title={t('common.save', 'Lưu')}
-              variant="Green"
-              onPress={handleConfirm}
-              style={styles.confirmButton}
-              disabled={!isFormValid || isLoading}
+        <View style={styles.body}>
+          <View style={styles.inputWrapper}>
+            <CustomInput
+              placeholder={t('settings.enterCurrentPwd', 'Nhập mật khẩu hiện tại')}
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry={!showCurrent}
+              returnKeyType="next"
+              accessibilityLabel={t('settings.currentPwd', 'Mật khẩu hiện tại')}
             />
+            <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowCurrent(!showCurrent)} activeOpacity={0.7}>
+              {showCurrent ? <Eye size={20} color={colors.textSecondary} /> : <EyeSlash size={20} color={colors.textSecondary} />}
+            </TouchableOpacity>
           </View>
+
+          <View style={styles.inputWrapper}>
+            <CustomInput
+              placeholder={t('settings.enterNewPwd', 'Nhập mật khẩu mới')}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry={!showNew}
+              returnKeyType="next"
+              accessibilityLabel={t('settings.newPwd', 'Mật khẩu mới')}
+            />
+            <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowNew(!showNew)} activeOpacity={0.7}>
+              {showNew ? <Eye size={20} color={colors.textSecondary} /> : <EyeSlash size={20} color={colors.textSecondary} />}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <CustomInput
+              placeholder={t('settings.confirmNewPwd', 'Nhập lại mật khẩu mới')}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirm}
+              returnKeyType="done"
+              onSubmitEditing={handleConfirm}
+              accessibilityLabel={t('settings.confirmNewPwdLabel', 'Xác nhận mật khẩu mới')}
+            />
+            <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowConfirm(!showConfirm)} activeOpacity={0.7}>
+              {showConfirm ? <Eye size={20} color={colors.textSecondary} /> : <EyeSlash size={20} color={colors.textSecondary} />}
+            </TouchableOpacity>
+          </View>
+
+          <Button
+            title={t('common.save', 'Lưu')}
+            variant="Green"
+            onPress={handleConfirm}
+            style={styles.confirmButton}
+            disabled={!isFormValid || isLoading}
+          />
+        </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -181,7 +181,7 @@ const ChangePasswordModal = forwardRef<BottomSheetModal, ChangePasswordModalProp
 const createStyles = (colors: any) => StyleSheet.create({
   sheetContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
   body: {
     gap: 16,
     paddingBottom: 16,

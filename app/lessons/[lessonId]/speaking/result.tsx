@@ -12,8 +12,8 @@ import LessonService from '../../../../api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SpeakingResultScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -24,7 +24,7 @@ export default function SpeakingResultScreen() {
     totalItems: 0,
     passedCount: 0,
     averageScore: 0,
-    isPassed: false, 
+    isPassed: false,
     metrics: [
       { id: 'pronunciation', label: 'Phát âm', value: 0, color: '#4ACB40' },
       { id: 'intonation', label: 'Ngữ điệu', value: 0, color: '#FFB200' },
@@ -73,7 +73,7 @@ export default function SpeakingResultScreen() {
             totalItems: speakingItems.length,
             passedCount: passed,
             averageScore: totalAvgScore,
-            isPassed: totalAvgScore >= 80, 
+            isPassed: totalAvgScore >= 80,
             metrics: [
               { id: 'pronunciation', label: 'Phát âm', value: avg('pronunciation'), color: '#4ACB40' },
               { id: 'intonation', label: 'Ngữ điệu', value: avg('intonation'), color: '#FFB200' },
@@ -116,7 +116,7 @@ export default function SpeakingResultScreen() {
     <LinearGradient colors={['#DFF8C6', '#FFFFFF', '#FFFFFF']} style={styles.gradientScreen}>
       <SafeAreaView style={styles.safeArea}>
         <Animated.View style={[styles.content, { opacity: screenOpacity, transform: [{ translateY: screenTranslateY }] }]}>
-          
+
           <Pressable style={styles.closeButton} onPress={() => router.replace('/(tabs)' as any)}>
             <XIcon size={22} color="#A3A3A3" weight="bold" />
           </Pressable>
@@ -167,10 +167,10 @@ export default function SpeakingResultScreen() {
               title="Xem giải thích chi tiết từng bài"
               onPress={() => router.push({
                 pathname: `/lessons/${resolvedLessonId}/speaking/explanation`,
-                params: { avgScore: summary.averageScore } 
+                params: { avgScore: summary.averageScore }
               } as any)}
               style={styles.primaryButton}
-              
+
             />
           </View>
         </Animated.View>
@@ -180,22 +180,22 @@ export default function SpeakingResultScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      gradientScreen: { flex: 1 },
-      safeArea: { flex: 1 },
-      content: { flex: 1, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 18 },
-      closeButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-      heroImage: { width: 148, height: 148, alignSelf: 'center', marginTop: 12, marginBottom: 10 },
-      title: { fontFamily: FontFamily.lexendDecaBold, fontSize: 28, color: colors.cam, textAlign: 'center', marginBottom: 22 },
-      scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, paddingHorizontal: 6 },
-      scoreLabel: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
-      scoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: '#C62B1F' },
-      metricsWrap: { marginTop: 8, gap: 14 },
-      metricsHeading: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
-      metricBlock: { gap: 8 },
-      metricLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
-      track: { height: 24, borderRadius: 999, backgroundColor: 'rgba(0, 0, 0, 0.14)', overflow: 'hidden', justifyContent: 'center' },
-      fill: { height: '100%', borderRadius: 999, justifyContent: 'center', alignItems: 'flex-end' },
-      trackValue: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#FFFFFF', paddingRight: 10 },
-      footer: { marginTop: 'auto', paddingTop: 16 },
-      primaryButton: { marginVertical: 0, borderRadius: Border.br_30 },
-    });
+  gradientScreen: { flex: 1 },
+  safeArea: { flex: 1 },
+  content: { flex: 1, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 18 },
+  closeButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+  heroImage: { width: 148, height: 148, alignSelf: 'center', marginTop: 12, marginBottom: 10 },
+  title: { fontFamily: FontFamily.lexendDecaBold, fontSize: 28, color: colors.cam, textAlign: 'center', marginBottom: 22 },
+  scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, paddingHorizontal: 6 },
+  scoreLabel: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
+  scoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20, color: '#C62B1F' },
+  metricsWrap: { marginTop: 8, gap: 14 },
+  metricsHeading: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
+  metricBlock: { gap: 8 },
+  metricLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textPrimary },
+  track: { height: 24, borderRadius: 999, backgroundColor: 'rgba(0, 0, 0, 0.14)', overflow: 'hidden', justifyContent: 'center' },
+  fill: { height: '100%', borderRadius: 999, justifyContent: 'center', alignItems: 'flex-end' },
+  trackValue: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#FFFFFF', paddingRight: 10 },
+  footer: { marginTop: 'auto', paddingTop: 16 },
+  primaryButton: { marginVertical: 0, borderRadius: Border.br_30 },
+});

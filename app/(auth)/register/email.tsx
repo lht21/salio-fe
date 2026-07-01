@@ -25,8 +25,8 @@ import AuthService from '../../../api/services/auth.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function RegisterEmailScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -43,7 +43,7 @@ export default function RegisterEmailScreen() {
 
   const handleRequestOtp = async () => {
     const trimmedEmail = email.trim();
-    
+
     if (!trimmedEmail) {
       showAlert('Lỗi', 'Vui lòng nhập địa chỉ email của bạn');
       return;
@@ -77,7 +77,7 @@ export default function RegisterEmailScreen() {
 
   return (
     <LinearGradient
-      colors={[colors.main, colors.bg]}
+      colors={[colors.primary, colors.background]}
       locations={[0, 0.5]}
       style={styles.gradientBackground}
     >
@@ -98,7 +98,7 @@ export default function RegisterEmailScreen() {
                 style={styles.logo}
                 resizeMode="contain"
               />
-              
+
             </View>
 
             {/* --- PHẦN DƯỚI CÙNG: Form Đăng Nhập --- */}
@@ -106,8 +106,8 @@ export default function RegisterEmailScreen() {
               <View style={styles.socialContainer}>
                 {/* Truyền props tương ứng vào SocialButton của bạn */}
                 <SocialButton social="google" iconColor={colors.red} />
-                <SocialButton social="facebook" iconColor={colors.blueFb} />
-                <SocialButton social="apple" iconColor={colors.text} />
+                <SocialButton social="facebook" iconColor={colors.accent1} />
+                <SocialButton social="apple" iconColor={colors.textPrimary} />
               </View>
 
               <View style={styles.divider} />
@@ -159,82 +159,82 @@ export default function RegisterEmailScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      gradientBackground: {
-        flex: 1,
-      },
-      safeArea: {
-        flex: 1,
-      },
-      keyboardAvoiding: {
-        flex: 1,
-      },
-      scrollContent: {
-        flexGrow: 1,
-        // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
-        justifyContent: 'space-between',
-        padding: Padding.padding_15,
-      },
-      
-      // --- TOP SECTION ---
-      topSection: {
-        alignItems: 'center',
-        paddingTop: Padding.padding_30,
-        gap: Gap.gap_20,
-      },
-      logo: {
-        height: Height.height_113, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
-        aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
-        marginBottom: Padding.padding_10,
-      },
-      socialContainer: {
-        width: '100%',
-        gap: Gap.gap_20,
-        flexDirection: 'row',
-        justifyContent: 'center',
-      },
+  gradientBackground: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  keyboardAvoiding: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    // Thuộc tính này kết hợp với flexGrow giúp chia màn hình làm 2 khối đẩy xa nhau (trên - dưới)
+    justifyContent: 'space-between',
+    padding: Padding.padding_15,
+  },
 
-      // --- BOTTOM SECTION ---
-      bottomSection: {
-        width: '100%',
-        gap: Gap.gap_15,
-        paddingTop: Padding.padding_30,
+  // --- TOP SECTION ---
+  topSection: {
+    alignItems: 'center',
+    paddingTop: Padding.padding_30,
+    gap: Gap.gap_20,
+  },
+  logo: {
+    height: Height.height_113, // Dùng Height từ GlobalStyles hoặc số cứng tùy size thật
+    aspectRatio: 1, // Đảm bảo hình vuông nếu logo là hình vuông
+    marginBottom: Padding.padding_10,
+  },
+  socialContainer: {
+    width: '100%',
+    gap: Gap.gap_20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
 
-      },
-      heading: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_24,
-        color: colors.color,
-        textAlign: 'left',
-        marginBottom: Padding.padding_5,
-      },
-      formContainer: {
-        width: '100%',
-        gap: Gap.gap_15,
-      },
-      loginButton: {
-        marginTop: Padding.padding_5,
-      },
-      actionRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      },
+  // --- BOTTOM SECTION ---
+  bottomSection: {
+    width: '100%',
+    gap: Gap.gap_15,
+    paddingTop: Padding.padding_30,
 
-      forgotPasswordButton: {
-        marginTop: Padding.padding_10,
-        backgroundColor: colors.greenLight,
-        paddingVertical: Padding.padding_10,
-        borderRadius: Border.br_10,
-        alignItems: 'center',
-      },
+  },
+  heading: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_24,
+    color: colors.textBrand,
+    textAlign: 'left',
+    marginBottom: Padding.padding_5,
+  },
+  formContainer: {
+    width: '100%',
+    gap: Gap.gap_15,
+  },
+  loginButton: {
+    marginTop: Padding.padding_5,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
-      divider: {
-        width: 76,
-        height: 3,
-        borderStyle: "solid",
-        borderColor: colors.gray,
-        borderTopWidth: 3,
-        alignSelf: 'center',
-        margin: Gap.gap_20,
-      },
-    });
+  forgotPasswordButton: {
+    marginTop: Padding.padding_10,
+    backgroundColor: colors.primaryLight,
+    paddingVertical: Padding.padding_10,
+    borderRadius: Border.br_10,
+    alignItems: 'center',
+  },
+
+  divider: {
+    width: 76,
+    height: 3,
+    borderStyle: "solid",
+    borderColor: colors.textSecondary,
+    borderTopWidth: 3,
+    alignSelf: 'center',
+    margin: Gap.gap_20,
+  },
+});

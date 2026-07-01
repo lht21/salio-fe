@@ -22,33 +22,33 @@ const SelectableVocabularyCard = ({ item, isSelected, onToggle }: SelectableVoca
             onPress={() => onToggle(item)}
             rightAction={
                 <MotiView
-                    style={[styles.addButton, { backgroundColor: colors.bg, borderColor: colors.stroke }]}
+                    style={[styles.addButton, { backgroundColor: colors.background, borderColor: colors.borderDefault }]}
                     animate={{
-                        backgroundColor: isSelected ? colors.historySelectedBg : colors.bg,
-                        borderColor: isSelected ? colors.main2 : colors.stroke,
+                        backgroundColor: isSelected ? colors.historySelectedBg : colors.background,
+                        borderColor: isSelected ? colors.primary : colors.borderDefault,
                     }}
                     transition={{ type: 'timing', duration: 200 } as any}
                 >
                     <AnimatePresence exitBeforeEnter>
                         {isSelected ? (
-                            <MotiView 
-                                key="check" 
-                                from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} 
-                                animate={{ opacity: 1, scale: 1, rotate: '0deg' }} 
-                                exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} 
+                            <MotiView
+                                key="check"
+                                from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }}
+                                animate={{ opacity: 1, scale: 1, rotate: '0deg' }}
+                                exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }}
                                 transition={{ type: 'timing', duration: 150 } as any}
                             >
-                                <CheckIcon size={16} color={colors.main2} weight="bold" />
+                                <CheckIcon size={16} color={colors.primary} weight="bold" />
                             </MotiView>
                         ) : (
-                            <MotiView 
-                                key="plus" 
-                                from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} 
-                                animate={{ opacity: 1, scale: 1, rotate: '0deg' }} 
-                                exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} 
+                            <MotiView
+                                key="plus"
+                                from={{ opacity: 0, scale: 0.5, rotate: '90deg' }}
+                                animate={{ opacity: 1, scale: 1, rotate: '0deg' }}
+                                exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }}
                                 transition={{ type: 'timing', duration: 150 } as any}
                             >
-                                <PlusIcon size={16} color={colors.text} weight="bold" />
+                                <PlusIcon size={16} color={colors.textPrimary} weight="bold" />
                             </MotiView>
                         )}
                     </AnimatePresence>

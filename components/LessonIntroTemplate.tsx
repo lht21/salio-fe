@@ -31,8 +31,8 @@ const LessonIntroTemplate = ({
   rightMetaText,
   nextPath,
 }: LessonIntroTemplateProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId?: string }>();
@@ -42,7 +42,7 @@ const LessonIntroTemplate = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* 1. HEADER: Chỉ có nút X ở góc phải */}
       <View style={styles.header}>
         <IconButton Icon={XIcon} variant="Stroke" onPress={() => setShowExitModal(true)} />
@@ -50,7 +50,7 @@ const LessonIntroTemplate = ({
 
       {/* 2. NỘI DUNG CHÍNH */}
       <View style={styles.content}>
-        
+
         {/* Phần 1: Hình ảnh minh họa */}
         <Image
           source={imageSource}
@@ -70,20 +70,20 @@ const LessonIntroTemplate = ({
             {description}
           </Text>
         </View>
-        
+
       </View>
 
       {/* 3. FOOTER: Nút Bắt đầu */}
       <View style={styles.footer}>
-        <Button 
-          title="Bắt đầu" 
-          variant={buttonVariant} 
-          onPress={() => router.push(nextPath(resolvedLessonId) as any)} 
+        <Button
+          title="Bắt đầu"
+          variant={buttonVariant}
+          onPress={() => router.push(nextPath(resolvedLessonId) as any)}
         />
       </View>
 
       {/* MODAL XÁC NHẬN THOÁT HỌC GIỮA CHỪNG */}
-      <ConfirmModal 
+      <ConfirmModal
         isVisible={showExitModal}
         title="Đang học dở mà"
         subtitle="Bạn sắp hoàn thành rồi, cố thêm chút nữa nhé!"
@@ -101,76 +101,76 @@ const LessonIntroTemplate = ({
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      
-      header: {
-        alignItems: 'flex-end',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-      },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
-      content: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_20,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
+  header: {
+    alignItems: 'flex-end',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+  },
 
-      illustration: {
-        width: 250,
-        height: 270,
-        borderRadius: 40,
-        marginBottom: 40,
-      },
+  content: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-      titleRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        marginBottom: Gap.gap_20,
-      },
-      
-      roundText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text,
-      },
-      
-      titleText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_20,
-        color: colors.cam,
-      },
+  illustration: {
+    width: 250,
+    height: 270,
+    borderRadius: 40,
+    marginBottom: 40,
+  },
 
-      descriptionBox: {
-        width: '100%',
-        backgroundColor: colors.greenLight,
-        paddingVertical: Padding.padding_20,
-        paddingHorizontal: 20,
-        borderRadius: Border.br_20,
-        borderWidth: 1.5,
-        borderColor: colors.main,
-        borderStyle: 'dashed',
-        alignItems: 'center',
-      },
-      
-      descriptionText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-        textAlign: 'center',
-        lineHeight: 24,
-      },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: Gap.gap_20,
+  },
 
-      footer: {
-        paddingHorizontal: Padding.padding_15,
-        paddingBottom: Padding.padding_30,
-        paddingTop: Padding.padding_10,
-      },
-    });
+  roundText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary,
+  },
+
+  titleText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_20,
+    color: colors.cam,
+  },
+
+  descriptionBox: {
+    width: '100%',
+    backgroundColor: colors.primaryLight,
+    paddingVertical: Padding.padding_20,
+    paddingHorizontal: 20,
+    borderRadius: Border.br_20,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+  },
+
+  descriptionText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+
+  footer: {
+    paddingHorizontal: Padding.padding_15,
+    paddingBottom: Padding.padding_30,
+    paddingTop: Padding.padding_10,
+  },
+});
 
 export default LessonIntroTemplate;

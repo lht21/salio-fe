@@ -80,8 +80,8 @@ export default function FlashcardMatchIntroScreen() {
           title="Bắt đầu chơi"
           onPress={handleStartGame}
           variant="Green"
-      
-         
+
+
         />
       </Animated.View>
     </SafeAreaView>
@@ -115,7 +115,7 @@ const InstructionContent = ({ colors, styles }: any) => (
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.main50 || '#71D99E', // Fallback nếu main300 không tồn tại
+    backgroundColor: colors.primaryLight || '#71D99E', // Fallback nếu main300 không tồn tại
   },
   backgroundDecorators: {
     ...StyleSheet.absoluteFillObject,
@@ -165,7 +165,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   instructionTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: Gap.gap_15,
   },
   ruleList: {
@@ -181,19 +181,19 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.text,
+    backgroundColor: colors.textPrimary,
     marginTop: 8,
   },
   ruleText: {
     flex: 1,
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: colors.text,
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   ruleTextBold: {
     fontFamily: FontFamily.lexendDecaBold,
-    color: colors.main,
+    color: colors.primary,
   },
   footer: {
     paddingHorizontal: Padding.padding_20,

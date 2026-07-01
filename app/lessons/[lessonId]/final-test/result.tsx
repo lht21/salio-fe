@@ -7,7 +7,7 @@ import Button from '@/components/Button';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function FinalTestResultScreen() {
-    const { colors } = useTheme();
+  const { colors } = useTheme();
 
   const router = useRouter();
   const { lessonId, sessionId } = useLocalSearchParams<{ lessonId: string, sessionId: string }>();
@@ -26,8 +26,8 @@ export default function FinalTestResultScreen() {
       "Bạn có chắc chắn muốn làm lại bài thi không? Kết quả trước đó sẽ bị ghi đè.",
       [
         { text: "Hủy", style: "cancel" },
-        { 
-          text: "Làm lại", 
+        {
+          text: "Làm lại",
           onPress: async () => {
             try {
               setIsLoading(true);
@@ -51,15 +51,15 @@ export default function FinalTestResultScreen() {
   const handleContinue = async () => {
     try {
       setIsLoading(true);
-      
+
       // Tìm lesson tiếp theo (bài 2)
       const response = await LessonService.getAll({ page: 1, limit: 100 });
       const lessons = response.data.lessons;
-      
+
       // Tìm lesson hiện tại và lesson tiếp theo
       const currentIndex = lessons.findIndex((lesson: any) => lesson._id === lessonId);
       const nextLesson = lessons[currentIndex + 1];
-      
+
       if (nextLesson) {
         // Bắt đầu lesson tiếp theo
         await LessonService.start(nextLesson._id);
@@ -84,8 +84,8 @@ export default function FinalTestResultScreen() {
 
   if (!data || isLoading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color={colors.main} />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -135,7 +135,7 @@ export default function FinalTestResultScreen() {
   const { primaryLabel, secondaryLabel, onPrimaryPress, onSecondaryPress } = getButtons();
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <ResultSummaryScreen
         title={isPassed ? "Chúc mừng!" : "Chưa đạt yêu cầu"}
         pointLabel={`${session.percentage} điểm`}
@@ -146,7 +146,7 @@ export default function FinalTestResultScreen() {
         onClose={() => router.replace('/(tabs)')}
         secondaryLabel="Xem giải thích đáp án"
         onSecondaryPress={() => router.push({
-          pathname: `/lessons/${lessonId}/final-test/explanation` as any, 
+          pathname: `/lessons/${lessonId}/final-test/explanation` as any,
           params: { sessionId }
         })}
       />

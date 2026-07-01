@@ -15,12 +15,12 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 // --- MAIN SCREEN ---
 export default function PracticeIntroScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { type, setId } = useLocalSearchParams();
-  
+
   // Đảm bảo type và setId luôn là string (useLocalSearchParams có thể trả về string[])
   const resolvedType = Array.isArray(type) ? type[0] : type;
   const resolvedSetId = Array.isArray(setId) ? setId[0] : setId;
@@ -69,14 +69,14 @@ export default function PracticeIntroScreen() {
       const res = await PracticeService.startAttempt(practiceType, resolvedSetId as string);
       if (res.success && res.data?.attemptId) {
         const attemptId = res.data.attemptId;
-        
+
         // Sử dụng cấu trúc Object cho Router Push để Expo truyền Path an toàn hơn
         const params: any = {};
         if (isZenmodeEnabled) params.zenmode = 'true';
 
         if (practiceType === 'listening' || practiceType === 'full') {
           // audio-check.tsx nằm ở [setId], nên ta đẩy attemptId vào params để lấy qua useLocalSearchParams
-          params.attemptId = attemptId; 
+          params.attemptId = attemptId;
           router.push({
             pathname: `/practice/${practiceType}/${resolvedSetId}/audio-check`,
             params
@@ -106,23 +106,23 @@ export default function PracticeIntroScreen() {
     <SafeAreaView style={styles.safeArea}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.main} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : practiceType === 'writing' ? (
-        <WritingIntroView 
-          data={introData} 
-          onStart={handleStart} 
-          onExit={() => setShowExitModal(true)} 
-          isStarting={isStarting} 
+        <WritingIntroView
+          data={introData}
+          onStart={handleStart}
+          onExit={() => setShowExitModal(true)}
+          isStarting={isStarting}
           isZenmodeEnabled={isZenmodeEnabled}
           onToggleZenmode={setIsZenmodeEnabled}
         />
       ) : (
-        <ExamIntroView 
-          data={introData} 
-          onStart={handleStart} 
-          onExit={() => setShowExitModal(true)} 
-          isStarting={isStarting} 
+        <ExamIntroView
+          data={introData}
+          onStart={handleStart}
+          onExit={() => setShowExitModal(true)}
+          isStarting={isStarting}
           isZenmodeEnabled={isZenmodeEnabled}
           onToggleZenmode={setIsZenmodeEnabled}
           onPreparationPress={() => router.push({ pathname: `/practice/${practiceType}/${resolvedSetId}/preparation`, params: { title: introData?.title } } as any)}
@@ -150,13 +150,13 @@ export default function PracticeIntroScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-    });
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

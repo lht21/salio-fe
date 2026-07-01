@@ -6,8 +6,8 @@ import LessonService from '@/api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ListeningExplanationScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -18,10 +18,10 @@ export default function ListeningExplanationScreen() {
     const fetchAllData = async () => {
       try {
         setLoading(true);
-        
+
         // 1. Lấy danh sách tất cả các ID bài nghe có trong Lesson này
         const modulesRes = await LessonService.getModules(lessonId!);
-        const listenIds = modulesRes.data.listening.map((item: any) => 
+        const listenIds = modulesRes.data.listening.map((item: any) =>
           typeof item === 'string' ? item : item._id
         );
 
@@ -50,42 +50,42 @@ export default function ListeningExplanationScreen() {
           const item = data!.item.data;
           const result = data!.result?.data; // Result có thể null nếu user chưa nộp bài
 
-        const mapped = (item?.questions || []).map((q: any, qIdx: number) => {
-          const userSub = result?.answers?.find((a: any) => String(a.questionId) === String(q._id));
-          const isUserCorrect = userSub?.isCorrect;
-          const uAns = userSub?.userAnswer || '(Bỏ trống)';
+          const mapped = (item?.questions || []).map((q: any, qIdx: number) => {
+            const userSub = result?.answers?.find((a: any) => String(a.questionId) === String(q._id));
+            const isUserCorrect = userSub?.isCorrect;
+            const uAns = userSub?.userAnswer || '(Bỏ trống)';
 
-          let displayAnswers: any[] = [];
+            let displayAnswers: any[] = [];
 
-          if (q.type === 'short_answer') {
-            displayAnswers = [
-              { label: `Bạn đã nhập: ${uAns}`, state: isUserCorrect ? 'correct' : 'incorrect' },
-              { label: `Đáp án chuẩn: ${q.correctAnswer}`, state: 'correct' }
-            ];
-          } else if (q.type === 'true_false') {
-            displayAnswers = [
-              { label: 'O', state: q.correctAnswer === 'O' ? 'correct' : (uAns === 'O' ? 'incorrect' : 'default') },
-              { label: 'X', state: q.correctAnswer === 'X' ? 'correct' : (uAns === 'X' ? 'incorrect' : 'default') }
-            ];
-          } else {
-            displayAnswers = (q.metadata?.options || []).map((opt: any) => ({
-              label: opt,
-              state: opt === q.correctAnswer ? 'correct' : (opt === uAns ? 'incorrect' : 'default')
-            }));
-          }
-
-          return {
-            id: q._id,
-            indexLabel: `Bài ${exIdx + 1} - Câu ${qIdx + 1}`,
-            question: q.questionText,
-            answers: displayAnswers,
-            explanation: {
-              title: isUserCorrect ? 'Làm tốt lắm!' : 'Hãy xem lại nhé', // Thêm title
-              correctLabel: String(q.correctAnswer), // Đổi tên từ correctAnswer thành correctLabel
-              body: q.explanation || "Dựa vào nội dung bài nghe để xác định đáp án chính xác."
+            if (q.type === 'short_answer') {
+              displayAnswers = [
+                { label: `Bạn đã nhập: ${uAns}`, state: isUserCorrect ? 'correct' : 'incorrect' },
+                { label: `Đáp án chuẩn: ${q.correctAnswer}`, state: 'correct' }
+              ];
+            } else if (q.type === 'true_false') {
+              displayAnswers = [
+                { label: 'O', state: q.correctAnswer === 'O' ? 'correct' : (uAns === 'O' ? 'incorrect' : 'default') },
+                { label: 'X', state: q.correctAnswer === 'X' ? 'correct' : (uAns === 'X' ? 'incorrect' : 'default') }
+              ];
+            } else {
+              displayAnswers = (q.metadata?.options || []).map((opt: any) => ({
+                label: opt,
+                state: opt === q.correctAnswer ? 'correct' : (opt === uAns ? 'incorrect' : 'default')
+              }));
             }
-          };
-        });
+
+            return {
+              id: q._id,
+              indexLabel: `Bài ${exIdx + 1} - Câu ${qIdx + 1}`,
+              question: q.questionText,
+              answers: displayAnswers,
+              explanation: {
+                title: isUserCorrect ? 'Làm tốt lắm!' : 'Hãy xem lại nhé', // Thêm title
+                correctLabel: String(q.correctAnswer), // Đổi tên từ correctAnswer thành correctLabel
+                body: q.explanation || "Dựa vào nội dung bài nghe để xác định đáp án chính xác."
+              }
+            };
+          });
           flattened = [...flattened, ...mapped];
         });
 
@@ -103,7 +103,7 @@ export default function ListeningExplanationScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -120,14 +120,14 @@ export default function ListeningExplanationScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-      },
-      loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-      },
-    });
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+});

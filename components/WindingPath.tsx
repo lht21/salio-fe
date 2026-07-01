@@ -11,27 +11,27 @@ interface WindingPathProps {
 }
 
 const WindingPath = ({ isActive, isLeftToRight }: WindingPathProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   // Tính toán tâm tọa độ X tương đối cho các Node (Trái và Phải)
   const center = width / 2;
   const offset = 35; // Khoảng lệch so với tâm màn hình
-  
+
   const startX = isLeftToRight ? center - offset : center + offset;
   const endX = isLeftToRight ? center + offset : center - offset;
 
-  const pathColor = isActive ? (colors.main || '#1877F2') : (colors.stroke || '#E2E8F0');
+  const pathColor = isActive ? (colors.primary || '#1877F2') : (colors.borderDefault || '#E2E8F0');
 
   return (
     <View style={styles.svgContainer} pointerEvents="none">
       <Svg width={width} height={70}>
-        <Path 
+        <Path
           // Vẽ một đường cong chữ S (Bezier Curve) nối từ startX đến endX
-          d={`M ${startX} 0 C ${startX} 35, ${endX} 35, ${endX} 70`} 
-          fill="none" 
-          stroke={pathColor} 
-          strokeWidth={8} 
+          d={`M ${startX} 0 C ${startX} 35, ${endX} 35, ${endX} 70`}
+          fill="none"
+          stroke={pathColor}
+          strokeWidth={8}
           strokeLinecap="round"
           strokeDasharray={isActive ? "none" : "12, 12"} // Nếu chưa mở khóa thì hiển thị nét đứt
         />
@@ -41,13 +41,13 @@ const WindingPath = ({ isActive, isLeftToRight }: WindingPathProps) => {
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      svgContainer: {
-        width: '100%',
-        height: 70,
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1,
-      },
-    });
+  svgContainer: {
+    width: '100%',
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+});
 
 export default WindingPath;

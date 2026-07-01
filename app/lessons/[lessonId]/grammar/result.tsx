@@ -7,12 +7,12 @@ import LessonService from '@/api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarResultScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId, sessionId } = useLocalSearchParams<{ lessonId: string, sessionId: string }>();
-  
+
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
   const [lessonProgress, setLessonProgress] = useState<any>(null);
@@ -44,19 +44,19 @@ export default function GrammarResultScreen() {
   };
 
   const quizScore = session?.percentage || 0;
-  
+
   const grammarSection = lessonProgress?.sections?.grammar;
   const grammarTheoryItems = grammarSection?.items?.filter((i: any) => i.moduleType === 'grammar') || [];
-  const completionRate = grammarTheoryItems.length > 0 
-    ? Math.round((grammarTheoryItems.filter((i: any) => i.status === 'completed').length / grammarTheoryItems.length) * 100) 
+  const completionRate = grammarTheoryItems.length > 0
+    ? Math.round((grammarTheoryItems.filter((i: any) => i.status === 'completed').length / grammarTheoryItems.length) * 100)
     : 0;
-          
+
   const isPassed = quizScore >= 80 && completionRate >= 80;
 
   if (loading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -67,7 +67,7 @@ export default function GrammarResultScreen() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ResultSummaryScreen
         title={isPassed ? "Hoàn thành xuất sắc!" : "Chưa hoàn thành!"}
         pointLabel={`${Math.round((quizScore + completionRate) / 2)} điểm`}
@@ -93,5 +93,5 @@ export default function GrammarResultScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
-    });
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
+});

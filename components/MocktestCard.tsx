@@ -15,8 +15,8 @@ interface MocktestCardProps {
   onPress?: () => void;
 }
 
-const MocktestCard = ({ 
-  title, 
+const MocktestCard = ({
+  title,
   badges,
   onPress
 }: MocktestCardProps) => {
@@ -34,10 +34,10 @@ const MocktestCard = ({
     <TouchableOpacity style={styles.card} onPress={onPress}>
       {/* Hình ảnh minh họa (Mascot) */}
       <View style={styles.imageContainer}>
-        <Image 
-          source={require('../assets/images/horani/horani_skill3.png')} 
-          style={styles.mocktestImage} 
-          resizeMode="contain" 
+        <Image
+          source={require('../assets/images/horani/horani_skill3.png')}
+          style={styles.mocktestImage}
+          resizeMode="contain"
         />
       </View>
 
@@ -62,7 +62,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.purplePastel,
     borderWidth: 1.5,
-    borderColor: colors.stroke || '#E2E8F0',
+    borderColor: colors.borderDefault || '#E2E8F0',
     borderRadius: Border.br_20 || 15,
     minHeight: 75,
     overflow: 'visible', // Cho phép hình ảnh tràn viền 3D
@@ -80,7 +80,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     position: 'absolute',
     bottom: -10, // Đẩy hình ảnh tràn viền dưới tạo hiệu ứng 3D rõ nét
   },
-  
+
   content: {
     flex: 1,
     paddingVertical: Padding.padding_15 || 15,
@@ -97,11 +97,11 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: colors.bg, 
+    backgroundColor: colors.background,
     borderRadius: 12,
   },
   badgePurple: {
-    backgroundColor: colors.badgePurpleBg || '#E9D5FF', 
+    backgroundColor: colors.badgePurpleBg || '#E9D5FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -109,7 +109,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   badgePurpleText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 10,
-    color: colors.badgePurpleText || '#7E22CE', 
+    color: colors.badgePurpleText || '#7E22CE',
   },
   badgeGray: {
     paddingHorizontal: 8,
@@ -119,7 +119,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   badgeGrayText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 10,
-    color: colors.text, 
+    color: colors.textPrimary,
   }
 });
 

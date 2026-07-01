@@ -15,8 +15,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 // ============================================================================
 
 export default function PracticeExamContainer() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { type, setId, attemptId } = useLocalSearchParams();
@@ -25,13 +25,13 @@ export default function PracticeExamContainer() {
 
   const [examData, setExamData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // State cho bài làm
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [writingText, setWritingText] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
   const totalTimeRef = useRef<number>(0);
-  
+
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch đề thi
@@ -39,7 +39,7 @@ export default function PracticeExamContainer() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        
+
         // 1. Fetch đồng thời Đề thi và Trạng thái làm bài
         const [setRes, statusRes] = await Promise.all([
           PracticeService.getSetById(typeString as PracticeType, setId as string),
@@ -51,12 +51,12 @@ export default function PracticeExamContainer() {
 
         if (setRes && setRes.success) {
           setExamData(setRes.data);
-          
+
           // Set thời gian làm bài (Viết dùng timeLimit(giây), Trắc nghiệm dùng duration(phút))
           const durationInSeconds = isWriting ? (setRes.data?.timeLimit || 0) : ((setRes.data?.duration || 0) * 60);
           const initialTime = durationInSeconds || 50 * 60;
           totalTimeRef.current = initialTime;
-          
+
           let currentTimeLeft = initialTime;
 
           if (statusRes && statusRes.success && statusRes.data) {
@@ -72,11 +72,11 @@ export default function PracticeExamContainer() {
               if (statusData.content) {
                 setWritingText(statusData.content);
               }
-            } 
+            }
             // 3. Phục hồi trắc nghiệm
             else {
               const restoredAnswers: Record<string, string> = {};
-              
+
               if (Array.isArray(statusData.readingAnswers)) {
                 statusData.readingAnswers.forEach((ans: any) => {
                   if (ans.questionId && ans.userAnswer) {
@@ -92,7 +92,7 @@ export default function PracticeExamContainer() {
                   }
                 });
               }
-              
+
               setAnswers(restoredAnswers);
             }
           }
@@ -125,14 +125,14 @@ export default function PracticeExamContainer() {
 
     // Tự động suy luận type dựa trên examData nếu không được truyền vào
     let derivedType = sectionType || typeString;
-    
+
     if (isWriting) {
       derivedType = 'writing';
     } else if (typeString === 'full' && !sectionType && questionId && examData?.items) {
-      const isListening = examData.items.listening?.some((item: any) => 
+      const isListening = examData.items.listening?.some((item: any) =>
         item.questions?.some((q: any) => q._id === questionId || q.id === questionId)
       );
-      const isReading = examData.items.reading?.some((item: any) => 
+      const isReading = examData.items.reading?.some((item: any) =>
         item.questions?.some((q: any) => q._id === questionId || q.id === questionId)
       );
 
@@ -177,7 +177,7 @@ export default function PracticeExamContainer() {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-      
+
       const timeSpent = totalTimeRef.current > 0 ? totalTimeRef.current - timeLeft : 0;
 
       if (isWriting) {
@@ -211,7 +211,7 @@ export default function PracticeExamContainer() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -219,7 +219,7 @@ export default function PracticeExamContainer() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       {isWriting ? (
-        <WritingUI 
+        <WritingUI
           data={examData}
           text={writingText}
           timeLeft={timeLeft}
@@ -228,7 +228,7 @@ export default function PracticeExamContainer() {
           onExit={handleExit}
         />
       ) : (
-        <MultipleChoiceUI 
+        <MultipleChoiceUI
           type={typeString}
           data={examData}
           answers={answers}
@@ -243,5 +243,5 @@ export default function PracticeExamContainer() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg }
-    });
+  safeArea: { flex: 1, backgroundColor: colors.background }
+});

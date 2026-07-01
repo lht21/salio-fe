@@ -10,8 +10,8 @@ import { FontFamily, FontSize, Padding, Gap } from '../../../constants/GlobalSty
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function CheckoutScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   // Lấy thêm planId từ URL nếu sau này cần dùng
@@ -24,18 +24,18 @@ export default function CheckoutScreen() {
   // Hàm theo dõi sự thay đổi của URL trong WebView
   const handleNavigationStateChange = (navState: WebViewNavigation) => {
     const currentUrl = navState.url;
-    
+
     /**
      * LOGIC LẮNG NGHE KẾT QUẢ THANH TOÁN (Callback URL)
      * - VNPay: Trả về vnp_ResponseCode=00 nếu thành công
      * - MoMo: Trả về resultCode=0 nếu thành công
      */
-    
+
     // VNPay & MoMo thành công
     if (currentUrl.includes('vnp_ResponseCode=00') || currentUrl.includes('resultCode=0')) {
       // Đóng WebView và chuyển hướng sang màn thành công
       router.replace('/subscription/success');
-    } 
+    }
     // VNPay & MoMo thất bại / hủy bỏ
     else if (
       (currentUrl.includes('vnp_ResponseCode=') && !currentUrl.includes('vnp_ResponseCode=00')) ||
@@ -64,7 +64,7 @@ export default function CheckoutScreen() {
       {/* --- HEADER --- */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeftIcon size={24} color={colors.text} weight="bold" />
+          <ArrowLeftIcon size={24} color={colors.textPrimary} weight="bold" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thanh toán an toàn</Text>
       </View>
@@ -78,11 +78,11 @@ export default function CheckoutScreen() {
           onLoadEnd={() => setIsLoading(false)}
           onNavigationStateChange={handleNavigationStateChange}
         />
-        
+
         {/* Hiển thị Loading mờ lên trên trong lúc WebView đang load */}
         {isLoading && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color={colors.main} />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}
       </View>
@@ -91,26 +91,26 @@ export default function CheckoutScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg },
-      header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-        paddingBottom: Padding.padding_15,
-        backgroundColor: colors.bg,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.stroke,
-      },
-      backButton: { marginRight: Gap.gap_15 },
-      headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.text },
-      webviewContainer: { flex: 1 },
-      webview: { flex: 1 },
-      loadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255, 255, 255, 0.7)', justifyContent: 'center', alignItems: 'center' },
-      
-      // State Lỗi
-      errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
-      errorText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.gray, textAlign: 'center', marginBottom: Gap.gap_20 },
-      backButtonCenter: { backgroundColor: colors.main, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 20 },
-      backButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color }
-    });
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+    paddingBottom: Padding.padding_15,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDefault,
+  },
+  backButton: { marginRight: Gap.gap_15 },
+  headerTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_20, color: colors.textPrimary },
+  webviewContainer: { flex: 1 },
+  webview: { flex: 1 },
+  loadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255, 255, 255, 0.7)', justifyContent: 'center', alignItems: 'center' },
+
+  // State Lỗi
+  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
+  errorText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.textSecondary, textAlign: 'center', marginBottom: Gap.gap_20 },
+  backButtonCenter: { backgroundColor: colors.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 20 },
+  backButtonText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textBrand }
+});

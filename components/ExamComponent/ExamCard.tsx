@@ -21,8 +21,8 @@ export interface Exam {
   year: number;
   isUnlocked: boolean;
   isFeatured: boolean;
-  questionCount?: number | { listening?: number; reading?: number; writing?: number; [key: string]: any };
-  duration?: number | { listening?: number; reading?: number; writing?: number; [key: string]: any };
+  questionCount?: number | { listening?: number; reading?: number; writing?: number;[key: string]: any };
+  duration?: number | { listening?: number; reading?: number; writing?: number;[key: string]: any };
 }
 
 interface ExamCardProps {
@@ -31,8 +31,8 @@ interface ExamCardProps {
 }
 
 export default function ExamCard({ exam, onPress }: ExamCardProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   // Tính tổng số câu hỏi nếu API trả về là một object {listening, reading, writing}
   let displayQuestionCount = exam.questionCount as number;
@@ -83,7 +83,7 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
         {!exam.isUnlocked ? (
           <CrownIcon size={120} color="#64748B" weight="fill" />
         ) : (
-          <ShootingStarIcon size={120} color={colors.main} weight="fill" />
+          <ShootingStarIcon size={120} color={colors.primary} weight="fill" />
         )}
       </View>
 
@@ -105,7 +105,7 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
 
       <View style={styles.examContent}>
         <Text style={[
-          styles.examTitle, 
+          styles.examTitle,
           !exam.isUnlocked && { color: '#9CA3AF' },
           (displayQuestionCount || displayDuration) ? { marginBottom: 4 } : {} // Giảm margin nếu có hiển thị số câu/thời gian
         ]}>
@@ -127,7 +127,7 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
             ) : null}
           </View>
         ) : null}
-        <Button 
+        <Button
           title={exam.isUnlocked ? "Luyện tập" : "Mở khoá"}
           variant={exam.isUnlocked ? "Green" : "Gray"}
           onPress={handlePress}
@@ -139,17 +139,17 @@ export default function ExamCard({ exam, onPress }: ExamCardProps) {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      examCard: { backgroundColor: colors.bg, borderRadius: Border.br_30, borderWidth: 1.5, borderColor: colors.stroke, padding: Padding.padding_20, position: 'relative', overflow: 'hidden', justifyContent: 'space-between', minHeight: 150 },
-      examCardLocked: { backgroundColor: '#F8FAFC' },
-      examWatermark: { position: 'absolute', right: -10, top: -20, fontFamily: FontFamily.lexendDecaBold, fontSize: 120, color: colors.stroke, opacity: 0.8 },
-      iconWatermark: { position: 'absolute', right: -15, bottom: -15, transform: [{ rotate: '-15deg' }], zIndex: 0 },
-      examLabel: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: colors.main50, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
-      examLabelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: colors.text },
-      examLabelLocked: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
-      examLabelLockedText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: '#64748B' },
-      examContent: { zIndex: 1 },
-      examTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_18, color: colors.text, marginBottom: 12 },
-      statsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-      statItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-      statText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#64748B' },
-    });
+  examCard: { backgroundColor: colors.background, borderRadius: Border.br_30, borderWidth: 1.5, borderColor: colors.borderDefault, padding: Padding.padding_20, position: 'relative', overflow: 'hidden', justifyContent: 'space-between', minHeight: 150 },
+  examCardLocked: { backgroundColor: '#F8FAFC' },
+  examWatermark: { position: 'absolute', right: -10, top: -20, fontFamily: FontFamily.lexendDecaBold, fontSize: 120, color: colors.borderDefault, opacity: 0.8 },
+  iconWatermark: { position: 'absolute', right: -15, bottom: -15, transform: [{ rotate: '-15deg' }], zIndex: 0 },
+  examLabel: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: colors.primaryLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
+  examLabelText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: colors.textPrimary },
+  examLabelLocked: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginBottom: 8 },
+  examLabelLockedText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 10, color: '#64748B' },
+  examContent: { zIndex: 1 },
+  examTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_18, color: colors.textPrimary, marginBottom: 12 },
+  statsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  statItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  statText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: '#64748B' },
+});

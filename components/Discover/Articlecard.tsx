@@ -60,7 +60,7 @@ export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
   onPress,
   onSave,
 }) => {
-    const { colors } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <View style={featured.cardOuter}>
@@ -100,9 +100,9 @@ export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
 
             {/* Match row */}
             {article.matchPercent !== undefined && (
-              <View style={[featured.matchRow, { backgroundColor: colors.greenLight }]}>
+              <View style={[featured.matchRow, { backgroundColor: colors.primaryLight }]}>
                 <SparkleIcon size={13} color="#4CAF50" weight="fill" />
-                <Text style={[featured.matchText, { color: colors.main2 }]}>
+                <Text style={[featured.matchText, { color: colors.primary }]}>
                   Phù hợp với bạn {article.matchPercent}%
                 </Text>
               </View>
@@ -111,11 +111,11 @@ export const ArticleCardFeatured: React.FC<ArticleCardProps> = ({
         </View>
 
         {/* ── Footer: lượt đọc + thích + bookmark ── */}
-        <View style={[featured.footer, { backgroundColor: colors.bg2 }]}>
+        <View style={[featured.footer, { backgroundColor: colors.backgroundSubtle }]}>
           <View style={featured.statsRow}>
-            <CursorClickIcon size={20} color={colors.gray} weight="fill" />
+            <CursorClickIcon size={20} color={colors.textSecondary} weight="fill" />
             <Text style={featured.statsText}>{article.views} lượt</Text>
-            <HeartIcon size={20} color={colors.gray} weight="fill" style={{ marginLeft: 8 }} />
+            <HeartIcon size={20} color={colors.textSecondary} weight="fill" style={{ marginLeft: 8 }} />
             <Text style={featured.statsText}>{article.likes}</Text>
           </View>
         </View>

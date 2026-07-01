@@ -10,8 +10,8 @@ interface QuestionBlockProps {
 }
 
 export default function QuestionBlock({ number, questionText, children }: QuestionBlockProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -32,24 +32,24 @@ export default function QuestionBlock({ number, questionText, children }: Questi
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        marginBottom: 40,
-      },
-      header: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginBottom: Gap.gap_20,
-        gap: Gap.gap_10,
-      },
-      numberBadge: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: colors.stroke,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      numberText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_14, color: colors.gray },
-      questionText: { flex: 1, fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_16, color: colors.text, lineHeight: 24 },
-      optionsWrapper: { paddingLeft: 42 }, // Căn lề với nội dung câu hỏi
-    });
+  container: {
+    marginBottom: 40,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: Gap.gap_20,
+    gap: Gap.gap_10,
+  },
+  numberBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.borderDefault,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  numberText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_14, color: colors.textSecondary },
+  questionText: { flex: 1, fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_16, color: colors.textPrimary, lineHeight: 24 },
+  optionsWrapper: { paddingLeft: 42 }, // Căn lề với nội dung câu hỏi
+});

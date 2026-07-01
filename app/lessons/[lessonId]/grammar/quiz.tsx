@@ -11,8 +11,8 @@ import { QuizHeader } from '../../../../components/Modals/Question';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarQuizScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
@@ -45,9 +45,9 @@ export default function GrammarQuizScreen() {
       const quizId = modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.data?.grammarQuizzes?.[0] || modulesResponse?.grammarQuizzes?.[0];
 
       if (!quizId) {
-          setErrorMsg("Bài học này chưa có Quiz Ngữ pháp.");
-          setLoading(false);
-          return;
+        setErrorMsg("Bài học này chưa có Quiz Ngữ pháp.");
+        setLoading(false);
+        return;
       }
 
       const startRes = await GrammarService.startGrammarQuiz({ quizId: typeof quizId === 'object' ? quizId._id : quizId });
@@ -83,7 +83,7 @@ export default function GrammarQuizScreen() {
   };
 
   const currentQuestionData = session?.questions?.[currentIndex];
-  
+
   const handleSubmit = async (answer: string) => {
     if (isAnswered || !answer.trim()) return;
     Keyboard.dismiss();
@@ -104,7 +104,7 @@ export default function GrammarQuizScreen() {
         questionId: currentQuestionData._id,
         answer: answer,
       });
-    } catch (err) {}
+    } catch (err) { }
   };
 
   const showFeedback = (type: 'success' | 'failure') => {
@@ -137,27 +137,27 @@ export default function GrammarQuizScreen() {
         }
       }
     };
-    
+
     Animated.parallel([
       Animated.timing(feedbackOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
       Animated.timing(feedbackTranslateY, { toValue: 150, duration: 200, useNativeDriver: true }),
     ]).start(moveNext);
   };
 
-  if (loading) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={colors.main} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={colors.primary} /></SafeAreaView>;
 
   if (errorMsg) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <QuizHeader current={0} total={0} incorrectCount={0} onClose={() => router.back()} />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: colors.text }}>{errorMsg}</Text>
+          <Text style={{ fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: colors.textPrimary }}>{errorMsg}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  if (!session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={colors.main} /></SafeAreaView>;
+  if (!session) return <SafeAreaView style={styles.safeArea}><ActivityIndicator size="large" color={colors.primary} /></SafeAreaView>;
 
   return (
     <QuizStudyUI
@@ -180,7 +180,7 @@ export default function GrammarQuizScreen() {
             <View style={styles.inputContainer}>
               <TextInput
                 style={[
-                  styles.textInput, 
+                  styles.textInput,
                   isAnswered && (normalizeString(inputText) === normalizeString(q.correctAnswer) ? styles.inputSuccess : styles.inputError)
                 ]}
                 placeholder="Nhập đáp án..."
@@ -203,11 +203,11 @@ export default function GrammarQuizScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg },
-      inputContainer: { width: '100%', marginTop: Gap.gap_20 },
-      textInput: { backgroundColor: colors.whiteText, borderWidth: 2, borderColor: colors.colorBlack, borderRadius: 20, padding: Padding.padding_15, fontSize: 18, fontFamily: FontFamily.lexendDecaMedium, color: colors.text, minHeight: 60 },
-      inputSuccess: { borderColor: colors.main },
-      inputError: { borderColor: colors.red },
-      submitBtn: { backgroundColor: colors.main, paddingVertical: Padding.padding_15, borderRadius: 12, marginTop: Gap.gap_20, alignItems: 'center' },
-      submitBtnText: { color: colors.whiteText, fontFamily: FontFamily.lexendDecaBold, fontSize: 18 },
-    });
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  inputContainer: { width: '100%', marginTop: Gap.gap_20 },
+  textInput: { backgroundColor: colors.textInverse, borderWidth: 2, borderColor: colors.borderDefault, borderRadius: 20, padding: Padding.padding_15, fontSize: 18, fontFamily: FontFamily.lexendDecaMedium, color: colors.textPrimary, minHeight: 60 },
+  inputSuccess: { borderColor: colors.primary },
+  inputError: { borderColor: colors.red },
+  submitBtn: { backgroundColor: colors.primary, paddingVertical: Padding.padding_15, borderRadius: 12, marginTop: Gap.gap_20, alignItems: 'center' },
+  submitBtnText: { color: colors.textInverse, fontFamily: FontFamily.lexendDecaBold, fontSize: 18 },
+});

@@ -38,8 +38,8 @@ const MultipleChoiceQuestionCard = ({
   onSelectOption,
   footer,
 }: MultipleChoiceQuestionCardProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <MotiView layout={LinearTransition.springify().damping(20).stiffness(200)} style={styles.container}>
@@ -67,13 +67,13 @@ const MultipleChoiceQuestionCard = ({
       <ProgressBar
         progress={progress}
         height={8}
-        color={colors.main}
+        color={colors.primary}
         backgroundColor="#71809B"
       />
 
       <AnimatePresence>
         {expanded && (
-          <MotiView 
+          <MotiView
             from={{ opacity: 0, translateY: -10 }}
             animate={{ opacity: 1, translateY: 0 }}
             exit={{ opacity: 0, translateY: -10 }}
@@ -103,48 +103,48 @@ const MultipleChoiceQuestionCard = ({
 export default memo(MultipleChoiceQuestionCard);
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
-        backgroundColor: '#FFFFFF',
-        padding: 14,
-        gap: Gap.gap_14,
-      },
-      topRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      },
-      progressPill: {
-        overflow: 'hidden',
-        borderRadius: 999,
-        paddingHorizontal: 14,
-        paddingVertical: 5,
-        backgroundColor: colors.main,
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_20,
-        color: '#FFFFFF',
-      },
-      actions: {
-        flexDirection: 'row',
-        gap: 8,
-      },
-      iconButton: {
-        width: 30,
-        height: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      body: {
-        gap: Gap.gap_14,
-      },
-      question: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        lineHeight: 26,
-        color: '#2D3345',
-      },
-      optionsWrap: {
-        gap: 12,
-      },
-    });
+  container: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    gap: Gap.gap_14,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  progressPill: {
+    overflow: 'hidden',
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    backgroundColor: colors.primary,
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20,
+    color: '#FFFFFF',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  iconButton: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: {
+    gap: Gap.gap_14,
+  },
+  question: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    lineHeight: 26,
+    color: '#2D3345',
+  },
+  optionsWrap: {
+    gap: 12,
+  },
+});

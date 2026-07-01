@@ -15,8 +15,8 @@ import DailyMissionsModal from '../../components/Modals/DailyMissionsModal';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function StoreScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { stats, refreshUser } = useUser();
@@ -92,10 +92,10 @@ export default function StoreScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StoreHeader 
-        clouds={clouds} 
+      <StoreHeader
+        clouds={clouds}
         missionsCount={completedMissionsCount} // Sử dụng dữ liệu động từ UserContext
-        onBack={() => router.back()} 
+        onBack={() => router.back()}
         onHistory={() => showModal({
           title: 'Lịch sử',
           subtitle: 'Tính năng đang phát triển',
@@ -106,7 +106,7 @@ export default function StoreScreen() {
 
       {isLoading || isPurchasing ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.main} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -118,8 +118,8 @@ export default function StoreScreen() {
         />
       )}
 
-      <DailyMissionsModal 
-        isVisible={isMissionsModalVisible} 
+      <DailyMissionsModal
+        isVisible={isMissionsModalVisible}
         onClose={() => setIsMissionsModalVisible(false)}
         onClaimSuccess={(reward) => {
           setClouds(prev => prev + reward); // Trực tiếp cộng điểm mây vào ví ngay khi nhận
@@ -131,17 +131,17 @@ export default function StoreScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: colors.bg2, // Nền màu xám nhạt để các thẻ màu trắng nổi bật bóng đổ
-      },
-      listContent: {
-        paddingHorizontal: Padding.padding_20,
-        paddingBottom: 40,
-      },
-      loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-    });
+  container: {
+    flex: 1,
+    backgroundColor: colors.backgroundSubtle, // Nền màu xám nhạt để các thẻ màu trắng nổi bật bóng đổ
+  },
+  listContent: {
+    paddingHorizontal: Padding.padding_20,
+    paddingBottom: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

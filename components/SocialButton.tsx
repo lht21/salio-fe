@@ -16,8 +16,8 @@ export type SocialButtonType = {
 
 // Map social → icon tương ứng
 const SOCIAL_ICONS = {
-  google:   GoogleLogoIcon,
-  apple:    AppleLogoIcon,
+  google: GoogleLogoIcon,
+  apple: AppleLogoIcon,
   facebook: FacebookLogoIcon,
 };
 
@@ -27,12 +27,12 @@ const SocialButton = ({
   size = 35,
   iconColor,
 }: SocialButtonType) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const IconComponent = SOCIAL_ICONS[social];
   // Nếu không truyền iconColor từ ngoài vào thì lấy mặc định từ Color.stroke
-  const finalIconColor = iconColor || colors.stroke;
+  const finalIconColor = iconColor || colors.borderDefault;
 
   return (
     <Pressable
@@ -52,22 +52,22 @@ const SocialButton = ({
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      wrapper: {
-        height: 65,
-        width: 65,
-        borderRadius: 43,
-        backgroundColor: colors.bg,
-        borderStyle: "solid",
-        borderColor: colors.stroke,
-        borderWidth: 2,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: Padding.padding_10,
-      },
-      wrapperPressed: {
-        opacity: 0.7,
-      },
-    });
+  wrapper: {
+    height: 65,
+    width: 65,
+    borderRadius: 43,
+    backgroundColor: colors.background,
+    borderStyle: "solid",
+    borderColor: colors.borderDefault,
+    borderWidth: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: Padding.padding_10,
+  },
+  wrapperPressed: {
+    opacity: 0.7,
+  },
+});
 
 export default SocialButton;

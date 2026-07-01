@@ -53,17 +53,17 @@ const voiceSlotConfig: Record<VoiceSlot, { keywords: string[]; fallbackIndex: nu
 };
 
 const avatarBySpeaker: Record<string, any> = {
-  woman1: require('../../../../assets/images/horani/woman1.png'),  
-  woman2: require('../../../../assets/images/horani/woman2.png'), 
-  man1: require('../../../../assets/images/horani/man1.png'),     
-  man2: require('../../../../assets/images/horani/man2.png'),   
+  woman1: require('../../../../assets/images/horani/woman1.png'),
+  woman2: require('../../../../assets/images/horani/woman2.png'),
+  man1: require('../../../../assets/images/horani/man1.png'),
+  man2: require('../../../../assets/images/horani/man2.png'),
 };
 
 const waveformBars = [18, 28, 40, 24, 34, 48, 30, 22, 38, 26, 20];
 
 export default function SpeakingPracticeScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -82,7 +82,7 @@ export default function SpeakingPracticeScreen() {
   const [isPlayingUserAudio, setIsPlayingUserAudio] = React.useState(false);
   const [isPlayingSampleId, setIsPlayingSampleId] = React.useState<string | null>(null);
   const [waveTick, setWaveTick] = React.useState(0);
-  
+
   // State lưu trữ bản đồ giọng nói thực tế của máy
   const [voiceMap, setVoiceMap] = React.useState<Record<string, Speech.Voice | null>>({});
 
@@ -116,10 +116,10 @@ export default function SpeakingPracticeScreen() {
         });
 
         // Ưu tiên chọn giọng chưa bị slot khác chiếm
-        const finalVoice = matches.find(v => !usedIdentifiers.has(v.identifier)) 
-                          || matches[0] 
-                          || koreanVoices[config.fallbackIndex] 
-                          || koreanVoices[0];
+        const finalVoice = matches.find(v => !usedIdentifiers.has(v.identifier))
+          || matches[0]
+          || koreanVoices[config.fallbackIndex]
+          || koreanVoices[0];
 
         if (finalVoice) {
           usedIdentifiers.add(finalVoice.identifier);
@@ -142,7 +142,7 @@ export default function SpeakingPracticeScreen() {
         const itemsRes = await Promise.all(
           speakingItems.map((item: any) => LessonService.getSkillItem<BESpeakingItem>(resolvedLessonId, 'speaking', typeof item === 'string' ? item : item._id))
         );
-        
+
         setItems(itemsRes.map((res: any) => res.data || res));
         await initVoices(); // Khởi tạo giọng nói sau khi có data
       } catch (error) {
@@ -192,7 +192,7 @@ export default function SpeakingPracticeScreen() {
 
   const stopRecordingIfNeeded = async () => {
     if (recordingRef.current) {
-      try { await recordingRef.current.stopAndUnloadAsync(); } catch {}
+      try { await recordingRef.current.stopAndUnloadAsync(); } catch { }
       recordingRef.current = null;
     }
   };
@@ -227,7 +227,7 @@ export default function SpeakingPracticeScreen() {
   const showFeedback = (type: 'success' | 'failure') => {
     setFeedbackState(type);
     feedbackOpacity.setValue(0);
-    feedbackTranslateY.setValue(type === 'success' ? 150 : 40); 
+    feedbackTranslateY.setValue(type === 'success' ? 150 : 40);
     Animated.parallel([
       Animated.timing(feedbackOpacity, { toValue: 1, duration: 240, useNativeDriver: true }),
       Animated.timing(feedbackTranslateY, { toValue: 0, duration: 360, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
@@ -240,7 +240,7 @@ export default function SpeakingPracticeScreen() {
     try {
       setRecordingState('requesting');
       const res = await LessonService.submitAudio(resolvedLessonId, currentItem._id, uri, recordedDurations[currentItem._id]);
-      
+
       // Truy cập an toàn để không bị crash nếu cấu trúc object thay đổi
       const submissionData = res?.data?.data?.submission || res?.data?.submission || res?.submission;
       const evaluation = submissionData?.evaluation || res?.data?.data?.aiEvaluation || res?.data?.aiEvaluation;
@@ -299,16 +299,16 @@ export default function SpeakingPracticeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.sheet}>
         {/* Header */}
-        <QuizHeader 
-          current={currentIndex + 1} 
-          total={items.length} 
-          incorrectCount={0} 
-          onClose={() => setShowExitModal(true)} 
+        <QuizHeader
+          current={currentIndex + 1}
+          total={items.length}
+          incorrectCount={0}
+          onClose={() => setShowExitModal(true)}
         />
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           <Animated.View style={{ opacity: contentOpacity, transform: [{ translateY: contentTranslateY }], gap: 16 }}>
-            
+
             <SectionTitle title={currentItem.title} />
             <Text style={styles.instructionText}>{currentItem.prompt}</Text>
 
@@ -316,11 +316,11 @@ export default function SpeakingPracticeScreen() {
               <>
                 <View style={styles.card}>
                   {currentItem?.scripts?.map((s, idx) => (
-                    <LineRow 
-                      key={idx} 
-                      line={s} 
-                      isPlaying={isPlayingSampleId === (s._id || idx.toString())} 
-                      onPressSpeaker={() => speakText(s._id || idx.toString(), s.korean, s.speaker)} 
+                    <LineRow
+                      key={idx}
+                      line={s}
+                      isPlaying={isPlayingSampleId === (s._id || idx.toString())}
+                      onPressSpeaker={() => speakText(s._id || idx.toString(), s.korean, s.speaker)}
                     />
                   ))}
                 </View>
@@ -337,14 +337,14 @@ export default function SpeakingPracticeScreen() {
             ) : (
               <>
                 <View style={styles.dialogueWrap}>
-                    {currentItem?.scripts?.map((s, idx) => (
-                      <DialogueBubble 
-                        key={idx} 
-                        line={s} 
-                        isPlaying={isPlayingSampleId === (s._id || idx.toString())} 
-                        onPressSpeaker={() => speakText(s._id || idx.toString(), s.korean, s.speaker)} 
-                      />
-                    ))}
+                  {currentItem?.scripts?.map((s, idx) => (
+                    <DialogueBubble
+                      key={idx}
+                      line={s}
+                      isPlaying={isPlayingSampleId === (s._id || idx.toString())}
+                      onPressSpeaker={() => speakText(s._id || idx.toString(), s.korean, s.speaker)}
+                    />
+                  ))}
                 </View>
                 <RecordPad recordingState={recordingState} waveTick={waveTick} onPress={handleMicPress} instruction={currentItem.instruction} />
               </>
@@ -352,21 +352,21 @@ export default function SpeakingPracticeScreen() {
 
             {recordedUris[currentItem._id] && (
               <View style={styles.evaluationArea}>
-                <Button 
+                <Button
                   variant="Outline"
                   title={isPlayingUserAudio ? 'Đang phát - Bấm để dừng' : 'Nghe lại giọng mình'}
                   onPress={async () => {
                     if (isPlayingUserAudio) {
                       await stopPlayback();
                     } else {
-                      await stopPlayback(); 
-                      
+                      await stopPlayback();
+
                       const uri = recordedUris[currentItem._id];
                       const { sound } = await Audio.Sound.createAsync(
-                        { uri }, 
+                        { uri },
                         { shouldPlay: true }
                       );
-                      
+
                       playbackRef.current = sound;
                       setIsPlayingUserAudio(true);
 
@@ -395,31 +395,31 @@ export default function SpeakingPracticeScreen() {
 
         <View style={styles.bottomAction}>
           <Pressable style={[styles.micButtonOuter, recordingState === 'recording' && styles.micButtonOuterActive]} onPress={handleMicPress}>
-            <View style={styles.micButtonInner}><MicrophoneIcon size={30} color={colors.color} weight="fill" /></View>
+            <View style={styles.micButtonInner}><MicrophoneIcon size={30} color={colors.textBrand} weight="fill" /></View>
           </Pressable>
         </View>
       </View>
 
       <IntroPopup visible={showIntroModal} onClose={() => setShowIntroModal(false)} description={currentItem.prompt} mascotSources={[require('../../../../assets/images/horani/popup.png')]} />
-      
-      <FeedbackPopup 
-        visible={feedbackState !== 'hidden'} 
-        type={feedbackState === 'failure' ? 'failure' : 'success'} 
-        onNext={goNext} 
+
+      <FeedbackPopup
+        visible={feedbackState !== 'hidden'}
+        type={feedbackState === 'failure' ? 'failure' : 'success'}
+        onNext={goNext}
         onOutsidePress={() => setFeedbackState('hidden')}
         translateY={feedbackTranslateY}
         opacity={feedbackOpacity}
         imageSource={feedbackState === 'failure' ? require('../../../../assets/images/horani/failure.png') : require('../../../../assets/images/horani/success.png')}
       />
 
-      <ConfirmModal 
-        isVisible={showExitModal} 
-        title="Dừng học sao?" 
-        subtitle="Bạn đang học dở, nếu thoát bây giờ tiến độ sẽ không được lưu." 
-        cancelText="Vẫn rời đi" 
-        confirmText="Học tiếp" 
-        onCancel={() => { setShowExitModal(false); router.back(); }} 
-        onConfirm={() => setShowExitModal(false)} 
+      <ConfirmModal
+        isVisible={showExitModal}
+        title="Dừng học sao?"
+        subtitle="Bạn đang học dở, nếu thoát bây giờ tiến độ sẽ không được lưu."
+        cancelText="Vẫn rời đi"
+        confirmText="Học tiếp"
+        onCancel={() => { setShowExitModal(false); router.back(); }}
+        onConfirm={() => setShowExitModal(false)}
       />
     </SafeAreaView>
   );
@@ -427,22 +427,22 @@ export default function SpeakingPracticeScreen() {
 
 // --- Sub-components (Avatar mapping) ---
 const SectionTitle = ({ title }: { title: string }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-return 
+  return
   <View style={styles.sectionTitleRow}>
     <BookOpenIcon size={18} color={colors.cam} weight="fill" />
     <Text style={styles.sectionTitle}>{title}</Text>
   </View>
-;
+    ;
 };
 
 const LineRow = ({ line, isPlaying, onPressSpeaker }: any) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-return 
+  return
   <View style={styles.lineRow}>
     <Image source={avatarBySpeaker[line.speaker] || avatarBySpeaker.man1} style={styles.avatar} />
     <View style={styles.lineContent}>
@@ -451,12 +451,12 @@ return
     </View>
     <Pressable onPress={onPressSpeaker}><SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : colors.cam} weight="fill" /></Pressable>
   </View>
-;
+    ;
 };
 
 const DialogueBubble = ({ line, isPlaying, onPressSpeaker }: any) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const speakerRole = line.speaker;
   const isWoman = speakerRole.includes('woman');
@@ -467,7 +467,7 @@ const DialogueBubble = ({ line, isPlaying, onPressSpeaker }: any) => {
         <Text style={styles.lineKorean}>{line.korean}</Text>
         <Text style={styles.lineTranslation}>{line.vietnamese}</Text>
         <Pressable onPress={onPressSpeaker} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
-            <SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : colors.cam} weight="fill" />
+          <SpeakerHighIcon size={18} color={isPlaying ? '#FF8B2B' : colors.cam} weight="fill" />
         </Pressable>
       </View>
     </View>
@@ -475,10 +475,10 @@ const DialogueBubble = ({ line, isPlaying, onPressSpeaker }: any) => {
 };
 
 const RecordPad = ({ recordingState, waveTick, onPress, instruction }: any) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-return 
+  return
   <Pressable style={[styles.answerPad, recordingState === 'recording' && styles.answerPadRecording]} onPress={onPress}>
     <View style={styles.waveformRow}>
       {waveformBars.map((b, i) => (
@@ -488,46 +488,46 @@ return
     <Text style={styles.answerPadText}>{recordingState === 'recording' ? 'Đang ghi âm... Nhấn để dừng' : 'Nhấn vào Micro để bắt đầu ghi âm'}</Text>
     <Text style={styles.hintText}>{instruction}</Text>
   </Pressable>
-;
+    ;
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg },
-      sheet: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden' },
-      sheetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-      counter: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: colors.text },
-      progressTrack: { height: 4, backgroundColor: '#E5E5E5' },
-      progressFill: { height: '100%', backgroundColor: colors.main },
-      scrollView: { flex: 1 },
-      scrollContent: { padding: 16, paddingBottom: 40 },
-      sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, margin: 4 },
-      sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: colors.text },
-      instructionText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#666', lineHeight: 20 },
-      card: { backgroundColor: '#FFF', borderRadius: 18, padding: 14, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, gap: 12 },
-      lineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-      avatar: { width: 28, height: 28, borderRadius: 14 },
-      avatarLarge: { width: 36, height: 36, borderRadius: 18 },
-      lineContent: { flex: 1 },
-      lineKorean: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: colors.text, lineHeight: 24 },
-      lineTranslation: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#888', fontStyle: 'italic' },
-      lineKoreanSmall: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: colors.text },
-      lineTranslationSmall: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 12, color: '#AAA' },
-      sampleAnswerBox: { paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', marginBottom: 5 },
-      answerPad: { borderWidth: 1, borderStyle: 'dashed', borderColor: '#CCC', borderRadius: 15, padding: 20, alignItems: 'center', backgroundColor: '#FFFDF9' },
-      answerPadRecording: { borderColor: colors.main, backgroundColor: '#F0FFF4' },
-      answerPadText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#666', marginTop: 10 },
-      hintText: { fontSize: 11, color: '#AAA', textAlign: 'center', marginTop: 4 },
-      waveformRow: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 30 },
-      waveformBar: { width: 3, backgroundColor: colors.main, borderRadius: 2 },
-      evaluationArea: { gap: 10, marginTop: 10 },
-      dialogueWrap: { gap: 16 },
-      dialogueRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-      dialogueRowReverse: { flexDirection: 'row-reverse' },
-      dialogueBubble: { maxWidth: '80%', padding: 14, borderRadius: 18, backgroundColor: '#FFF', elevation: 2 },
-      dialogueBubbleLeft: { borderTopLeftRadius: 2 },
-      dialogueBubbleRight: { borderTopRightRadius: 2, backgroundColor: '#FFF9F2' },
-      bottomAction: { paddingBottom: 25, alignItems: 'center' },
-      micButtonOuter: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.main75, alignItems: 'center', justifyContent: 'center' },
-      micButtonOuterActive: { backgroundColor: colors.main50 },
-      micButtonInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.main, alignItems: 'center', justifyContent: 'center' },
-    });
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  sheet: { flex: 1, backgroundColor: colors.background, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden' },
+  sheetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
+  counter: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 16, color: colors.textPrimary },
+  progressTrack: { height: 4, backgroundColor: '#E5E5E5' },
+  progressFill: { height: '100%', backgroundColor: colors.primary },
+  scrollView: { flex: 1 },
+  scrollContent: { padding: 16, paddingBottom: 40 },
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, margin: 4 },
+  sectionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: colors.textPrimary },
+  instructionText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#666', lineHeight: 20 },
+  card: { backgroundColor: '#FFF', borderRadius: 18, padding: 14, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, gap: 12 },
+  lineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  avatar: { width: 28, height: 28, borderRadius: 14 },
+  avatarLarge: { width: 36, height: 36, borderRadius: 18 },
+  lineContent: { flex: 1 },
+  lineKorean: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 16, color: colors.textPrimary, lineHeight: 24 },
+  lineTranslation: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 14, color: '#888', fontStyle: 'italic' },
+  lineKoreanSmall: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: colors.textPrimary },
+  lineTranslationSmall: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 12, color: '#AAA' },
+  sampleAnswerBox: { paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', marginBottom: 5 },
+  answerPad: { borderWidth: 1, borderStyle: 'dashed', borderColor: '#CCC', borderRadius: 15, padding: 20, alignItems: 'center', backgroundColor: '#FFFDF9' },
+  answerPadRecording: { borderColor: colors.primary, backgroundColor: '#F0FFF4' },
+  answerPadText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 13, color: '#666', marginTop: 10 },
+  hintText: { fontSize: 11, color: '#AAA', textAlign: 'center', marginTop: 4 },
+  waveformRow: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 30 },
+  waveformBar: { width: 3, backgroundColor: colors.primary, borderRadius: 2 },
+  evaluationArea: { gap: 10, marginTop: 10 },
+  dialogueWrap: { gap: 16 },
+  dialogueRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  dialogueRowReverse: { flexDirection: 'row-reverse' },
+  dialogueBubble: { maxWidth: '80%', padding: 14, borderRadius: 18, backgroundColor: '#FFF', elevation: 2 },
+  dialogueBubbleLeft: { borderTopLeftRadius: 2 },
+  dialogueBubbleRight: { borderTopRightRadius: 2, backgroundColor: '#FFF9F2' },
+  bottomAction: { paddingBottom: 25, alignItems: 'center' },
+  micButtonOuter: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.main75, alignItems: 'center', justifyContent: 'center' },
+  micButtonOuterActive: { backgroundColor: colors.primaryLight },
+  micButtonInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+});

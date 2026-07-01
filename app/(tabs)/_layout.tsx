@@ -16,27 +16,27 @@ import { useTranslation } from 'react-i18next';
 import { FontFamily } from '@/constants/GlobalStyles';
 
 // Component bọc Icon và Text để tạo hiệu ứng hình viên thuốc (Capsule)
-const AnimatedTabItem = ({ 
-  focused, 
-  label, 
-  children 
-}: { 
-  focused: boolean; 
-  label: string; 
-  children: React.ReactNode 
+const AnimatedTabItem = ({
+  focused,
+  label,
+  children
+}: {
+  focused: boolean;
+  label: string;
+  children: React.ReactNode
 }) => {
-    const { colors } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <MotiView
       animate={{
-        backgroundColor: focused ? colors.main : 'transparent', // Dùng Color.main khi active
+        backgroundColor: focused ? colors.primary : 'transparent', // Dùng Color.main khi active
         paddingHorizontal: focused ? 24 : 10, // Tăng padding ngang để rộng rãi, không bị cắt chữ
       }}
       transition={{
         type: 'timing',
         duration: 250,
-      } as any} 
+      } as any}
       style={{
         height: 64, // Chiều cao cố định để tạo hình viên thuốc hoàn hảo
         borderRadius: 32, // Bo tròn tuyệt đối (50% của height)
@@ -46,7 +46,7 @@ const AnimatedTabItem = ({
       }}
     >
       {children}
-      <Text 
+      <Text
         numberOfLines={2} // Cho phép nhảy tối đa 2 dòng nếu label quá dài
         style={{
           color: focused ? '#FFFFFF' : '#909C8F',
@@ -63,8 +63,8 @@ const AnimatedTabItem = ({
 };
 
 export default function TabLayout() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
 
   const { t } = useTranslation();
@@ -86,7 +86,7 @@ export default function TabLayout() {
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
             // Tăng chiều cao tổng thể của TabBar để bọc vừa vặn viên thuốc 64px bên trong
-            height: Platform.OS === 'ios' ? 86 + insets.bottom : 86 + Math.max(insets.bottom, 16), 
+            height: Platform.OS === 'ios' ? 86 + insets.bottom : 86 + Math.max(insets.bottom, 16),
             paddingTop: 30,
             paddingBottom: Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 16),
             backgroundColor: '#FFFFFF',
@@ -161,7 +161,7 @@ export default function TabLayout() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-      },
-    });
+  container: {
+    flex: 1,
+  },
+});

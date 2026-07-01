@@ -91,8 +91,8 @@ const HANGUL_CONTENT: Record<HangulTabKey, HangulItem[]> = {
 };
 
 const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<HangulTabKey>('basic_consonants');
@@ -105,7 +105,7 @@ const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => 
     <View style={styles.wrapper}>
       <View style={styles.headerRow}>
         <Pressable style={styles.backButton} hitSlop={10}>
-          <CaretLeftIcon size={20} color={colors.gray} weight="bold" />
+          <CaretLeftIcon size={20} color={colors.textSecondary} weight="bold" />
         </Pressable>
         <Text style={styles.title}>Bảng chữ cái</Text>
       </View>
@@ -150,8 +150,8 @@ const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => 
               return;
             }
 
-          router.back();
-          setTimeout(() => router.push({
+            router.back();
+            setTimeout(() => router.push({
               pathname: '/lessons/[lessonId]/writing/practiceHangul',
               params: {
                 lessonId,
@@ -160,18 +160,18 @@ const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => 
                 mode: 'sequence',
                 sequenceIndex: String(getHangulWritingIndex(firstSequenceItem?.glyph ?? firstItem.glyph, firstSequenceItem?.label ?? firstItem.label)),
               },
-          }), 100);
+            }), 100);
           }}
         >
           <View style={styles.actionIconWrap}>
-            <PenNibStraightIcon size={18} color={colors.bg} weight="fill" />
+            <PenNibStraightIcon size={18} color={colors.background} weight="fill" />
           </View>
           <Text style={styles.actionText}>Luyện viết tay</Text>
         </Pressable>
 
         <Pressable style={styles.actionItem}>
           <View style={styles.actionIconWrap}>
-            <CardsIcon size={18} color={colors.bg} weight="fill" />
+            <CardsIcon size={18} color={colors.background} weight="fill" />
           </View>
           <Text style={styles.actionText}>Bài tập ghi nhớ</Text>
         </Pressable>
@@ -181,64 +181,64 @@ const HangulLessonContent = ({ lessonId, hangul }: HangulLessonContentProps) => 
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      wrapper: {
-        gap: Gap.gap_15,
-        paddingBottom: 8,
-      },
-      headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_10,
-      },
-      backButton: {
-        width: 28,
-        height: 28,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_24,
-        color: colors.text,
-      },
-      chipsScroll: {
-        flexGrow: 0,
-      },
-      chipsRow: {
-        gap: Gap.gap_10,
-        paddingRight: Padding.padding_15,
-      },
-      list: {
-        gap: Gap.gap_14,
-      },
-      actionBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: '#9BF08A',
-        borderRadius: 24,
-        paddingVertical: 18,
-        paddingHorizontal: 20,
-        marginTop: 4,
-      },
-      actionItem: {
-        flex: 1,
-        alignItems: 'center',
-        gap: Gap.gap_8,
-      },
-      actionIconWrap: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: colors.text,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      actionText: {
-        textAlign: 'center',
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_12,
-        color: colors.text,
-      },
-    });
+  wrapper: {
+    gap: Gap.gap_15,
+    paddingBottom: 8,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_10,
+  },
+  backButton: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_24,
+    color: colors.textPrimary,
+  },
+  chipsScroll: {
+    flexGrow: 0,
+  },
+  chipsRow: {
+    gap: Gap.gap_10,
+    paddingRight: Padding.padding_15,
+  },
+  list: {
+    gap: Gap.gap_14,
+  },
+  actionBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#9BF08A',
+    borderRadius: 24,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    marginTop: 4,
+  },
+  actionItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: Gap.gap_8,
+  },
+  actionIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.textPrimary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionText: {
+    textAlign: 'center',
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: colors.textPrimary,
+  },
+});
 
 export default HangulLessonContent;

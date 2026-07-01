@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { TextInput, TextInputProps, StyleSheet, View, TouchableOpacity, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { FontFamily, FontSize, Padding, Border, Gap } from '../constants/GlobalStyles';
 import { EyeIcon, EyeSlashIcon } from 'phosphor-react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
-  withSpring, 
-  withSequence, 
-  interpolateColor 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withSequence,
+  interpolateColor
 } from 'react-native-reanimated';
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -20,8 +20,8 @@ interface CustomInputProps extends Omit<TextInputProps, 'style'> {
 }
 
 export const CustomInput = ({ style, inputStyle, onFocus, onBlur, leftIcon, isPassword, ...props }: CustomInputProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [isFocused, setIsFocused] = useState(false);
   const [isSecure, setIsSecure] = useState(isPassword);
@@ -59,12 +59,12 @@ export const CustomInput = ({ style, inputStyle, onFocus, onBlur, leftIcon, isPa
     const backgroundColor = interpolateColor(
       focusAnim.value,
       [0, 1],
-      [colors.stroke || '#F1F5F9', colors.bg || '#FFFFFF']
+      [colors.borderDefault || '#F1F5F9', colors.background || '#FFFFFF']
     );
     const borderColor = interpolateColor(
       focusAnim.value,
       [0, 1],
-      [colors.stroke || '#F1F5F9', colors.main || '#98F291']
+      [colors.borderDefault || '#F1F5F9', colors.primary || '#98F291']
     );
 
     return {
@@ -79,13 +79,13 @@ export const CustomInput = ({ style, inputStyle, onFocus, onBlur, leftIcon, isPa
       style={[
         styles.container,
         animatedContainerStyle,
-        style 
+        style
       ]}
     >
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
       <TextInput
         style={[styles.input, inputStyle]}
-        placeholderTextColor={colors.gray}
+        placeholderTextColor={colors.textSecondary}
         onFocus={handleFocus}
         onBlur={handleBlur}
         secureTextEntry={isPassword ? isSecure : props.secureTextEntry}
@@ -97,7 +97,7 @@ export const CustomInput = ({ style, inputStyle, onFocus, onBlur, leftIcon, isPa
           onPress={() => setIsSecure(!isSecure)}
           activeOpacity={0.7}
         >
-          {isSecure ? <EyeSlashIcon size={20} color={colors.gray} /> : <EyeIcon size={20} color={colors.gray} />}
+          {isSecure ? <EyeSlashIcon size={20} color={colors.textSecondary} /> : <EyeIcon size={20} color={colors.textSecondary} />}
         </TouchableOpacity>
       )}
     </Animated.View>
@@ -105,28 +105,28 @@ export const CustomInput = ({ style, inputStyle, onFocus, onBlur, leftIcon, isPa
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1.5, 
-        borderRadius: Border.br_20 || 20, // Tăng bo góc cho cảm giác mềm mại hơn
-        paddingHorizontal: Padding.padding_15 || 15,
-      },
+  container: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderRadius: Border.br_20 || 20, // Tăng bo góc cho cảm giác mềm mại hơn
+    paddingHorizontal: Padding.padding_15 || 15,
+  },
 
-      leftIcon: {
-        marginRight: Gap.gap_10 || 8,
-      },
+  leftIcon: {
+    marginRight: Gap.gap_10 || 8,
+  },
 
-      rightIcon: {
-        marginLeft: Gap.gap_10 || 8,
-      },
+  rightIcon: {
+    marginLeft: Gap.gap_10 || 8,
+  },
 
-      input: {
-        flex: 1,
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14 || 14,
-        color: colors.text || '#1E1E1E',
-        paddingVertical: Padding.padding_15 || 15, 
-      },
-    });
+  input: {
+    flex: 1,
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14 || 14,
+    color: colors.textPrimary || '#1E1E1E',
+    paddingVertical: Padding.padding_15 || 15,
+  },
+});

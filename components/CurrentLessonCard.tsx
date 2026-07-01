@@ -12,8 +12,8 @@ type CurrentLessonCardProps = {
 };
 
 const CurrentLessonCard = ({ lesson, onPress }: CurrentLessonCardProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.currentLessonWrapper}>
@@ -32,48 +32,48 @@ const CurrentLessonCard = ({ lesson, onPress }: CurrentLessonCardProps) => {
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      currentLessonWrapper: {
-        paddingHorizontal: Padding.padding_15 || 15,
-      },
-      currentLessonCard: {
-        backgroundColor: colors.bg || '#FFFFFF',
-        borderRadius: Border.br_30 || 30,
-        padding: Padding.padding_20 || 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.08,
-        shadowRadius: 15,
-        elevation: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(0, 0, 0, 0.03)',
-      },
-      currentLessonContent: {
-        flex: 1,
-      },
-      currentLessonTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16 || 16,
-        color: colors.text || '#0C5F35',
-        marginBottom: Gap.gap_10 || 10,
-      },
-      continueBtn: {
-        backgroundColor: colors.main || '#98F291',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: Border.br_30 || 30,
-        alignSelf: 'flex-start',
-      },
-      continueBtnText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_12 || 12,
-        color: colors.textGreen || '#0C5F35',
-      },
-      currentLessonMascot: {
-        width: 60,
-        height: 60,
-      },
-    });
+  currentLessonWrapper: {
+    paddingHorizontal: Padding.padding_15 || 15,
+  },
+  currentLessonCard: {
+    backgroundColor: colors.background || '#FFFFFF',
+    borderRadius: Border.br_30 || 30,
+    padding: Padding.padding_20 || 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 15,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.03)',
+  },
+  currentLessonContent: {
+    flex: 1,
+  },
+  currentLessonTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16 || 16,
+    color: colors.textPrimary || '#0C5F35',
+    marginBottom: Gap.gap_10 || 10,
+  },
+  continueBtn: {
+    backgroundColor: colors.primary || '#98F291',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: Border.br_30 || 30,
+    alignSelf: 'flex-start',
+  },
+  continueBtnText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_12 || 12,
+    color: colors.textGreenButton || '#0C5F35',
+  },
+  currentLessonMascot: {
+    width: 60,
+    height: 60,
+  },
+});
 
 export default CurrentLessonCard;

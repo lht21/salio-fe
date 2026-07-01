@@ -84,21 +84,21 @@ export default function HistoryCardSlider() {
       {/* Tiêu đề & Nút Xem tất cả */}
       <View style={styles.headerRow}>
         <Text style={styles.title}>{t('history.title', 'Lịch sử làm bài')}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.seeAllButton}
           onPress={() => router.push('/practice/full/history' as any)}
         >
           <Text style={styles.seeAllText}>{t('history.see_all', 'Xem tất cả')}</Text>
-          <CaretRightIcon size={14} color={colors.main2 || '#508D4E'} weight="bold" />
+          <CaretRightIcon size={14} color={colors.primary || '#508D4E'} weight="bold" />
         </TouchableOpacity>
       </View>
 
       {isLoading ? (
-        <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 10, alignSelf: 'flex-start' }} />
+        <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 10, alignSelf: 'flex-start' }} />
       ) : (
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           // --- THÊM HIỆU ỨNG SNAP ---
           decelerationRate="fast"
@@ -139,7 +139,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
   seeAllButton: {
     flexDirection: 'row',
@@ -149,7 +149,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   seeAllText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.main2 || '#508D4E',
+    color: colors.primary || '#508D4E',
   },
   scrollContent: {
     gap: Gap.gap_15 || 15,

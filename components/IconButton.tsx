@@ -13,33 +13,33 @@ interface IconButtonProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export default function IconButton({ 
-  Icon, 
-  iconSize = 24, 
-  iconWeight = 'bold', 
-  variant = 'Stroke', 
-  onPress, 
-  style 
+export default function IconButton({
+  Icon,
+  iconSize = 24,
+  iconWeight = 'bold',
+  variant = 'Stroke',
+  onPress,
+  style
 }: IconButtonProps) {
   const { colors } = useTheme();
 
   const getColors = () => {
     switch (variant) {
       case 'Yellow':
-        return { bg: colors.vang, icon: colors.color };
+        return { bg: colors.vang, icon: colors.textBrand };
       case 'Main':
-        return { bg: colors.main, icon: colors.color };
+        return { bg: colors.primary, icon: colors.textBrand };
       case 'Stroke':
       default:
-        return { bg: colors.stroke, icon: colors.gray };
+        return { bg: colors.borderDefault, icon: colors.textSecondary };
     }
   };
 
   const variantColors = getColors();
 
   return (
-    <TouchableOpacity 
-      style={[styles.button, { backgroundColor: variantColors.bg }, style]} 
+    <TouchableOpacity
+      style={[styles.button, { backgroundColor: variantColors.bg }, style]}
       onPress={onPress}
       activeOpacity={0.7}
     >

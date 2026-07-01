@@ -14,18 +14,18 @@ import LessonService from '@/api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function GrammarExerciseScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { lessonId } = useLocalSearchParams();
-  
+
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answerWB, setAnswerWB] = useState('');
   const [answerWM, setAnswerWM] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
-  const [incorrectCount, setIncorrectCount] = useState(0); 
+  const [incorrectCount, setIncorrectCount] = useState(0);
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -44,23 +44,23 @@ export default function GrammarExerciseScreen() {
     try {
       setLoading(true);
       const grammars = await GrammarService.getLessonGrammar(String(lessonId));
-      
+
       console.log("Danh sách Grammar IDs:", grammars.map(g => g._id));
 
-      const allExercisesPromises = grammars.map(g => 
+      const allExercisesPromises = grammars.map(g =>
         GrammarService.getGrammarExercises(g._id).catch(err => {
           console.error(`Lỗi tại Grammar ID ${g._id}:`, err?.config?.url || err);
-          return { data: { questions: [] } }; 
+          return { data: { questions: [] } };
         })
       );
-      
+
       const results = await Promise.all(allExercisesPromises);
       const combinedQuestions = results.flatMap(res => {
         const qs = res?.data?.questions || res?.questions || [];
         const gId = res?.data?.grammarId || res?.grammarId;
         return qs.map((q: any) => ({ ...q, grammarId: gId }));
       });
-      
+
       setQuestions(combinedQuestions.sort(() => Math.random() - 0.5));
     } catch (error) {
       console.error("Lỗi tổng quát khi tải bài tập:", error);
@@ -96,48 +96,48 @@ export default function GrammarExerciseScreen() {
   };
 
   const handleCheck = async () => {
-      if (isChecking || !currentQuestion) return;
-      setIsChecking(true);
-      Keyboard.dismiss(); // Tắt keyboard ngay lập tức
+    if (isChecking || !currentQuestion) return;
+    setIsChecking(true);
+    Keyboard.dismiss(); // Tắt keyboard ngay lập tức
 
-      try {
-        let answerData: any;
-        if (currentQuestion.type === 'whiteboard') {
-          answerData = answerWB.trim().toLowerCase();
-        } else {
-          answerData = answerWM.map(w => w.split('_')[0]);
-        }
-
-        // Đợi API và đảm bảo ít nhất 350ms để keyboard kịp hạ xuống mượt mà
-        const minWaitPromise = new Promise(resolve => setTimeout(resolve, 350));
-        const apiPromise = GrammarService.checkGrammarExercise(currentQuestion.grammarId, {
-          questionId: currentQuestion.id,
-          answer: answerData
-        });
-
-        const [res] = await Promise.all([apiPromise, minWaitPromise]);
-
-        const isCorrect = res?.data?.isCorrect;
-
-        if (isCorrect) {
-          setStatus('correct');
-        } else {
-          setStatus('incorrect');
-          if (!hasWrongAttempt) {
-            setIncorrectCount(prev => prev + 1);
-            setHasWrongAttempt(true);
-          }
-        }
-        showFeedback();
-      } catch (error) {
-        console.error("Lỗi kiểm tra bài tập:", error);
-        Alert.alert("Lỗi", "Không thể kiểm tra bài tập lúc này.");
-      } finally {
-        setIsChecking(false);
+    try {
+      let answerData: any;
+      if (currentQuestion.type === 'whiteboard') {
+        answerData = answerWB.trim().toLowerCase();
+      } else {
+        answerData = answerWM.map(w => w.split('_')[0]);
       }
+
+      // Đợi API và đảm bảo ít nhất 350ms để keyboard kịp hạ xuống mượt mà
+      const minWaitPromise = new Promise(resolve => setTimeout(resolve, 350));
+      const apiPromise = GrammarService.checkGrammarExercise(currentQuestion.grammarId, {
+        questionId: currentQuestion.id,
+        answer: answerData
+      });
+
+      const [res] = await Promise.all([apiPromise, minWaitPromise]);
+
+      const isCorrect = res?.data?.isCorrect;
+
+      if (isCorrect) {
+        setStatus('correct');
+      } else {
+        setStatus('incorrect');
+        if (!hasWrongAttempt) {
+          setIncorrectCount(prev => prev + 1);
+          setHasWrongAttempt(true);
+        }
+      }
+      showFeedback();
+    } catch (error) {
+      console.error("Lỗi kiểm tra bài tập:", error);
+      Alert.alert("Lỗi", "Không thể kiểm tra bài tập lúc này.");
+    } finally {
+      setIsChecking(false);
+    }
   };
 
-const handleContinue = () => {
+  const handleContinue = () => {
     hideFeedback(async () => {
       if (status === 'correct') {
         if (currentIndex < questions.length - 1) {
@@ -150,7 +150,7 @@ const handleContinue = () => {
           setIsSubmitting(true);
 
           console.log("Đã xong Exercise, đang chuyển hướng tới Quiz Intro...");
-          
+
           // 1. Tính điểm % Bài tập (Dựa trên số câu không bị sai lần nào)
           const correctCount = Math.max(0, questions.length - incorrectCount);
           const percentage = Math.round((correctCount / questions.length) * 100);
@@ -177,7 +177,7 @@ const handleContinue = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={{ marginTop: 10, fontFamily: FontFamily.lexendDecaMedium }}>Đang chuẩn bị bài tập...</Text>
       </SafeAreaView>
     );
@@ -194,20 +194,20 @@ const handleContinue = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <QuizHeader 
-        current={currentIndex + 1} 
-        total={questions.length} 
-        incorrectCount={incorrectCount} 
+      <QuizHeader
+        current={currentIndex + 1}
+        total={questions.length}
+        incorrectCount={incorrectCount}
         onClose={() => router.back()}
       />
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView 
+        <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={styles.scrollContent} 
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
@@ -217,17 +217,17 @@ const handleContinue = () => {
 
           <View style={{ width: '100%', alignItems: 'center' }}>
             {currentQuestion.type === 'whiteboard' ? (
-              <WhiteboardArea 
+              <WhiteboardArea
                 key={currentQuestion.clientId || currentIndex}
-                question={currentQuestion} 
-                answer={answerWB} 
-                setAnswer={setAnswerWB} 
+                question={currentQuestion}
+                answer={answerWB}
+                setAnswer={setAnswerWB}
               />
             ) : (
-              <WordMatchArea 
-                question={currentQuestion} 
-                selectedWords={answerWM} 
-                setSelectedWords={setAnswerWM} 
+              <WordMatchArea
+                question={currentQuestion}
+                selectedWords={answerWM}
+                setSelectedWords={setAnswerWM}
                 isError={status === 'incorrect'}
               />
             )}
@@ -235,8 +235,8 @@ const handleContinue = () => {
         </ScrollView>
 
         <View style={styles.footer}>
-          <Button 
-            title="KIỂM TRA" 
+          <Button
+            title="KIỂM TRA"
             variant={!isButtonDisabled() ? "Green" : "Gray"}
             disabled={isButtonDisabled()}
             onPress={handleCheck}
@@ -245,11 +245,11 @@ const handleContinue = () => {
       </KeyboardAvoidingView>
 
       <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 100 }}>
-        <FeedbackSheet 
-          visible={status !== 'idle'} 
-          type={status === 'incorrect' ? 'failure' : 'success'} 
+        <FeedbackSheet
+          visible={status !== 'idle'}
+          type={status === 'incorrect' ? 'failure' : 'success'}
           onNext={handleContinue}
-          translateY={feedbackTranslateY} 
+          translateY={feedbackTranslateY}
           opacity={feedbackOpacity}
           imageSource={
             status === 'incorrect'
@@ -263,34 +263,34 @@ const handleContinue = () => {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: { 
-        flex: 1, 
-        backgroundColor: colors.bg 
-      },
-      keyboardAvoid: { 
-        flex: 1 
-      },
-      scrollContent: { 
-        flexGrow: 1, 
-        alignItems: 'center', 
-        paddingHorizontal: Padding.padding_20, 
-        paddingTop: Padding.padding_20,
-        justifyContent: 'center', 
-        paddingBottom: 30
-      },
-      instructionTitle: { 
-        fontFamily: FontFamily.lexendDecaBold, 
-        fontSize: 18, 
-        color: colors.text, 
-        textAlign: 'center', 
-        marginTop: -100,
-      },
-      footer: { 
-        paddingHorizontal: Padding.padding_20, 
-        paddingBottom: Platform.OS === 'ios' ? 10 : 20, 
-        paddingTop: 10, 
-        backgroundColor: colors.bg,
-        borderTopWidth: 1,
-        borderTopColor: colors.stroke,
-      },
-    });
+  container: {
+    flex: 1,
+    backgroundColor: colors.background
+  },
+  keyboardAvoid: {
+    flex: 1
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingHorizontal: Padding.padding_20,
+    paddingTop: Padding.padding_20,
+    justifyContent: 'center',
+    paddingBottom: 30
+  },
+  instructionTitle: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 18,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginTop: -100,
+  },
+  footer: {
+    paddingHorizontal: Padding.padding_20,
+    paddingBottom: Platform.OS === 'ios' ? 10 : 20,
+    paddingTop: 10,
+    backgroundColor: colors.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderDefault,
+  },
+});

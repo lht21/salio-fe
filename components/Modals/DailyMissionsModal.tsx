@@ -18,8 +18,8 @@ interface DailyMissionsModalProps {
 }
 
 export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess, autoTriggerConfetti }: DailyMissionsModalProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [missions, setMissions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +83,7 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
       tomorrow.setHours(24, 0, 0, 0); // Đặt mốc thời gian là 00:00 ngày mai
 
       const diff = tomorrow.getTime() - now.getTime();
-      
+
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / 1000 / 60) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
@@ -131,7 +131,7 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
         <View style={styles.missionInfo}>
           <Text style={styles.missionTitle}>{item.title}</Text>
           <Text style={styles.missionDesc}>{item.condition}</Text>
-          
+
           <View style={styles.progressContainer}>
             <ProgressBar progress={progressPercent / 100} height={6} color={colors.orange || '#F59E0B'} style={{ flex: 1 }} />
             <Text style={styles.progressText}>{item.progress}/{item.target}</Text>
@@ -140,12 +140,12 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
 
         <View style={styles.missionAction}>
           {item.isClaimed ? (
-            <SealCheckIcon size={32} color={colors.main} weight="fill" />
+            <SealCheckIcon size={32} color={colors.primary} weight="fill" />
           ) : item.isCompleted ? (
-            <Button 
-              title="Nhận" 
-              variant="Green" 
-              onPress={() => handleClaim(item.id, item.reward)} 
+            <Button
+              title="Nhận"
+              variant="Green"
+              onPress={() => handleClaim(item.id, item.reward)}
               style={styles.claimBtn}
             />
           ) : (
@@ -181,10 +181,10 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
                 <IconButton Icon={XIcon} onPress={onClose} />
               </View>
             </View>
-            
+
             {/* Danh sách nhiệm vụ */}
             {isLoading ? (
-              <ActivityIndicator size="large" color={colors.main} style={{ marginVertical: 30 }} />
+              <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 30 }} />
             ) : (
               <FlatList
                 data={missions}
@@ -207,84 +207,84 @@ export default function DailyMissionsModal({ isVisible, onClose, onClaimSuccess,
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)', // Nền đen mờ 40% giống index.tsx
-        justifyContent: 'flex-end',
-      },
-      backgroundTouchable: { 
-        position: 'absolute', 
-        top: 0, 
-        bottom: 0, 
-        left: 0, 
-        right: 0 
-      },
-      sheetContent: {
-        backgroundColor: colors.bg,
-        borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30,
-        paddingHorizontal: Padding.padding_20,
-        paddingTop: Padding.padding_15,
-        paddingBottom: 40,
-        maxHeight: '80%', // Tránh làm modal quá dài vượt màn hình
-      },
-      swipeArea: {
-        backgroundColor: 'transparent',
-      },
-      dragHandle: {
-        width: 40,
-        height: 5,
-        borderRadius: 3,
-        backgroundColor: '#CBD5E1',
-        alignSelf: 'center',
-        marginBottom: Gap.gap_15,
-      },
-      header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: Gap.gap_15,
-        backgroundColor: colors.main,
-        padding: Padding.padding_15,
-        borderRadius: Border.br_20,
-      },
-      modalTitle: {
-        fontSize: 18,
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        color: colors.text,
-      },
-      timerText: {
-        fontSize: FontSize.fs_12,
-        fontFamily: FontFamily.lexendDecaMedium,
-        color: colors.bg || '#F59E0B',
-        marginTop: 2,
-      },
-      listContent: {
-        gap: Gap.gap_15,
-      },
-      missionItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: colors.bg2 || '#F1F5F9', // Xám siêu nhạt tạo cảm giác khối
-        padding: Padding.padding_15,
-        borderRadius: Border.br_20,
-        gap: Gap.gap_10,
-        borderBottomWidth: 5,
-        borderBottomColor: colors.color,
-        borderLeftWidth: 2,
-        borderLeftColor: colors.color, // Tạo hiệu ứng phân tách giữa các nhiệm vụ
-      },
-      missionInfo: { flex: 1 },
-      missionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.text, marginBottom: 4 },
-      missionDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray, marginBottom: 8 },
-      progressContainer: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_10 },
-      progressText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: colors.gray },
-      missionAction: { alignItems: 'center', justifyContent: 'center' },
-      claimBtn: {
-        height: 36,
-        paddingHorizontal: 16,
-        marginVertical: 0,
-      },
-      rewardBadge: { backgroundColor: '#E0F2FE', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Border.br_30 },
-      rewardText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#0284C7' }
-    });
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)', // Nền đen mờ 40% giống index.tsx
+    justifyContent: 'flex-end',
+  },
+  backgroundTouchable: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0
+  },
+  sheetContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: Border.br_30,
+    borderTopRightRadius: Border.br_30,
+    paddingHorizontal: Padding.padding_20,
+    paddingTop: Padding.padding_15,
+    paddingBottom: 40,
+    maxHeight: '80%', // Tránh làm modal quá dài vượt màn hình
+  },
+  swipeArea: {
+    backgroundColor: 'transparent',
+  },
+  dragHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: Gap.gap_15,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Gap.gap_15,
+    backgroundColor: colors.primary,
+    padding: Padding.padding_15,
+    borderRadius: Border.br_20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: colors.textPrimary,
+  },
+  timerText: {
+    fontSize: FontSize.fs_12,
+    fontFamily: FontFamily.lexendDecaMedium,
+    color: colors.background || '#F59E0B',
+    marginTop: 2,
+  },
+  listContent: {
+    gap: Gap.gap_15,
+  },
+  missionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.backgroundSubtle || '#F1F5F9', // Xám siêu nhạt tạo cảm giác khối
+    padding: Padding.padding_15,
+    borderRadius: Border.br_20,
+    gap: Gap.gap_10,
+    borderBottomWidth: 5,
+    borderBottomColor: colors.textBrand,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.textBrand, // Tạo hiệu ứng phân tách giữa các nhiệm vụ
+  },
+  missionInfo: { flex: 1 },
+  missionTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.textPrimary, marginBottom: 4 },
+  missionDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.textSecondary, marginBottom: 8 },
+  progressContainer: { flexDirection: 'row', alignItems: 'center', gap: Gap.gap_10 },
+  progressText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: colors.textSecondary },
+  missionAction: { alignItems: 'center', justifyContent: 'center' },
+  claimBtn: {
+    height: 36,
+    paddingHorizontal: 16,
+    marginVertical: 0,
+  },
+  rewardBadge: { backgroundColor: '#E0F2FE', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Border.br_30 },
+  rewardText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: '#0284C7' }
+});

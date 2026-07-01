@@ -46,37 +46,37 @@ const ChangeReminderModal = forwardRef<BottomSheetModal, ChangeReminderModalProp
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
       enablePanDownToClose={true}
-      backgroundStyle={{ 
-        backgroundColor: colors.bg,
+      backgroundStyle={{
+        backgroundColor: colors.background,
         borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30 
+        borderTopRightRadius: Border.br_30
       }}
       handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
       <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('settings.reminderTitle', 'Nhắc Nhở Học Tập')}</Text>
-            <IconButton Icon={XIcon} onPress={onClose} />
-            
-          </View>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('settings.reminderTitle', 'Nhắc Nhở Học Tập')}</Text>
+          <IconButton Icon={XIcon} onPress={onClose} />
 
-          <View style={styles.body}>
-            {REMINDERS.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.optionRow}
-                onPress={() => onSelectReminder(item.id)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.optionText}>{item.label}</Text>
-                {reminder === item.id ? (
-                  <CheckCircleIcon size={24} color={colors.main2} weight="fill" />
-                ) : (
-                  <CircleIcon size={24} color={colors.gray} weight="regular" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
+        </View>
+
+        <View style={styles.body}>
+          {REMINDERS.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.optionRow}
+              onPress={() => onSelectReminder(item.id)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.optionText}>{item.label}</Text>
+              {reminder === item.id ? (
+                <CheckCircleIcon size={24} color={colors.primary} weight="fill" />
+              ) : (
+                <CircleIcon size={24} color={colors.textSecondary} weight="regular" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -89,13 +89,13 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingBottom: 40,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
   body: { paddingBottom: 16 },
   optionRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.stroke,
+    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.borderDefault,
   },
-  optionText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
+  optionText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textPrimary },
 });
 
 export default ChangeReminderModal;

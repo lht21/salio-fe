@@ -19,8 +19,8 @@ export interface WordMatchAreaProps {
 }
 
 const WordMatchArea = ({ question, selectedWords, setSelectedWords, isError }: WordMatchAreaProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const allWords = question.words || [];
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -66,18 +66,18 @@ const WordMatchArea = ({ question, selectedWords, setSelectedWords, isError }: W
     <View style={styles.wordMatchContainer}>
       {/* Mascot Image */}
       <View style={styles.mascotContainer}>
-        <Animated.Image 
+        <Animated.Image
           source={require('../../assets/images/horani/wm_1.png')}
           style={[
-            styles.mascotImage, 
+            styles.mascotImage,
             { opacity: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }
           ]}
           resizeMode="contain"
         />
-        <Animated.Image 
+        <Animated.Image
           source={require('../../assets/images/horani/wm_2.png')}
           style={[
-            styles.mascotImage, 
+            styles.mascotImage,
             styles.mascotImageAbsolute,
             { opacity: fadeAnim }
           ]}
@@ -86,7 +86,7 @@ const WordMatchArea = ({ question, selectedWords, setSelectedWords, isError }: W
       </View>
 
       <Text style={styles.vietnamesePrompt}>{question.vietnamesePrompt}</Text>
-      
+
       {/* Khay hiển thị từ đã chọn (Vùng điền đáp án) */}
       <Animated.View style={[styles.dropZone, { transform: [{ translateX: shakeAnim }] }]}>
         {selectedWords.length === 0 && (
@@ -95,8 +95,8 @@ const WordMatchArea = ({ question, selectedWords, setSelectedWords, isError }: W
         {selectedWords.map((uniqueWord) => {
           const actualWord = uniqueWord.split('_')[0]; // Cắt bỏ index để hiển thị
           return (
-            <Pressable 
-              key={uniqueWord} 
+            <Pressable
+              key={uniqueWord}
               style={[styles.wordChipSelected, isError && styles.wordChipError]}
               onPress={() => handleDeselectWord(uniqueWord)}
             >
@@ -114,9 +114,9 @@ const WordMatchArea = ({ question, selectedWords, setSelectedWords, isError }: W
         {allWords.map((word, index) => {
           const uniqueWord = `${word}_${index}`;
           const isSelected = selectedWords.includes(uniqueWord);
-          
+
           return (
-            <Pressable 
+            <Pressable
               key={uniqueWord}
               style={[styles.wordChip, isSelected && styles.wordChipDisabled]}
               onPress={() => !isSelected && handleSelectWord(word, index)}
@@ -134,52 +134,52 @@ const WordMatchArea = ({ question, selectedWords, setSelectedWords, isError }: W
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      wordMatchContainer: { width: '100%', alignItems: 'center', marginTop: Gap.gap_10 },
-      mascotContainer: {
-        width: 140,
-        height: 140,
-        marginBottom: Gap.gap_20,
-        position: 'relative',
-      },
-      mascotImage: {
-        width: '100%',
-        height: '100%',
-      },
-      mascotImageAbsolute: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-      },
-      vietnamesePrompt: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.text, marginBottom: 40, textAlign: 'center' },
-      dropZone: { flexDirection: 'row', flexWrap: 'wrap', minHeight: 50, width: '100%', justifyContent: 'center', alignItems: 'center', gap: Gap.gap_10 },
-      emptyLine: { width: '80%', height: 2, backgroundColor: colors.stroke, marginTop: 25 },
-      divider: { width: '100%', height: 1, backgroundColor: colors.stroke, marginVertical: 40 },
-      wordBank: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Gap.gap_15 },
-      wordChip: {
-        paddingHorizontal: 20, paddingVertical: 12, backgroundColor: colors.bg,
-        borderRadius: Border.br_15, borderWidth: 1.5, borderColor: colors.stroke,
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
-      },
-      wordText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.text },
-      wordChipDisabled: {
-        backgroundColor: '#F1F5F9', borderColor: '#E2E8F0', elevation: 0, shadowOpacity: 0,
-      },
-      wordTextDisabled: { color: '#CBD5E1' },
-      wordChipSelected: {
-        paddingHorizontal: 20, paddingVertical: 12, backgroundColor: colors.bg,
-        borderRadius: Border.br_15, borderWidth: 2, borderColor: colors.main || '#1877F2',
-      },
-      wordTextSelected: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-      },
-      wordChipError: {
-        borderColor: colors.red || '#E53E3E',
-      },
-      wordTextError: {
-        color: colors.red || '#E53E3E',
-      },
-    });
+  wordMatchContainer: { width: '100%', alignItems: 'center', marginTop: Gap.gap_10 },
+  mascotContainer: {
+    width: 140,
+    height: 140,
+    marginBottom: Gap.gap_20,
+    position: 'relative',
+  },
+  mascotImage: {
+    width: '100%',
+    height: '100%',
+  },
+  mascotImageAbsolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  vietnamesePrompt: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: 40, textAlign: 'center' },
+  dropZone: { flexDirection: 'row', flexWrap: 'wrap', minHeight: 50, width: '100%', justifyContent: 'center', alignItems: 'center', gap: Gap.gap_10 },
+  emptyLine: { width: '80%', height: 2, backgroundColor: colors.borderDefault, marginTop: 25 },
+  divider: { width: '100%', height: 1, backgroundColor: colors.borderDefault, marginVertical: 40 },
+  wordBank: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Gap.gap_15 },
+  wordChip: {
+    paddingHorizontal: 20, paddingVertical: 12, backgroundColor: colors.background,
+    borderRadius: Border.br_15, borderWidth: 1.5, borderColor: colors.borderDefault,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
+  },
+  wordText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
+  wordChipDisabled: {
+    backgroundColor: '#F1F5F9', borderColor: '#E2E8F0', elevation: 0, shadowOpacity: 0,
+  },
+  wordTextDisabled: { color: '#CBD5E1' },
+  wordChipSelected: {
+    paddingHorizontal: 20, paddingVertical: 12, backgroundColor: colors.background,
+    borderRadius: Border.br_15, borderWidth: 2, borderColor: colors.primary || '#1877F2',
+  },
+  wordTextSelected: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+  },
+  wordChipError: {
+    borderColor: colors.red || '#E53E3E',
+  },
+  wordTextError: {
+    color: colors.red || '#E53E3E',
+  },
+});
 
 export default WordMatchArea;

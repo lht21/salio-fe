@@ -34,30 +34,30 @@ const FlashcardSetCard = ({
   const resolvedImage = imageSource || (isSpecial ? require('../assets/images/horani/horani_vocab.png') : null);
 
   const content = (
-      <View style={styles.cardContent}>
-        {resolvedImage ? (
-          <Image
-            source={resolvedImage}
-            style={styles.mascotImage}
-            contentFit="contain"
-          />
-        ) : null}
+    <View style={styles.cardContent}>
+      {resolvedImage ? (
+        <Image
+          source={resolvedImage}
+          style={styles.mascotImage}
+          contentFit="contain"
+        />
+      ) : null}
 
-        <View style={styles.textContainer}>
-          <Text style={[styles.title, isSpecial && { color: '#FFFFFF' }]}>{title}</Text>
-          
-          <View style={[styles.badgeContainer, isSpecial && { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-            <Text style={[styles.badgeText, isSpecial && { color: '#FFFFFF' }]}>{totalWords} {t('vocabulary.words', 'từ')}</Text>
-          </View>
+      <View style={styles.textContainer}>
+        <Text style={[styles.title, isSpecial && { color: '#FFFFFF' }]}>{title}</Text>
 
-          <View style={styles.historyRow}>
-            <ClockCounterClockwiseIcon size={14} color={isSpecial ? 'rgba(255, 255, 255, 0.8)' : colors.gray} weight="bold" />
-            <Text style={[styles.historyText, isSpecial && { color: 'rgba(255, 255, 255, 0.8)' }]}>{t('vocabulary.last_studied', 'Học gần nhất: 3 ngày trước')}</Text>
-          </View>
+        <View style={[styles.badgeContainer, isSpecial && { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+          <Text style={[styles.badgeText, isSpecial && { color: '#FFFFFF' }]}>{totalWords} {t('vocabulary.words', 'từ')}</Text>
         </View>
 
-        <ArrowFatLineRightIcon size={20} color={isSpecial ? '#FFFFFF' : colors.gray} weight="bold" />
+        <View style={styles.historyRow}>
+          <ClockCounterClockwiseIcon size={14} color={isSpecial ? 'rgba(255, 255, 255, 0.8)' : colors.textSecondary} weight="bold" />
+          <Text style={[styles.historyText, isSpecial && { color: 'rgba(255, 255, 255, 0.8)' }]}>{t('vocabulary.last_studied', 'Học gần nhất: 3 ngày trước')}</Text>
+        </View>
       </View>
+
+      <ArrowFatLineRightIcon size={20} color={isSpecial ? '#FFFFFF' : colors.textSecondary} weight="bold" />
+    </View>
   );
 
   return (
@@ -67,7 +67,7 @@ const FlashcardSetCard = ({
       activeOpacity={0.8}
     >
       {isSpecial ? (
-        <View style={[styles.container, { backgroundColor: colors.main }]}>
+        <View style={[styles.container, { backgroundColor: colors.primary }]}>
           {content}
         </View>
       ) : (
@@ -90,7 +90,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   normalCard: {
     borderWidth: 1,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
     borderBottomWidth: 4,
   },
   cardContent: {
@@ -109,11 +109,11 @@ const createStyles = (colors: any) => StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 16,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: 6,
   },
   badgeContainer: {
-    backgroundColor: colors.stroke,
+    backgroundColor: colors.borderDefault,
     borderRadius: 10,
     paddingVertical: 2,
     paddingHorizontal: 10,
@@ -123,7 +123,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   badgeText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 12,
-    color: colors.main2,
+    color: colors.primary,
   },
   historyRow: {
     flexDirection: 'row',
@@ -133,7 +133,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   historyText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 12,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
 });
 

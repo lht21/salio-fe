@@ -18,7 +18,7 @@ export const MonthBlock = ({ section }: { section: MonthSection }) => {
         const pastDaysWidth = 5 * (44 + 12); // 5 ngày trước * (chiều rộng 44 + khoảng cách 12)
         const todayCellWidth = 56; // Ngày hiện tại có kích thước 56
         const paddingLeft = 15;
-        
+
         // Tính toán offset để đưa ngày hiện tại vào giữa màn hình
         const centerOffset = pastDaysWidth + paddingLeft + (todayCellWidth / 2) - (screenWidth / 2);
 
@@ -34,10 +34,10 @@ export const MonthBlock = ({ section }: { section: MonthSection }) => {
             </View>
 
             <View style={styles.scrollWrapper}>
-                <ScrollView 
+                <ScrollView
                     ref={scrollViewRef}
-                    horizontal 
-                    showsHorizontalScrollIndicator={false} 
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.daysWrap}
                 >
                     {section.days.map((day) => (
@@ -45,14 +45,14 @@ export const MonthBlock = ({ section }: { section: MonthSection }) => {
                     ))}
                 </ScrollView>
                 <LinearGradient
-                    colors={[colors.bg, colors.bg + '00']}
+                    colors={[colors.background, colors.background + '00']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.fadeLeft}
                     pointerEvents="none"
                 />
                 <LinearGradient
-                    colors={[colors.bg + '00', colors.bg]}
+                    colors={[colors.background + '00', colors.background]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.fadeRight}
@@ -64,11 +64,11 @@ export const MonthBlock = ({ section }: { section: MonthSection }) => {
 };
 
 const createStyles = (colors: any) => StyleSheet.create({
-    monthBlock: { backgroundColor: colors.bg, borderWidth: 2, borderColor: colors.monthBlockBorder || 'rgba(80, 141, 78, 0.22)', borderRadius: 26, overflow: 'hidden' },
-    monthHeader: { backgroundColor: colors.main2, paddingHorizontal: Padding.padding_20, paddingVertical: 14, borderTopLeftRadius: 26, borderTopRightRadius: 26 },
-    monthTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.bg },
+    monthBlock: { backgroundColor: colors.background, borderWidth: 2, borderColor: colors.main900 || 'rgba(80, 141, 78, 0.22)', borderRadius: 26, overflow: 'hidden' },
+    monthHeader: { backgroundColor: colors.primary, paddingHorizontal: Padding.padding_20, paddingVertical: 14, borderTopLeftRadius: 26, borderTopRightRadius: 26 },
+    monthTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.background },
     scrollWrapper: { position: 'relative' },
-    daysWrap: { flexDirection: 'row', gap: 12, paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: Padding.padding_20, backgroundColor: colors.bg },
+    daysWrap: { flexDirection: 'row', gap: 12, paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_15, paddingBottom: Padding.padding_20, backgroundColor: colors.background },
     fadeLeft: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 32, zIndex: 1 },
     fadeRight: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 32, zIndex: 1 },
 });

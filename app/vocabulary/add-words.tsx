@@ -51,7 +51,7 @@ export default function AddWordsToSetScreen() {
     const handleAddWords = async () => {
         const selectedArray = getSelectedArray();
         const targetSetId = Array.isArray(setId) ? setId[0] : setId;
-        
+
         if (targetSetId && selectedArray.length > 0) {
             Keyboard.dismiss();
             setIsAdding(true);
@@ -83,8 +83,8 @@ export default function AddWordsToSetScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-            <KeyboardAvoidingView 
-                style={styles.container} 
+            <KeyboardAvoidingView
+                style={styles.container}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
                 <ScreenHeader title={t('vocabulary.add_words', 'Thêm từ vựng')} />
@@ -103,19 +103,19 @@ export default function AddWordsToSetScreen() {
                             <Text style={styles.selectedWordsTitle}>
                                 {t('vocabulary.selected_words', 'Từ vựng đã chọn')} ({getSelectedArray().length})
                             </Text>
-                            <ScrollView 
-                                horizontal 
+                            <ScrollView
+                                horizontal
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.selectedWordsList}
                             >
                                 {getSelectedArray().map((item) => (
                                     <View key={item.id} style={styles.chip}>
                                         <Text style={styles.chipText}>{item.word}</Text>
-                                        <TouchableOpacity 
+                                        <TouchableOpacity
                                             onPress={() => toggleWordSelection(item)}
                                             style={styles.chipRemoveBtn}
                                         >
-                                            <XIcon size={12} color={colors.text} weight="bold" />
+                                            <XIcon size={12} color={colors.textPrimary} weight="bold" />
                                         </TouchableOpacity>
                                     </View>
                                 ))}
@@ -129,7 +129,7 @@ export default function AddWordsToSetScreen() {
 
                     <View style={styles.listWrapper}>
                         {isSearching || isLoadingFavs ? (
-                            <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 20 }} />
+                            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
                         ) : displayList.length > 0 ? (
                             <FlatList
                                 data={displayList}
@@ -162,7 +162,7 @@ export default function AddWordsToSetScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: colors.bg,
+        backgroundColor: colors.background,
     },
     container: {
         flex: 1,
@@ -180,7 +180,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     sectionTitle: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_14,
-        color: colors.gray,
+        color: colors.textSecondary,
         marginTop: 4,
         marginBottom: 2,
     },
@@ -190,7 +190,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     selectedWordsTitle: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_12,
-        color: colors.gray,
+        color: colors.textSecondary,
         marginBottom: 8,
     },
     selectedWordsList: {
@@ -205,12 +205,12 @@ const createStyles = (colors: any) => StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: colors.main2 || '#4CAF50',
+        borderColor: colors.primary || '#4CAF50',
     },
     chipText: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_12,
-        color: colors.text,
+        color: colors.textPrimary,
         marginRight: 6,
     },
     chipRemoveBtn: {
@@ -229,7 +229,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     emptyText: {
         fontFamily: FontFamily.lexendDecaRegular,
         fontSize: FontSize.fs_14,
-        color: colors.gray,
+        color: colors.textSecondary,
         textAlign: 'center',
         paddingVertical: Padding.padding_20,
     },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { 
+import {
   PlusIcon,
   BookmarkSimpleIcon,
   CardsIcon,
@@ -20,15 +20,15 @@ interface MenuItemProps {
 }
 
 export default function ActionMenuItem({ label, variant = 'default', icon, onPress }: MenuItemProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-  
+
   // Xác định style và icon dựa trên variant
   let textStyle = styles.defaultText;
   let iconBgStyle = styles.defaultIconBg;
-  let iconColor = colors.text;
-  let LeftIconComponent = icon; 
+  let iconColor = colors.textPrimary;
+  let LeftIconComponent = icon;
   let showRightPlus = false;
 
   switch (variant) {
@@ -43,8 +43,8 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
 
     case 'flashcardSet':
       // Lưu vào một bộ Flashcard đã có
-      iconColor = colors.color; // Màu xanh đậm
-      iconBgStyle = { backgroundColor: colors.greenLight }; // Xanh nhạt
+      iconColor = colors.textBrand; // Màu xanh đậm
+      iconBgStyle = { backgroundColor: colors.primaryLight }; // Xanh nhạt
       textStyle = { ...styles.defaultText, color: iconColor };
       LeftIconComponent = <CardsIcon size={24} color={iconColor} weight="fill" />;
       showRightPlus = true;
@@ -52,12 +52,12 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
 
     case 'createSet':
       // Tạo bộ Flashcard mới
-      iconColor = colors.gray;
-      iconBgStyle = { backgroundColor: '#F1F5F9' }; 
+      iconColor = colors.textSecondary;
+      iconBgStyle = { backgroundColor: '#F1F5F9' };
       textStyle = { ...styles.defaultText, color: iconColor };
       LeftIconComponent = <StackPlusIcon size={24} color={iconColor} weight="bold" />;
       break;
-      
+
     case 'danger':
       // Nút Xóa / Cảnh báo
       iconColor = colors.red || '#EF4444';
@@ -71,8 +71,8 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
   }
 
   return (
-    <TouchableOpacity 
-      style={styles.container} 
+    <TouchableOpacity
+      style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -94,36 +94,36 @@ export default function ActionMenuItem({ label, variant = 'default', icon, onPre
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: colors.bg,
-        borderRadius: Border.br_15,
-        padding: Padding.padding_15,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-      },
-      leftContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-      iconWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: Gap.gap_15,
-      },
-      
-      // --- DEFAULT STYLES ---
-      defaultIconBg: {
-        backgroundColor: '#F1F5F9', // Xám mờ cho icon mặc định
-      },
-      defaultText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-      },
-    });
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.background,
+    borderRadius: Border.br_15,
+    padding: Padding.padding_15,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  leftContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Gap.gap_15,
+  },
+
+  // --- DEFAULT STYLES ---
+  defaultIconBg: {
+    backgroundColor: '#F1F5F9', // Xám mờ cho icon mặc định
+  },
+  defaultText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+  },
+});

@@ -12,11 +12,11 @@ interface MiniTestCardProps {
 }
 
 export default function MiniTestCard({ isLocked, rewardBadge, rewardClouds, onPress }: MiniTestCardProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.card, isLocked && styles.cardLocked]}
       activeOpacity={0.8}
       disabled={isLocked}
@@ -33,9 +33,9 @@ export default function MiniTestCard({ isLocked, rewardBadge, rewardClouds, onPr
         </View>
         <View style={[styles.iconCircle, isLocked && styles.iconCircleLocked]}>
           {isLocked ? (
-             <LockKeyIcon size={24} color={colors.gray} weight="fill" />
+            <LockKeyIcon size={24} color={colors.textSecondary} weight="fill" />
           ) : (
-             <ReceiptIcon size={24} color={colors.main500 || '#70B924'} weight="fill" />
+            <ReceiptIcon size={24} color={colors.main500 || '#70B924'} weight="fill" />
           )}
         </View>
       </View>
@@ -47,10 +47,10 @@ export default function MiniTestCard({ isLocked, rewardBadge, rewardClouds, onPr
               +1 Huy hiệu{rewardBadge.name ? ` ${rewardBadge.name}` : ''}
             </Text>
             {rewardBadge.imageUrl && (
-              <Image 
-                source={{ uri: rewardBadge.imageUrl }} 
-                style={styles.badgeImage} 
-                resizeMode="contain" 
+              <Image
+                source={{ uri: rewardBadge.imageUrl }}
+                style={styles.badgeImage}
+                resizeMode="contain"
               />
             )}
           </View>
@@ -67,91 +67,91 @@ export default function MiniTestCard({ isLocked, rewardBadge, rewardClouds, onPr
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      card: {
-        backgroundColor: colors.brown50 || '#FDF8F0',
-        borderWidth: 2,
-        borderColor: colors.brown500 || '#8A6A4B',
-        borderBottomWidth: 7,
-        borderRadius: 30,
-        padding: Padding.padding_20,
-        marginTop: Gap.gap_15 || 16,
-      },
-      cardLocked: {
-        backgroundColor: '#F3F4F6',
-        borderColor: '#D1D5DB',
-      },
-      topRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      },
-      textContainer: {
-        flex: 1,
-        paddingRight: 16,
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 18,
-        color: colors.main500 || '#6BAF25',
-        marginBottom: 4,
-      },
-      textLocked: {
-        color: colors.gray,
-      },
-      subtitle: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 14,
-        color: colors.gray || '#6F7B91',
-      },
-      iconCircle: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: colors.main100 || '#DDF5A5',
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      iconCircleLocked: {
-        backgroundColor: '#E5E7EB',
-      },
-      bottomRow: {
-        flexDirection: 'row',
-        marginTop: 16,
-        gap: 8,
-      },
-      badge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        height: 32,
-      },
-      badgeOrange: {
-        backgroundColor: colors.orange50 || '#FFF0E0',
-      },
-      badgeBlue: {
-        backgroundColor: colors.blue50 || '#E0F4FF',
-      },
-      badgeLocked: {
-        backgroundColor: '#E5E7EB',
-      },
-      badgeTextOrange: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: 13,
-        color: colors.orange500 || '#E87A24',
-      },
-      badgeTextBlue: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: 13,
-        color: colors.blue600 || '#1DA1F2',
-      },
-      badgeTextLocked: {
-        color: colors.gray,
-      },
-      badgeImage: {
-        width: 20,
-        height: 20,
-        marginLeft: 6,
-      },
-    });
+  card: {
+    backgroundColor: colors.brown50 || '#FDF8F0',
+    borderWidth: 2,
+    borderColor: colors.brown500 || '#8A6A4B',
+    borderBottomWidth: 7,
+    borderRadius: 30,
+    padding: Padding.padding_20,
+    marginTop: Gap.gap_15 || 16,
+  },
+  cardLocked: {
+    backgroundColor: '#F3F4F6',
+    borderColor: '#D1D5DB',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flex: 1,
+    paddingRight: 16,
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 18,
+    color: colors.main500 || '#6BAF25',
+    marginBottom: 4,
+  },
+  textLocked: {
+    color: colors.textSecondary,
+  },
+  subtitle: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 14,
+    color: colors.textSecondary || '#6F7B91',
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.main100 || '#DDF5A5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconCircleLocked: {
+    backgroundColor: '#E5E7EB',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    marginTop: 16,
+    gap: 8,
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    height: 32,
+  },
+  badgeOrange: {
+    backgroundColor: colors.orange50 || '#FFF0E0',
+  },
+  badgeBlue: {
+    backgroundColor: colors.blue50 || '#E0F4FF',
+  },
+  badgeLocked: {
+    backgroundColor: '#E5E7EB',
+  },
+  badgeTextOrange: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 13,
+    color: colors.orange500 || '#E87A24',
+  },
+  badgeTextBlue: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 13,
+    color: colors.blue600 || '#1DA1F2',
+  },
+  badgeTextLocked: {
+    color: colors.textSecondary,
+  },
+  badgeImage: {
+    width: 20,
+    height: 20,
+    marginLeft: 6,
+  },
+});

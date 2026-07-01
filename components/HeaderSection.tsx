@@ -42,8 +42,8 @@ const getStreakImage = (streak: number) => {
 };
 
 const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onCloudPress, streak = 0, clouds = 0, level }: HeaderSectionProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   // --- ANIMATION XOAY NGÔI SAO ---
   const animProgress = useSharedValue(0);
@@ -77,7 +77,7 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
     // 0 -> 0.2 (1s): xoay nhanh 360 độ
     const fastRotationPart = interpolate(
       animProgress.value,
-      [0, 0.2], 
+      [0, 0.2],
       [0, 360],
       Extrapolation.CLAMP
     );
@@ -99,14 +99,14 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
 
         {/* Cột trái: Linh vật & Ngôi sao */}
         <View style={styles.mascotWrapper}>
-            <Animated.View style={[styles.starIconContainer, rotationStyle]}>
-              <StarIcon width={120} height={120} color={colors.main} />
-            </Animated.View>
-            <Image
-              source={require('../assets/images/horani/state_1.png')}
-              style={styles.topMascot}
-              contentFit="contain"
-            />
+          <Animated.View style={[styles.starIconContainer, rotationStyle]}>
+            <StarIcon width={120} height={120} color={colors.primary} />
+          </Animated.View>
+          <Image
+            source={require('../assets/images/horani/state_1.png')}
+            style={styles.topMascot}
+            contentFit="contain"
+          />
         </View>
 
         {/* Cột phải: Thông tin & Nút bấm */}
@@ -114,36 +114,36 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
           {/* Các Badge Trạng thái */}
           <View style={styles.badgesRow}>
             <StatusBadge text={level || "Sơ cấp 1"} />
-            <StatusBadge 
-              icon={<Image source={getStreakImage(streak)} style={{ width: 20, height: 20 }} contentFit="contain" />} 
-              text={streak.toString()} 
-     
+            <StatusBadge
+              icon={<Image source={getStreakImage(streak)} style={{ width: 20, height: 20 }} contentFit="contain" />}
+              text={streak.toString()}
+
               onPress={onFirePress}
             />
-            <StatusBadge 
-              icon={<Image source={require('../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} contentFit="contain" />} 
-              text={clouds.toString()} 
-        
+            <StatusBadge
+              icon={<Image source={require('../assets/images/streak/cloud1.png')} style={{ width: 20, height: 20 }} contentFit="contain" />}
+              text={clouds.toString()}
+
               onPress={onCloudPress}
             />
           </View>
 
           {/* Nút bấm Thay đổi lộ trình học */}
           <View style={styles.actionButtonsRow}>
-            <TouchableOpacity 
-              style={styles.changeRouteBtn} 
+            <TouchableOpacity
+              style={styles.changeRouteBtn}
               activeOpacity={0.7}
               onPress={() => router.push('/tracking/' as any)}
             >
-              <RocketLaunchIcon size={16} color={colors.color} weight="bold" />
+              <RocketLaunchIcon size={16} color={colors.textBrand} weight="bold" />
               <Text style={styles.changeRouteText}>Xem sự tiến bộ?</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.changeRouteBtn} 
+            <TouchableOpacity
+              style={styles.changeRouteBtn}
               activeOpacity={0.7}
               onPress={() => routeSheetRef.current?.present()}
             >
-              <MapTrifoldIcon size={16} color={colors.color} weight="bold" />
+              <MapTrifoldIcon size={16} color={colors.textBrand} weight="bold" />
               <Text style={styles.changeRouteText}>Thay đổi lộ trình học?</Text>
             </TouchableOpacity>
           </View>
@@ -157,17 +157,17 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
         ref={routeSheetRef}
         snapPoints={['50%']}
         backdropComponent={renderBackdrop}
-        backgroundStyle={{ backgroundColor: colors.bg }}
-        handleIndicatorStyle={{ backgroundColor: colors.stroke }}
+        backgroundStyle={{ backgroundColor: colors.background }}
+        handleIndicatorStyle={{ backgroundColor: colors.borderDefault }}
       >
         <BottomSheetView style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Thay đổi lộ trình học</Text>
           <Text style={styles.sheetDesc}>
             Chọn một trong các bài kiểm tra dưới đây để đánh giá trình độ hiện tại và nhận lộ trình phù hợp.
           </Text>
-          
+
           <View style={styles.actionCardsWrapper}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.actionCard}
               activeOpacity={0.8}
               onPress={() => {
@@ -184,7 +184,7 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.actionCard}
               activeOpacity={0.8}
               onPress={() => {
@@ -208,143 +208,143 @@ const HeaderSection = ({ currentLesson, onCurrentLessonPress, onFirePress, onClo
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      headerGradient: {
-        backgroundColor: colors.headerSection,
-        paddingTop: 60,
-        borderBottomLeftRadius: Border.br_30 || 30,
-        borderBottomRightRadius: Border.br_30 || 30,
-        paddingBottom: 20,
-        zIndex: 10,
-      },
-      headerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Padding.padding_15,
-      },
-      greetingText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_16,
-        color: colors.color, // Chữ màu xanh đậm hoặc có thể đổi sang Color.text
-        marginBottom: Gap.gap_10,
-        opacity: 0.9,
-      },
-      mascotWrapper: {
-        position: 'relative',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 120,
-        height: 120,
-        marginLeft: -40, // Giữ tỉ lệ đẩy cụm linh vật sang trái
-      },
-      starIconContainer: {
-        position: 'absolute',
-      },
-      topMascot: {
-        position: 'absolute',
-        width: 100,
-        height: 100,
-      },
-      infoActionsWrapper: {
-        flex: 1,
-        alignItems: 'center',
-        gap: Gap.gap_15,
-        marginLeft: Gap.gap_10,
-      },
-      badgesRow: {
-        flexDirection: 'row',
-        gap: 12,
-        // Có thể thêm bóng đổ nhẹ để Badge nổi khối 3D tách biệt khỏi nền
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-      },
-      actionButtonsRow: {
-        flexDirection: 'row',
-        gap: 12,
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-      },
-      changeRouteBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        gap: 4,
-      },
-      changeRouteText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_12,
-        color: colors.text,
-      },
-      sheetContent: {
-        paddingHorizontal: 24,
-        paddingTop: 10,
-        paddingBottom: 40,
-        alignItems: 'center',
-      },
-      sheetTitle: {
-        fontSize: 18,
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        color: colors.text,
-        marginTop: 10,
-        marginBottom: 12,
-        textAlign: 'center',
-      },
-      sheetDesc: {
-        fontSize: 14,
-        fontFamily: FontFamily.lexendDecaRegular,
-        color: colors.gray,
-        textAlign: 'center',
-        lineHeight: 22,
-      },
-      actionCardsWrapper: {
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        width: '100%',
-        marginTop: Gap.gap_20,
-        gap: Gap.gap_15,
-      },
-      actionCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: colors.coral,
-        borderRadius: Border.br_20 || 20,
-        padding: Padding.padding_15 || 15,
-      },
-      actionCardIconWrap: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#FFF4E5',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 15,
-      },
-      actionCardImage: {
-        width: 40,
-        height: 40,
-      },
-      actionCardContent: {
-        flex: 1,
-      },
-      actionCardTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_14,
-        color: colors.bg,
-        marginBottom: 4,
-      },
-      actionCardDesc: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: colors.bg,
-        lineHeight: 18,
-      },
-    });
+  headerGradient: {
+    backgroundColor: colors.headerSection,
+    paddingTop: 60,
+    borderBottomLeftRadius: Border.br_30 || 30,
+    borderBottomRightRadius: Border.br_30 || 30,
+    paddingBottom: 20,
+    zIndex: 10,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Padding.padding_15,
+  },
+  greetingText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textBrand, // Chữ màu xanh đậm hoặc có thể đổi sang Color.text
+    marginBottom: Gap.gap_10,
+    opacity: 0.9,
+  },
+  mascotWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 120,
+    height: 120,
+    marginLeft: -40, // Giữ tỉ lệ đẩy cụm linh vật sang trái
+  },
+  starIconContainer: {
+    position: 'absolute',
+  },
+  topMascot: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+  },
+  infoActionsWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    gap: Gap.gap_15,
+    marginLeft: Gap.gap_10,
+  },
+  badgesRow: {
+    flexDirection: 'row',
+    gap: 12,
+    // Có thể thêm bóng đổ nhẹ để Badge nổi khối 3D tách biệt khỏi nền
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  changeRouteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+  },
+  changeRouteText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: colors.textPrimary,
+  },
+  sheetContent: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: colors.textPrimary,
+    marginTop: 10,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  sheetDesc: {
+    fontSize: 14,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  actionCardsWrapper: {
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: Gap.gap_20,
+    gap: Gap.gap_15,
+  },
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.coral,
+    borderRadius: Border.br_20 || 20,
+    padding: Padding.padding_15 || 15,
+  },
+  actionCardIconWrap: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FFF4E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  actionCardImage: {
+    width: 40,
+    height: 40,
+  },
+  actionCardContent: {
+    flex: 1,
+  },
+  actionCardTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_14,
+    color: colors.background,
+    marginBottom: 4,
+  },
+  actionCardDesc: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: colors.background,
+    lineHeight: 18,
+  },
+});
 
 export default HeaderSection;

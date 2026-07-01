@@ -30,14 +30,14 @@ export default function PracticeHistoryScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  
+
   const typeString = (type as string) || 'full';
   const isExamType = ['reading', 'listening', 'full'].includes(typeString);
 
   // Data state
   const [historyData, setHistoryData] = useState<AttemptResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Single item action state
   const [isActionMenuVisible, setIsActionMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<AttemptResult | null>(null);
@@ -55,10 +55,10 @@ export default function PracticeHistoryScreen() {
   // Tính toán Điểm cao nhất
   const highestScoreData = useMemo(() => {
     if (!isExamType || historyData.length === 0) return null;
-    
+
     let maxScore = -1;
     let maxId = '';
-    
+
     historyData.forEach(item => {
       const score = item.totalScore || 0;
       if (score > maxScore) {
@@ -66,7 +66,7 @@ export default function PracticeHistoryScreen() {
         maxId = item._id;
       }
     });
-    
+
     return maxId ? { id: maxId, score: maxScore } : null;
   }, [historyData, isExamType]);
 
@@ -76,7 +76,7 @@ export default function PracticeHistoryScreen() {
         setIsLoading(true);
         // Filter by type on client-side for now.
         // Ideally, backend should support filtering by practice type.
-        const res = await PracticeService.getHistory({ page: 1, limit: 50 }); 
+        const res = await PracticeService.getHistory({ page: 1, limit: 50 });
         if (res.success) {
           const allHistory = res.data.history || [];
           const filteredHistory = allHistory.filter(item => {
@@ -104,9 +104,9 @@ export default function PracticeHistoryScreen() {
 
   const handleItemPress = (item: AttemptResult) => {
     if (isSelectionMode) {
-      setSelectedIds(prev => 
-        prev.includes(item._id) 
-          ? prev.filter(id => id !== item._id) 
+      setSelectedIds(prev =>
+        prev.includes(item._id)
+          ? prev.filter(id => id !== item._id)
           : [...prev, item._id]
       );
     } else {
@@ -193,7 +193,7 @@ export default function PracticeHistoryScreen() {
 
   const handleBatchDelete = () => {
     if (isDeletingBatch || selectedIds.length === 0) return;
-    
+
     Alert.alert(
       t('history.confirm_delete', "Xác nhận xóa"),
       t('history.confirm_delete_desc', { count: selectedIds.length, defaultValue: `Bạn có chắc muốn xóa ${selectedIds.length} bài làm đã chọn?` }),
@@ -254,14 +254,14 @@ export default function PracticeHistoryScreen() {
 
   const renderList = () => {
     if (isLoading) {
-      return <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 20 }} />;
+      return <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />;
     }
     if (historyData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <ExamIcon size={100} color={colors.main2} weight="fill" style={{ marginBottom: 12 }} opacity={0.6} />
+          <ExamIcon size={100} color={colors.primary} weight="fill" style={{ marginBottom: 12 }} opacity={0.6} />
           <Text style={styles.emptyText}>{t('history.empty', 'Chưa có lịch sử làm bài')}</Text>
-          <Button 
+          <Button
             title={t('history.practice_now', "Luyện tập ngay")}
             variant="Green"
             onPress={() => router.push(`/practice/${typeString}` as any)}
@@ -273,15 +273,15 @@ export default function PracticeHistoryScreen() {
     return (
       <>
         {isExamType && highestScoreData && (
-          <TouchableOpacity 
-            style={styles.highestScoreWrapper} 
+          <TouchableOpacity
+            style={styles.highestScoreWrapper}
             onPress={scrollToHighestScore}
             activeOpacity={0.8}
           >
-            <LinearGradient 
-              colors={[colors.upgradeBannerGradientStart || '#1E293B', colors.upgradeBannerGradientEnd || '#0F172A']} 
-              start={{x:0, y:0}} 
-              end={{x:1, y:1}} 
+            <LinearGradient
+              colors={[colors.neutral900 || '#1E293B', colors.neutral950 || '#0F172A']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={styles.highestScoreGradient}
             >
               <View style={styles.highestScoreWatermark}>
@@ -309,14 +309,14 @@ export default function PracticeHistoryScreen() {
 
               return (
                 <View key={item._id} onLayout={(e) => { itemLayouts.current[item._id] = e.nativeEvent.layout.y; }}>
-                  <HistoryCard 
+                  <HistoryCard
                     title={item.exam?.title || t('history.unknown_exam', 'Đề thi không xác định')}
                     score={displayScore}
                     time={formatTimeAgo(item.completedAt || item.startedAt || (item as any).createdAt)}
                     type={typeString}
                     variant="list"
                     isLast={index === historyData.length - 1}
-                    onPress={() => handleItemPress(item)} 
+                    onPress={() => handleItemPress(item)}
                     onLongPress={() => handleLongPress(item)}
                     isSelectionMode={isSelectionMode}
                     isSelected={isSelected}
@@ -325,36 +325,36 @@ export default function PracticeHistoryScreen() {
               );
             } else {
               const titleStr = item.writing?.title || (item as any).speaking?.title || t('history.unknown', 'Không xác định');
-            
-            let scoreStr = '';
-            if (item.status === 'draft') {
-              scoreStr = t('history.in_progress', 'Đang làm');
-            } else if (item.status === 'evaluated') {
-              scoreStr = `${item.evaluation?.totalScore || 0}/100`;
-            } else {
-              scoreStr = t('history.grading', 'Đang chấm');
-            }
-            
-            const topicData: TopicItemData = {
-              id: item._id,
-              title: titleStr,
-              description: item.writing?.description || '',
-              image: require('../../../assets/images/imageExam/ie_1.png'),
-              score: scoreStr,
-              timeAgo: formatTimeAgo(item.completedAt || item.startedAt || (item as any).createdAt),
-            };
 
-            return (
-              <TopicItem 
-                key={item._id} 
-                topic={topicData as any} 
-                onPress={() => handleItemPress(item)} 
-                onLongPress={() => handleLongPress(item)}
-                isSelectionMode={isSelectionMode}
-                isSelected={isSelected}
-              />
-            );
-          }
+              let scoreStr = '';
+              if (item.status === 'draft') {
+                scoreStr = t('history.in_progress', 'Đang làm');
+              } else if (item.status === 'evaluated') {
+                scoreStr = `${item.evaluation?.totalScore || 0}/100`;
+              } else {
+                scoreStr = t('history.grading', 'Đang chấm');
+              }
+
+              const topicData: TopicItemData = {
+                id: item._id,
+                title: titleStr,
+                description: item.writing?.description || '',
+                image: require('../../../assets/images/imageExam/ie_1.png'),
+                score: scoreStr,
+                timeAgo: formatTimeAgo(item.completedAt || item.startedAt || (item as any).createdAt),
+              };
+
+              return (
+                <TopicItem
+                  key={item._id}
+                  topic={topicData as any}
+                  onPress={() => handleItemPress(item)}
+                  onLongPress={() => handleLongPress(item)}
+                  isSelectionMode={isSelectionMode}
+                  isSelected={isSelected}
+                />
+              );
+            }
           })}
         </View>
       </>
@@ -363,7 +363,7 @@ export default function PracticeHistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader 
+      <ScreenHeader
         title={getHeaderTitle()}
         rightContent={
           historyData.length > 0 && (
@@ -373,8 +373,8 @@ export default function PracticeHistoryScreen() {
           )
         }
       />
-      
-      <ScrollView 
+
+      <ScrollView
         ref={scrollViewRef}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -390,23 +390,23 @@ export default function PracticeHistoryScreen() {
           style={styles.bottomBar}
         >
           <Text style={styles.bottomBarText}>{t('history.selected_count', { count: selectedIds.length, defaultValue: `Đã chọn ${selectedIds.length} bài` })}</Text>
-          <TouchableOpacity 
-            style={styles.deleteButton} 
-            onPress={handleBatchDelete} 
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleBatchDelete}
             disabled={isDeletingBatch}
           >
-            {isDeletingBatch 
-              ? <ActivityIndicator color={colors.whiteText || '#FFF'} /> 
+            {isDeletingBatch
+              ? <ActivityIndicator color={colors.textInverse || '#FFF'} />
               : <>
-                  <TrashIcon size={18} color={colors.whiteText || '#FFF'} weight="bold" />
-                  <Text style={styles.deleteButtonText}>{t('common.delete', 'Xóa')}</Text>
-                </>
+                <TrashIcon size={18} color={colors.textInverse || '#FFF'} weight="bold" />
+                <Text style={styles.deleteButtonText}>{t('common.delete', 'Xóa')}</Text>
+              </>
             }
           </TouchableOpacity>
         </MotiView>
       )}
 
-      <HistoryActionModal 
+      <HistoryActionModal
         isVisible={isActionMenuVisible}
         onClose={() => setIsActionMenuVisible(false)}
         onRetry={handleRetry}
@@ -421,17 +421,17 @@ export default function PracticeHistoryScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
     padding: Padding.padding_20,
     paddingBottom: 40,
-    backgroundColor: colors.bg2,
+    backgroundColor: colors.backgroundSubtle,
   },
   listContainer: {
     gap: Gap.gap_12,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_30,
   },
   emptyContainer: {
@@ -442,7 +442,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   emptyText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: colors.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   headerButton: {
@@ -452,7 +452,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   headerButtonText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: colors.main2,
+    color: colors.primary,
   },
   bottomBar: {
     position: 'absolute',
@@ -462,7 +462,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.text,
+    backgroundColor: colors.textPrimary,
     borderRadius: 16,
     padding: 12,
     paddingHorizontal: 20,
@@ -472,9 +472,9 @@ const createStyles = (colors: any) => StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  bottomBarText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.bg },
+  bottomBarText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.background },
   deleteButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.red || '#DC2626', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, gap: 8 },
-  deleteButtonText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.whiteText || '#FFF' },
+  deleteButtonText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.textInverse || '#FFF' },
   highestScoreWrapper: {
     marginBottom: Gap.gap_20 || 20,
     shadowColor: colors.shadow || '#000',
@@ -503,14 +503,14 @@ const createStyles = (colors: any) => StyleSheet.create({
   highestScoreTextWrapper: {
     flex: 1,
   },
-  highestScoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 54, color: colors.main || '#98F291', marginBottom: 4 },
+  highestScoreValue: { fontFamily: FontFamily.lexendDecaBold, fontSize: 54, color: colors.primary || '#98F291', marginBottom: 4 },
   highestScoreUnit: { fontSize: FontSize.fs_14 || 14, fontFamily: FontFamily.lexendDecaMedium },
-  highestScoreLabel: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14 || 14, color: colors.upgradeBannerDesc || '#CBD5E1' },
+  highestScoreLabel: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_14 || 14, color: colors.textInverse || '#CBD5E1' },
   highestScoreIconWrapper: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.upgradeBannerIconBg || 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.neutral800 || 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },

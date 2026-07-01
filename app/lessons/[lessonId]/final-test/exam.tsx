@@ -30,8 +30,8 @@ const SPEED_OPTIONS = [
 ];
 
 export default function FinalTestExamScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -41,7 +41,7 @@ export default function FinalTestExamScreen() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [flatQuestions, setFlatQuestions] = useState<any[]>([]);
   const [quizData, setQuizData] = useState<any>(null);
-  
+
   // UI states
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [isStarted, setIsStarted] = useState(false);
@@ -51,12 +51,12 @@ export default function FinalTestExamScreen() {
   const [selectedAnswer, setSelectedAnswer] = useState<any>(undefined);
   const [typedAnswer, setTypedAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Timer states
   const [timeLeft, setTimeLeft] = useState(900);
   const startTimeRef = useRef<number>(Date.now());
   const timerIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   // Audio states
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -64,7 +64,7 @@ export default function FinalTestExamScreen() {
   const [durationMs, setDurationMs] = useState(0);
   const [playbackProgress, setPlaybackProgress] = useState(0);
   const [selectedSpeed, setSelectedSpeed] = useState(1);
-  
+
   // Animation refs
   const questionOpacity = useRef(new Animated.Value(1)).current;
   const questionTranslateY = useRef(new Animated.Value(0)).current;
@@ -79,12 +79,12 @@ export default function FinalTestExamScreen() {
   // Load audio
   useEffect(() => {
     if (!isStarted) return;
-    
+
     const currentQuestion = flatQuestions[currentIndex];
     if (currentQuestion?.sectionType === 'listening' && currentQuestion?.audioUrl) {
       loadAudio(currentQuestion.audioUrl);
     }
-    
+
     return () => {
       if (sound) {
         sound.unloadAsync();
@@ -98,7 +98,7 @@ export default function FinalTestExamScreen() {
       setPositionMs(status.positionMillis);
       setDurationMs(status.durationMillis);
       setPlaybackProgress(status.positionMillis / status.durationMillis);
-      
+
       if (status.didJustFinish) {
         setIsPlaying(false);
         setPositionMs(0);
@@ -112,7 +112,7 @@ export default function FinalTestExamScreen() {
       if (sound) {
         await sound.unloadAsync();
       }
-      
+
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
@@ -120,7 +120,7 @@ export default function FinalTestExamScreen() {
         interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         shouldDuckAndroid: true,
       });
-      
+
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri },
         { shouldPlay: false, rate: selectedSpeed },
@@ -157,7 +157,7 @@ export default function FinalTestExamScreen() {
         const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
         const remaining = Math.max(0, 900 - elapsed);
         setTimeLeft(remaining);
-        
+
         if (remaining === 0) {
           if (timerIntervalRef.current) {
             clearInterval(timerIntervalRef.current);
@@ -166,7 +166,7 @@ export default function FinalTestExamScreen() {
         }
       }, 1000);
     }
-    
+
     return () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
@@ -176,24 +176,26 @@ export default function FinalTestExamScreen() {
 
   const handleAutoSubmit = async () => {
     Alert.alert(
-      "Hết giờ", 
+      "Hết giờ",
       "Bài thi đã hết thời gian, hệ thống sẽ tự động nộp bài.",
-      [{ text: "OK", onPress: async () => {
-        try {
-          setIsLoading(true);
-          await LessonService.submitFinalTest(lessonId as string, sessionId!, { 
-            timeSpent: 900 
-          });
-          router.replace({
-            pathname: `/lessons/${lessonId}/final-test/result` as any,
-            params: { sessionId }
-          });
-        } catch (error) {
-          Alert.alert("Lỗi", "Không thể nộp bài. Vui lòng thử lại.");
-        } finally {
-          setIsLoading(false);
+      [{
+        text: "OK", onPress: async () => {
+          try {
+            setIsLoading(true);
+            await LessonService.submitFinalTest(lessonId as string, sessionId!, {
+              timeSpent: 900
+            });
+            router.replace({
+              pathname: `/lessons/${lessonId}/final-test/result` as any,
+              params: { sessionId }
+            });
+          } catch (error) {
+            Alert.alert("Lỗi", "Không thể nộp bài. Vui lòng thử lại.");
+          } finally {
+            setIsLoading(false);
+          }
         }
-      }}]
+      }]
     );
   };
 
@@ -242,7 +244,7 @@ export default function FinalTestExamScreen() {
         const sessionId = startRes.data.sessionId;
         const sessionRes = await LessonService.getFinalTestSession(lessonId, sessionId);
         const quiz = sessionRes.data.quiz as FinalTest;
-        
+
         console.log('Quiz sections:', {
           listening: quiz.sections?.listening?.length,
           reading: quiz.sections?.reading?.length,
@@ -310,7 +312,7 @@ export default function FinalTestExamScreen() {
         setIsLoading(false);
       }
     };
-    
+
     initTest();
   }, [lessonId]);
 
@@ -318,22 +320,22 @@ export default function FinalTestExamScreen() {
 
   const handleNext = async () => {
     if (isSubmitting) return;
-    
+
     const answer = currentQuestion.type === 'short_answer' ? typedAnswer : selectedAnswer;
-    
+
     if (currentQuestion.type !== 'short_answer' && !answer) {
       Alert.alert("Thông báo", "Vui lòng chọn đáp án trước khi tiếp tục.");
       return;
     }
-    
+
     if (currentQuestion.type === 'short_answer' && (!answer || answer.trim() === '')) {
       Alert.alert("Thông báo", "Vui lòng nhập câu trả lời trước khi tiếp tục.");
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
-      
+
       await LessonService.saveFinalTestAnswer(lessonId as string, sessionId!, {
         sectionType: currentQuestion.sectionType,
         itemId: currentQuestion.itemId,
@@ -362,7 +364,7 @@ export default function FinalTestExamScreen() {
 
   const renderQuestion = () => {
     if (!currentQuestion) return null;
-    
+
     const common = {
       progressLabel: `${currentIndex + 1}/${flatQuestions.length}`,
       progress: (currentIndex + 1) / flatQuestions.length,
@@ -370,8 +372,8 @@ export default function FinalTestExamScreen() {
       expanded,
       onToggleExpand: () => setExpanded(!expanded),
       footer: (
-        <Button 
-          title={currentIndex === flatQuestions.length - 1 ? "Nộp bài" : "Tiếp theo"} 
+        <Button
+          title={currentIndex === flatQuestions.length - 1 ? "Nộp bài" : "Tiếp theo"}
           onPress={handleNext}
           disabled={isSubmitting}
         />
@@ -380,78 +382,78 @@ export default function FinalTestExamScreen() {
 
     if (currentQuestion.type === 'single_choice') {
       return (
-        <MultipleChoiceQuestionCard 
-          {...common} 
-          options={currentQuestion.metadata?.options?.map((o: any) => ({ 
-            id: o, 
-            label: o, 
-            state: selectedAnswer === o ? 'selected' : 'default' 
-          }))} 
+        <MultipleChoiceQuestionCard
+          {...common}
+          options={currentQuestion.metadata?.options?.map((o: any) => ({
+            id: o,
+            label: o,
+            state: selectedAnswer === o ? 'selected' : 'default'
+          }))}
           onSelectOption={setSelectedAnswer}
         />
       );
     }
-    
+
     if (currentQuestion.type === 'true_false') {
       return (
-        <OXQuestionAccordion 
-          {...common} 
-          selectedValue={selectedAnswer} 
-          trueLabel="Đúng" 
-          falseLabel="Sai" 
+        <OXQuestionAccordion
+          {...common}
+          selectedValue={selectedAnswer}
+          trueLabel="Đúng"
+          falseLabel="Sai"
           onSelect={setSelectedAnswer}
         />
       );
     }
-    
+
     if (currentQuestion.type === 'short_answer') {
       return (
-        <ShortAnswerQuestionCard 
-          {...common} 
-          value={typedAnswer} 
-          onChangeText={setTypedAnswer} 
+        <ShortAnswerQuestionCard
+          {...common}
+          value={typedAnswer}
+          onChangeText={setTypedAnswer}
           onSubmit={handleNext}
         />
       );
     }
-    
+
     if (currentQuestion.type === 'multiple_choice') {
       return (
-        <MultipleChoiceQuestionCard 
-          {...common} 
-          options={currentQuestion.metadata?.options?.map((o: any) => ({ 
-            id: o, 
-            label: o, 
-            state: selectedAnswer === o ? 'selected' : 'default' 
-          }))} 
+        <MultipleChoiceQuestionCard
+          {...common}
+          options={currentQuestion.metadata?.options?.map((o: any) => ({
+            id: o,
+            label: o,
+            state: selectedAnswer === o ? 'selected' : 'default'
+          }))}
           onSelectOption={setSelectedAnswer}
         />
       );
     }
-    
+
     return null;
   };
 
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: '#DFF8C6' }]} edges={['top']}>
-      <TimerHeader 
-        timeLeft={timeLeft} 
-        isStarted={isStarted} 
+      <TimerHeader
+        timeLeft={timeLeft}
+        isStarted={isStarted}
         onClose={() => {
           if (timerIntervalRef.current) {
             clearInterval(timerIntervalRef.current);
           }
           router.back();
-        }} 
-        onSubmit={() => setShowSubmitConfirm(true)} 
+        }}
+        onSubmit={() => setShowSubmitConfirm(true)}
       />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -459,12 +461,12 @@ export default function FinalTestExamScreen() {
 
           {isStarted && currentQuestion && (
             <>
-              <ScrollView 
+              <ScrollView
                 style={styles.content}
                 contentContainerStyle={styles.contentInner}
                 showsVerticalScrollIndicator={false}
               >
-                <PracticeHeader 
+                <PracticeHeader
                   lessonLabel={currentQuestion.sectionTitle}
                   instruction={currentQuestion.instruction}
                 />
@@ -480,9 +482,9 @@ export default function FinalTestExamScreen() {
                       selectedSpeed={selectedSpeed}
                       onPlayPress={handlePlayPause}
                       onSpeedSelect={handleSpeedChange}
-                      onRewind={() => {}}
-                      onForward={() => {}}
-                      onSeek={() => {}}
+                      onRewind={() => { }}
+                      onForward={() => { }}
+                      onSeek={() => { }}
                     />
                   </View>
                 ) : (
@@ -509,78 +511,78 @@ export default function FinalTestExamScreen() {
           )}
 
           <IntroPopup
-          visible={showIntroModal}
-          title={quizData?.title || "Mini Test"}
-          description={quizData?.description || `Làm bài thi để hoàn thành khóa học.\n\n• Thời gian: 15 phút\n• Số câu hỏi: ${flatQuestions.length}\n• Bạn cần đạt 80% để vượt qua`}
-          buttonLabel="Bắt đầu ngay"
-          onClose={() => { 
-            setShowIntroModal(false); 
-            setIsStarted(true);
-            startTimeRef.current = Date.now();
-          }}
-        />
+            visible={showIntroModal}
+            title={quizData?.title || "Mini Test"}
+            description={quizData?.description || `Làm bài thi để hoàn thành khóa học.\n\n• Thời gian: 15 phút\n• Số câu hỏi: ${flatQuestions.length}\n• Bạn cần đạt 80% để vượt qua`}
+            buttonLabel="Bắt đầu ngay"
+            onClose={() => {
+              setShowIntroModal(false);
+              setIsStarted(true);
+              startTimeRef.current = Date.now();
+            }}
+          />
 
-        <ConfirmModal
-          isVisible={showSubmitConfirm}
-          title="Kết thúc bài thi?"
-          confirmText="Nộp bài"
-          cancelText="Tiếp tục"
-          onConfirm={async () => {
-            try {
-              setIsLoading(true);
-              if (timerIntervalRef.current) {
-                clearInterval(timerIntervalRef.current);
+          <ConfirmModal
+            isVisible={showSubmitConfirm}
+            title="Kết thúc bài thi?"
+            confirmText="Nộp bài"
+            cancelText="Tiếp tục"
+            onConfirm={async () => {
+              try {
+                setIsLoading(true);
+                if (timerIntervalRef.current) {
+                  clearInterval(timerIntervalRef.current);
+                }
+                await LessonService.submitFinalTest(lessonId as string, sessionId!, {
+                  timeSpent: Math.floor((Date.now() - startTimeRef.current) / 1000)
+                });
+                router.replace({
+                  pathname: `/lessons/${lessonId}/final-test/result` as any,
+                  params: { sessionId }
+                });
+              } catch (error) {
+                console.error('Submit error:', error);
+                Alert.alert("Lỗi", "Không thể nộp bài. Vui lòng thử lại.");
+                setIsLoading(false);
               }
-              await LessonService.submitFinalTest(lessonId as string, sessionId!, { 
-                timeSpent: Math.floor((Date.now() - startTimeRef.current) / 1000)
-              });
-              router.replace({
-                pathname: `/lessons/${lessonId}/final-test/result` as any,
-                params: { sessionId }
-              });
-            } catch (error) {
-              console.error('Submit error:', error);
-              Alert.alert("Lỗi", "Không thể nộp bài. Vui lòng thử lại.");
-              setIsLoading(false);
-            }
-          }}
-          onCancel={() => setShowSubmitConfirm(false)}
-        />
+            }}
+            onCancel={() => setShowSubmitConfirm(false)}
+          />
         </LinearGradient>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const getStyles = (colors: any) => StyleSheet.create({ 
-      safeArea: { flex: 1 },
-      container: {
-        flex: 1,
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
-        padding: 14,
-        overflow: 'hidden',
-      },
-      center: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-      },
-      content: {
-        flex: 1,
-      },
-      contentInner: {
-        paddingBottom: 24,
-      },
-      audioControlsWrapper: {
-        marginTop: 20,
-        marginBottom: 20,
-      },
-      footerSlot: {
-        marginTop: 'auto',
-      },
-      questionContainer: {
-        minHeight: 180,
-        justifyContent: 'flex-end',
-      }
-    });
+const getStyles = (colors: any) => StyleSheet.create({
+  safeArea: { flex: 1 },
+  container: {
+    flex: 1,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 14,
+    overflow: 'hidden',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  content: {
+    flex: 1,
+  },
+  contentInner: {
+    paddingBottom: 24,
+  },
+  audioControlsWrapper: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  footerSlot: {
+    marginTop: 'auto',
+  },
+  questionContainer: {
+    minHeight: 180,
+    justifyContent: 'flex-end',
+  }
+});

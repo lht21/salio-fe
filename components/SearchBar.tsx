@@ -19,11 +19,11 @@ const SearchBar = ({ placeholder, value, onChangeText, containerStyle }: SearchB
 
   return (
     <View style={[styles.searchContainer, containerStyle]}>
-      <MagnifyingGlassIcon size={20} color={colors.color} weight='regular' />
+      <MagnifyingGlassIcon size={20} color={colors.textBrand} weight='regular' />
       <TextInput
         style={styles.searchInput}
         placeholder={placeholder || t('vocabulary.search_fav_placeholder', "Tìm trong Từ vựng yêu thích")}
-        placeholderTextColor={colors.gray}
+        placeholderTextColor={colors.textSecondary}
         value={value}
         onChangeText={onChangeText}
       />
@@ -39,7 +39,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingHorizontal: 15,
     height: 48,
     marginBottom: 20,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
@@ -51,7 +51,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginLeft: 10,
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.text,
+    color: colors.textPrimary,
   },
 });
 

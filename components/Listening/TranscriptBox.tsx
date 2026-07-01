@@ -25,13 +25,13 @@ export default function TranscriptBox({
   onToggleTranscript,
   onPressShadowing,
 }: TranscriptBoxProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
       {showTranscriptButton ? (
-        <Button 
+        <Button
           variant="Outline"
           title={transcriptButtonLabel}
           onPress={onToggleTranscript}
@@ -39,7 +39,7 @@ export default function TranscriptBox({
       ) : null}
 
       {showShadowingButton ? (
-        <Button 
+        <Button
           variant="Outline"
           title={shadowingButtonLabel}
           onPress={onPressShadowing}
@@ -56,19 +56,19 @@ export default function TranscriptBox({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        gap: 12,
-        marginTop: 12,
-      },
-      transcriptWrap: {
-        borderRadius: 16,
-        backgroundColor: '#F7FAFF',
-        padding: 14,
-      },
-      transcriptText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        lineHeight: 22,
-        color: colors.text,
-      },
-    });
+  container: {
+    gap: 12,
+    marginTop: 12,
+  },
+  transcriptWrap: {
+    borderRadius: 16,
+    backgroundColor: '#F7FAFF',
+    padding: 14,
+  },
+  transcriptText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    lineHeight: 22,
+    color: colors.textPrimary,
+  },
+});

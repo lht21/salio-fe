@@ -11,9 +11,9 @@ import ZenmodeBanner from '../ExamComponent/ZenmodeBanner';
 import { useTheme } from "@/contexts/ThemeContext";
 
 const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, onToggleZenmode, onPreparationPress }: any) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
-    const [showZenmodeSheet, setShowZenmodeSheet] = useState(false);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+  const [showZenmodeSheet, setShowZenmodeSheet] = useState(false);
 
   const examTitle = data?.title || 'Bài thi trắc nghiệm';
 
@@ -45,7 +45,7 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
     <View style={styles.viewContainer}>
       <View style={styles.header}>
         <IconButton Icon={XIcon} onPress={onExit} />
-        
+
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -59,7 +59,7 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
           <View style={styles.titleContainer}>
             {data?.isPremium && (
               <View style={styles.premiumBadge}>
-                <CrownIcon size={14} color={colors.bg} weight="fill" />
+                <CrownIcon size={14} color={colors.background} weight="fill" />
                 <Text style={styles.premiumText}>Premium</Text>
               </View>
             )}
@@ -85,7 +85,7 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
           </View>
 
           <View style={styles.timeContainer}>
-            <ClockIcon size={20} color={colors.main50 || '#F8FAFC'} weight="regular" />
+            <ClockIcon size={20} color={colors.primaryLight || '#F8FAFC'} weight="regular" />
             <Text style={styles.timeText}>Thời gian: {durationDisplay}</Text>
           </View>
         </Animated.View>
@@ -93,7 +93,7 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
         <Animated.View entering={FadeInDown.duration(600).delay(600)} style={styles.actionCardsContainer}>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onPreparationPress || (() => {})}
+            onPress={onPreparationPress || (() => { })}
             style={[
               styles.actionCard,
               {
@@ -135,9 +135,9 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
               <Text style={styles.bottomSheetTitle}>Chuẩn bị thi</Text>
               <IconButton Icon={XIcon} onPress={() => setShowZenmodeSheet(false)} />
             </View>
-            
+
             <ZenmodeBanner isEnabled={isZenmodeEnabled} onToggle={onToggleZenmode} />
-            
+
             <Button
               title={isStarting ? "Đang xử lý..." : "Bắt đầu thi"}
               variant="Green"
@@ -156,128 +156,128 @@ const ExamIntroView = ({ data, onStart, onExit, isStarting, isZenmodeEnabled, on
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      viewContainer: { flex: 1 },
-      header: {
-        alignItems: 'flex-end',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-        marginBottom: Gap.gap_20,
-      },
-      scrollContent: {
-        flexGrow: 1,
-        paddingHorizontal: Padding.padding_20,
-        alignItems: 'center',
-        paddingBottom: 20,
-      },
-      mainWrapper: {
-        width: '100%',
-        backgroundColor: colors.main900 || '#2D5A27',
-        borderRadius: 30,
-        padding: Padding.padding_20,
-        alignItems: 'center',
-        marginBottom: Gap.gap_20,
-      },
-      mascotImage: { width: 180, height: 180, marginBottom: Gap.gap_15 },
-      titleContainer: {
-        alignItems: 'center',
-        marginBottom: Gap.gap_20,
-        gap: Gap.gap_8,
-      },
-      premiumBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F59E0B',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: Border.br_10,
-        gap: 4,
-      },
-      premiumText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_12,
-        color: colors.bg,
-      },
-      examTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_24,
-        color: colors.main50 || '#F8FAFC',
-        textAlign: 'center',
-      },
-      infoCard: {
-        width: '100%',
-        backgroundColor: colors.main50 || '#F8FAFC',
-        borderRadius: 20,
-        padding: Padding.padding_20,
-        marginBottom: Gap.gap_20,
-      },
-      infoCardTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_15 },
-      skillsList: { gap: Gap.gap_10 },
-      skillItem: { flexDirection: 'row', alignItems: 'center' },
-      bulletPoint: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.text, marginRight: Gap.gap_10 },
-      skillText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text },
-      timeContainer: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        gap: Gap.gap_8,
-        paddingBottom: Padding.padding_10,
-      },
-      timeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.main50 || '#F8FAFC' },
-      actionCardsContainer: {
-        width: '100%',
-        paddingTop: Gap.gap_10,
-        paddingBottom: Gap.gap_20,
-      },
-      actionCard: {
-        width: '100%',
-        padding: 24,
-        borderRadius: 25,
-        borderWidth: 1,
-        borderLeftWidth: 4,
-        borderBottomWidth: 7,
-        marginBottom: 15,
-        overflow: 'hidden',
-        justifyContent: 'center',
-        minHeight: 90,
-      },
-      actionCardText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        zIndex: 1,
-      },
-      actionCardIcon: {
-        position: 'absolute',
-        right: 15,
-        bottom: -5,
-        opacity: 0.3,
-      },
-      bottomSheetOverlay: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.4)',
-      },
-      bottomSheetBackdrop: {
-        ...StyleSheet.absoluteFillObject,
-      },
-      bottomSheetContainer: {
-        backgroundColor: colors.bg || '#FFFFFF',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        padding: Padding.padding_20,
-        paddingBottom: Padding.padding_30,
-      },
-      bottomSheetHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: Gap.gap_20,
-      },
-      bottomSheetTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-      },
-    });
+  viewContainer: { flex: 1 },
+  header: {
+    alignItems: 'flex-end',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+    marginBottom: Gap.gap_20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: Padding.padding_20,
+    alignItems: 'center',
+    paddingBottom: 20,
+  },
+  mainWrapper: {
+    width: '100%',
+    backgroundColor: colors.main900 || '#2D5A27',
+    borderRadius: 30,
+    padding: Padding.padding_20,
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+  },
+  mascotImage: { width: 180, height: 180, marginBottom: Gap.gap_15 },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+    gap: Gap.gap_8,
+  },
+  premiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: Border.br_10,
+    gap: 4,
+  },
+  premiumText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_12,
+    color: colors.background,
+  },
+  examTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_24,
+    color: colors.primaryLight || '#F8FAFC',
+    textAlign: 'center',
+  },
+  infoCard: {
+    width: '100%',
+    backgroundColor: colors.primaryLight || '#F8FAFC',
+    borderRadius: 20,
+    padding: Padding.padding_20,
+    marginBottom: Gap.gap_20,
+  },
+  infoCardTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: Gap.gap_15 },
+  skillsList: { gap: Gap.gap_10 },
+  skillItem: { flexDirection: 'row', alignItems: 'center' },
+  bulletPoint: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.textPrimary, marginRight: Gap.gap_10 },
+  skillText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textPrimary },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Gap.gap_8,
+    paddingBottom: Padding.padding_10,
+  },
+  timeText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.primaryLight || '#F8FAFC' },
+  actionCardsContainer: {
+    width: '100%',
+    paddingTop: Gap.gap_10,
+    paddingBottom: Gap.gap_20,
+  },
+  actionCard: {
+    width: '100%',
+    padding: 24,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    borderBottomWidth: 7,
+    marginBottom: 15,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    minHeight: 90,
+  },
+  actionCardText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    zIndex: 1,
+  },
+  actionCardIcon: {
+    position: 'absolute',
+    right: 15,
+    bottom: -5,
+    opacity: 0.3,
+  },
+  bottomSheetOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  bottomSheetBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  bottomSheetContainer: {
+    backgroundColor: colors.background || '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: Padding.padding_20,
+    paddingBottom: Padding.padding_30,
+  },
+  bottomSheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+  },
+  bottomSheetTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+  },
+});
 
 export default ExamIntroView;

@@ -37,39 +37,39 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       transparent={true}
       visible={isVisible}
       animationType="fade"
-      onRequestClose={onCancel} 
+      onRequestClose={onCancel}
     >
       <View style={styles.overlay}>
         <Pressable style={styles.backgroundTouchable} onPress={onCancel} />
-        
+
         <View style={styles.alertBox}>
-          
+
           {/* TIÊU ĐỀ */}
           <Text style={styles.titleText}>{title}</Text>
-          
+
           {/* MÔ TẢ (Nếu có) */}
           {subtitle && (
             <Text style={styles.subtitleText}>{subtitle}</Text>
           )}
-          
+
           {/* HÀNG NÚT BẤM */}
           <View style={styles.buttonRow}>
             {/* Nút Cancel: Thường là Outline hoặc màu nhạt. Trong ảnh thiết kế, nút Hủy (Tiếp tục học) có dạng viền xanh */}
             {!hideCancelButton && (
-              <Button 
+              <Button
                 variant="Outline" // Bạn có thể tạo thêm variant "OutlineGreen" trong Button.tsx nếu cần viền xanh chính xác
-                title={cancelText || t('common.cancel', 'Hủy')} 
-                onPress={onCancel} 
-                style={styles.actionButton} 
+                title={cancelText || t('common.cancel', 'Hủy')}
+                onPress={onCancel}
+                style={styles.actionButton}
               />
             )}
 
             {/* Nút Confirm: Tuỳ thuộc vào tính chất hành động */}
-            <Button 
+            <Button
               variant={isDestructive ? "Red" : "Green"} // Đăng xuất/Thoát bài -> Đỏ; Nộp bài -> Xanh lá
-              title={confirmText || t('common.confirm', 'Đồng ý')} 
-              onPress={onConfirm} 
-              style={styles.actionButton} 
+              title={confirmText || t('common.confirm', 'Đồng ý')}
+              onPress={onConfirm}
+              style={styles.actionButton}
             />
           </View>
 
@@ -82,7 +82,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 const createStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: colors.modalOverlayBg || 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.backgroundOverlay || 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Padding.padding_15, // Tạo lề cho an toàn
@@ -97,7 +97,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   alertBox: {
     width: '100%',
     maxWidth: 340, // Giới hạn chiều rộng tối đa để UI không bị quá bành trướng trên màn hình to
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_20, // Bo góc mềm mại
     padding: Padding.padding_20, // Padding đều các góc theo chuẩn UI hiện đại
     shadowColor: colors.shadow || '#000000',
@@ -109,14 +109,14 @@ const createStyles = (colors: any) => StyleSheet.create({
   titleText: {
     fontFamily: FontFamily.lexendDecaSemiBold, // Tiêu đề thường in đậm hơn
     fontSize: FontSize.fs_16, // To hơn để làm điểm nhấn
-    color: colors.text,
+    color: colors.textPrimary,
     textAlign: 'left', // Theo thiết kế của bạn, nội dung căn trái
     marginBottom: Gap.gap_10,
   },
   subtitleText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: colors.text, 
+    color: colors.textPrimary,
     textAlign: 'left',
     marginBottom: Gap.gap_20,
     lineHeight: 22,
@@ -126,11 +126,11 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    gap: 12, 
+    gap: 12,
     marginTop: 10,
   },
   actionButton: {
-    flex: 1, 
-    marginVertical: 0, 
+    flex: 1,
+    marginVertical: 0,
   },
 });

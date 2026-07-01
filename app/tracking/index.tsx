@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
   Dimensions
@@ -60,7 +60,7 @@ export default function HistoryScreen() {
       try {
         // 1. Lấy lịch sử học tập theo kỹ năng
         const response: any = await ProgressService.getSkillHistory({ page: 1, limit: 50, skill: selectedSkill });
-        
+
         // Parse data an toàn tùy thuộc vào cấu trúc trả về của Axios
         const items = response?.data?.history || response?.history || [];
         setHistoryData(items);
@@ -77,7 +77,7 @@ export default function HistoryScreen() {
             return `${d.getDate()}/${d.getMonth() + 1}`;
           });
           const scores = rawChartData.map((item: any) => item.percentage || 0);
-          
+
           setChartData({
             labels,
             datasets: [{ data: scores }]
@@ -96,20 +96,20 @@ export default function HistoryScreen() {
   }, [selectedSkill]);
 
   const chartConfig = {
-    backgroundColor: colors.bg2,
-    backgroundGradientFrom: colors.bg2,
-    backgroundGradientTo: colors.bg2,
+    backgroundColor: colors.backgroundSubtle,
+    backgroundGradientFrom: colors.backgroundSubtle,
+    backgroundGradientTo: colors.backgroundSubtle,
     decimalPlaces: 0,
-    color: (opacity = 1) => hexToRgba(colors.main || '#90CC18', opacity),
-    labelColor: (opacity = 1) => colors.gray,
+    color: (opacity = 1) => hexToRgba(colors.primary || '#90CC18', opacity),
+    labelColor: (opacity = 1) => colors.textSecondary,
     style: { borderRadius: Border.br_15 },
-    propsForDots: { r: "4", strokeWidth: "2", stroke: colors.main }
+    propsForDots: { r: "4", strokeWidth: "2", stroke: colors.primary }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader title={'Lịch sử học tập'} />
-      
+
       {/* Thanh lọc kỹ năng */}
       <View style={styles.filterContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
@@ -119,26 +119,26 @@ export default function HistoryScreen() {
               label={s.label}
               isActive={selectedSkill === s.id}
               onPress={() => setSelectedSkill(s.id)}
-              activeBgColor={colors.main}
-              activeBorderColor={colors.main}
+              activeBgColor={colors.primary}
+              activeBorderColor={colors.primary}
               activeTextColor="#FFF"
             />
           ))}
         </ScrollView>
       </View>
 
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {isLoading ? (
-          <ActivityIndicator size="large" color={colors.main} style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : (
           <>
             {/* Phần Biểu đồ */}
             <View style={styles.chartSection}>
               <Text style={styles.sectionTitle}>Biểu đồ tiến độ</Text>
-              
+
               {chartData && chartData.labels.length > 0 ? (
                 <View style={styles.chartWrapper}>
                   <LineChart
@@ -167,7 +167,7 @@ export default function HistoryScreen() {
 
             {/* Phần Lịch sử chi tiết */}
             <Text style={styles.sectionTitle}>Lịch sử chi tiết</Text>
-            
+
             {historyData.length === 0 ? (
               <Text style={styles.emptyText}>{t('history.empty', 'Chưa có lịch sử làm bài')}</Text>
             ) : (
@@ -197,19 +197,19 @@ export default function HistoryScreen() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  filterContainer: { borderBottomWidth: 1, borderBottomColor: colors.stroke, paddingBottom: Gap.gap_10 },
+  container: { flex: 1, backgroundColor: colors.background },
+  filterContainer: { borderBottomWidth: 1, borderBottomColor: colors.borderDefault, paddingBottom: Gap.gap_10 },
   filterScroll: { paddingHorizontal: Padding.padding_20, gap: Gap.gap_10 },
-  scrollContent: { flexGrow: 1, padding: Padding.padding_20, paddingTop: Gap.gap_20, paddingBottom: 60, backgroundColor: colors.bg },
-  sectionTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_15 },
+  scrollContent: { flexGrow: 1, padding: Padding.padding_20, paddingTop: Gap.gap_20, paddingBottom: 60, backgroundColor: colors.background },
+  sectionTitle: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: Gap.gap_15 },
   chartSection: { marginBottom: Gap.gap_20 },
-  chartWrapper: { backgroundColor: colors.bg2, borderRadius: Border.br_15, borderWidth: 1, borderColor: colors.stroke, overflow: 'hidden' },
-  insightBox: { backgroundColor: colors.main + '15', padding: Padding.padding_15, borderRadius: Border.br_10, marginTop: Gap.gap_15 },
-  insightText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text, lineHeight: 22 },
-  emptyText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.gray, textAlign: 'center', marginTop: 40 },
-  listContainer: { 
-    backgroundColor: colors.bg, 
-    borderRadius: Border.br_15, 
-    overflow: 'hidden' 
+  chartWrapper: { backgroundColor: colors.backgroundSubtle, borderRadius: Border.br_15, borderWidth: 1, borderColor: colors.borderDefault, overflow: 'hidden' },
+  insightBox: { backgroundColor: colors.primary + '15', padding: Padding.padding_15, borderRadius: Border.br_10, marginTop: Gap.gap_15 },
+  insightText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textPrimary, lineHeight: 22 },
+  emptyText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textSecondary, textAlign: 'center', marginTop: 40 },
+  listContainer: {
+    backgroundColor: colors.background,
+    borderRadius: Border.br_15,
+    overflow: 'hidden'
   },
 });

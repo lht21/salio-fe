@@ -31,7 +31,7 @@ import { Vocabulary } from '../../api/types/vocabulary.types';
 import { useUser } from '../../contexts/UserContext';
 import FlashcardService from '../../api/services/flashcard.service';
 import ScreenHeader from '../../components/ScreenHeader';
-
+import Button from '../../components/Button';
 // --- TYPES ---
 interface AIResult {
   isCorrect: boolean;
@@ -67,12 +67,12 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
   return (
     <View style={styles.footerContainer}>
       <Text style={styles.footerTitle}>{t('vocabulary.practice_sentence_title', 'Luyện tập đặt câu với từ này')}</Text>
-      
+
       {/* Ô nhập liệu dạng khung vẽ tay */}
       <TextInput
         style={styles.handDrawnInput}
         placeholder={t('vocabulary.practice_sentence_placeholder', { word, defaultValue: `Hãy thử đặt một câu với từ "${word}"...` })}
-        placeholderTextColor={colors.gray}
+        placeholderTextColor={colors.textSecondary}
         value={sentence}
         onChangeText={setSentence}
         multiline
@@ -80,21 +80,14 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
       />
 
       {/* Nút hành động AI */}
-      <TouchableOpacity
-        style={[styles.aiButton, !sentence.trim() && styles.aiButtonDisabled]}
-        activeOpacity={0.8}
+      <Button
+        variant="Orange"
+        title={t('vocabulary.ai_grade', 'AI Chấm điểm')}
+        leftIcon={<MagicWandIcon size={20} color={colors.orange700} weight="fill" />}
+        isLoading={isLoading}
         onPress={onCheck}
-        disabled={!sentence.trim() || isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color={colors.whiteText} size="small" />
-        ) : (
-          <>
-            <MagicWandIcon size={20} color={colors.whiteText} weight="fill" />
-            <Text style={styles.aiButtonText}>{t('vocabulary.ai_grade', 'AI Chấm điểm')}</Text>
-          </>
-        )}
-      </TouchableOpacity>
+        disabled={!sentence.trim()}
+      />
 
       {/* Vùng phản hồi AI */}
       {aiResult && !isLoading && (
@@ -109,7 +102,7 @@ const AIPracticeFooter: React.FC<AIPracticeFooterProps> = ({
           )}
           <Text style={[
             styles.feedbackText,
-            aiResult.isCorrect ? { color: colors.textGreenSuccess } : { color: colors.textRedError }
+            aiResult.isCorrect ? { color: colors.success } : { color: colors.error }
           ]}>
             {aiResult.feedback}
           </Text>
@@ -146,13 +139,13 @@ export default function VocabularyDetailScreen() {
       if (!wordId) return;
       try {
         setIsScreenLoading(true);
-        
+
         // Lấy chi tiết từ vựng và kiểm tra danh sách yêu thích cùng lúc
         const [res, favRes] = await Promise.all([
           VocabularyService.getById(wordId as string),
           FlashcardService.getSetById('favorite').catch(() => null)
         ]);
-        
+
         if (res.success && res.data) {
           setVocabData(res.data);
         }
@@ -173,7 +166,7 @@ export default function VocabularyDetailScreen() {
   const handleAICheck = () => {
     if (!sentence.trim()) return;
     setIsLoading(true);
-    
+
     // Mô phỏng delay mạng 1.5s
     setTimeout(() => {
       if (vocabData && sentence.includes(vocabData.word)) {
@@ -194,10 +187,10 @@ export default function VocabularyDetailScreen() {
   const handleToggleBookmark = async () => {
     if (!wordId) return;
     const currentStatus = isBookmarked;
-    
+
     // Optimistic Update (Cập nhật UI ngay lập tức để tăng trải nghiệm)
     setIsBookmarked(!currentStatus);
-    
+
     try {
       if (currentStatus) {
         await FlashcardService.removeCardFromSet('favorite', wordId as string);
@@ -213,7 +206,7 @@ export default function VocabularyDetailScreen() {
 
   const handleSpeak = () => {
     if (!vocabData) return;
-    
+
     const voiceGender = user?.preferences?.voiceGender || 'male';
     const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
 
@@ -257,20 +250,20 @@ export default function VocabularyDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* --- HEADER SECTION --- */}
-        <ScreenHeader title={t('vocabulary.detail_title', 'Chi tiết từ vựng')} style={{ backgroundColor: colors.bgLightBlue }} />
+        <ScreenHeader title={t('vocabulary.detail_title', 'Chi tiết từ vựng')} />
 
         {isScreenLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color={colors.main} />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : !vocabData ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontFamily: FontFamily.lexendDecaMedium, color: colors.gray }}>{t('vocabulary.not_found', 'Không tìm thấy dữ liệu từ vựng')}</Text>
+            <Text style={{ fontFamily: FontFamily.lexendDecaMedium, color: colors.textSecondary }}>{t('vocabulary.not_found', 'Không tìm thấy dữ liệu từ vựng')}</Text>
           </View>
         ) : (
           <>
             {/* --- SCROLL CONTENT --- */}
-            <ScrollView 
+            <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
             >
@@ -289,17 +282,17 @@ export default function VocabularyDetailScreen() {
                         style={styles.speakerRipple}
                       />
                     )}
-                    <SpeakerHighIcon 
-                      size={24} 
-                      color={isSpeaking ? colors.addBtnBg : colors.color} 
-                      weight="fill" 
+                    <SpeakerHighIcon
+                      size={24}
+                      color={isSpeaking ? colors.primary : colors.textBrand}
+                      weight="fill"
                     />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionBtn} onPress={handleToggleBookmark}>
                     <BookmarkSimpleIcon
-                      size={24} 
-                      color={colors.color} 
-                      weight={isBookmarked ? "fill" : "regular"} 
+                      size={24}
+                      color={colors.textBrand}
+                      weight={isBookmarked ? "fill" : "regular"}
                     />
                   </TouchableOpacity>
                 </View>
@@ -316,8 +309,8 @@ export default function VocabularyDetailScreen() {
                     </View>
                   )}
                   {vocabData.sinoVietnamese && (
-                    <View style={[styles.badge, { backgroundColor: colors.badgeYellowBg }]}>
-                      <Text style={[styles.badgeText, { color: colors.badgeYellowText }]}>{vocabData.sinoVietnamese}</Text>
+                    <View style={[styles.badge, { backgroundColor: colors.warningBackground }]}>
+                      <Text style={[styles.badgeText, { color: colors.warning }]}>{vocabData.sinoVietnamese}</Text>
                     </View>
                   )}
                 </View>
@@ -326,10 +319,10 @@ export default function VocabularyDetailScreen() {
               {/* HÌNH ẢNH MINH HỌA */}
               {vocabData.imageUrl && /^(http|https):\/\/[^ "]+$/.test(vocabData.imageUrl) && (
                 <View style={styles.imageWrapper}>
-                  <Image 
-                    source={{ uri: vocabData.imageUrl }} 
-                    style={styles.vocabImage} 
-                    resizeMode="cover" 
+                  <Image
+                    source={{ uri: vocabData.imageUrl }}
+                    style={styles.vocabImage}
+                    resizeMode="cover"
                   />
                 </View>
               )}
@@ -343,23 +336,23 @@ export default function VocabularyDetailScreen() {
               {vocabData.examples && vocabData.examples.length > 0 && (
                 <View style={styles.sectionCard}>
                   <Text style={styles.sectionTitle}>{t('vocabulary.example', 'Ví dụ mẫu')}</Text>
-                  
+
                   <View style={styles.exampleContainer}>
                     {/* Mascot Image */}
-                    <Image 
-                      source={require('../../assets/images/horani/sc1_b2.png')} 
-                      style={styles.mascotImage} 
+                    <Image
+                      source={require('../../assets/images/horani/sc1_b2.png')}
+                      style={styles.mascotImage}
                       resizeMode="contain"
                     />
                     <View style={styles.exampleList}>
                       {vocabData.examples.map((ex, index) => (
                         <View key={index} style={styles.exampleItem}>
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}
                             onPress={() => handleSpeakSentence(ex.korean)}
                             activeOpacity={0.7}
                           >
-                            <SpeakerHighIcon size={18} color={colors.addBtnBg} weight="fill" style={{ marginTop: 2 }} />
+                            <SpeakerHighIcon size={18} color={colors.primary} weight="fill" style={{ marginTop: 2 }} />
                             <Text style={[styles.exKr, { flex: 1 }]}>{ex.korean}</Text>
                           </TouchableOpacity>
                           <Text style={styles.exVi}>{ex.vietnamese}</Text>
@@ -369,9 +362,9 @@ export default function VocabularyDetailScreen() {
                   </View>
                 </View>
               )}
-              
+
               {/* PHẦN 3: FOOTER - LUYỆN TẬP ĐẶT CÂU AI */}
-              <AIPracticeFooter 
+              <AIPracticeFooter
                 word={vocabData.word}
                 sentence={sentence}
                 setSentence={setSentence}
@@ -391,7 +384,7 @@ export default function VocabularyDetailScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.bg2,
+    backgroundColor: colors.backgroundSubtle,
   },
   keyboardAvoid: {
     flex: 1,
@@ -409,7 +402,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 10,
     marginBottom: 24,
     position: 'relative',
-    shadowColor: colors.main,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
@@ -426,7 +419,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.bg + '99', // 0.6 opacity
+    backgroundColor: colors.background + '99', // 0.6 opacity
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -435,18 +428,18 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.addBtnBg,
+    backgroundColor: colors.primary,
   },
   bigWord: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 40, // Font siêu to
-    color: colors.color,
+    color: colors.textBrand,
     marginTop: 20,
   },
   phoneticText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16 || 16,
-    color: colors.textDarkGreen,
+    color: colors.textBrand,
     opacity: 0.8,
     marginTop: 4,
     marginBottom: 20,
@@ -456,7 +449,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 10,
   },
   badge: {
-    backgroundColor: colors.bg + 'CC', // 0.8 opacity
+    backgroundColor: colors.background + 'CC', // 0.8 opacity
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -464,7 +457,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   badgeText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.textDarkGreen,
+    color: colors.textBrand,
   },
   // --- SECTIONS ---
   imageWrapper: {
@@ -475,30 +468,30 @@ const createStyles = (colors: any) => StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: colors.bgLightBlue,
     borderWidth: 1,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
   },
   vocabImage: {
     width: '100%',
     height: '100%',
   },
   sectionCard: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_20 || 20,
     padding: Padding.padding_20 || 20,
     marginBottom: Gap.gap_10 || 20,
     borderWidth: 1,
-    borderColor: colors.greenLight,
+    borderColor: colors.primaryLight,
   },
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: colors.main2,
+    color: colors.primary,
     marginBottom: 10,
   },
   meaningText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16 || 16,
-    color: colors.text,
+    color: colors.textPrimary,
     lineHeight: 24,
   },
   exampleContainer: {
@@ -523,26 +516,26 @@ const createStyles = (colors: any) => StyleSheet.create({
   exKr: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14 || 14,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   exVi: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14 || 14,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
   // --- FOOTER AI PRACTICE ---
   footerContainer: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_20 || 20,
     padding: Padding.padding_20 || 20,
     marginBottom: Gap.gap_10 || 20,
     borderWidth: 1,
-    borderColor: colors.greenLight,
+    borderColor: colors.primaryLight,
   },
   footerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14 || 14,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: 12,
   },
   handDrawnInput: {
@@ -550,12 +543,12 @@ const createStyles = (colors: any) => StyleSheet.create({
     maxHeight: 120,
     backgroundColor: colors.bgLightBlue,
     borderWidth: 1,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
     borderRadius: 16,
     padding: 16,
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14 || 14,
-    color: colors.text,
+    color: colors.textPrimary,
     textAlignVertical: 'top',
     marginBottom: 12,
   },
@@ -574,7 +567,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   aiButtonText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14 || 14,
-    color: colors.whiteText,
+    color: colors.textInverse,
   },
   feedbackContainer: {
     flexDirection: 'row',

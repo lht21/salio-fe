@@ -10,8 +10,8 @@ interface ZenmodeBannerProps {
 }
 
 export default function ZenmodeBanner({ isEnabled, onToggle }: ZenmodeBannerProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.zenContainer}>
@@ -22,7 +22,7 @@ export default function ZenmodeBanner({ isEnabled, onToggle }: ZenmodeBannerProp
         </View>
         <Switch
           trackColor={{ false: '#E2E8F0', true: colors.purple }}
-          thumbColor={isEnabled ? colors.bg : '#f4f3f4'}
+          thumbColor={isEnabled ? colors.background : '#f4f3f4'}
           ios_backgroundColor="#E2E8F0"
           onValueChange={onToggle}
           value={isEnabled}
@@ -49,23 +49,23 @@ export default function ZenmodeBanner({ isEnabled, onToggle }: ZenmodeBannerProp
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      zenContainer: { 
-        width: '100%', 
-        marginBottom: Gap.gap_20, 
-        borderRadius: Border.br_15, 
-        overflow: 'hidden', 
-        backgroundColor: colors.vang 
-      },
-      zenBanner: {
-        backgroundColor: colors.purplePastel,
-        padding: Padding.padding_15,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderRadius: Border.br_15,
-      },
-      zenExplainer: { backgroundColor: colors.vang, padding: Padding.padding_15 },
-      zenExplainerText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.text, lineHeight: 18 },
-      zenTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.purple },
-      zenSubtitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: '#334155' },
-    });
+  zenContainer: {
+    width: '100%',
+    marginBottom: Gap.gap_20,
+    borderRadius: Border.br_15,
+    overflow: 'hidden',
+    backgroundColor: colors.vang
+  },
+  zenBanner: {
+    backgroundColor: colors.purplePastel,
+    padding: Padding.padding_15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: Border.br_15,
+  },
+  zenExplainer: { backgroundColor: colors.vang, padding: Padding.padding_15 },
+  zenExplainerText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.textPrimary, lineHeight: 18 },
+  zenTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.purple },
+  zenSubtitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: '#334155' },
+});

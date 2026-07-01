@@ -12,18 +12,18 @@ interface InstructionCardProps {
 }
 
 export default function InstructionCard({ data, onStart, isModal }: InstructionCardProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   if (!data) return null;
 
   return (
     <View style={[styles.cardContainer, isModal && styles.cardModal]}>
       <View style={styles.headerRow}>
-        <StarFourIcon size={24} color={colors.main} weight="fill" />
+        <StarFourIcon size={24} color={colors.primary} weight="fill" />
         <Text style={styles.title}>{data.title}</Text>
       </View>
-      
+
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollArea}>
         <Text style={[styles.summaryText, { marginBottom: Gap.gap_15 }]}>
           Đề bài: {data.prompt}
@@ -66,62 +66,62 @@ export default function InstructionCard({ data, onStart, isModal }: InstructionC
 
 
 const getStyles = (colors: any) => StyleSheet.create({
-      cardContainer: {
-        flex: 1,
-        backgroundColor: colors.bg,
-        borderRadius: Border.br_30,
-        padding: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
-      },
-      cardModal: {
-        shadowOpacity: 0, // Bỏ bóng đổ nếu nằm trong modal
-        elevation: 0,
-        padding: 0, // Bỏ padding để modal tự quản lý
-      },
-      headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.color,
-      },
-      summaryText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.color,
-        lineHeight: 22,
-      },
-      scrollArea: { flex: 1 },
-      sectionTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-        marginTop: Gap.gap_15,
-        marginBottom: Gap.gap_8,
-      },
-      bodyText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: colors.gray,
-        lineHeight: 22,
-      },
-      startButton: {
-        backgroundColor: colors.main,
-        paddingVertical: 18,
-        borderRadius: Border.br_30,
-        alignItems: 'center',
-        marginTop: 30,
-      },
-      startButtonText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.color,
-      },
-    });
+  cardContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderRadius: Border.br_30,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  cardModal: {
+    shadowOpacity: 0, // Bỏ bóng đổ nếu nằm trong modal
+    elevation: 0,
+    padding: 0, // Bỏ padding để modal tự quản lý
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textBrand,
+  },
+  summaryText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.textBrand,
+    lineHeight: 22,
+  },
+  scrollArea: { flex: 1 },
+  sectionTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+    marginTop: Gap.gap_15,
+    marginBottom: Gap.gap_8,
+  },
+  bodyText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: colors.textSecondary,
+    lineHeight: 22,
+  },
+  startButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 18,
+    borderRadius: Border.br_30,
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  startButtonText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textBrand,
+  },
+});

@@ -34,8 +34,8 @@ type ExplanationScreenProps = {
 };
 
 export default function ExplanationScreen({ title, scoreLabel, questions, onClose }: ExplanationScreenProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const sheetRef = useRef<BottomSheet>(null);
   const [activeQuestion, setActiveQuestion] = useState<ExplanationQuestion | null>(null);
@@ -55,7 +55,7 @@ export default function ExplanationScreen({ title, scoreLabel, questions, onClos
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.container}>
-        
+
         {/* 1. HEADER */}
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
@@ -73,7 +73,7 @@ export default function ExplanationScreen({ title, scoreLabel, questions, onClos
               <View style={styles.cardTopRow}>
                 <Text style={styles.indexPill}>{question.indexLabel}</Text>
               </View>
-              
+
               <Text style={styles.questionText}>{question.question}</Text>
 
               <View style={styles.answersWrap}>
@@ -96,7 +96,7 @@ export default function ExplanationScreen({ title, scoreLabel, questions, onClos
                         {!isCorrect && !isIncorrect && <View style={styles.dot} />}
                       </View>
                       <Text style={[
-                        styles.answerText, 
+                        styles.answerText,
                         isCorrect ? styles.answerTextCorrect : null,
                         isIncorrect ? styles.answerTextIncorrect : null
                       ]}>
@@ -134,7 +134,7 @@ export default function ExplanationScreen({ title, scoreLabel, questions, onClos
               <>
                 <Text style={styles.sheetHeading}>{activeQuestion.indexLabel}</Text>
                 <View style={styles.sheetDivider} />
-                
+
                 <View style={styles.sheetSection}>
                   <Text style={styles.sheetSectionLabel}>Đáp án chính xác</Text>
                   <View style={styles.correctChip}>
@@ -169,41 +169,41 @@ export default function ExplanationScreen({ title, scoreLabel, questions, onClos
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
-      container: { flex: 1, paddingHorizontal: 16 },
-      header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F3F5' },
-      title: { fontFamily: FontFamily.lexendDecaBold, fontSize: 20, color: '#4E9E38' },
-      closeButton: { padding: 4 },
-      scoreLabel: { marginTop: 12, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: colors.text },
-      content: { paddingTop: 16 },
-      card: { borderWidth: 1, borderColor: '#D9E0EA', borderRadius: 20, padding: 16, backgroundColor: '#FFFFFF', marginBottom: 16 },
-      cardTopRow: { marginBottom: 10 },
-      indexPill: { overflow: 'hidden', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: '#8EEA7C', fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 11, color: '#FFFFFF' },
-      questionText: { fontFamily: FontFamily.lexendDecaBold, fontSize: 16, lineHeight: 22, color: colors.text },
-      answersWrap: { gap: 8, marginTop: 14 },
-      answerRow: { minHeight: 50, borderWidth: 1.5, borderColor: '#F1F3F5', borderRadius: 14, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFC' },
-      answerRowCorrect: { borderColor: '#56B42E', backgroundColor: '#F0FFF0' },
-      answerRowIncorrect: { borderColor: '#FF3B30', backgroundColor: '#FFF5F5' },
-      iconContainer: { width: 22, alignItems: 'center' },
-      dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#CBD5E0' },
-      answerText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: colors.text },
-      answerTextCorrect: { color: '#2D6A12' },
-      answerTextIncorrect: { color: '#B0120A' },
-      cardFooter: { alignItems: 'flex-end', marginTop: 14 },
-      explainButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10, backgroundColor: '#F0F7ED' },
-      explainButtonText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 12, color: '#4E9E38' },
-      sheetIndicator: { backgroundColor: '#D0D7E3' },
-      sheetBackground: { borderTopLeftRadius: 32, borderTopRightRadius: 32 },
-      sheetContent: { paddingHorizontal: 24, paddingBottom: 40, gap: 20 },
-      sheetHeading: { fontFamily: FontFamily.lexendDecaBold, fontSize: 20, color: '#4E9E38', textAlign: 'center' },
-      sheetDivider: { height: 1, backgroundColor: '#EDF1F7', marginVertical: 4 },
-      sheetSection: { gap: 8 },
-      explanationHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-      sheetSectionLabel: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: '#6C7A96' },
-      correctChip: { alignSelf: 'flex-start', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#56B42E' },
-      correctChipText: { fontFamily: FontFamily.lexendDecaBold, fontSize: 14, color: '#FFFFFF' },
-      sheetBody: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 15, lineHeight: 24, color: colors.text },
-      translationBox: { padding: 14, backgroundColor: '#F0F4FF', borderRadius: 12, borderLeftWidth: 4, borderLeftColor: '#0057D8' },
-      sheetTranslation: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: '#0057D8' },
-      sheetButton: { marginTop: 10, borderRadius: 20 },
-    });
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: { flex: 1, paddingHorizontal: 16 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F3F5' },
+  title: { fontFamily: FontFamily.lexendDecaBold, fontSize: 20, color: '#4E9E38' },
+  closeButton: { padding: 4 },
+  scoreLabel: { marginTop: 12, fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: colors.textPrimary },
+  content: { paddingTop: 16 },
+  card: { borderWidth: 1, borderColor: '#D9E0EA', borderRadius: 20, padding: 16, backgroundColor: '#FFFFFF', marginBottom: 16 },
+  cardTopRow: { marginBottom: 10 },
+  indexPill: { overflow: 'hidden', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: '#8EEA7C', fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 11, color: '#FFFFFF' },
+  questionText: { fontFamily: FontFamily.lexendDecaBold, fontSize: 16, lineHeight: 22, color: colors.textPrimary },
+  answersWrap: { gap: 8, marginTop: 14 },
+  answerRow: { minHeight: 50, borderWidth: 1.5, borderColor: '#F1F3F5', borderRadius: 14, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFC' },
+  answerRowCorrect: { borderColor: '#56B42E', backgroundColor: '#F0FFF0' },
+  answerRowIncorrect: { borderColor: '#FF3B30', backgroundColor: '#FFF5F5' },
+  iconContainer: { width: 22, alignItems: 'center' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#CBD5E0' },
+  answerText: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: colors.textPrimary },
+  answerTextCorrect: { color: '#2D6A12' },
+  answerTextIncorrect: { color: '#B0120A' },
+  cardFooter: { alignItems: 'flex-end', marginTop: 14 },
+  explainButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10, backgroundColor: '#F0F7ED' },
+  explainButtonText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 12, color: '#4E9E38' },
+  sheetIndicator: { backgroundColor: '#D0D7E3' },
+  sheetBackground: { borderTopLeftRadius: 32, borderTopRightRadius: 32 },
+  sheetContent: { paddingHorizontal: 24, paddingBottom: 40, gap: 20 },
+  sheetHeading: { fontFamily: FontFamily.lexendDecaBold, fontSize: 20, color: '#4E9E38', textAlign: 'center' },
+  sheetDivider: { height: 1, backgroundColor: '#EDF1F7', marginVertical: 4 },
+  sheetSection: { gap: 8 },
+  explanationHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  sheetSectionLabel: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: 15, color: '#6C7A96' },
+  correctChip: { alignSelf: 'flex-start', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#56B42E' },
+  correctChipText: { fontFamily: FontFamily.lexendDecaBold, fontSize: 14, color: '#FFFFFF' },
+  sheetBody: { fontFamily: FontFamily.lexendDecaRegular, fontSize: 15, lineHeight: 24, color: colors.textPrimary },
+  translationBox: { padding: 14, backgroundColor: '#F0F4FF', borderRadius: 12, borderLeftWidth: 4, borderLeftColor: '#0057D8' },
+  sheetTranslation: { fontFamily: FontFamily.lexendDecaMedium, fontSize: 14, color: '#0057D8' },
+  sheetButton: { marginTop: 10, borderRadius: 20 },
+});

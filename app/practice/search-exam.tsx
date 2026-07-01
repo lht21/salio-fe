@@ -82,9 +82,9 @@ export default function SearchExamScreen() {
 
     return (
       <View style={{ marginBottom: Gap.gap_15 }}>
-        <ExamCard 
-          exam={examData} 
-          onPress={() => handleExamPress(item.id, item.type)} 
+        <ExamCard
+          exam={examData}
+          onPress={() => handleExamPress(item.id, item.type)}
         />
       </View>
     );
@@ -109,7 +109,7 @@ export default function SearchExamScreen() {
           />
         </View>
       </View>
-      
+
       <View style={styles.body}>
         {!searchText.trim() ? (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.idleContent}>
@@ -120,15 +120,15 @@ export default function SearchExamScreen() {
                 <View style={styles.recentList}>
                   {recentSearches.map((item, index) => (
                     <View key={index} style={styles.recentItem}>
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.recentItemLeft}
                         onPress={() => handleTagPress(item)}
                       >
-                        <ClockCounterClockwiseIcon size={16} color={colors.gray} weight="bold" />
+                        <ClockCounterClockwiseIcon size={16} color={colors.textSecondary} weight="bold" />
                         <Text style={styles.recentText}>{item}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => removeRecentSearch(item)} hitSlop={10}>
-                        <XIcon size={16} color={colors.gray} weight="bold" />
+                        <XIcon size={16} color={colors.textSecondary} weight="bold" />
                       </TouchableOpacity>
                     </View>
                   ))}
@@ -156,7 +156,7 @@ export default function SearchExamScreen() {
             <Text style={styles.resultsCount}>
               {t('practice.results_count', { count: searchResults.length, defaultValue: `Tìm thấy ${searchResults.length} kết quả` })}
             </Text>
-            
+
             <FlatList
               data={searchResults}
               keyExtractor={(item) => item.id}
@@ -180,7 +180,7 @@ export default function SearchExamScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   customHeader: {
     flexDirection: 'row',
@@ -188,7 +188,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingHorizontal: Padding.padding_15,
     paddingTop: Padding.padding_10,
     paddingBottom: Padding.padding_10,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   backButton: {
     marginRight: Gap.gap_15,
@@ -214,7 +214,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: Gap.gap_10,
   },
   recentList: {
@@ -235,14 +235,14 @@ const createStyles = (colors: any) => StyleSheet.create({
   recentText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Gap.gap_10,
   },
-  
+
   resultsContainer: {
     flex: 1,
     paddingTop: Gap.gap_15,
@@ -250,7 +250,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   resultsCount: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
     marginBottom: Gap.gap_10,
   },
   resultsList: {
@@ -258,10 +258,10 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: Gap.gap_15,
   },
   examCard: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_15,
     borderWidth: 1,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
     padding: Padding.padding_15,
   },
   examHeader: {
@@ -269,7 +269,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: Gap.gap_10,
   },
   examBadge: {
-    backgroundColor: colors.bluePastel || '#E0F2FE',
+    backgroundColor: colors.borderSkillCard || '#E0F2FE',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: Border.br_5,
@@ -277,12 +277,12 @@ const createStyles = (colors: any) => StyleSheet.create({
   examBadgeText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_10,
-    color: colors.blue || '#3B82F6',
+    color: colors.accent1 || '#3B82F6',
   },
   examTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: Gap.gap_10,
   },
   examMeta: {
@@ -297,7 +297,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   metaText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
   emptyContainer: {
     paddingTop: 40,
@@ -306,7 +306,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   emptyText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: colors.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

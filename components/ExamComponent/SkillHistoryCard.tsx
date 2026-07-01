@@ -1,20 +1,20 @@
 import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { 
-  BookOpenIcon, 
-  HeadphonesIcon, 
-  PenNibIcon, 
-  MicrophoneIcon, 
-  StarIcon, 
-  CheckCircleIcon 
+import {
+  BookOpenIcon,
+  HeadphonesIcon,
+  PenNibIcon,
+  MicrophoneIcon,
+  StarIcon,
+  CheckCircleIcon
 } from 'phosphor-react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSequence, 
-  withTiming, 
-  withRepeat, 
-  Easing 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+  withRepeat,
+  Easing
 } from 'react-native-reanimated';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FontFamily, FontSize, Border, Padding } from '../../constants/GlobalStyles';
@@ -38,28 +38,28 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function SkillHistoryCard({ 
-  title, skill, score, maxScore, percentage, createdAt, isLast, onPress 
+export default function SkillHistoryCard({
+  title, skill, score, maxScore, percentage, createdAt, isLast, onPress
 }: SkillHistoryCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const skillConfig = useMemo(() => {
     switch (skill) {
-      case 'reading': return { color: colors.xanh || '#4CAF50', Icon: BookOpenIcon };
+      case 'reading': return { color: colors.accent1 || '#4CAF50', Icon: BookOpenIcon };
       case 'listening': return { color: colors.cam || '#FF9800', Icon: HeadphonesIcon };
       case 'writing': return { color: colors.red || '#F44336', Icon: PenNibIcon };
-      case 'speaking': return { color: colors.main || '#2196F3', Icon: MicrophoneIcon };
-      default: return { color: colors.gray || '#9E9E9E', Icon: BookOpenIcon };
+      case 'speaking': return { color: colors.primary || '#2196F3', Icon: MicrophoneIcon };
+      default: return { color: colors.textSecondary || '#9E9E9E', Icon: BookOpenIcon };
     }
   }, [skill, colors]);
 
   const statusColors = useMemo(() => {
-    if (percentage === undefined) return { bg: colors.historySelectedBg || '#F0FDF4', text: colors.main2 || '#22C55E', isExcellent: false };
-    if (percentage < 50) return { bg: colors.historyRedBg || '#FEF2F2', text: colors.historyRedText || '#EF4444', isExcellent: false };
-    if (percentage < 75) return { bg: colors.historyOrangeBg || '#FEF3C7', text: colors.historyOrangeText || '#D97706', isExcellent: false };
-    if (percentage >= 90) return { bg: colors.historyYellowBg || '#FEF08A', text: colors.historyYellowText || '#B45309', isExcellent: true };
-    return { bg: colors.historySelectedBg || '#F0FDF4', text: colors.main2 || '#22C55E', isExcellent: false };
+    if (percentage === undefined) return { bg: colors.historySelectedBg || '#F0FDF4', text: colors.primary || '#22C55E', isExcellent: false };
+    if (percentage < 50) return { bg: colors.historyRedBg || '#FEF2F2', text: colors.textInverse || '#EF4444', isExcellent: false };
+    if (percentage < 75) return { bg: colors.historyOrangeBg || '#FEF3C7', text: colors.textInverse || '#D97706', isExcellent: false };
+    if (percentage >= 90) return { bg: colors.historyYellowBg || '#FEF08A', text: colors.textInverse || '#B45309', isExcellent: true };
+    return { bg: colors.historySelectedBg || '#F0FDF4', text: colors.primary || '#22C55E', isExcellent: false };
   }, [percentage, colors]);
 
   // Hiệu ứng lắc ngôi sao vinh danh
@@ -130,16 +130,16 @@ export default function SkillHistoryCard({
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  cardList: { width: '100%', flexDirection: 'row', alignItems: 'center', padding: Padding.padding_15 || 15, borderBottomWidth: 1, borderBottomColor: colors.stroke || '#E2E8F0', backgroundColor: 'transparent' },
+  cardList: { width: '100%', flexDirection: 'row', alignItems: 'center', padding: Padding.padding_15 || 15, borderBottomWidth: 1, borderBottomColor: colors.borderDefault || '#E2E8F0', backgroundColor: 'transparent' },
   cardListLast: { borderBottomWidth: 0 },
   avatarContainer: { width: 48, height: 48, borderRadius: Border.br_15 || 15, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   contentContainer: { flex: 1 },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  cardTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 || 14, color: colors.text, flexShrink: 1 },
+  cardTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 || 14, color: colors.textPrimary, flexShrink: 1 },
   starIcon: { marginLeft: 8 },
-  dateText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12 || 12, color: colors.gray, marginLeft: 8 },
+  dateText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12 || 12, color: colors.textSecondary, marginLeft: 8 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   badge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   scoreText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 || 12 },
-  percentageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 || 12, color: colors.main2 || '#22C55E' },
+  percentageText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 || 12, color: colors.primary || '#22C55E' },
 });

@@ -28,8 +28,8 @@ export default function QuizHeader({
   icon,
   sharedTransitionTag
 }: QuizHeaderProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const progress = total > 0 ? (current / total) * 100 : 0;
@@ -37,7 +37,7 @@ export default function QuizHeader({
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        
+
         <View style={styles.leftGroup}>
           {sharedTransitionTag ? (
             <Animated.View sharedTransitionTag={sharedTransitionTag}>
@@ -72,56 +72,56 @@ export default function QuizHeader({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        paddingHorizontal: Padding.padding_20,
-        paddingTop: Padding.padding_10,
-        backgroundColor: colors.bg,
-      },
-      topRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: Gap.gap_15,
-      },
-      leftGroup: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_10,
-      },
-      progressPill: {
-        backgroundColor: colors.main,
-        paddingHorizontal: 16,
-        paddingVertical: 6,
-        borderRadius: Border.br_20,
-      },
-      progressText: {
-        color: colors.bg,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-      },
-      incorrectPill: {
-        backgroundColor: colors.red,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: Border.br_20,
-      },
-      incorrectText: {
-        color: colors.bg,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-      },
-      timerPill: {
-        backgroundColor: colors.cam || '#FF6B00',
-        paddingHorizontal: 14,
-        paddingVertical: 6,
-        borderRadius: Border.br_20,
-      },
-      timerText: {
-        color: colors.bg,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-      },
-      spacer: {
-        flex: 1,
-      },
-    });
+  container: {
+    paddingHorizontal: Padding.padding_20,
+    paddingTop: Padding.padding_10,
+    backgroundColor: colors.background,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Gap.gap_15,
+  },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_10,
+  },
+  progressPill: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: Border.br_20,
+  },
+  progressText: {
+    color: colors.background,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+  },
+  incorrectPill: {
+    backgroundColor: colors.red,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Border.br_20,
+  },
+  incorrectText: {
+    color: colors.background,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+  },
+  timerPill: {
+    backgroundColor: colors.cam || '#FF6B00',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: Border.br_20,
+  },
+  timerText: {
+    color: colors.background,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+  },
+  spacer: {
+    flex: 1,
+  },
+});

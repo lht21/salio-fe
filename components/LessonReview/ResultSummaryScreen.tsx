@@ -39,18 +39,18 @@ export default function ResultSummaryScreen({
   secondaryLabel,
   onSecondaryPress
 }: ResultSummaryScreenProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const insets = useSafeAreaInsets();
-  
+
   // Header animation: slide down
   const headerTranslateY = React.useRef(new Animated.Value(-600)).current;
-  
+
   // Content animation: fade in after header
   const contentOpacity = React.useRef(new Animated.Value(0)).current;
   const contentTranslateY = React.useRef(new Animated.Value(30)).current;
-  
+
   const metricAnimations = React.useRef(metrics.map(() => new Animated.Value(0))).current;
 
   React.useEffect(() => {
@@ -97,9 +97,9 @@ export default function ResultSummaryScreen({
         {/* HEADER SECTION */}
         <Animated.View style={[styles.headerCurved, { paddingTop: insets.top + 16, transform: [{ translateY: headerTranslateY }] }]}>
           <View style={styles.closeBtnContainer}>
-             <IconButton Icon={XIcon} variant="Stroke" onPress={onClose} />
+            <IconButton Icon={XIcon} variant="Stroke" onPress={onClose} />
           </View>
-          
+
           <Image
             source={require('../../assets/images/horani/result.png')}
             style={styles.heroImage}
@@ -157,7 +157,7 @@ export default function ResultSummaryScreen({
 
           <View style={styles.footer}>
             <Button title={primaryLabel} onPress={onPrimaryPress} variant="Green" />
-            
+
             {secondaryLabel && onSecondaryPress && (
               <Button title={secondaryLabel} onPress={onSecondaryPress} variant="TextOnly" />
             )}
@@ -169,133 +169,133 @@ export default function ResultSummaryScreen({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-      },
-      scrollContent: {
-        flexGrow: 1,
-        paddingBottom: 40,
-      },
-      headerCurved: {
-        backgroundColor: colors.main200,
-        borderBottomLeftRadius: 60,
-        borderBottomRightRadius: 60,
-        paddingBottom: 32,
-        alignItems: 'center',
-        position: 'relative',
-        zIndex: 10,
-        // Add shadow to curved header to match design
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 8,
-      },
-      closeBtnContainer: {
-        width: '100%',
-        alignItems: 'flex-end',
-        paddingHorizontal: 20,
-        marginBottom: 10,
-      },
-      closeBtn: {
-        backgroundColor: 'rgba(255,255,255,0.4)', // Slightly transparent grey/white
-        borderWidth: 0,
-      },
-      heroImage: {
-        width: 148,
-        height: 148,
-        marginBottom: 16,
-      },
-      titleWrapper: {
-        position: 'relative',
-        marginBottom: 16,
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 28,
-        color: '#3F5C1B', // Dark green text inside
-        textAlign: 'center',
-        textTransform: 'uppercase',
-      },
-      titleStroke: {
-        position: 'absolute',
-        color: '#FFFFFF', // White stroke
-      },
-      pointPill: {
-        backgroundColor: colors.bg, // Light yellow/green background
-        paddingVertical: 10,
-        paddingHorizontal: 36,
-        borderRadius: 20,
-        marginBottom: 12,
-        borderLeftWidth: 5,
-        borderRightWidth: 5,
-        borderColor: colors.main700
-      },
-      pointLabel: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: 24,
-        color: colors.orange500,
-      },
-      subLabelsRow: {
-        flexDirection: 'row',
-        gap: 12,
-      },
-      subPill: {
-        backgroundColor: colors.main50,
-        paddingVertical: 6,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-      },
-      subPillText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 14,
-        color: colors.main700,
-      },
-      mainContent: {
-        paddingHorizontal: 24,
-        paddingTop: 32,
-        flex: 1,
-      },
-      metricsHeading: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 18,
-        color: colors.main500,
-        marginBottom: 16,
-        textAlign: 'center'
-      },
-      metricsWrap: {
-        gap: 20,
-      },
-      metricBlock: {
-        gap: 8,
-      },
-      metricLabel: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: 14,
-        color: '#000000',
-      },
-      track: {
-        height: 26,
-        borderRadius: 999,
-        backgroundColor: '#D9D9D9',
-        overflow: 'hidden',
-        justifyContent: 'center',
-      },
-      fill: {
-        height: '100%',
-        borderRadius: 999,
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-      },
-      trackValue: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 13,
-        color: '#FFFFFF',
-        paddingRight: 12,
-      },
-      footer: {
-        marginTop: 40,
-        gap: 16,
-      },
-    });
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  headerCurved: {
+    backgroundColor: colors.main200,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    paddingBottom: 32,
+    alignItems: 'center',
+    position: 'relative',
+    zIndex: 10,
+    // Add shadow to curved header to match design
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  closeBtnContainer: {
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  closeBtn: {
+    backgroundColor: 'rgba(255,255,255,0.4)', // Slightly transparent grey/white
+    borderWidth: 0,
+  },
+  heroImage: {
+    width: 148,
+    height: 148,
+    marginBottom: 16,
+  },
+  titleWrapper: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 28,
+    color: '#3F5C1B', // Dark green text inside
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  titleStroke: {
+    position: 'absolute',
+    color: '#FFFFFF', // White stroke
+  },
+  pointPill: {
+    backgroundColor: colors.background, // Light yellow/green background
+    paddingVertical: 10,
+    paddingHorizontal: 36,
+    borderRadius: 20,
+    marginBottom: 12,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderColor: colors.main700
+  },
+  pointLabel: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 24,
+    color: colors.orange500,
+  },
+  subLabelsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  subPill: {
+    backgroundColor: colors.primaryLight,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  subPillText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 14,
+    color: colors.main700,
+  },
+  mainContent: {
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    flex: 1,
+  },
+  metricsHeading: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 18,
+    color: colors.main500,
+    marginBottom: 16,
+    textAlign: 'center'
+  },
+  metricsWrap: {
+    gap: 20,
+  },
+  metricBlock: {
+    gap: 8,
+  },
+  metricLabel: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 14,
+    color: '#000000',
+  },
+  track: {
+    height: 26,
+    borderRadius: 999,
+    backgroundColor: '#D9D9D9',
+    overflow: 'hidden',
+    justifyContent: 'center',
+  },
+  fill: {
+    height: '100%',
+    borderRadius: 999,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  trackValue: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 13,
+    color: '#FFFFFF',
+    paddingRight: 12,
+  },
+  footer: {
+    marginTop: 40,
+    gap: 16,
+  },
+});

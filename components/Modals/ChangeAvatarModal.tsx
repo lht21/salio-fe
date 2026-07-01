@@ -63,56 +63,56 @@ const ChangeAvatarModal = forwardRef<BottomSheetModal, ChangeAvatarModalProps>((
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
       enablePanDownToClose={true}
-      backgroundStyle={{ 
-        backgroundColor: colors.bg,
+      backgroundStyle={{
+        backgroundColor: colors.background,
         borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30 
+        borderTopRightRadius: Border.br_30
       }}
       handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
       <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('settings.changeAvatar', 'Thay đổi ảnh đại diện')}</Text>
-            <IconButton Icon={XIcon} onPress={onClose} />
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('settings.changeAvatar', 'Thay đổi ảnh đại diện')}</Text>
+          <IconButton Icon={XIcon} onPress={onClose} />
+        </View>
+
+        <View style={styles.body}>
+          <Button
+            title={t('settings.uploadFromDevice', 'Tải lên từ thiết bị')}
+            variant="Green"
+            onPress={handleUploadPress}
+            style={styles.uploadButton}
+          />
+
+          <Text style={styles.sectionLabel}>{t('settings.availableImages', 'Hình ảnh có sẵn')}</Text>
+
+          <View style={styles.gridCard}>
+            {avatarRows.map((row, rowIndex) => (
+              <View
+                key={`avatar-row-${rowIndex}`}
+                style={[styles.gridRow, rowIndex === avatarRows.length - 1 && styles.gridRowLast]}
+              >
+                {row.map((avatar) => {
+                  const isSelected = avatar.id === selectedAvatarId;
+
+                  return (
+                    <Pressable
+                      key={avatar.id}
+                      style={styles.avatarButton}
+                      onPress={() => onSelectAvatar(avatar)}
+                      accessibilityRole="button"
+                      accessibilityLabel={avatar.label}
+                    >
+                      <View style={[styles.avatarFrame, isSelected && styles.avatarFrameSelected]}>
+                        <Image source={avatar.imageSource} style={styles.avatarImage} resizeMode="cover" />
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
           </View>
-
-          <View style={styles.body}>
-            <Button
-              title={t('settings.uploadFromDevice', 'Tải lên từ thiết bị')}
-              variant="Green"
-              onPress={handleUploadPress}
-              style={styles.uploadButton}
-            />
-
-            <Text style={styles.sectionLabel}>{t('settings.availableImages', 'Hình ảnh có sẵn')}</Text>
-
-            <View style={styles.gridCard}>
-              {avatarRows.map((row, rowIndex) => (
-                <View
-                  key={`avatar-row-${rowIndex}`}
-                  style={[styles.gridRow, rowIndex === avatarRows.length - 1 && styles.gridRowLast]}
-                >
-                  {row.map((avatar) => {
-                    const isSelected = avatar.id === selectedAvatarId;
-
-                    return (
-                      <Pressable
-                        key={avatar.id}
-                        style={styles.avatarButton}
-                        onPress={() => onSelectAvatar(avatar)}
-                        accessibilityRole="button"
-                        accessibilityLabel={avatar.label}
-                      >
-                        <View style={[styles.avatarFrame, isSelected && styles.avatarFrameSelected]}>
-                          <Image source={avatar.imageSource} style={styles.avatarImage} resizeMode="cover" />
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-          </View>
+        </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -121,7 +121,7 @@ const ChangeAvatarModal = forwardRef<BottomSheetModal, ChangeAvatarModalProps>((
 const createStyles = (colors: any) => StyleSheet.create({
   sheetContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
   body: {
     gap: 0,
     paddingBottom: 10,
@@ -136,18 +136,18 @@ const createStyles = (colors: any) => StyleSheet.create({
   sectionLabel: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
     marginBottom: 10,
     marginLeft: 2,
   },
   gridCard: {
     borderWidth: 1.2,
-    borderColor: colors.gridCardBorder || '#7F8B99',
+    borderColor: colors.borderDefault || '#7F8B99',
     borderRadius: 28,
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   gridRow: {
     flexDirection: 'row',
@@ -163,16 +163,16 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   avatarFrame: {
     width: '100%',
     height: '100%',
     borderRadius: 999,
     borderWidth: 1.2,
-    borderColor: colors.avatarFrameBorder || '#658067',
+    borderColor: colors.borderDefault || '#658067',
     padding: 2,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   avatarFrameSelected: {
     borderWidth: 1.6,

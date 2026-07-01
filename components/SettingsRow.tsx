@@ -29,19 +29,19 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <TouchableOpacity 
-      style={[styles.container, !isLast && styles.borderBottom]} 
+    <TouchableOpacity
+      style={[styles.container, !isLast && styles.borderBottom]}
       onPress={onPress}
       disabled={!onPress}
     >
       <View style={styles.leftContent}>
         <View style={styles.iconContainer}>{icon}</View>
-        <Text style={[styles.label, { color: labelColor || colors.gray }]}>{label}</Text>
+        <Text style={[styles.label, { color: labelColor || colors.textSecondary }]}>{label}</Text>
       </View>
-      
+
       <View style={styles.rightContent}>
-        {value && <Text style={[styles.value, { color: valueColor || colors.text }]}>{value}</Text>}
-        {showArrow && <CaretRightIcon size={16} color={colors.gray} weight="regular" />}
+        {value && <Text style={[styles.value, { color: valueColor || colors.textPrimary }]}>{value}</Text>}
+        {showArrow && <CaretRightIcon size={16} color={colors.textSecondary} weight="regular" />}
       </View>
     </TouchableOpacity>
   );
@@ -56,7 +56,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   borderBottom: {
     borderBottomWidth: 1,
-    borderBottomColor: colors.stroke + '40', // Thêm độ trong suốt cho viền mờ
+    borderBottomColor: colors.borderDefault + '40', // Thêm độ trong suốt cho viền mờ
   },
   leftContent: {
     flexDirection: 'row',

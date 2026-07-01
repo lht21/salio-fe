@@ -16,8 +16,8 @@ type AnswerOptionProps = {
 };
 
 export default function AnswerOption({ index, text, status, onPress }: AnswerOptionProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   let containerStyle: ViewStyle = styles.containerDefault;
   let textStyle: TextStyle = styles.textDefault;
@@ -45,7 +45,7 @@ export default function AnswerOption({ index, text, status, onPress }: AnswerOpt
     >
       <View style={styles.leftContent}>
         {status === 'correct' ? (
-          <CheckCircleIcon size={28} color={colors.color} weight="fill" />
+          <CheckCircleIcon size={28} color={colors.textBrand} weight="fill" />
         ) : status === 'incorrect' ? (
           <XCircleIcon size={28} color={colors.red} weight="fill" />
         ) : (
@@ -60,76 +60,76 @@ export default function AnswerOption({ index, text, status, onPress }: AnswerOpt
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: Padding.padding_15,
-        borderRadius: Border.br_20,
-        borderWidth: 2,
-        borderStyle: 'solid',
-        marginVertical: Gap.gap_8,
-        backgroundColor: colors.bg,
-      },
-      leftContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_15,
-      },
-      numberPill: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1.5,
-        borderColor: colors.stroke,
-      },
-      numberBgDefault: {
-        backgroundColor: colors.bg,
-      },
-      numberText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_14,
-        color: colors.gray,
-      },
-      text: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-      },
-      containerDefault: {
-        borderColor: colors.stroke,
-        borderStyle: 'solid',
-      },
-      textDefault: {
-        color: colors.text,
-      },
-      containerCorrect: {
-        borderColor: colors.main,
-        borderStyle: 'solid',
-        backgroundColor: colors.greenLight,
-      },
-      textCorrect: {
-        color: colors.main,
-        fontFamily: FontFamily.lexendDecaBold,
-      },
-      containerIncorrect: {
-        borderColor: colors.red,
-        borderStyle: 'solid',
-        backgroundColor: colors.bg,
-      },
-      textIncorrect: {
-        color: colors.red,
-        fontFamily: FontFamily.lexendDecaBold,
-      },
-      containerMissedCorrect: {
-        borderColor: colors.green,
-        borderStyle: 'dashed',
-        backgroundColor: colors.bg,
-      },
-      containerDisabled: {
-        borderColor: colors.stroke,
-        borderStyle: 'solid',
-        opacity: 0.5,
-      },
-    });
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Padding.padding_15,
+    borderRadius: Border.br_20,
+    borderWidth: 2,
+    borderStyle: 'solid',
+    marginVertical: Gap.gap_8,
+    backgroundColor: colors.background,
+  },
+  leftContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_15,
+  },
+  numberPill: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.borderDefault,
+  },
+  numberBgDefault: {
+    backgroundColor: colors.background,
+  },
+  numberText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_14,
+    color: colors.textSecondary,
+  },
+  text: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+  },
+  containerDefault: {
+    borderColor: colors.borderDefault,
+    borderStyle: 'solid',
+  },
+  textDefault: {
+    color: colors.textPrimary,
+  },
+  containerCorrect: {
+    borderColor: colors.primary,
+    borderStyle: 'solid',
+    backgroundColor: colors.primaryLight,
+  },
+  textCorrect: {
+    color: colors.primary,
+    fontFamily: FontFamily.lexendDecaBold,
+  },
+  containerIncorrect: {
+    borderColor: colors.red,
+    borderStyle: 'solid',
+    backgroundColor: colors.background,
+  },
+  textIncorrect: {
+    color: colors.red,
+    fontFamily: FontFamily.lexendDecaBold,
+  },
+  containerMissedCorrect: {
+    borderColor: colors.primary,
+    borderStyle: 'dashed',
+    backgroundColor: colors.background,
+  },
+  containerDisabled: {
+    borderColor: colors.borderDefault,
+    borderStyle: 'solid',
+    opacity: 0.5,
+  },
+});

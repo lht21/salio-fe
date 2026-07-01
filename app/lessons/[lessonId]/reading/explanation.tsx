@@ -6,8 +6,8 @@ import LessonService from '@/api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ReadingExplanationScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -20,7 +20,7 @@ export default function ReadingExplanationScreen() {
         setLoading(true);
         // 1. Lấy danh sách các bài Reading trong Lesson
         const modulesRes = await LessonService.getModules(lessonId!);
-        const readingIds = modulesRes.data.reading.map((item: any) => 
+        const readingIds = modulesRes.data.reading.map((item: any) =>
           typeof item === 'string' ? item : item._id
         );
 
@@ -91,7 +91,7 @@ export default function ReadingExplanationScreen() {
     if (lessonId) fetchAllData();
   }, [lessonId]);
 
-  if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={colors.main} /></View>;
+  if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={colors.primary} /></View>;
 
   return (
     <View style={styles.container}>
@@ -105,6 +105,6 @@ export default function ReadingExplanationScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: { flex: 1, backgroundColor: '#FFFFFF' },
-      loading: { flex: 1, justifyContent: 'center', alignItems: 'center' }
-    });
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' }
+});

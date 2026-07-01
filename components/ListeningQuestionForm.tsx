@@ -34,8 +34,8 @@ export default function ListeningQuestionForm({
   onSelectOption,
   showResultSheet
 }: ListeningQuestionFormProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   // --- Giữ nguyên State cũ ---
   const [sound, setSound] = useState<Audio.Sound | null>(null);
@@ -56,7 +56,7 @@ export default function ListeningQuestionForm({
 
       if (status.didJustFinish) {
         setIsPlaying(false);
-        soundRef.current?.setPositionAsync(0).catch(() => {});
+        soundRef.current?.setPositionAsync(0).catch(() => { });
       }
     }
   };
@@ -65,7 +65,7 @@ export default function ListeningQuestionForm({
     try {
       // Dọn dẹp triệt để trước khi load mới
       if (soundRef.current) {
-        await soundRef.current.unloadAsync().catch(() => {});
+        await soundRef.current.unloadAsync().catch(() => { });
         soundRef.current = null;
       }
 
@@ -86,7 +86,7 @@ export default function ListeningQuestionForm({
         setSound(newSound);
         soundRef.current = newSound;
       } else {
-        await newSound.unloadAsync().catch(() => {});
+        await newSound.unloadAsync().catch(() => { });
       }
     } catch (error) {
       console.log("Error loading sound", error);
@@ -100,14 +100,14 @@ export default function ListeningQuestionForm({
     return () => {
       isMounted.current = false;
       if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current.unloadAsync().catch(() => { });
       }
     };
   }, [question.id]); // Chỉ load lại khi ID câu hỏi thay đổi thực sự
 
   useEffect(() => {
     if (showResultSheet && soundRef.current) {
-      soundRef.current.pauseAsync().catch(() => {});
+      soundRef.current.pauseAsync().catch(() => { });
     }
   }, [showResultSheet]);
 
@@ -123,7 +123,7 @@ export default function ListeningQuestionForm({
   const handleChangeSpeed = async (speed: number) => {
     setPlaybackSpeed(speed);
     if (soundRef.current) {
-      await soundRef.current.setRateAsync(speed, true).catch(() => {});
+      await soundRef.current.setRateAsync(speed, true).catch(() => { });
     }
   };
 
@@ -212,119 +212,119 @@ export default function ListeningQuestionForm({
 
 // --- Giữ nguyên toàn bộ Style cũ của bạn ---
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1
-      },
-      audioCard: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 30,
-        padding: 25,
-        alignItems: "center",
-        marginBottom: 40,
-        shadowColor:  "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.05,
-        shadowRadius: 20,
-        elevation: 10,
-        borderWidth: 0.5,
-        borderColor: colors.stroke || "#F0F0F0"
-      },
+  container: {
+    flex: 1
+  },
+  audioCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 30,
+    padding: 25,
+    alignItems: "center",
+    marginBottom: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 10,
+    borderWidth: 0.5,
+    borderColor: colors.borderDefault || "#F0F0F0"
+  },
 
-      playButton: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: "#98F291",
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 20
-      },
-      timerRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        marginBottom: 8
-      },
-      timeText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 12,
-        color: colors.text || "#1E1E1E"
-      },
-      audioProgressBg: {
-        height: 4,
-        backgroundColor: "#64748B40",
-        width: "100%",
-        borderRadius: 2,
-        marginBottom: 20
-      },
-      audioProgressFill: {
-        height: "100%",
-        backgroundColor: "#64748B",
-        borderRadius: 2,
-        position: "relative"
-      },
-      progressDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: "#98F291",
-        position: "absolute",
-        right: -5,
-        top: -3
-      },
-      speedRow: {
-        flexDirection: "row",
-        gap: 15
-      },
-      speedBtn: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 15,
-        backgroundColor: "#E6E9F0"
-      },
-      speedBtnActive: {
-        backgroundColor: "#000000"
-      },
-      speedText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 9,
-        color: colors.gray || "#64748B"
-      },
-      speedTextActive: {
-        color: "#98F291"
-      },
-      questionText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 18,
-        color: "#1E1E1E",
-        marginBottom: 40
-      },
-      optionsContainer: {
-        gap: 15
-      },
-      optionButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: colors.bg || "#FFFFFF",
-        borderWidth: 1.5,
-        borderColor: "#E6E9F0",
-        borderRadius: 24,
-        paddingVertical: 20,
-        paddingHorizontal: 20,
-        gap: 11
-      },
-      optionButtonSelected: {
-        borderColor: colors.main2 || "#98F291",
-        backgroundColor: colors.mainLighter || "#F0FFF0"
-      },
-      optionLabel: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 16,
-        color: colors.text || "#1E1E1E"
-      },
-      optionText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 16,
-        color: colors.text || "#1E1E1E"
-      }
-    });
+  playButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#98F291",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20
+  },
+  timerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 8
+  },
+  timeText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 12,
+    color: colors.textPrimary || "#1E1E1E"
+  },
+  audioProgressBg: {
+    height: 4,
+    backgroundColor: "#64748B40",
+    width: "100%",
+    borderRadius: 2,
+    marginBottom: 20
+  },
+  audioProgressFill: {
+    height: "100%",
+    backgroundColor: "#64748B",
+    borderRadius: 2,
+    position: "relative"
+  },
+  progressDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#98F291",
+    position: "absolute",
+    right: -5,
+    top: -3
+  },
+  speedRow: {
+    flexDirection: "row",
+    gap: 15
+  },
+  speedBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    backgroundColor: "#E6E9F0"
+  },
+  speedBtnActive: {
+    backgroundColor: "#000000"
+  },
+  speedText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 9,
+    color: colors.textSecondary || "#64748B"
+  },
+  speedTextActive: {
+    color: "#98F291"
+  },
+  questionText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 18,
+    color: "#1E1E1E",
+    marginBottom: 40
+  },
+  optionsContainer: {
+    gap: 15
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.background || "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "#E6E9F0",
+    borderRadius: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    gap: 11
+  },
+  optionButtonSelected: {
+    borderColor: colors.primary || "#98F291",
+    backgroundColor: colors.backgroundOverlay || "#F0FFF0"
+  },
+  optionLabel: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 16,
+    color: colors.textPrimary || "#1E1E1E"
+  },
+  optionText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 16,
+    color: colors.textPrimary || "#1E1E1E"
+  }
+});

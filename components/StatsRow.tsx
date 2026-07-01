@@ -38,14 +38,14 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
             <Text style={styles.number}>{streak}</Text>
             <View style={styles.labelRow}>
               <Text style={styles.label}>{t('stats.days', 'ngày')}</Text>
-              <CaretRightIcon size={12} color={colors.main2} weight="bold" />
+              <CaretRightIcon size={12} color={colors.primary} weight="bold" />
             </View>
           </View>
           <FireIcon size={24} color={colors.fireIcon || '#991B1B'} weight="fill" />
         </TouchableOpacity>
 
         {/* Thẻ 2: Từ vựng */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { transform: [{ rotate: '-1deg' }] }]}
           activeOpacity={0.82}
           onPress={onVocabPress}
@@ -55,10 +55,10 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
             <Text style={styles.number}>{vocabCount}</Text>
             <View style={styles.labelRow}>
               <Text style={styles.label}>{t('stats.vocab', 'từ vựng')}</Text>
-              <CaretRightIcon size={12} color={colors.main2} weight="bold" />
+              <CaretRightIcon size={12} color={colors.primary} weight="bold" />
             </View>
           </View>
-          <BookmarkSimpleIcon size={24} color={colors.xanh || '#1877F2'} weight="fill" />
+          <BookmarkSimpleIcon size={24} color={colors.accent1 || '#1877F2'} weight="fill" />
         </TouchableOpacity>
 
         {/* Thẻ 3: Điểm */}
@@ -72,7 +72,7 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
             <Text style={styles.number}>{score}</Text>
             <View style={styles.labelRow}>
               <Text style={styles.label}>{t('stats.score', 'điểm')}</Text>
-              <CaretRightIcon size={12} color={colors.main2} weight="bold" />
+              <CaretRightIcon size={12} color={colors.primary} weight="bold" />
             </View>
           </View>
           <TrophyIcon size={24} color={colors.trophyIcon || '#D97706'} weight="fill" />
@@ -82,7 +82,7 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
       {/* Hàng 2 */}
       <View style={styles.row}>
         {/* Thẻ 4: Chứng chỉ */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { transform: [{ rotate: '-1deg' }] }]}
           activeOpacity={0.82}
           onPress={onCertificatePress}
@@ -92,11 +92,11 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
             <Text style={styles.number}>{certificates}</Text>
             <Text style={styles.label}>{t('stats.certificates', 'huy hiệu')}</Text>
           </View>
-          <CertificateIcon size={24} color={colors.main2} weight="fill" />
+          <CertificateIcon size={24} color={colors.primary} weight="fill" />
         </TouchableOpacity>
 
         {/* Thẻ 5: Đám mây */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { transform: [{ rotate: '1deg' }] }]}
           activeOpacity={0.82}
           onPress={onCloudPress}
@@ -106,10 +106,10 @@ const StatsRow = ({ onScorePress, onStreakPress, onCertificatePress, onVocabPres
             <Text style={styles.number}>{clouds}</Text>
             <View style={styles.labelRow}>
               <Text style={styles.label}>{t('stats.clouds', 'đám mây')}</Text>
-              <CaretRightIcon size={12} color={colors.main2} weight="bold" />
+              <CaretRightIcon size={12} color={colors.primary} weight="bold" />
             </View>
           </View>
-          <CloudIcon size={24} color={colors.main2} weight="fill" />
+          <CloudIcon size={24} color={colors.primary} weight="fill" />
         </TouchableOpacity>
       </View>
     </View>
@@ -132,9 +132,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderWidth: 2,
-    borderColor: colors.stroke || '#E2E8F0',
+    borderColor: colors.borderDefault || '#E2E8F0',
     borderRadius: Border.br_15 || 15,
     paddingVertical: Padding.padding_10 || 10,
     paddingHorizontal: Padding.padding_15 || 15,
@@ -147,13 +147,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   number: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_20 || 20,
-    color: colors.text,
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   label: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
   labelRow: {
     flexDirection: 'row',

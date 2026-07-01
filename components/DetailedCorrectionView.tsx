@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 // Bổ sung thêm Icon cho phần Chat
-import { PaperPlaneRightIcon, SparkleIcon } from 'phosphor-react-native'; 
+import { PaperPlaneRightIcon, SparkleIcon } from 'phosphor-react-native';
 import { FontFamily, FontSize, Padding, Gap, Border } from '../constants/GlobalStyles';
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -23,18 +23,18 @@ interface DetailedCorrectionViewProps {
 }
 
 export default function DetailedCorrectionView({ correctionData = [] }: DetailedCorrectionViewProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   // State quản lý text đang nhập
   const [inputText, setInputText] = useState('');
-  
+
   // State quản lý lịch sử trò chuyện (Mặc định AI sẽ chào hỏi trước)
   const [messages, setMessages] = useState<Message[]>([
-    { 
-      id: '1', 
-      sender: 'ai', 
-      text: 'Bạn có thắc mắc gì về các lỗi ngữ pháp hoặc từ vựng ở trên không? Hãy hỏi mình nhé!' 
+    {
+      id: '1',
+      sender: 'ai',
+      text: 'Bạn có thắc mắc gì về các lỗi ngữ pháp hoặc từ vựng ở trên không? Hãy hỏi mình nhé!'
     }
   ]);
 
@@ -64,7 +64,7 @@ export default function DetailedCorrectionView({ correctionData = [] }: Detailed
 
   return (
     <View style={styles.detailedCard}>
-      
+
       {/* --- 1. PHẦN BÀI SỬA (DỮ LIỆU ĐỘNG TỪ AI) --- */}
       <Text style={styles.detailedTitle}>Chi tiết lỗi sai</Text>
       <Text style={styles.paragraphText}>
@@ -79,7 +79,7 @@ export default function DetailedCorrectionView({ correctionData = [] }: Detailed
             return <Text key={index}>{segment.content}</Text>;
           })
         ) : (
-          <Text style={{ color: colors.gray }}>Không có dữ liệu phân tích chi tiết.</Text>
+          <Text style={{ color: colors.textSecondary }}>Không có dữ liệu phân tích chi tiết.</Text>
         )}
       </Text>
 
@@ -88,22 +88,22 @@ export default function DetailedCorrectionView({ correctionData = [] }: Detailed
         <>
           {/* Đường phân cách */}
           <View style={styles.divider} />
-    
+
           {/* --- 2. KHU VỰC HỎI ĐÁP VỚI AI --- */}
           <View style={styles.aiHeader}>
-            <SparkleIcon size={20} color={colors.main} weight="fill" />
+            <SparkleIcon size={20} color={colors.primary} weight="fill" />
             <Text style={styles.aiTitle}>Hỏi đáp cùng Salio AI</Text>
           </View>
-    
+
           {/* Danh sách tin nhắn */}
           <View style={styles.chatContainer}>
             {messages.map((msg) => {
               const isUser = msg.sender === 'user';
               return (
-                <View 
-                  key={msg.id} 
+                <View
+                  key={msg.id}
                   style={[
-                    styles.messageBubble, 
+                    styles.messageBubble,
                     isUser ? styles.userBubble : styles.aiBubble
                   ]}
                 >
@@ -117,28 +117,28 @@ export default function DetailedCorrectionView({ correctionData = [] }: Detailed
               );
             })}
           </View>
-    
+
           {/* Ô nhập liệu & Nút gửi */}
           <View style={styles.inputRow}>
             <TextInput
               style={styles.textInput}
               placeholder="Hỏi AI tại sao câu này sai..."
-              placeholderTextColor={colors.gray}
+              placeholderTextColor={colors.textSecondary}
               value={inputText}
               onChangeText={setInputText}
               multiline
               maxLength={200}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
               onPress={handleSendMessage}
               disabled={!inputText.trim()}
               activeOpacity={0.7}
             >
-              <PaperPlaneRightIcon 
-                size={20} 
-                color={inputText.trim() ? colors.bg : colors.gray} 
-                weight="fill" 
+              <PaperPlaneRightIcon
+                size={20}
+                color={inputText.trim() ? colors.background : colors.textSecondary}
+                weight="fill"
               />
             </TouchableOpacity>
           </View>
@@ -150,117 +150,117 @@ export default function DetailedCorrectionView({ correctionData = [] }: Detailed
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      // --- STYLES BÀI SỬA ---
-      detailedCard: {
-        backgroundColor: colors.bg,
-        borderRadius: Border.br_20,
-        borderWidth: 1,
-        borderColor: colors.stroke,
-        padding: Padding.padding_15,
-      },
-      detailedTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_16,
-        color: colors.color,
-        marginBottom: Gap.gap_15,
-      },
-      paragraphText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        lineHeight: 28, 
-      },
-      errorText: {
-        color: colors.red,
-        textDecorationLine: 'line-through', 
-        backgroundColor: '#FFE5E5', 
-      },
-      correctText: {
-        color: '#0C5F35', 
-        fontFamily: FontFamily.lexendDecaMedium,
-        backgroundColor: '#E8F5E9', 
-      },
+  // --- STYLES BÀI SỬA ---
+  detailedCard: {
+    backgroundColor: colors.background,
+    borderRadius: Border.br_20,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    padding: Padding.padding_15,
+  },
+  detailedTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16,
+    color: colors.textBrand,
+    marginBottom: Gap.gap_15,
+  },
+  paragraphText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    lineHeight: 28,
+  },
+  errorText: {
+    color: colors.red,
+    textDecorationLine: 'line-through',
+    backgroundColor: '#FFE5E5',
+  },
+  correctText: {
+    color: '#0C5F35',
+    fontFamily: FontFamily.lexendDecaMedium,
+    backgroundColor: '#E8F5E9',
+  },
 
-      // --- STYLES PHẦN AI CHAT ---
-      divider: {
-        height: 1,
-        backgroundColor: colors.stroke,
-        marginVertical: Padding.padding_15,
-        opacity: 0.5,
-      },
-      aiHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_8,
-        marginBottom: Gap.gap_15,
-      },
-      aiTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-      },
-      
-      // Bong bóng Chat
-      chatContainer: {
-        gap: Gap.gap_10,
-        marginBottom: Gap.gap_15,
-      },
-      messageBubble: {
-        padding: Padding.padding_10,
-        borderRadius: Border.br_15,
-        maxWidth: '85%',
-      },
-      userBubble: {
-        backgroundColor: colors.main, // Xanh lá nhạt
-        alignSelf: 'flex-end', // Căn phải
-        borderBottomRightRadius: 4, // Vuông góc nhẹ phần đuôi bong bóng
-      },
-      aiBubble: {
-        backgroundColor: '#F1F5F9', // Xám siêu nhạt
-        alignSelf: 'flex-start', // Căn trái
-        borderBottomLeftRadius: 4,
-      },
-      messageText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        lineHeight: 20,
-      },
-      userText: {
-        color: colors.color, // Chữ xanh đậm trên nền xanh nhạt
-      },
-      aiText: {
-        color: colors.text, // Chữ đen trên nền xám
-      },
+  // --- STYLES PHẦN AI CHAT ---
+  divider: {
+    height: 1,
+    backgroundColor: colors.borderDefault,
+    marginVertical: Padding.padding_15,
+    opacity: 0.5,
+  },
+  aiHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_8,
+    marginBottom: Gap.gap_15,
+  },
+  aiTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+  },
 
-      // Thanh nhập liệu
-      inputRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        gap: Gap.gap_10,
-      },
-      textInput: {
-        flex: 1,
-        minHeight: 44,
-        maxHeight: 100,
-        backgroundColor: '#F8FAFC',
-        borderWidth: 1,
-        borderColor: colors.stroke,
-        borderRadius: Border.br_15,
-        paddingHorizontal: Padding.padding_15,
-        paddingVertical: Padding.padding_10,
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-      },
-      sendButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: colors.color, // Nút xanh đậm
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      sendButtonDisabled: {
-        backgroundColor: colors.stroke, // Chuyển xám khi không có text
-      },
-    });
+  // Bong bóng Chat
+  chatContainer: {
+    gap: Gap.gap_10,
+    marginBottom: Gap.gap_15,
+  },
+  messageBubble: {
+    padding: Padding.padding_10,
+    borderRadius: Border.br_15,
+    maxWidth: '85%',
+  },
+  userBubble: {
+    backgroundColor: colors.primary, // Xanh lá nhạt
+    alignSelf: 'flex-end', // Căn phải
+    borderBottomRightRadius: 4, // Vuông góc nhẹ phần đuôi bong bóng
+  },
+  aiBubble: {
+    backgroundColor: '#F1F5F9', // Xám siêu nhạt
+    alignSelf: 'flex-start', // Căn trái
+    borderBottomLeftRadius: 4,
+  },
+  messageText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    lineHeight: 20,
+  },
+  userText: {
+    color: colors.textBrand, // Chữ xanh đậm trên nền xanh nhạt
+  },
+  aiText: {
+    color: colors.textPrimary, // Chữ đen trên nền xám
+  },
+
+  // Thanh nhập liệu
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Gap.gap_10,
+  },
+  textInput: {
+    flex: 1,
+    minHeight: 44,
+    maxHeight: 100,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    borderRadius: Border.br_15,
+    paddingHorizontal: Padding.padding_15,
+    paddingVertical: Padding.padding_10,
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+  },
+  sendButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.textBrand, // Nút xanh đậm
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendButtonDisabled: {
+    backgroundColor: colors.borderDefault, // Chuyển xám khi không có text
+  },
+});

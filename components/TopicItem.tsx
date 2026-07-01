@@ -35,17 +35,17 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
       const ratio = earned / total;
 
       if (ratio < 0.5) {
-        return { bg: colors.historyRedBg || '#FEF2F2', text: colors.historyRedText || '#EF4444', isExcellent: false };
+        return { bg: colors.historyRedBg || '#FEF2F2', text: colors.textInverse || '#EF4444', isExcellent: false };
       } else if (ratio < 0.75) {
-        return { bg: colors.historyOrangeBg || '#D97706', text: colors.historyOrangeText || '#FFFFFF', isExcellent: false };
+        return { bg: colors.historyOrangeBg || '#D97706', text: colors.textInverse || '#FFFFFF', isExcellent: false };
       } else if (ratio >= 0.9) {
-        return { bg: colors.historyYellowBg || '#FEF08A', text: colors.historyYellowText || '#B45309', isExcellent: true };
+        return { bg: colors.historyYellowBg || '#FEF08A', text: colors.textInverse || '#B45309', isExcellent: true };
       }
     }
-    return { bg: colors.main2 || '#22C55E', text: colors.bg || '#FFFFFF', isExcellent: false };
+    return { bg: colors.primary || '#22C55E', text: colors.background || '#FFFFFF', isExcellent: false };
   };
 
-  const statusColors = topic.score ? getScoreStatus(topic.score) : { bg: colors.main2 || '#22C55E', text: colors.bg || '#FFFFFF', isExcellent: false };
+  const statusColors = topic.score ? getScoreStatus(topic.score) : { bg: colors.primary || '#22C55E', text: colors.background || '#FFFFFF', isExcellent: false };
 
   // Animation lắc ngôi sao nếu điểm cao
   const shakeAnim = useSharedValue(0);
@@ -72,16 +72,16 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
   }));
 
   return (
-    <Pressable 
-      style={[styles.topicItemCard, isSelected && styles.cardSelected]} 
-      onPress={onPress} 
+    <Pressable
+      style={[styles.topicItemCard, isSelected && styles.cardSelected]}
+      onPress={onPress}
       onLongPress={onLongPress}
     >
       {isSelectionMode && (
         <View style={styles.checkboxContainer}>
-          {isSelected 
-            ? <CheckCircleIcon size={24} color={colors.main2 || colors.main} weight="fill" />
-            : <CircleIcon size={24} color={colors.gray || colors.gray} weight="light" />
+          {isSelected
+            ? <CheckCircleIcon size={24} color={colors.primary || colors.primary} weight="fill" />
+            : <CircleIcon size={24} color={colors.textSecondary || colors.textSecondary} weight="light" />
           }
         </View>
       )}
@@ -95,7 +95,7 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
             </Animated.View>
           )}
         </View>
-        
+
         {topic.score && topic.timeAgo ? (
           <View style={styles.infoRow}>
             <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
@@ -107,7 +107,7 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
               <Text style={[styles.scoreText, { color: statusColors.text }]}>{topic.score}</Text>
             </View>
             <View style={styles.timeWrap}>
-              <ClockIcon size={14} color={colors.gray || '#64748B'} weight="regular" />
+              <ClockIcon size={14} color={colors.textSecondary || '#64748B'} weight="regular" />
               <Text style={styles.timeText}>{topic.timeAgo}</Text>
             </View>
           </View>
@@ -122,15 +122,15 @@ const TopicItem = ({ topic, onPress, onLongPress, isSelectionMode, isSelected }:
 const createStyles = (colors: any) => StyleSheet.create({
   topicItemCard: {
     flexDirection: 'row',
-    backgroundColor: colors.bg || colors.bg,
+    backgroundColor: colors.background || colors.background,
     borderRadius: Border.br_20,
     padding: Padding.padding_15,
     borderWidth: 2,
-    borderColor: colors.stroke || colors.stroke,
+    borderColor: colors.borderDefault || colors.borderDefault,
     alignItems: 'center',
   },
   cardSelected: {
-    borderColor: colors.main2 || colors.main,
+    borderColor: colors.primary || colors.primary,
     backgroundColor: colors.historySelectedBg || '#F0FDF4',
   },
   checkboxContainer: {
@@ -158,7 +158,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flex: 1,
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14,
-    color: colors.text || colors.text,
+    color: colors.textPrimary || colors.textPrimary,
   },
   starIcon: {
     marginLeft: 8,
@@ -166,26 +166,26 @@ const createStyles = (colors: any) => StyleSheet.create({
   topicItemDesc: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: colors.gray || colors.gray,
+    color: colors.textSecondary || colors.textSecondary,
   },
-  
+
   // --- STYLES CHO LỊCH SỬ ---
-  infoRow: { 
-    flexDirection: 'row', 
+  infoRow: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
-  badge: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: 4, 
-    paddingHorizontal: 8, 
-    paddingVertical: 4, 
-    borderRadius: 8 
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8
   },
   scoreText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 || 12 },
   timeWrap: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12 || 12, color: colors.gray || '#64748B' },
+  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12 || 12, color: colors.textSecondary || '#64748B' },
 });
 
 export default TopicItem;

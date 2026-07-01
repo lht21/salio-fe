@@ -15,8 +15,8 @@ const COLUMNS = 14; // Số cột trên 1 hàng (Có thể điều chỉnh)
 const CELL_SIZE = (width - Padding.padding_15 * 2) / COLUMNS;
 
 export default function WonGoJiGrid({ text, setText, maxChars = 700 }: WonGoJiGridProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const inputRef = useRef<TextInput>(null);
 
@@ -38,7 +38,7 @@ export default function WonGoJiGrid({ text, setText, maxChars = 700 }: WonGoJiGr
       if (char === '\n') {
         const cellsInCurrentRow = cells.length % COLUMNS;
         const emptyCellsNeeded = COLUMNS - cellsInCurrentRow;
-        
+
         for (let j = 0; j < emptyCellsNeeded; j++) {
           if (cells.length < maxChars) {
             cells.push(''); // Thêm ô trống
@@ -80,30 +80,30 @@ export default function WonGoJiGrid({ text, setText, maxChars = 700 }: WonGoJiGr
         autoCapitalize="none"
         autoCorrect={false}
         style={styles.hiddenInput}
-        caretHidden={true} 
+        caretHidden={true}
       />
 
       <Pressable onPress={handlePressGrid} style={styles.gridContainer}>
         {Array.from({ length: maxChars }).map((_, index) => {
           // Lấy nội dung đã được xử lý cho ô này
           const cellContent = parsedCells[index] || '';
-          
+
           // Xác định ô đang được active (ô con trỏ)
-          const isCursor = index === cursorIndex; 
+          const isCursor = index === cursorIndex;
 
           return (
-            <View 
-              key={index} 
+            <View
+              key={index}
               style={[
                 styles.gridCell,
-                isCursor && styles.gridCellActive 
+                isCursor && styles.gridCellActive
               ]}
             >
-              <Text 
+              <Text
                 style={[
                   styles.gridText,
                   // Nhỏ font lại một chút nếu ô đó chứa 2 chữ số để không bị tràn viền
-                  cellContent.length > 1 && { fontSize: FontSize.fs_12 } 
+                  cellContent.length > 1 && { fontSize: FontSize.fs_12 }
                 ]}
               >
                 {cellContent}
@@ -117,39 +117,39 @@ export default function WonGoJiGrid({ text, setText, maxChars = 700 }: WonGoJiGr
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      gridWrapper: {
-        paddingHorizontal: Padding.padding_15,
-        position: 'relative',
-      },
-      hiddenInput: {
-        position: 'absolute',
-        width: 0,
-        height: 0,
-        opacity: 0, 
-      },
-      gridContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        borderTopWidth: 1,
-        borderLeftWidth: 1,
-        borderColor: '#D1E9D2',
-      },
-      gridCell: {
-        width: CELL_SIZE,
-        height: CELL_SIZE,
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
-        borderColor: '#D1E9D2',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: colors.bg,
-      },
-      gridCellActive: {
-        backgroundColor: '#F0FDF4', 
-      },
-      gridText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-      },
-    });
+  gridWrapper: {
+    paddingHorizontal: Padding.padding_15,
+    position: 'relative',
+  },
+  hiddenInput: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    opacity: 0,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: '#D1E9D2',
+  },
+  gridCell: {
+    width: CELL_SIZE,
+    height: CELL_SIZE,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#D1E9D2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+  gridCellActive: {
+    backgroundColor: '#F0FDF4',
+  },
+  gridText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+  },
+});

@@ -19,8 +19,8 @@ type StrokePath = {
 const VIEWBOX_SIZE = 120;
 
 const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [paths, setPaths] = React.useState<StrokePath[]>([]);
   const [currentPath, setCurrentPath] = React.useState('');
@@ -133,7 +133,7 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
           <Path
             key={path.id}
             d={path.d}
-            stroke={colors.colorBlack}
+            stroke={colors.borderDefault}
             strokeWidth={8}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -144,7 +144,7 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
         {currentPath ? (
           <Path
             d={currentPath}
-            stroke={colors.colorBlack}
+            stroke={colors.borderDefault}
             strokeWidth={8}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -157,13 +157,13 @@ const HangulPracticeCanvas = ({ glyph, resetToken }: HangulPracticeCanvasProps) 
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      canvasWrap: {
-        flex: 1,
-        margin: 10,
-        borderRadius: Border.br_20,
-        backgroundColor: '#F8F8F8',
-        overflow: 'hidden',
-      },
-    });
+  canvasWrap: {
+    flex: 1,
+    margin: 10,
+    borderRadius: Border.br_20,
+    backgroundColor: '#F8F8F8',
+    overflow: 'hidden',
+  },
+});
 
 export default HangulPracticeCanvas;

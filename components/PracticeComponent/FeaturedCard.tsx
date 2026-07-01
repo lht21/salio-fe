@@ -33,7 +33,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ topic, onPress }) => {
               </View>
             ) : <View />}
             <View style={styles.statsContainer}>
-              <UsersIcon size={16} color={colors.gray} weight="fill" />
+              <UsersIcon size={16} color={colors.textSecondary} weight="fill" />
               <Text style={styles.statsText}>1.2k lượt viết</Text>
             </View>
           </View>
@@ -48,16 +48,16 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: Gap.gap_10,
   },
   featuredCardOuter: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: Border.br_30,
     borderWidth: 1.5,
-    borderColor: colors.main2,
+    borderColor: colors.primary,
     padding: 2,
   },
   featuredCard: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderWidth: 1.5,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
     borderRadius: 25,
     padding: Padding.padding_15,
     gap: Gap.gap_15,
@@ -74,13 +74,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   featuredTitle: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: FontSize.fs_16,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: Gap.gap_5,
   },
   featuredDesc: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: colors.color, 
+    color: colors.textBrand,
     lineHeight: 20,
   },
   featuredImage: {
@@ -94,7 +94,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    borderTopColor: colors.stroke,
+    borderTopColor: colors.borderDefault,
     paddingTop: Padding.padding_10,
   },
   badgeContainer: {
@@ -106,7 +106,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   badgeText: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 10,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -116,7 +116,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   statsText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
 });
 

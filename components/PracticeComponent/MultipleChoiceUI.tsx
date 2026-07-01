@@ -15,23 +15,23 @@ import { ConfirmModal } from '../ModalResult/ConfirmModal';
 import { useTheme } from "@/contexts/ThemeContext";
 
 const ExamCover = ({ title, type }: { title: string, type: string }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-return (
-  <View style={styles.coverBanner}>
-    <Text style={styles.coverTitle}>{title}</Text>
-    <View style={styles.coverInfoRow}>
-      <Text style={styles.coverInfoChip}>TOPIK II</Text>
-      <Text style={styles.coverInfoChip}>{type === 'reading' ? '읽기' : '듣기'}</Text>
+  return (
+    <View style={styles.coverBanner}>
+      <Text style={styles.coverTitle}>{title}</Text>
+      <View style={styles.coverInfoRow}>
+        <Text style={styles.coverInfoChip}>TOPIK II</Text>
+        <Text style={styles.coverInfoChip}>{type === 'reading' ? '읽기' : '듣기'}</Text>
+      </View>
     </View>
-  </View>
-);
+  );
 };
 
 const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay, onFinish, autoPlay = false }: { url: string, id: string, currentlyPlayingId: string | null, onPlay: (id: string) => void, onFinish?: (id: string) => void, autoPlay?: boolean }) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -102,10 +102,10 @@ const MiniAudioPlayer = ({ url, id, currentlyPlayingId, onPlay, onFinish, autoPl
   return (
     <View style={styles.audioPlayerContainer}>
       <View style={styles.playButton}>
-        {isPlaying ? <PauseIcon size={20} color={colors.bg} weight="fill" /> : <PlayIcon size={20} color={colors.bg} weight="fill" />}
+        {isPlaying ? <PauseIcon size={20} color={colors.background} weight="fill" /> : <PlayIcon size={20} color={colors.background} weight="fill" />}
       </View>
       <View style={styles.progressContainer}>
-        <ProgressBar progress={progressPercent / 100} height={6} color={colors.main2} style={{ marginBottom: 6 }} />
+        <ProgressBar progress={progressPercent / 100} height={6} color={colors.primary} style={{ marginBottom: 6 }} />
         <View style={styles.timeRow}>
           <Text style={styles.timeText}>{formatTime(position)}</Text>
           <Text style={styles.timeText}>{formatTime(duration)}</Text>
@@ -138,21 +138,21 @@ const QuestionListModal = forwardRef<BottomSheetModal, QuestionListModalProps>((
       snapPoints={snapPoints}
       enablePanDownToClose={true}
       backdropComponent={renderBackdrop}
-      backgroundStyle={{ backgroundColor: colors.bg }}
-      handleIndicatorStyle={{ backgroundColor: colors.stroke }}
+      backgroundStyle={{ backgroundColor: colors.background }}
+      handleIndicatorStyle={{ backgroundColor: colors.borderDefault }}
     >
       <BottomSheetView style={styles.questionListContainer}>
         <Text style={styles.questionListTitle}>Danh sách câu hỏi</Text>
         <ScrollView contentContainerStyle={styles.questionGrid} showsVerticalScrollIndicator={false}>
           {allQuestions.map((q: any, index: number) => {
-            const isAnswered = !!answers[q._id]; 
+            const isAnswered = !!answers[q._id];
             return (
-              <TouchableOpacity 
-                key={q._id || index} 
+              <TouchableOpacity
+                key={q._id || index}
                 style={[styles.questionBox, isAnswered ? styles.questionBoxAnswered : styles.questionBoxPending]}
                 onPress={() => onJump(q._id)}
               >
-                <Text style={[styles.questionBoxText, isAnswered && { color: colors.bg }]}>{index + 1}</Text>
+                <Text style={[styles.questionBoxText, isAnswered && { color: colors.background }]}>{index + 1}</Text>
               </TouchableOpacity>
             );
           })}
@@ -163,8 +163,8 @@ const QuestionListModal = forwardRef<BottomSheetModal, QuestionListModalProps>((
 });
 
 const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, onExit, type }: any) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { width } = useWindowDimensions();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -297,7 +297,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
           return (
             <View key={item._id || itemIndex} style={{ marginBottom: Gap.gap_20 }}>
               {item.title && <Text style={styles.instructionText}>{item.title}</Text>}
-              
+
               {passageAudioUrl && (
                 <MiniAudioPlayer
                   id={`item-${item._id || itemIndex}`}
@@ -313,7 +313,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
                 <Image source={{ uri: item.imageUrl }} style={styles.contentImage} contentFit="contain" />
               )}
 
-               {(item.passage || item.content) ? (
+              {(item.passage || item.content) ? (
                 <View style={styles.passageContainer}>
                   <RenderHtml
                     contentWidth={width - 60}
@@ -322,7 +322,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
                   />
                 </View>
               ) : null}
-              
+
               {item.questions?.map((q: any, qIndex: number) => (
                 <View
                   key={q._id || qIndex}
@@ -364,7 +364,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
       />
       <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContent}>
         <ExamCover title={examTitle} type={type} />
-        
+
         {(type === 'listening' || type === 'full') && renderSection('listening', 'TOPIK 듣기')}
         {(type === 'reading' || type === 'full') && renderSection('reading', 'TOPIK 읽기')}
       </ScrollView>
@@ -391,7 +391,7 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
         onCancel={() => setShowSubmitModal(false)}
       />
 
-      <QuestionListModal 
+      <QuestionListModal
         ref={questionListSheetRef}
         allQuestions={allQuestions}
         answers={answers}
@@ -402,38 +402,38 @@ const MultipleChoiceUI = ({ data, answers, timeLeft, onSelectAnswer, onSubmit, o
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
-      coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
-      coverTitle: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_20, color: colors.bg, textAlign: 'center', marginBottom: Gap.gap_15 },
-      coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
-      coverInfoChip: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: colors.stroke, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
-      sectionHeader: { borderBottomWidth: 2, borderColor: colors.stroke, paddingBottom: 10, marginBottom: 20 },
-      sectionTitle: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: colors.text },
-      instructionText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_10 },
-      passageContainer: { marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
-      passageBaseText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: colors.color, lineHeight: 24 },
-      imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
-      imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: colors.stroke, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between' },
-      optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
-      optionLabel: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: colors.gray, marginTop: 8 },
-      textOptionsContainer: { gap: Gap.gap_10 },
-      textOptionCard: { borderWidth: 2, borderColor: colors.stroke, borderRadius: Border.br_15, padding: Padding.padding_15 },
-      textOptionContent: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_16, color: colors.text, lineHeight: 24 },
-      optionSelected: { borderColor: colors.main, backgroundColor: colors.greenLight },
-      questionListContainer: { padding: Padding.padding_20, paddingBottom: 40 },
-      questionListTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: colors.text, marginBottom: Gap.gap_20, textAlign: 'center' },
-      questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Gap.gap_10, justifyContent: 'center' },
-      questionBox: { width: 44, height: 44, borderRadius: Border.br_10, justifyContent: 'center', alignItems: 'center' },
-      questionBoxPending: { backgroundColor: colors.stroke },
-      questionBoxAnswered: { backgroundColor: colors.main },
-      questionBoxText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.gray },
-      audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: colors.stroke },
-      playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.main2, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
-      progressContainer: { flex: 1, justifyContent: 'center' },
+  scrollContent: { padding: Padding.padding_15, paddingBottom: 50 },
+  coverBanner: { backgroundColor: '#1E293B', borderRadius: Border.br_20, padding: Padding.padding_20, marginBottom: 40 },
+  coverTitle: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_20, color: colors.background, textAlign: 'center', marginBottom: Gap.gap_15 },
+  coverInfoRow: { flexDirection: 'row', justifyContent: 'center', gap: Gap.gap_10, marginBottom: Gap.gap_20 },
+  coverInfoChip: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: '#1E293B', backgroundColor: colors.borderDefault, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
+  sectionHeader: { borderBottomWidth: 2, borderColor: colors.borderDefault, paddingBottom: 10, marginBottom: 20 },
+  sectionTitle: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
+  instructionText: { fontFamily: FontFamily.notoSerifBold, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: Gap.gap_10 },
+  passageContainer: { marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC', padding: 15, borderRadius: Border.br_10 },
+  passageBaseText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: colors.textBrand, lineHeight: 24 },
+  imageOptionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Gap.gap_15 },
+  imageOptionCard: { width: '48%', aspectRatio: 1, borderWidth: 2, borderColor: colors.borderDefault, borderRadius: Border.br_15, padding: Padding.padding_10, alignItems: 'center', justifyContent: 'space-between' },
+  optionImage: { flex: 1, width: '100%', borderRadius: Border.br_10 },
+  optionLabel: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_14, color: colors.textSecondary, marginTop: 8 },
+  textOptionsContainer: { gap: Gap.gap_10 },
+  textOptionCard: { borderWidth: 2, borderColor: colors.borderDefault, borderRadius: Border.br_15, padding: Padding.padding_15 },
+  textOptionContent: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_16, color: colors.textPrimary, lineHeight: 24 },
+  optionSelected: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+  questionListContainer: { padding: Padding.padding_20, paddingBottom: 40 },
+  questionListTitle: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: Gap.gap_20, textAlign: 'center' },
+  questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Gap.gap_10, justifyContent: 'center' },
+  questionBox: { width: 44, height: 44, borderRadius: Border.br_10, justifyContent: 'center', alignItems: 'center' },
+  questionBoxPending: { backgroundColor: colors.borderDefault },
+  questionBoxAnswered: { backgroundColor: colors.primary },
+  questionBoxText: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_14, color: colors.textSecondary },
+  audioPlayerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: Padding.padding_10, borderRadius: Border.br_10, marginBottom: Gap.gap_10, borderWidth: 1, borderColor: colors.borderDefault },
+  playButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginRight: Gap.gap_10 },
+  progressContainer: { flex: 1, justifyContent: 'center' },
 
-      timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
-      timeText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: colors.gray },
-      contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
-    });
+  timeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  timeText: { fontFamily: FontFamily.notoSerifRegular, fontSize: FontSize.fs_12, color: colors.textSecondary },
+  contentImage: { width: '100%', height: 200, borderRadius: Border.br_10, marginBottom: Gap.gap_15, backgroundColor: '#F8FAFC' },
+});
 
 export default MultipleChoiceUI;

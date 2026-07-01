@@ -21,8 +21,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 const { width } = Dimensions.get("window");
 
 export default function SkippedLessonsScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const params = useLocalSearchParams<{ sessionId?: string }>();
@@ -76,7 +76,7 @@ export default function SkippedLessonsScreen() {
     return (
       <LinearGradient colors={["#ADFF66", "#8AFF81", "#FFFFFF"]} style={styles.container}>
         <SafeAreaView style={[styles.safeArea, styles.centered]}>
-          <ActivityIndicator color={colors.main2} size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
           <Text style={styles.loadingText}>Đang tải lộ trình...</Text>
         </SafeAreaView>
       </LinearGradient>
@@ -142,115 +142,115 @@ export default function SkippedLessonsScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-        paddingHorizontal: 35
-      },
-      safeArea: {
-        flex: 1
-      },
-      centered: {
-        alignItems: "center",
-        justifyContent: "center"
-      },
-      content: {
-        flex: 1,
-        alignItems: "center",
-        paddingTop: 80
-      },
-      loadingText: {
-        marginTop: 12,
-        fontFamily: FontFamily.lexendDecaRegular,
-        color: colors.text
-      },
-      headerSection: {
-        alignItems: "center",
-        marginBottom: 30
-      },
-      startLabel: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 17,
-        color: colors.text || "#1E1E1E",
-        marginBottom: 15
-      },
-      lessonTitle: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 30,
-        color: colors.main2 || "#3C8137",
-        textAlign: "center"
-      },
-      rankCapsule: {
-        backgroundColor: colors.mainLighter || "rgba(236, 255, 235, 0.8)",
-        paddingVertical: 16,
-        width: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 15
-      },
-      rankText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 14,
-        color: colors.text || "#1E1E1E"
-      },
-      listWrap: {
-        width: "100%",
-        maxHeight: 220,
-        marginTop: 24
-      },
-      listTitle: {
-        fontFamily: FontFamily.lexendDecaBold,
-        color: colors.text || "#1E1E1E",
-        marginBottom: 10
-      },
-      lessonItem: {
-        backgroundColor: "rgba(255, 255, 255, 0.75)",
-        borderRadius: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        marginBottom: 8
-      },
-      lessonCode: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        color: colors.main2 || "#3C8137",
-        fontSize: 12,
-        marginBottom: 4
-      },
-      lessonName: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        color: colors.text || "#1E1E1E",
-        fontSize: 14
-      },
-      emptyText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        color: colors.text || "#1E1E1E",
-        lineHeight: 22
-      },
-      bottomCard: {
-        width,
-        backgroundColor: "#98F291",
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
-        paddingHorizontal: 35,
-        paddingTop: 60,
-        paddingBottom: 50,
-        alignItems: "center"
-      },
-      instructionText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 14,
-        color: colors.text || "#1E1E1E",
-        textAlign: "center",
-        marginBottom: 50
-      },
-      actionButton: {
-        backgroundColor: colors.vang || "#F9F871",
-        width: "100%",
-        height: 62,
-        borderRadius: 31,
-        marginVertical: 0
-      },
-      actionButtonText: {
-        color: colors.text || "#1E1E1E",
-        fontWeight: "500"
-      }
-    });
+  container: {
+    flex: 1,
+    paddingHorizontal: 35
+  },
+  safeArea: {
+    flex: 1
+  },
+  centered: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 80
+  },
+  loadingText: {
+    marginTop: 12,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: colors.textPrimary
+  },
+  headerSection: {
+    alignItems: "center",
+    marginBottom: 30
+  },
+  startLabel: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 17,
+    color: colors.textPrimary || "#1E1E1E",
+    marginBottom: 15
+  },
+  lessonTitle: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 30,
+    color: colors.primary || "#3C8137",
+    textAlign: "center"
+  },
+  rankCapsule: {
+    backgroundColor: colors.backgroundOverlay || "rgba(236, 255, 235, 0.8)",
+    paddingVertical: 16,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15
+  },
+  rankText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 14,
+    color: colors.textPrimary || "#1E1E1E"
+  },
+  listWrap: {
+    width: "100%",
+    maxHeight: 220,
+    marginTop: 24
+  },
+  listTitle: {
+    fontFamily: FontFamily.lexendDecaBold,
+    color: colors.textPrimary || "#1E1E1E",
+    marginBottom: 10
+  },
+  lessonItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.75)",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 8
+  },
+  lessonCode: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: colors.primary || "#3C8137",
+    fontSize: 12,
+    marginBottom: 4
+  },
+  lessonName: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: colors.textPrimary || "#1E1E1E",
+    fontSize: 14
+  },
+  emptyText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: colors.textPrimary || "#1E1E1E",
+    lineHeight: 22
+  },
+  bottomCard: {
+    width,
+    backgroundColor: "#98F291",
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingHorizontal: 35,
+    paddingTop: 60,
+    paddingBottom: 50,
+    alignItems: "center"
+  },
+  instructionText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 14,
+    color: colors.textPrimary || "#1E1E1E",
+    textAlign: "center",
+    marginBottom: 50
+  },
+  actionButton: {
+    backgroundColor: colors.vang || "#F9F871",
+    width: "100%",
+    height: 62,
+    borderRadius: 31,
+    marginVertical: 0
+  },
+  actionButtonText: {
+    color: colors.textPrimary || "#1E1E1E",
+    fontWeight: "500"
+  }
+});

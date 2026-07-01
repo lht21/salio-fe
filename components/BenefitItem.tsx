@@ -9,29 +9,29 @@ interface BenefitItemProps {
 }
 
 export default function BenefitItem({ text }: BenefitItemProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
-      <CheckCircleIcon size={24} weight="fill" color={colors.color} />
+      <CheckCircleIcon size={24} weight="fill" color={colors.textBrand} />
       <Text style={styles.text}>{text}</Text>
     </View>
   );
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Gap.gap_10,
-        marginBottom: 12,
-      },
-      text: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        // Tuỳ thuộc hình nền của bạn tối hay sáng, có thể đổi Color.bg hoặc Color.text
-        color: colors.text, 
-        flex: 1,
-      },
-    });
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Gap.gap_10,
+    marginBottom: 12,
+  },
+  text: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    // Tuỳ thuộc hình nền của bạn tối hay sáng, có thể đổi Color.bg hoặc Color.text
+    color: colors.textPrimary,
+    flex: 1,
+  },
+});

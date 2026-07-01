@@ -7,12 +7,12 @@ import WritingResultUI from '../../../../../components/PracticeComponent/Writing
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function PracticeResultScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { type, setId, attemptId } = useLocalSearchParams();
   const router = useRouter();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [resultData, setResultData] = useState<any>(null);
 
@@ -55,7 +55,7 @@ export default function PracticeResultScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.color} />
+        <ActivityIndicator size="large" color={colors.textBrand} />
       </View>
     );
   }
@@ -65,16 +65,16 @@ export default function PracticeResultScreen() {
   }
 
   return (
-    <ExamResultUI 
-      type={type as string} 
-      data={resultData} 
-      onHomePress={handleHomePress} 
-      onReviewPress={handleReviewPress} 
-      onRetryPress={handleRetryPress} 
+    <ExamResultUI
+      type={type as string}
+      data={resultData}
+      onHomePress={handleHomePress}
+      onReviewPress={handleReviewPress}
+      onRetryPress={handleRetryPress}
     />
   );
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }
-    });
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }
+});

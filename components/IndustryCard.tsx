@@ -29,13 +29,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bg, 
+    backgroundColor: colors.background,
     borderWidth: Stroke.stroke,
-    borderColor: colors.stroke, 
+    borderColor: colors.borderDefault,
     borderRadius: Border.br_15 || 15,
     padding: Padding.padding_15 || 15,
     marginBottom: Gap.gap_20 || 20,
-    
+
   },
   iconContainer: {
     width: 44,
@@ -51,13 +51,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 15,
-    color: colors.industryTitle || '#B45309', 
+    color: colors.industryTitle || '#B45309',
     marginBottom: 4,
   },
   subtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 12,
-    color: colors.industrySubtitle || '#D97706', 
+    color: colors.industrySubtitle || '#D97706',
   },
 });
 

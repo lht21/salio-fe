@@ -101,7 +101,7 @@ export default function SettingsScreen() {
       } else {
         setSelectedAvatar(AVATAR_PRESETS[1] ?? AVATAR_PRESETS[0]);
       }
-      
+
       if (!user.preferences?.notifications?.enabled) {
         setReminder('none');
       } else if (user.preferences?.notifications?.dailyReminderTime === '08:00') {
@@ -118,14 +118,14 @@ export default function SettingsScreen() {
     ko: t('settings.korean'),
   };
 
-  const VOICE_LABELS: Record<VoiceType, string> = { 
-    male: t('settings.maleVoice'), 
-    female: t('settings.femaleVoice') 
+  const VOICE_LABELS: Record<VoiceType, string> = {
+    male: t('settings.maleVoice'),
+    female: t('settings.femaleVoice')
   };
 
   const handleConfirmLogout = async () => {
     setLogoutModalVisible(false);
-  
+
     try {
       // 1. Chỉ cần gọi hàm logout từ Context, nó sẽ lo hết việc xóa token và state
       await logout();
@@ -160,7 +160,7 @@ export default function SettingsScreen() {
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
         const formData = new FormData();
-        
+
         const filename = asset.uri.split('/').pop() || 'avatar.jpg';
         const match = /\.(\w+)$/.exec(filename);
         const type = match ? `image/${match[1]}` : `image/jpeg`;
@@ -231,8 +231,8 @@ export default function SettingsScreen() {
         enabled = true;
         time = '20:00';
       }
-      await UserService.updatePreferences({ 
-        preferences: { notifications: { enabled, dailyReminderTime: time } } 
+      await UserService.updatePreferences({
+        preferences: { notifications: { enabled, dailyReminderTime: time } }
       });
       setReminder(selectedReminder);
       reminderSheetRef.current?.dismiss();
@@ -244,13 +244,13 @@ export default function SettingsScreen() {
 
   const displayModeLabel = displayMode === 'light' ? t('settings.light') : t('settings.dark');
   const languageLabel = LANGUAGE_LABELS[language];
-  
+
   const voiceLabel = VOICE_LABELS[voice];
   const reminderLabel = reminder === 'none' ? t('settings.reminder') : (reminder === 'morning' ? '08:00' : '20:00');
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title={t('settings.title')} style={{ backgroundColor: colors.bg2 }} />
+      <ScreenHeader title={t('settings.title')} style={{ backgroundColor: colors.backgroundSubtle }} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity
@@ -262,7 +262,7 @@ export default function SettingsScreen() {
             <Image source={selectedAvatar.imageSource} style={styles.avatarImage} />
             <View style={styles.avatarAction}>
               <Text style={styles.avatarText}>{t('settings.change')}</Text>
-              <CaretRightIcon size={16} color={colors.gray} weight="bold" />
+              <CaretRightIcon size={16} color={colors.textSecondary} weight="bold" />
             </View>
           </View>
         </TouchableOpacity>
@@ -271,19 +271,19 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{t('settings.personalInfo')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<UserIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<UserIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.username')}
               value={userName}
               onPress={() => userNameSheetRef.current?.present()}
             />
             <SettingsRow
-              icon={<EnvelopeSimpleIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<EnvelopeSimpleIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.email')}
               value={user?.email || t('settings.notUpdated')}
               onPress={() => emailSheetRef.current?.present()}
             />
             <SettingsRow
-              icon={<PasswordIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<PasswordIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.password')}
               value={t('settings.changePassword')}
               isLast
@@ -296,7 +296,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{t('settings.studyPlan')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<StarIcon size={24} color={colors.main2} weight="fill" />}
+              icon={<StarIcon size={24} color={colors.primary} weight="fill" />}
               label="Salio Master TOPIK"
               isLast
               onPress={() => router.push('/subscription/manage')}
@@ -329,7 +329,7 @@ export default function SettingsScreen() {
               <Text style={styles.gridText}>{languageLabel}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.gridItem, styles.gridItemButton]}
               activeOpacity={0.8}
               onPress={() => reminderSheetRef.current?.present()}
@@ -338,7 +338,7 @@ export default function SettingsScreen() {
               <Text style={styles.gridText}>{reminderLabel}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.gridItem, styles.gridItemButton]}
               activeOpacity={0.8}
               onPress={() => voiceSheetRef.current?.present()} // Bật sheet
@@ -353,7 +353,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{t('settings.platform')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<GlobeIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<GlobeIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.website')}
               isLast
             />
@@ -364,19 +364,19 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{t('settings.about')}</Text>
           <View style={styles.card}>
             <SettingsRow
-              icon={<LockKeyIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<LockKeyIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.privacyPolicy')}
             />
             <SettingsRow
-              icon={<CookieIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<CookieIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.termsOfService')}
             />
             <SettingsRow
-              icon={<HeadsetIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<HeadsetIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.supportCenter')}
             />
             <SettingsRow
-              icon={<InfoIcon size={24} color={colors.main2} weight="regular" />}
+              icon={<InfoIcon size={24} color={colors.primary} weight="regular" />}
               label={t('settings.aboutUs')}
               isLast
             />
@@ -386,9 +386,9 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <View style={styles.card}>
             <SettingsRow
-              icon={<UsersIcon size={24} color={colors.xanh} weight="regular" />}
+              icon={<UsersIcon size={24} color={colors.accent1} weight="regular" />}
               label={t('settings.loginOther')}
-              labelColor={colors.gray}
+              labelColor={colors.textSecondary}
               showArrow={false}
             />
             <SettingsRow
@@ -483,7 +483,7 @@ export default function SettingsScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg2,
+    backgroundColor: colors.backgroundSubtle,
   },
   scrollContent: {
     padding: Padding.padding_15,
@@ -493,17 +493,17 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: Gap.gap_10,
     borderRadius: Border.br_15,
     padding: Padding.padding_15,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
     marginBottom: Gap.gap_8,
     marginLeft: 4,
   },
   card: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   avatarRow: {
     flexDirection: 'row',
@@ -515,7 +515,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.main2,
+    backgroundColor: colors.primary,
   },
   avatarAction: {
     flexDirection: 'row',
@@ -525,7 +525,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   avatarText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_14,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
   gridCard: {
     flexDirection: 'row',
@@ -544,7 +544,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   gridText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   footer: {
@@ -554,6 +554,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   versionText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12,
-    color: colors.gray,
+    color: colors.textSecondary,
   },
 });

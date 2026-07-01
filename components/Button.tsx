@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleProp, StyleSheet, Text, TextStyle, ViewStyle } from "react-native";
+import { Pressable, StyleProp, StyleSheet, Text, TextStyle, ViewStyle, View, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../contexts/ThemeContext";
 import {
@@ -17,7 +17,8 @@ export type ButtonVariant =
   | "GreenBold"   // Nền xanh lá, chữ in đậm
   | "TextOnly"    // Chỉ có chữ cam, không nền
   | "Red"         // Nền đỏ, chữ trắng (Dùng cho cảnh báo/xóa)
-  | "Black";      // Nền đen, viền xanh lá đậm
+  | "Black"       // Nền đen, viền xanh lá đậm
+
 
 export type ButtonType = {
   variant?: ButtonVariant;
@@ -26,6 +27,8 @@ export type ButtonType = {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
+  leftIcon?: React.ReactNode;
+  isLoading?: boolean;
 };
 
 const Button = ({
@@ -34,7 +37,9 @@ const Button = ({
   onPress,
   style,
   textStyle,
-  disabled = false
+  disabled = false,
+  leftIcon,
+  isLoading = false,
 }: ButtonType) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -52,6 +57,7 @@ const Button = ({
       case "TextOnly": return styles.variantTextOnly;
       case "Red": return styles.variantRed;
       case "Black": return styles.variantBlack;
+
       case "Green":
       default: return styles.variantGreen;
     }
@@ -67,30 +73,41 @@ const Button = ({
       case "TextOnly": return styles.textTextOnly;
       case "Red": return styles.textRed;
       case "Black": return styles.textBlack;
+
       case "Green":
       default: return styles.textGreen;
     }
   };
+
+  // Trích xuất màu của text để dùng cho ActivityIndicator
+  const textVariantColor = StyleSheet.flatten(getTextVariantStyle())?.color || colors.textInverse;
 
   return (
     <Pressable
       style={[
         styles.baseButton,
         getButtonVariantStyle(),
-        disabled && styles.buttonDisabled,
+        (disabled || isLoading) && styles.buttonDisabled,
         style
       ]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || isLoading}
     >
-      <Text style={[
-        styles.baseText,
-        getTextVariantStyle(),
-        disabled && styles.textDisabled,
-        textStyle,
-      ]}>
-        {displayTitle}
-      </Text>
+      {isLoading ? (
+        <ActivityIndicator color={textVariantColor as string} size="small" />
+      ) : (
+        <>
+          {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+          <Text style={[
+            styles.baseText,
+            getTextVariantStyle(),
+            (disabled || isLoading) && styles.textDisabled,
+            textStyle,
+          ]}>
+            {displayTitle}
+          </Text>
+        </>
+      )}
     </Pressable>
   );
 };
@@ -111,71 +128,74 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontFamily: FontFamily.lexendDecaMedium,
     textAlign: "center",
   },
+  iconContainer: {
+    marginRight: 8,
+  },
   buttonDisabled: {
-    backgroundColor: colors.stroke,
-    borderColor: colors.stroke,
+    backgroundColor: colors.borderDefault,
+    borderColor: colors.borderDefault,
   },
   textDisabled: {
-    color: colors.gray,
+    color: colors.textSecondary,
   },
 
   // --- STYLES TỪNG VARIANT ---
 
   // 1. Green (Mặc định)
   variantGreen: {
-    backgroundColor: colors.main,
+    backgroundColor: colors.primary,
     borderColor: colors.main500, // Màu xanh lá đậm hơn cho viền
     borderBottomWidth: 5,
-    borderLeftWidth:2,// Bạn có thể đổi sang Color.main nếu khớp màu
+    borderLeftWidth: 2,// Bạn có thể đổi sang Color.main nếu khớp màu
   },
   textGreen: {
-    color: colors.textGreen,
-    fontWeight: "500",
+    color: colors.textGreenButton,
+    fontFamily: FontFamily.lexendDecaSemiBold
   },
 
   // 2. Orange
   variantOrange: {
-    backgroundColor: colors.cam,
-    borderColor: colors.btnOrangeBorder || '#BB5D11', // Màu xanh cam đậm hơn cho viền
+    backgroundColor: colors.orange100,
+    borderColor: colors.orange700 || '#BB5D11', // Màu xanh cam đậm hơn cho viền
     borderBottomWidth: 5,
-    borderLeftWidth:2,
+    borderLeftWidth: 2,
 
   },
   textOrange: {
-    color: colors.bg,
-    fontWeight: "500",
+    color: colors.orange700,
+    fontFamily: FontFamily.lexendDecaSemiBold,
   },
 
   // 3. Outline
   variantOutline: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderWidth: 1.5,
     borderColor: colors.main900,
     borderBottomWidth: 5,
   },
   textOutline: {
-    color: colors.color,
+    color: colors.textBrand,
     fontFamily: FontFamily.lexendDecaMedium,
   },
 
   // 4. Gray (Disabled / Phụ)
   variantGray: {
-    backgroundColor: colors.stroke,
-    borderColor: colors.gray, // Màu xám cho viền
+    backgroundColor: colors.borderDefault,
+    borderColor: colors.textSecondary, // Màu xám cho viền
     borderBottomWidth: 5,
-    borderLeftWidth:2,
+    borderLeftWidth: 2,
   },
   textGray: {
-    color: colors.gray,
+    color: colors.textSecondary,
     fontWeight: "500",
   },
 
   // 5. Green Bold
   variantGreenBold: {
-    backgroundColor: colors.btnGreenBoldBg || "#A3E88A",
+    backgroundColor: colors.primary || "#A3E88A",
   },
   textGreenBold: {
-    color: colors.btnGreenBoldText || "#000000",
+    color: colors.textPrimary || "#000000",
     fontWeight: "700", // Chữ đậm hơn bản Green thường
   },
 
@@ -185,33 +205,35 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   textTextOnly: {
     color: colors.main500,
-    fontWeight: "500",
+    fontFamily: FontFamily.lexendDecaSemiBold,
   },
 
   // 7. Red (Cảnh báo / Thoát / Xóa)
   variantRed: {
     backgroundColor: colors.red || "#E53E3E",
     borderColor: colors.redDark || "#AB2424", // Màu đỏ đậm hơn cho viền
-      borderBottomWidth: 5,
-    borderLeftWidth:2,
+    borderBottomWidth: 5,
+    borderLeftWidth: 2,
 
   },
   textRed: {
-    color: colors.whiteText || "#FFFFFF", // Chữ màu trắng/nền để nổi bật trên nền đỏ
+    color: colors.textInverse || "#FFFFFF", // Chữ màu trắng/nền để nổi bật trên nền đỏ
     fontWeight: "500",
   },
 
   // 8. Black
   variantBlack: {
-    backgroundColor: colors.text,
-    borderColor: colors.main || '#3AB878', // Màu xanh lá cho viền
+    backgroundColor: colors.textPrimary,
+    borderColor: colors.primary || '#3AB878', // Màu xanh lá cho viền
     borderBottomWidth: 5,
     borderLeftWidth: 2,
   },
   textBlack: {
-    color: colors.bg, // Màu nghịch đảo tự động
+    color: colors.background, // Màu nghịch đảo tự động
     fontWeight: "500",
   },
+
+
 });
 
 export default Button;

@@ -16,8 +16,8 @@ const SkillCard = ({ title, icon, backgroundColor, titleColor, onPress }: SkillC
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const cardBorderColor = backgroundColor || colors.stroke || '#E2E8F0';
-  const txtColor = titleColor || colors.text;
+  const cardBorderColor = backgroundColor || colors.borderDefault || '#E2E8F0';
+  const txtColor = titleColor || colors.textPrimary;
 
   // Mở rộng logic phát hiện icon bằng Đa ngôn ngữ (cả tiếng Việt, Anh và Hàn)
   const lowerTitle = title.toLowerCase();
@@ -71,7 +71,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderRadius: 28.5, // 30 - 1.5 để khít với góc bo bên ngoài
     paddingBottom: 15,
     overflow: 'visible',
@@ -94,7 +94,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
-    fontSize: FontSize.fs_16 ,
+    fontSize: FontSize.fs_16,
     textAlign: 'center',
   },
 });

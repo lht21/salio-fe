@@ -19,15 +19,15 @@ const JUNG_SUNG = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ'
 const JONG_SUNG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
 const COMPLEX_JUNG: Record<string, string> = {
-  'ㅘ': 'ㅗㅏ', 'ㅙ': 'ㅗㅐ', 'ㅚ': 'ㅗㅣ', 
-  'ㅝ': 'ㅜㅓ', 'ㅞ': 'ㅜㅔ', 'ㅟ': 'ㅜㅣ', 
+  'ㅘ': 'ㅗㅏ', 'ㅙ': 'ㅗㅐ', 'ㅚ': 'ㅗㅣ',
+  'ㅝ': 'ㅜㅓ', 'ㅞ': 'ㅜㅔ', 'ㅟ': 'ㅜㅣ',
   'ㅢ': 'ㅡㅣ'
 };
 
 const COMPLEX_JONG: Record<string, string> = {
-  'ㄳ': 'ㄱㅅ', 'ㄵ': 'ㄴㅈ', 'ㄶ': 'ㄴㅎ', 
-  'ㄺ': 'ㄹㄱ', 'ㄻ': 'ㄹㅁ', 'ㄼ': 'ㄹㅂ', 
-  'ㄽ': 'ㄹㅅ', 'ㄾ': 'ㄹㅌ', 'ㄿ': 'ㄹㅍ', 'ㅀ': 'ㄹㅎ', 
+  'ㄳ': 'ㄱㅅ', 'ㄵ': 'ㄴㅈ', 'ㄶ': 'ㄴㅎ',
+  'ㄺ': 'ㄹㄱ', 'ㄻ': 'ㄹㅁ', 'ㄼ': 'ㄹㅂ',
+  'ㄽ': 'ㄹㅅ', 'ㄾ': 'ㄹㅌ', 'ㄿ': 'ㄹㅍ', 'ㅀ': 'ㄹㅎ',
   'ㅄ': 'ㅂㅅ'
 };
 
@@ -51,15 +51,15 @@ function disassembleHangul(str: string) {
 }
 
 export default function FlashcardTypeScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { setId } = useLocalSearchParams<{ setId: string }>();
 
   const [isLoading, setIsLoading] = useState(true);
   const [allVocabs, setAllVocabs] = useState<any[]>([]);
-  
+
   // Vòng học hiện tại
   const [currentRoundCards, setCurrentRoundCards] = useState<any[]>([]);
   const [nextRoundCards, setNextRoundCards] = useState<any[]>([]);
@@ -69,7 +69,7 @@ export default function FlashcardTypeScreen() {
   const [isMistake, setIsMistake] = useState(false);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
-  
+
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function FlashcardTypeScreen() {
       const res = await FlashcardService.getSetById(setId as string);
       if (res && res.success && res.data && res.data.cards) {
         const validCards = res.data.cards.filter((c: any) => c.word && c.meaning);
-        
+
         // Shuffle
         for (let i = validCards.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -134,7 +134,7 @@ export default function FlashcardTypeScreen() {
     if (text === targetWord) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       VocabularyService.markStatus(currentCard._id, { status: 'remembered' }).catch(err => console.error(err));
-      
+
       // Chuyển sang từ tiếp theo sau một chút delay ngắn
       setTimeout(() => {
         handleNextCard();
@@ -150,7 +150,7 @@ export default function FlashcardTypeScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setIsMistake(true);
       setIncorrectCount(prev => prev + 1);
-      
+
       // Ghi nhận vòng sau
       setNextRoundCards(prev => {
         if (!prev.find(c => c._id === currentCard._id)) {
@@ -192,7 +192,7 @@ export default function FlashcardTypeScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -212,12 +212,12 @@ export default function FlashcardTypeScreen() {
         total={currentRoundCards.length}
         incorrectCount={incorrectCount}
         onClose={() => setShowExitModal(true)}
-        icon={<PenNibIcon size={32} color={colors.text} />}
+        icon={<PenNibIcon size={32} color={colors.textPrimary} />}
         sharedTransitionTag="type_icon"
       />
 
-      <KeyboardAvoidingView 
-        style={styles.container} 
+      <KeyboardAvoidingView
+        style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
@@ -226,9 +226,9 @@ export default function FlashcardTypeScreen() {
           {currentCard?.phonetic ? (
             <Text style={styles.phoneticText}>{currentCard.phonetic}</Text>
           ) : (
-             <View style={{height: Gap.gap_20}}/>
+            <View style={{ height: Gap.gap_20 }} />
           )}
-          
+
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
@@ -236,7 +236,7 @@ export default function FlashcardTypeScreen() {
               value={inputText}
               onChangeText={handleTextChange}
               placeholder="Gõ từ tiếng Hàn..."
-              placeholderTextColor={colors.gray}
+              placeholderTextColor={colors.textSecondary}
               editable={!isMistake}
               autoCapitalize="none"
               autoCorrect={false}
@@ -273,78 +273,78 @@ export default function FlashcardTypeScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      container: {
-        flex: 1,
-      },
-      content: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_20,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      meaningText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_24,
-        color: colors.text,
-        textAlign: 'center',
-        marginBottom: Gap.gap_10,
-      },
-      phoneticText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.gray,
-        textAlign: 'center',
-        marginBottom: Gap.gap_20,
-      },
-      inputContainer: {
-        width: '100%',
-        marginBottom: Gap.gap_20,
-      },
-      input: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_24,
-        color: colors.text,
-        backgroundColor: '#F5F5F5',
-        borderWidth: 2,
-        borderColor: '#E0E0E0',
-        borderRadius: Border.br_20,
-        paddingHorizontal: Padding.padding_20,
-        paddingVertical: Padding.padding_15,
-        textAlign: 'center',
-      },
-      inputError: {
-        borderColor: colors.red,
-        color: colors.red,
-        backgroundColor: '#FFF2F2',
-      },
-      feedbackContainer: {
-        width: '100%',
-        alignItems: 'center',
-        marginTop: Gap.gap_20,
-      },
-      correctAnswerBox: {
-        backgroundColor: '#E5F4E2', // Xanh nhạt
-        padding: Padding.padding_20,
-        borderRadius: Border.br_20,
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: Gap.gap_20,
-        borderWidth: 1,
-        borderColor: colors.main,
-      },
-      feedbackTitle: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.main,
-        marginBottom: 5,
-      },
-      correctWord: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 32,
-        color: colors.main,
-      },
-    });
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  meaningText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_24,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: Gap.gap_10,
+  },
+  phoneticText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: Gap.gap_20,
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: Gap.gap_20,
+  },
+  input: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_24,
+    color: colors.textPrimary,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderRadius: Border.br_20,
+    paddingHorizontal: Padding.padding_20,
+    paddingVertical: Padding.padding_15,
+    textAlign: 'center',
+  },
+  inputError: {
+    borderColor: colors.red,
+    color: colors.red,
+    backgroundColor: '#FFF2F2',
+  },
+  feedbackContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: Gap.gap_20,
+  },
+  correctAnswerBox: {
+    backgroundColor: '#E5F4E2', // Xanh nhạt
+    padding: Padding.padding_20,
+    borderRadius: Border.br_20,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: Gap.gap_20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  feedbackTitle: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.primary,
+    marginBottom: 5,
+  },
+  correctWord: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 32,
+    color: colors.primary,
+  },
+});

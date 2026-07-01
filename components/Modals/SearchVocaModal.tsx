@@ -50,11 +50,11 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
     const router = useRouter();
     const [searchText, setSearchText] = useState(initialSearchText || '');
     const [keywords, setKeywords] = useState<string[]>(RECENT_KEYWORDS);
-    
+
     // State kết quả & loading API
     const [searchResults, setSearchResults] = useState<SearchVocaItem[]>([]);
     const [isSearching, setIsSearching] = useState(false);
-    
+
     // State lưu danh sách ID từ vựng yêu thích (để hiển thị đúng trạng thái tim)
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
@@ -78,22 +78,22 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
             setSearchResults([]);
             Keyboard.dismiss();
         } else if (index === 0) {
-        if (initialSearchText) {
-            setSearchText(initialSearchText);
-        }
-
-        const fetchFavorites = async () => {
-            try {
-                const res = await FlashcardService.getSetById(targetSetId);
-                if (res.success && res.data) {
-                    const ids = res.data.cards.map((c: any) => c._id || c);
-                    setFavoriteIds(new Set(ids));
-                }
-            } catch (error) {
-                console.error('Lỗi khi tải danh sách từ vựng của bộ:', error);
+            if (initialSearchText) {
+                setSearchText(initialSearchText);
             }
-        };
-        fetchFavorites();
+
+            const fetchFavorites = async () => {
+                try {
+                    const res = await FlashcardService.getSetById(targetSetId);
+                    if (res.success && res.data) {
+                        const ids = res.data.cards.map((c: any) => c._id || c);
+                        setFavoriteIds(new Set(ids));
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải danh sách từ vựng của bộ:', error);
+                }
+            };
+            fetchFavorites();
         }
     }, [targetSetId, initialSearchText]);
 
@@ -201,94 +201,94 @@ const SearchVocaModal = forwardRef<BottomSheetModal, SearchVocaModalProps>(({ on
             enablePanDownToClose={true}
             keyboardBehavior="fillParent"
             keyboardBlurBehavior="restore"
-            backgroundStyle={{ backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30 }}
+            backgroundStyle={{ backgroundColor: colors.background, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30 }}
             handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
         >
             <BottomSheetView style={styles.sheetContent}>
-                    <View style={styles.header}>
+                <View style={styles.header}>
                     <Text style={styles.headerTitle}>{t('vocabulary.search_title', 'Tìm kiếm từ vựng')}</Text>
-                        <IconButton Icon={XIcon} onPress={handleClose} />
-                        
-                    </View>
+                    <IconButton Icon={XIcon} onPress={handleClose} />
 
-                    <View style={styles.body}>
-                        <View style={styles.searchWrap}>
-                            <SearchBar
-                                value={searchText}
-                                onChangeText={setSearchText}
+                </View>
+
+                <View style={styles.body}>
+                    <View style={styles.searchWrap}>
+                        <SearchBar
+                            value={searchText}
+                            onChangeText={setSearchText}
                             placeholder={t('vocabulary.search_placeholder_short', 'Nhập từ khóa...')}
-                            />
-                        </View>
-
-                        <Text style={styles.sectionTitle}>
-                        {searchText.trim() ? t('vocabulary.search_results', 'Kết quả tìm kiếm') : t('vocabulary.recent_searches', 'Tìm kiếm gần đây')}
-                        </Text>
-
-                        <View style={styles.listWrapper}>
-                            {isSearching ? (
-                            <ActivityIndicator size="small" color={colors.main} style={{ marginTop: 20 }} />
-                            ) : searchText.trim().length > 0 ? (
-                                <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                                    {searchResults.length > 0 ? (
-                                        searchResults.map((item) => (
-                                            <VocabularyCard
-                                                key={item.id}
-                                                item={item as any}
-                                                onToggleFavorite={isFavoriteMode ? () => handleToggleFavorite(item.id) : undefined}
-                                                rightAction={!isFavoriteMode ? (
-                                                    <TouchableOpacity onPress={() => handleToggleFavorite(item.id)}>
-                                                        <MotiView
-                                                            style={styles.addButton}
-                                                            animate={{
-                                                            backgroundColor: item.isFavorite ? colors.historySelectedBg : colors.bg,
-                                                            borderColor: item.isFavorite ? colors.main2 : colors.stroke,
-                                                            }}
-                                                            transition={{ type: 'timing', duration: 200 }}
-                                                        >
-                                                            <AnimatePresence exitBeforeEnter>
-                                                                {item.isFavorite ? (
-                                                                    <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                                    <CheckIcon size={16} color={colors.main2} weight="bold" />
-                                                                    </MotiView>
-                                                                ) : (
-                                                                    <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
-                                                                    <PlusIcon size={16} color={colors.text} weight="bold" />
-                                                                    </MotiView>
-                                                                )}
-                                                            </AnimatePresence>
-                                                        </MotiView>
-                                                    </TouchableOpacity>
-                                                ) : undefined}
-                                                onPress={() => navigateToDetail(item.id)}
-                                            />
-                                        ))
-                                    ) : (
-                                    <Text style={styles.emptyText}>{t('vocabulary.no_words_found', 'Không tìm thấy từ vựng')}</Text>
-                                    )}
-                                </BottomSheetScrollView>
-                            ) : (
-                                <View style={styles.keywordWrap}>
-                                    {visibleKeywords.map((keyword) => (
-                                        <TouchableOpacity 
-                                            key={keyword} 
-                                            style={styles.keywordChip}
-                                            activeOpacity={0.7}
-                                            onPress={() => setSearchText(keyword)}
-                                        >
-                                            <Text style={styles.keywordText}>{keyword}</Text>
-                                            <TouchableOpacity
-                                                onPress={() => removeKeyword(keyword)}
-                                                style={styles.removeButton}
-                                                hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-                                            >
-                                            <XIcon size={12} color={colors.gray} weight="bold" />
-                                            </TouchableOpacity>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            )}
-                        </View>
+                        />
                     </View>
+
+                    <Text style={styles.sectionTitle}>
+                        {searchText.trim() ? t('vocabulary.search_results', 'Kết quả tìm kiếm') : t('vocabulary.recent_searches', 'Tìm kiếm gần đây')}
+                    </Text>
+
+                    <View style={styles.listWrapper}>
+                        {isSearching ? (
+                            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
+                        ) : searchText.trim().length > 0 ? (
+                            <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                                {searchResults.length > 0 ? (
+                                    searchResults.map((item) => (
+                                        <VocabularyCard
+                                            key={item.id}
+                                            item={item as any}
+                                            onToggleFavorite={isFavoriteMode ? () => handleToggleFavorite(item.id) : undefined}
+                                            rightAction={!isFavoriteMode ? (
+                                                <TouchableOpacity onPress={() => handleToggleFavorite(item.id)}>
+                                                    <MotiView
+                                                        style={styles.addButton}
+                                                        animate={{
+                                                            backgroundColor: item.isFavorite ? colors.historySelectedBg : colors.background,
+                                                            borderColor: item.isFavorite ? colors.primary : colors.borderDefault,
+                                                        }}
+                                                        transition={{ type: 'timing', duration: 200 }}
+                                                    >
+                                                        <AnimatePresence exitBeforeEnter>
+                                                            {item.isFavorite ? (
+                                                                <MotiView key="check" from={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '90deg' }} transition={{ type: 'timing', duration: 150 }}>
+                                                                    <CheckIcon size={16} color={colors.primary} weight="bold" />
+                                                                </MotiView>
+                                                            ) : (
+                                                                <MotiView key="plus" from={{ opacity: 0, scale: 0.5, rotate: '90deg' }} animate={{ opacity: 1, scale: 1, rotate: '0deg' }} exit={{ opacity: 0, scale: 0.5, rotate: '-90deg' }} transition={{ type: 'timing', duration: 150 }}>
+                                                                    <PlusIcon size={16} color={colors.textPrimary} weight="bold" />
+                                                                </MotiView>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </MotiView>
+                                                </TouchableOpacity>
+                                            ) : undefined}
+                                            onPress={() => navigateToDetail(item.id)}
+                                        />
+                                    ))
+                                ) : (
+                                    <Text style={styles.emptyText}>{t('vocabulary.no_words_found', 'Không tìm thấy từ vựng')}</Text>
+                                )}
+                            </BottomSheetScrollView>
+                        ) : (
+                            <View style={styles.keywordWrap}>
+                                {visibleKeywords.map((keyword) => (
+                                    <TouchableOpacity
+                                        key={keyword}
+                                        style={styles.keywordChip}
+                                        activeOpacity={0.7}
+                                        onPress={() => setSearchText(keyword)}
+                                    >
+                                        <Text style={styles.keywordText}>{keyword}</Text>
+                                        <TouchableOpacity
+                                            onPress={() => removeKeyword(keyword)}
+                                            style={styles.removeButton}
+                                            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+                                        >
+                                            <XIcon size={12} color={colors.textSecondary} weight="bold" />
+                                        </TouchableOpacity>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+                </View>
             </BottomSheetView>
         </BottomSheetModal>
     );
@@ -304,7 +304,7 @@ const createStyles = (colors: any) => StyleSheet.create({
         paddingBottom: 40,
     },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+    headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
     body: {
         flexShrink: 1,
         gap: 12,
@@ -316,7 +316,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     sectionTitle: {
         fontFamily: FontFamily.lexendDecaMedium,
         fontSize: FontSize.fs_14,
-        color: colors.gray,
+        color: colors.textSecondary,
         marginTop: 4,
         marginBottom: 2,
     },
@@ -339,12 +339,12 @@ const createStyles = (colors: any) => StyleSheet.create({
         gap: Gap.gap_5,
         paddingHorizontal: Padding.padding_8,
         paddingVertical: Padding.padding_3,
-        backgroundColor: colors.searchKeywordBg,
+        backgroundColor: colors.textInverse,
         borderRadius: Border.br_5,
     },
     keywordText: {
         fontSize: FontSize.fs_14,
-        color: colors.gray,
+        color: colors.textSecondary,
     },
     removeButton: {
         justifyContent: 'center',
@@ -354,7 +354,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     emptyText: {
         fontFamily: FontFamily.lexendDecaRegular,
         fontSize: FontSize.fs_14,
-        color: colors.gray,
+        color: colors.textSecondary,
         textAlign: 'center',
         paddingVertical: Padding.padding_20,
     },
@@ -362,10 +362,10 @@ const createStyles = (colors: any) => StyleSheet.create({
         width: 24,
         height: 24,
         borderWidth: 1,
-        borderColor: colors.stroke,
+        borderColor: colors.borderDefault,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.bg,
+        backgroundColor: colors.background,
     },
 });

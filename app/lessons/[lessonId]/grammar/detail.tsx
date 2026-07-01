@@ -27,8 +27,8 @@ function GrammarContent({
   onNeedReview: () => void;
   isSubmitting?: boolean;
 }) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const usageLines = grammar.usage?.split(/\r?\n/).map(line => line.trim()).filter(Boolean) || [];
   const rules = usageLines.length > 0 ? usageLines : grammar.explanation ? [grammar.explanation] : [];
@@ -76,7 +76,7 @@ function GrammarContent({
                       Speech.speak(ex.korean, { language: 'ko-KR', rate: 0.85, pitch: 1.0 });
                     }}
                   >
-                    <SpeakerHigh size={24} color={colors.main} weight="fill" />
+                    <SpeakerHigh size={24} color={colors.primary} weight="fill" />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -88,12 +88,12 @@ function GrammarContent({
       {/* FOOTER ACTIONS */}
       <View style={styles.footerActions}>
         <Button variant="Green" title="Đã hiểu, Tiếp tục" onPress={onUnderstand} disabled={isSubmitting} />
-        <Button 
-          variant="TextOnly" 
-          title="Cần xem lại sau" 
-          onPress={onNeedReview} 
+        <Button
+          variant="TextOnly"
+          title="Cần xem lại sau"
+          onPress={onNeedReview}
           disabled={isSubmitting}
-          textStyle={{ color: colors.gray, textDecorationLine: 'underline' }}
+          textStyle={{ color: colors.textSecondary, textDecorationLine: 'underline' }}
         />
       </View>
     </View>
@@ -101,8 +101,8 @@ function GrammarContent({
 }
 
 export default function GrammarDetailScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
@@ -215,7 +215,7 @@ export default function GrammarDetailScreen() {
       <View style={styles.mainArea}>
         {isLoading ? (
           <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color={colors.main} />
+            <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.loadingText}>Đang tải ngữ pháp...</Text>
           </View>
         ) : errorMessage ? (
@@ -254,150 +254,150 @@ export default function GrammarDetailScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
-      mainArea: {
-        flex: 1,
-      },
-      centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: Padding.padding_20,
-      },
-      loadingText: {
-        marginTop: Gap.gap_12,
-        color: colors.text,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-      },
-      errorText: {
-        textAlign: 'center',
-        color: colors.main,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-      },
-      emptyText: {
-        textAlign: 'center',
-        color: colors.text,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-      },
+  mainArea: {
+    flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Padding.padding_20,
+  },
+  loadingText: {
+    marginTop: Gap.gap_12,
+    color: colors.textPrimary,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+  },
+  errorText: {
+    textAlign: 'center',
+    color: colors.primary,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: colors.textPrimary,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+  },
 
-      // Grammar Content Styles
-      contentContainer: {
-        flex: 1,
-      },
-      scrollContent: {
-        paddingHorizontal: Padding.padding_20,
-        paddingBottom: 40,
-      },
-      headerCard: {
-        backgroundColor: '#C8ED6A',
-        paddingHorizontal: 24,
-        paddingVertical: 32,
-        borderRadius: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 30,
-      },
-      faceLabel: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_14,
-        color: '#487431',
-        marginBottom: 12,
-      },
-      structureText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 32,
-        lineHeight: 40,
-        color: colors.text,
-        textAlign: 'center',
-        marginBottom: 16,
-      },
-      meaningPill: {
-        backgroundColor: '#215B33',
-        borderRadius: 999,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-      },
-      meaningPillText: {
-        color: '#FFFFFF',
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-      },
-      section: {
-        marginBottom: 30,
-      },
-      sectionTitle: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 20,
-        color: colors.text,
-        marginBottom: 16,
-      },
-      ruleList: {
-        gap: 12,
-      },
-      ruleItem: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 10,
-        backgroundColor: '#F5F8EA',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 16,
-      },
-      ruleText: {
-        flex: 1,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        lineHeight: 22,
-        color: colors.text,
-      },
-      exampleList: {
-        gap: 12,
-      },
-      exampleItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: colors.stroke,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        borderRadius: 16,
-      },
-      exampleTextContainer: {
-        flex: 1,
-        paddingRight: 12,
-      },
-      exampleKo: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 18,
-        color: colors.text,
-        marginBottom: 6,
-      },
-      exampleVi: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_16,
-        color: colors.gray,
-      },
-      speakerButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: '#F0F9EA',
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      footerActions: {
-        paddingHorizontal: Padding.padding_20,
-        paddingVertical: Padding.padding_20,
-        borderTopWidth: 1,
-        borderTopColor: colors.stroke,
-        backgroundColor: colors.bg,
-      },
-    });
+  // Grammar Content Styles
+  contentContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: Padding.padding_20,
+    paddingBottom: 40,
+  },
+  headerCard: {
+    backgroundColor: '#C8ED6A',
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  faceLabel: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_14,
+    color: '#487431',
+    marginBottom: 12,
+  },
+  structureText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 32,
+    lineHeight: 40,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  meaningPill: {
+    backgroundColor: '#215B33',
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  meaningPillText: {
+    color: '#FFFFFF',
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+  },
+  section: {
+    marginBottom: 30,
+  },
+  sectionTitle: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 20,
+    color: colors.textPrimary,
+    marginBottom: 16,
+  },
+  ruleList: {
+    gap: 12,
+  },
+  ruleItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: '#F5F8EA',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  ruleText: {
+    flex: 1,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    lineHeight: 22,
+    color: colors.textPrimary,
+  },
+  exampleList: {
+    gap: 12,
+  },
+  exampleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 16,
+  },
+  exampleTextContainer: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  exampleKo: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 18,
+    color: colors.textPrimary,
+    marginBottom: 6,
+  },
+  exampleVi: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_16,
+    color: colors.textSecondary,
+  },
+  speakerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F0F9EA',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerActions: {
+    paddingHorizontal: Padding.padding_20,
+    paddingVertical: Padding.padding_20,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderDefault,
+    backgroundColor: colors.background,
+  },
+});

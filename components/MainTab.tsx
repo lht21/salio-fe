@@ -15,13 +15,13 @@ interface MainTabProps {
   style?: ViewStyle;
 }
 
-const MainTab = ({ 
-  label, 
-  isActive, 
-  onPress, 
+const MainTab = ({
+  label,
+  isActive,
+  onPress,
   icon,
-  activeBgColor, 
-  activeTextColor, 
+  activeBgColor,
+  activeTextColor,
   activeBorderColor,
   style
 }: MainTabProps) => {
@@ -30,8 +30,8 @@ const MainTab = ({
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   // Áp dụng các màu mặc định theo yêu cầu (kèm màu fallback nếu Theme không có)
-  const resolvedActiveBgColor =  colors.main400 || '#3AB878';
-  const resolvedActiveTextColor =  colors.main50 || '#F0FFF0';
+  const resolvedActiveBgColor = colors.main400 || '#3AB878';
+  const resolvedActiveTextColor = colors.primaryLight || '#F0FFF0';
   const resolvedInactiveBgColor = colors.main75 || '#E6FFD1';
   const resolvedInactiveTextColor = colors.main400 || '#3AB878';
 
@@ -43,14 +43,14 @@ const MainTab = ({
     >
       {/* Phần background & label cơ bản giống CategoryChip */}
       <View style={[
-        styles.tab, 
-        isActive 
-          ? { backgroundColor: resolvedActiveBgColor, borderColor: activeBorderColor || resolvedActiveBgColor } 
+        styles.tab,
+        isActive
+          ? { backgroundColor: resolvedActiveBgColor, borderColor: activeBorderColor || resolvedActiveBgColor }
           : { backgroundColor: resolvedInactiveBgColor, borderColor: 'transparent' },
       ]}>
         {/* Phần Icon nằm bên trái và to hơn một chút */}
         {isActive && icon && (
-          <MotiView 
+          <MotiView
             from={{ opacity: 0, scale: 0.8, translateY: 30 }}
             animate={{ opacity: 1, scale: 1.4, translateY: 0 }}
             transition={{ type: 'spring', damping: 14, stiffness: 200 } as any}
@@ -59,9 +59,9 @@ const MainTab = ({
             {icon}
           </MotiView>
         )}
-        
+
         <Text style={[
-          styles.tabText, 
+          styles.tabText,
           isActive ? { color: resolvedActiveTextColor } : { color: resolvedInactiveTextColor },
         ]}>
           {label}

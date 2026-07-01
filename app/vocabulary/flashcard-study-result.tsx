@@ -21,10 +21,10 @@ export default function FlashcardStudyResultScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const { setId, knownCount, totalCount, history } = useLocalSearchParams();
-  
+
   const [words, setWords] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [selectedWord, setSelectedWord] = useState<any>(null);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -73,7 +73,7 @@ export default function FlashcardStudyResultScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -85,17 +85,17 @@ export default function FlashcardStudyResultScreen() {
         <IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} />
       </View>
 
-      <ScrollView 
-        style={styles.scrollArea} 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        style={styles.scrollArea}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* 2. CELEBRATION */}
         <View style={styles.celebrationSection}>
-          <Image 
-            source={require('../../assets/images/horani/result-levelup.png')} 
-            style={styles.illustration} 
-            resizeMode="contain" 
+          <Image
+            source={require('../../assets/images/horani/result-levelup.png')}
+            style={styles.illustration}
+            resizeMode="contain"
           />
           <Text style={styles.titleText}>{t('vocabulary.study_complete', 'Hoàn thành ôn tập!')}</Text>
         </View>
@@ -109,15 +109,15 @@ export default function FlashcardStudyResultScreen() {
         {/* 4. RESULT LIST */}
         <View style={styles.listSection}>
           {words.map((item) => {
-            const isKnown = historyMap[item.id] ?? false; 
+            const isKnown = historyMap[item.id] ?? false;
             return (
               <View key={item.id}>
                 <Text style={[styles.resultLabel, isKnown ? styles.textKnown : styles.textLearning]}>
                   {isKnown ? t('vocabulary.remembered_count', 'Đã thuộc') : t('vocabulary.learn_again', 'Cần học lại')}
                 </Text>
-                <VocabularyCard 
-                  item={{ ...item, pos: item.type }} 
-                  onToggleFavorite={() => handleBookmark(item)} 
+                <VocabularyCard
+                  item={{ ...item, pos: item.type }}
+                  onToggleFavorite={() => handleBookmark(item)}
                 />
               </View>
             );
@@ -127,27 +127,27 @@ export default function FlashcardStudyResultScreen() {
 
       {/* 5. ACTION BUTTONS */}
       <View style={styles.footer}>
-        <Button 
-          title={t('vocabulary.back_to_set', 'Về bộ từ vựng')} 
-          variant="Outline" 
-          onPress={handleDone} 
+        <Button
+          title={t('vocabulary.back_to_set', 'Về bộ từ vựng')}
+          variant="Outline"
+          onPress={handleDone}
         />
-        <Button 
-          title={t('vocabulary.study_again', 'Ôn tập lại')} 
-          variant="Green" 
-          onPress={handleRetry} 
+        <Button
+          title={t('vocabulary.study_again', 'Ôn tập lại')}
+          variant="Green"
+          onPress={handleRetry}
           style={{ marginTop: Gap.gap_10 }}
         />
       </View>
 
       {/* MODALS */}
-      <SaveToFolderModal 
-        isVisible={showSaveModal} 
+      <SaveToFolderModal
+        isVisible={showSaveModal}
         onClose={() => setShowSaveModal(false)}
         wordData={selectedWord}
       />
 
-      <ConfirmModal 
+      <ConfirmModal
         isVisible={showExitModal}
         title="Đang xem kết quả mà"
         subtitle="Bạn muốn trở về bộ từ vựng ngay bây giờ?"
@@ -164,21 +164,21 @@ export default function FlashcardStudyResultScreen() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.bg },
+  safeArea: { flex: 1, backgroundColor: colors.background },
   header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
   scrollArea: { flex: 1 },
   scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
-  
+
   celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
   illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
-  titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.xanh },
+  titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.accent1 },
 
   scoreBanner: {
-    flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.greenLight,
+    flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.primaryLight,
     padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20,
   },
-  scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.main2 },
-  
+  scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.primary },
+
   listSection: { width: '100%' },
 
   resultLabel: {
@@ -187,11 +187,11 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
   },
-  textKnown: { color: colors.main2 },
+  textKnown: { color: colors.primary },
   textLearning: { color: colors.cam },
-  
+
   footer: {
     paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
-    backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke,
+    backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.borderDefault,
   }
 });

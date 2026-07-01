@@ -31,9 +31,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bg, 
+    backgroundColor: colors.background,
     borderWidth: Stroke.stroke,
-    borderColor: colors.stroke, 
+    borderColor: colors.borderDefault,
     padding: Padding.padding_15 || 15,
     marginBottom: Gap.gap_20 || 20,
     borderRadius: Border.br_15 || 15,
@@ -52,13 +52,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   title: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: 15,
-    color: colors.safetyTitle || '#B91C1C', 
+    color: colors.safetyTitle || '#B91C1C',
     marginBottom: 4,
   },
   subtitle: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 12,
-    color: colors.safetySubtitle || '#EF4444', 
+    color: colors.safetySubtitle || '#EF4444',
   },
 });
 

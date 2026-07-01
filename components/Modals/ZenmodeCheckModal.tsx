@@ -16,8 +16,8 @@ interface ZenmodeCheckModalProps {
 }
 
 export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: ZenmodeCheckModalProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [micStatus, setMicStatus] = useState<'checking' | 'quiet' | 'loud' | 'error'>('checking');
   const [dndChecked, setDndChecked] = useState(false);
@@ -87,7 +87,7 @@ export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: Zen
     if (recordingRef.current) {
       try {
         await recordingRef.current.stopAndUnloadAsync();
-      } catch (err) {}
+      } catch (err) { }
       recordingRef.current = null;
     }
   };
@@ -121,8 +121,8 @@ export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: Zen
               )}
               {micStatus === 'quiet' && (
                 <View style={styles.statusRow}>
-                  <CheckCircleIcon size={16} color={colors.main || '#22C55E'} weight="fill" />
-                  <Text style={[styles.statusText, { color: colors.main || '#22C55E' }]}>Khá yên tĩnh, tuyệt vời!</Text>
+                  <CheckCircleIcon size={16} color={colors.primary || '#22C55E'} weight="fill" />
+                  <Text style={[styles.statusText, { color: colors.primary || '#22C55E' }]}>Khá yên tĩnh, tuyệt vời!</Text>
                 </View>
               )}
               {micStatus === 'loud' && (
@@ -165,17 +165,17 @@ export default function ZenmodeCheckModal({ isVisible, onClose, onConfirm }: Zen
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
-      modalContainer: { width: '100%', backgroundColor: colors.bg || '#FFFFFF', borderRadius: Border.br_20, padding: Padding.padding_20 },
-      header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-      title: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
-      checkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.stroke || '#E2E8F0' },
-      iconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.purplePastel || '#EDE9FE', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-      itemContent: { flex: 1 },
-      itemTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.text, marginBottom: 4 },
-      itemDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray, lineHeight: 18 },
-      statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-      statusText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray },
-      checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: colors.stroke || '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginLeft: 12 },
-      checkboxChecked: { backgroundColor: colors.main || '#22C55E', borderColor: colors.main || '#22C55E' },
-    });
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: Padding.padding_15 },
+  modalContainer: { width: '100%', backgroundColor: colors.background || '#FFFFFF', borderRadius: Border.br_20, padding: Padding.padding_20 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
+  title: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
+  checkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.borderDefault || '#E2E8F0' },
+  iconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.purplePastel || '#EDE9FE', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  itemContent: { flex: 1 },
+  itemTitle: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textPrimary, marginBottom: 4 },
+  itemDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.textSecondary, lineHeight: 18 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  statusText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.textSecondary },
+  checkbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: colors.borderDefault || '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginLeft: 12 },
+  checkboxChecked: { backgroundColor: colors.primary || '#22C55E', borderColor: colors.primary || '#22C55E' },
+});

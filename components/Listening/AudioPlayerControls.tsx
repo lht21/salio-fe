@@ -33,8 +33,8 @@ export default function AudioPlayerControls({
   onForward,
   onSeek,
 }: AudioPlayerControlsProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const trackRef = useRef<View>(null);
   const [trackWidth, setTrackWidth] = useState(0);
@@ -121,78 +121,78 @@ export default function AudioPlayerControls({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      playerCard: {
-        borderRadius: Border.br_30,
-        padding: Padding.padding_30,
-        backgroundColor: '#FFFFFF',
-        shadowColor: '#B9E77F',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.35,
-        shadowRadius: 20,
-        elevation: 5,
-      },
-      controlsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 24,
-        marginBottom: 14,
-      },
-      controlButton: {
-        padding: 8,
-      },
-      playButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors.main,
-      },
-      timeRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 6,
-      },
-      timeText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_12,
-        color: '#101010',
-      },
-      progressTrack: {
-        height: 5,
-        borderRadius: 999,
-        backgroundColor: '#71809B',
-        overflow: 'hidden',
-        marginBottom: 12,
-      },
-      progressFill: {
-        height: '100%',
-        borderRadius: 999,
-        backgroundColor: '#8DEA80',
-      },
-      speedRow: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 8,
-      },
-      speedChip: {
-        minWidth: 42,
-        borderRadius: 999,
-        backgroundColor: '#DCE4F1',
-        paddingHorizontal: 9,
-        paddingVertical: 6,
-        alignItems: 'center',
-      },
-      speedChipActive: {
-        backgroundColor: '#101010',
-      },
-      speedChipText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 10,
-        color: '#72809B',
-      },
-      speedChipTextActive: {
-        color: '#FFFFFF',
-      },
-    });
+  playerCard: {
+    borderRadius: Border.br_30,
+    padding: Padding.padding_30,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#B9E77F',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  controlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    marginBottom: 14,
+  },
+  controlButton: {
+    padding: 8,
+  },
+  playButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  timeText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_12,
+    color: '#101010',
+  },
+  progressTrack: {
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: '#71809B',
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: '#8DEA80',
+  },
+  speedRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  speedChip: {
+    minWidth: 42,
+    borderRadius: 999,
+    backgroundColor: '#DCE4F1',
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    alignItems: 'center',
+  },
+  speedChipActive: {
+    backgroundColor: '#101010',
+  },
+  speedChipText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 10,
+    color: '#72809B',
+  },
+  speedChipTextActive: {
+    color: '#FFFFFF',
+  },
+});

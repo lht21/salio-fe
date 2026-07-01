@@ -24,15 +24,15 @@ const JUNG_SUNG = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ'
 const JONG_SUNG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
 const COMPLEX_JUNG: Record<string, string> = {
-  'ㅘ': 'ㅗㅏ', 'ㅙ': 'ㅗㅐ', 'ㅚ': 'ㅗㅣ', 
-  'ㅝ': 'ㅜㅓ', 'ㅞ': 'ㅜㅔ', 'ㅟ': 'ㅜㅣ', 
+  'ㅘ': 'ㅗㅏ', 'ㅙ': 'ㅗㅐ', 'ㅚ': 'ㅗㅣ',
+  'ㅝ': 'ㅜㅓ', 'ㅞ': 'ㅜㅔ', 'ㅟ': 'ㅜㅣ',
   'ㅢ': 'ㅡㅣ'
 };
 
 const COMPLEX_JONG: Record<string, string> = {
-  'ㄳ': 'ㄱㅅ', 'ㄵ': 'ㄴㅈ', 'ㄶ': 'ㄴㅎ', 
-  'ㄺ': 'ㄹㄱ', 'ㄻ': 'ㄹㅁ', 'ㄼ': 'ㄹㅂ', 
-  'ㄽ': 'ㄹㅅ', 'ㄾ': 'ㄹㅌ', 'ㄿ': 'ㄹㅍ', 'ㅀ': 'ㄹㅎ', 
+  'ㄳ': 'ㄱㅅ', 'ㄵ': 'ㄴㅈ', 'ㄶ': 'ㄴㅎ',
+  'ㄺ': 'ㄹㄱ', 'ㄻ': 'ㄹㅁ', 'ㄼ': 'ㄹㅂ',
+  'ㄽ': 'ㄹㅅ', 'ㄾ': 'ㄹㅌ', 'ㄿ': 'ㄹㅍ', 'ㅀ': 'ㄹㅎ',
   'ㅄ': 'ㅂㅅ'
 };
 
@@ -70,19 +70,19 @@ export default function ReviewVocabScreen() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [allVocabs, setAllVocabs] = useState<any[]>([]);
-  
+
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  
+
   const [inputText, setInputText] = useState('');
-  
+
   const [showMistakeFlashcard, setShowMistakeFlashcard] = useState(false);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
-  
+
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function ReviewVocabScreen() {
       const res = await PracticeService.getPreparationMaterials(type as PracticeType, setId as string);
       if (res && res.success && res.data && res.data.vocabularies) {
         const validCards = res.data.vocabularies.filter((c: any) => c.word && c.meaning);
-        
+
         if (validCards.length === 0) {
           Alert.alert('Trống', 'Không có từ vựng nào trong đề thi này.', [
             { text: 'Trở về', onPress: () => router.back() }
@@ -108,7 +108,7 @@ export default function ReviewVocabScreen() {
         // Shuffle
         const shuffled = [...validCards].sort(() => Math.random() - 0.5);
         setAllVocabs(validCards);
-        
+
         // Prepare initial queue (Stage 1)
         const initialQueue: QueueItem[] = shuffled.map(vocab => ({
           vocab,
@@ -179,10 +179,10 @@ export default function ReviewVocabScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       playSound(true);
       VocabularyService.markStatus(currentItem.vocab._id, { status: 'learning' }).catch(err => console.error(err));
-      
+
       // Push to end of queue as stage 2
       setQueue(prev => [...prev, { vocab: currentItem.vocab, stage: 2 }]);
-      
+
       setTimeout(() => {
         handleNext();
       }, 500);
@@ -231,12 +231,12 @@ export default function ReviewVocabScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     playSound(false);
     setIncorrectCount(prev => prev + 1);
-    
+
     // Giáng cấp về Vòng 1 và push xuống cuối hàng đợi để học lại
-    setQueue(prev => [...prev, { 
-      vocab: currentItem.vocab, 
-      stage: 1, 
-      options: generateOptions(currentItem.vocab, allVocabs) 
+    setQueue(prev => [...prev, {
+      vocab: currentItem.vocab,
+      stage: 1,
+      options: generateOptions(currentItem.vocab, allVocabs)
     }]);
 
     VocabularyService.markStatus(currentItem.vocab._id, { status: 'forgotten' }).catch(err => console.error(err));
@@ -257,7 +257,7 @@ export default function ReviewVocabScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -266,7 +266,7 @@ export default function ReviewVocabScreen() {
   if (isFinished) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <CheckCircleIcon size={80} color={colors.main} weight="fill" />
+        <CheckCircleIcon size={80} color={colors.primary} weight="fill" />
         <Text style={styles.congratsText}>Chúc mừng!</Text>
         <Text style={styles.congratsSubText}>Bạn đã ghi nhớ toàn bộ từ vựng trong đề thi này.</Text>
         <Button title="Quay lại đề thi" variant="Green" onPress={() => router.back()} style={{ marginTop: 20 }} />
@@ -296,7 +296,7 @@ export default function ReviewVocabScreen() {
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.flashcardWrapper}>
-          <SwipableFlashcard 
+          <SwipableFlashcard
             card={flashcardData}
             onSwipedLeft={handleNext}
             onSwipedRight={handleNext}
@@ -329,7 +329,7 @@ export default function ReviewVocabScreen() {
         total={queue.length}
         incorrectCount={incorrectCount}
         onClose={() => setShowExitModal(true)}
-        icon={currentItem?.stage === 1 ? <CheckListIcon width={32} height={32} /> : <PenNibIcon size={32} color={colors.text} />}
+        icon={currentItem?.stage === 1 ? <CheckListIcon width={32} height={32} /> : <PenNibIcon size={32} color={colors.textPrimary} />}
       />
 
       {currentItem?.stage === 1 ? (
@@ -351,8 +351,8 @@ export default function ReviewVocabScreen() {
           </View>
         </ScrollView>
       ) : (
-        <KeyboardAvoidingView 
-          style={styles.container} 
+        <KeyboardAvoidingView
+          style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
@@ -361,9 +361,9 @@ export default function ReviewVocabScreen() {
             {currentItem?.vocab.pronunciation || currentItem?.vocab.phonetic ? (
               <Text style={styles.phoneticText}>{currentItem.vocab.pronunciation || currentItem.vocab.phonetic}</Text>
             ) : (
-               <View style={{height: Gap.gap_20}}/>
+              <View style={{ height: Gap.gap_20 }} />
             )}
-            
+
             <View style={styles.inputContainer}>
               <TextInput
                 ref={inputRef}
@@ -371,7 +371,7 @@ export default function ReviewVocabScreen() {
                 value={inputText}
                 onChangeText={handleTextChange}
                 placeholder="Gõ từ tiếng Hàn..."
-                placeholderTextColor={colors.gray}
+                placeholderTextColor={colors.textSecondary}
                 editable={!showMistakeFlashcard}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -404,7 +404,7 @@ export default function ReviewVocabScreen() {
 const getStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
@@ -418,7 +418,7 @@ const getStyles = (colors: any) => StyleSheet.create({
   questionText: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 32,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: Gap.gap_20,
     textAlign: 'center',
   },
@@ -442,14 +442,14 @@ const getStyles = (colors: any) => StyleSheet.create({
   meaningText: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: FontSize.fs_24,
-    color: colors.text,
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: Gap.gap_10,
   },
   phoneticText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_16,
-    color: colors.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: Gap.gap_20,
   },
@@ -460,7 +460,7 @@ const getStyles = (colors: any) => StyleSheet.create({
   input: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_24,
-    color: colors.text,
+    color: colors.textPrimary,
     backgroundColor: '#F5F5F5',
     borderWidth: 2,
     borderColor: '#E0E0E0',
@@ -480,14 +480,14 @@ const getStyles = (colors: any) => StyleSheet.create({
   congratsText: {
     fontFamily: FontFamily.lexendDecaBold,
     fontSize: 28,
-    color: colors.main,
+    color: colors.primary,
     marginTop: 20,
     marginBottom: 10,
   },
   congratsSubText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 16,
-    color: colors.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 40,
   },

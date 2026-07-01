@@ -28,8 +28,8 @@ export interface MatchCardData {
 const BATCH_SIZE = 6; // Số cặp từ mỗi vòng (12 thẻ)
 
 export default function FlashcardMatchScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { setId } = useLocalSearchParams<{ setId: string }>();
@@ -42,7 +42,7 @@ export default function FlashcardMatchScreen() {
   const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
   const [matchedCardIds, setMatchedCardIds] = useState<string[]>([]);
   const [errorCardIds, setErrorCardIds] = useState<string[]>([]);
-  
+
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showExitModal, setShowExitModal] = useState(false);
 
@@ -135,7 +135,7 @@ export default function FlashcardMatchScreen() {
       if (card1.vocabId === card2.vocabId) {
         // ĐÚNG CẶP
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        
+
         // Cập nhật tiến độ: Nếu muốn, có thể gọi API ở đây
         VocabularyService.markStatus(card1.vocabId, { status: 'remembered' }).catch(err => console.error(err));
 
@@ -174,7 +174,7 @@ export default function FlashcardMatchScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -203,7 +203,7 @@ export default function FlashcardMatchScreen() {
       />
 
       {/* GAME AREA */}
-      <ScrollView 
+      <ScrollView
         style={styles.gameArea}
         contentContainerStyle={styles.gameAreaContent}
         showsVerticalScrollIndicator={false}
@@ -213,7 +213,7 @@ export default function FlashcardMatchScreen() {
             const isSelected = selectedCardIds.includes(card.id);
             const isMatched = matchedCardIds.includes(card.id);
             const isError = errorCardIds.includes(card.id);
-            
+
             return (
               <MatchCard
                 key={card.id}
@@ -245,23 +245,23 @@ export default function FlashcardMatchScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      gameArea: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: 20,
-      },
-      gameAreaContent: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        paddingBottom: 40,
-      },
-      cardsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-      },
-    });
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  gameArea: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: 20,
+  },
+  gameAreaContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingBottom: 40,
+  },
+  cardsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+});

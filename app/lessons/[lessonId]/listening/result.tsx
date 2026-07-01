@@ -8,8 +8,8 @@ import LessonService from '@/api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ListeningResultScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -36,20 +36,20 @@ export default function ListeningResultScreen() {
         );
 
         let tScore = 0, tMax = 0, tTime = 0;
-        let cats = { 
-          trueFalse: { s: 0, m: 0 }, 
-          choice: { s: 0, m: 0 }, 
-          deepComprehension: { s: 0, m: 0 } 
+        let cats = {
+          trueFalse: { s: 0, m: 0 },
+          choice: { s: 0, m: 0 },
+          deepComprehension: { s: 0, m: 0 }
         };
 
         results.forEach(res => {
           if (!res || !res.data) return;
-          
+
           const payload = res.data;
           tScore += (payload.totalScore || 0);
           tMax += (payload.maxScore || 0);
           tTime += (payload.timeSpent || 0);
-          
+
           const b = payload.breakdown;
           if (b) {
             if (b.trueFalse) { cats.trueFalse.s += b.trueFalse.score || 0; cats.trueFalse.m += b.trueFalse.maxScore || 0; }
@@ -64,7 +64,7 @@ export default function ListeningResultScreen() {
         const isCompleted = listenIds.length > 0 && completedCount === listenIds.length;
 
         setScoreInfo({ score: tScore, total: tMax, percent: finalPercent, timeSpent: tTime, isCompleted });
-        
+
         const allMetrics = [
           { id: 'ox', label: 'Khả năng Đúng/Sai', value: Number(getP(cats.trueFalse)) || 0, color: '#4ACB40', max: cats.trueFalse.m },
           { id: 'choice', label: 'Khả năng chọn đáp án', value: Number(getP(cats.choice)) || 0, color: '#FFB200', max: cats.choice.m },
@@ -83,11 +83,11 @@ export default function ListeningResultScreen() {
 
   // Loading guard để tránh lỗi interpolate của Reanimated
   if (loading || metrics.length === 0) {
-    return <View style={styles.loading}><ActivityIndicator size="large" color={colors.main} /></View>;
+    return <View style={styles.loading}><ActivityIndicator size="large" color={colors.primary} /></View>;
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ResultSummaryScreen
         title={scoreInfo.isCompleted ? (scoreInfo.percent >= 80 ? "Hoàn thành xuất sắc!" : "Hoàn thành bài Nghe!") : "Chưa hoàn thành!"}
         pointLabel={`${scoreInfo.percent} điểm`}
@@ -108,11 +108,11 @@ export default function ListeningResultScreen() {
         secondaryLabel="Xem giải thích chi tiết"
         onSecondaryPress={() => router.push({ pathname: '/lessons/[lessonId]/listening/explanation', params: { lessonId } } as any)}
       />
-      
+
     </View>
   );
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
-    });
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
+});

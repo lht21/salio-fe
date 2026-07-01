@@ -19,7 +19,7 @@ const CategoryChip = ({ label, isActive, onPress, activeBgColor, activeTextColor
   return (
     <TouchableOpacity
       style={[
-        styles.chip, 
+        styles.chip,
         isActive && styles.chipActive,
         isActive && activeBgColor ? { backgroundColor: activeBgColor } : null,
         isActive && activeBorderColor ? { borderColor: activeBorderColor } : null,
@@ -27,7 +27,7 @@ const CategoryChip = ({ label, isActive, onPress, activeBgColor, activeTextColor
       onPress={onPress}
     >
       <Text style={[
-        styles.chipText, 
+        styles.chipText,
         isActive && styles.chipTextActive,
         isActive && activeTextColor ? { color: activeTextColor } : null,
       ]}>
@@ -43,8 +43,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: Border.br_20 || 20,
     borderWidth: 1,
-    borderColor: colors.stroke,
-    backgroundColor: colors.bg,
+    borderColor: colors.borderDefault,
+    backgroundColor: colors.background,
   },
   chipActive: {
     backgroundColor: colors.chipActiveBg,
@@ -53,7 +53,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   chipText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   chipTextActive: {
     color: colors.chipActiveText,

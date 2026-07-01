@@ -10,8 +10,8 @@ interface FeaturedAICardProps {
 }
 
 export default function FeaturedAICard({ onPress }: FeaturedAICardProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.aiCard}>
@@ -26,7 +26,7 @@ export default function FeaturedAICard({ onPress }: FeaturedAICardProps) {
         </View>
         <Text style={styles.aiCardHashtag}>#</Text>
       </View>
-      <Button 
+      <Button
         title="Luyện tập"
         variant="Green"
         onPress={onPress}
@@ -37,12 +37,12 @@ export default function FeaturedAICard({ onPress }: FeaturedAICardProps) {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      aiCard: { backgroundColor: colors.bg, borderRadius: Border.br_20, padding: Padding.padding_15, borderWidth: 1.5, borderColor: colors.stroke },
-      aiCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-      aiCardLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: colors.gray },
-      aiCardBody: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-      aiCardTextContent: { flex: 1 },
-      aiCardTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text, marginBottom: 4 },
-      aiCardDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.gray },
-      aiCardHashtag: { fontFamily: FontFamily.lexendDecaBold, fontSize: 80, color: '#E2E8F0' },
-    });
+  aiCard: { backgroundColor: colors.background, borderRadius: Border.br_20, padding: Padding.padding_15, borderWidth: 1.5, borderColor: colors.borderDefault },
+  aiCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  aiCardLabel: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12, color: colors.textSecondary },
+  aiCardBody: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  aiCardTextContent: { flex: 1 },
+  aiCardTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary, marginBottom: 4 },
+  aiCardDesc: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12, color: colors.textSecondary },
+  aiCardHashtag: { fontFamily: FontFamily.lexendDecaBold, fontSize: 80, color: '#E2E8F0' },
+});

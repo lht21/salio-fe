@@ -34,11 +34,11 @@ const BENEFITS = [
 ];
 
 export default function SubscriptionScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
-  
+
   // Quản lý trạng thái gọi API
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -75,153 +75,153 @@ export default function SubscriptionScreen() {
       transition={{ type: 'timing', duration: 500 }}
       style={{ flex: 1 }}
     >
-        <ImageBackground
+      <ImageBackground
         source={require('../../assets/images/bg.jpg')}
         style={styles.backgroundImage}
         resizeMode="cover"
-        >
+      >
         <SafeAreaView style={styles.safeArea}>
-            
-            {/* --- HEADER --- */}
-            <View style={styles.header}>
-              <IconButton Icon={XIcon} onPress={() => router.back()} />
-                
-            </View>
 
-            {/* --- NỘI DUNG CUỘN ĐƯỢC --- */}
-            <ScrollView 
-              style={styles.scrollView}
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
+          {/* --- HEADER --- */}
+          <View style={styles.header}>
+            <IconButton Icon={XIcon} onPress={() => router.back()} />
+
+          </View>
+
+          {/* --- NỘI DUNG CUỘN ĐƯỢC --- */}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={styles.mainTitle}>Salio Master TOPIK</Text>
 
             {isLoading ? (
               <ActivityIndicator size="large" color={colors.vang} style={{ marginVertical: 30 }} />
             ) : (
               <View style={styles.plansContainer}>
-                  {plans.map((plan) => {
-                    const formattedPrice = plan.price.toLocaleString('vi-VN');
-                    let unit = 'đ / tháng';
-                    if (plan.type === 'premium_yearly') unit = 'đ / năm';
-                    else if (plan.type === 'premium_quarterly') unit = 'đ / 3 tháng';
-                    else if (plan.type === 'lifetime') unit = 'đ / vĩnh viễn';
+                {plans.map((plan) => {
+                  const formattedPrice = plan.price.toLocaleString('vi-VN');
+                  let unit = 'đ / tháng';
+                  if (plan.type === 'premium_yearly') unit = 'đ / năm';
+                  else if (plan.type === 'premium_quarterly') unit = 'đ / 3 tháng';
+                  else if (plan.type === 'lifetime') unit = 'đ / vĩnh viễn';
 
-                    return (
-                      <SubscriptionCard
-                          key={plan._id}
-                          title={plan.name}
-                          price={formattedPrice}
-                          unit={unit}
-                          subText={plan.description || ''}
-                          isRecommended={plan.isPopular}
-                          isSelected={selectedPlanId === plan._id}
-                          onPress={() => setSelectedPlanId(plan._id)}
-                      />
-                    );
-                  })}
+                  return (
+                    <SubscriptionCard
+                      key={plan._id}
+                      title={plan.name}
+                      price={formattedPrice}
+                      unit={unit}
+                      subText={plan.description || ''}
+                      isRecommended={plan.isPopular}
+                      isSelected={selectedPlanId === plan._id}
+                      onPress={() => setSelectedPlanId(plan._id)}
+                    />
+                  );
+                })}
               </View>
             )}
 
             <View style={styles.benefitsContainer}>
-                {BENEFITS.map((text, index) => (
+              {BENEFITS.map((text, index) => (
                 <BenefitItem key={index} text={text} />
-                ))}
+              ))}
             </View>
-            </ScrollView>
+          </ScrollView>
 
-            {/* --- BOTTOM CỐ ĐỊNH --- */}
-            <View style={styles.bottomFixed}>
-                {/* Banner người dùng */}
-                <View style={styles.statusBanner}>
-                    <Text style={styles.statusText}>Bạn đang dùng gói Cơ bản (Miễn phí)</Text>
-                </View>
-
-                {/* Nút Tiếp tục nền đen */}
-                <TouchableOpacity 
-                  style={styles.continueButton} 
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    if (selectedPlanId) {
-                      router.push(`/subscription/${selectedPlanId}/detail`);
-                    }
-                  }}
-                >
-                  <Text style={styles.continueButtonText}>
-                    Tiếp tục - {currentPlan ? currentPlan.price.toLocaleString('vi-VN') : '0'} đ
-                  </Text>
-                </TouchableOpacity>
+          {/* --- BOTTOM CỐ ĐỊNH --- */}
+          <View style={styles.bottomFixed}>
+            {/* Banner người dùng */}
+            <View style={styles.statusBanner}>
+              <Text style={styles.statusText}>Bạn đang dùng gói Cơ bản (Miễn phí)</Text>
             </View>
+
+            {/* Nút Tiếp tục nền đen */}
+            <TouchableOpacity
+              style={styles.continueButton}
+              activeOpacity={0.8}
+              onPress={() => {
+                if (selectedPlanId) {
+                  router.push(`/subscription/${selectedPlanId}/detail`);
+                }
+              }}
+            >
+              <Text style={styles.continueButtonText}>
+                Tiếp tục - {currentPlan ? currentPlan.price.toLocaleString('vi-VN') : '0'} đ
+              </Text>
+            </TouchableOpacity>
+          </View>
 
         </SafeAreaView>
-        </ImageBackground>
+      </ImageBackground>
     </MotiView>
   );
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      backgroundImage: {
-        flex: 1,
-      },
-      safeArea: {
-        flex: 1,
-      },
-      header: {
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-        alignItems: 'flex-end', // Căn phải nút X
-      },
-      scrollView: {
-        flex: 1,
-      },
-      scrollContent: {
-        paddingHorizontal: Padding.padding_15,
-        paddingBottom: 40,
-      },
-      mainTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: 32,
-        color: colors.color, // Màu chữ sáng trên nền tối
-        marginTop: Padding.padding_10,
-        marginBottom: Padding.padding_30,
-      },
-      benefitsContainer: {
-        marginTop: Padding.padding_30,
-      },
-      plansContainer: {
-        gap: Gap.gap_15,
-      },
-      
-      // --- BOTTOM FIXED UI ---
-      bottomFixed: {
-        paddingHorizontal: Padding.padding_15,
-        paddingBottom: Padding.padding_30, // Đẩy lên một chút cho các dòng máy có thanh Home ảo
-        paddingTop: Padding.padding_15,
-        backgroundColor: "transparent", // Trong suốt để lộ nền
-        borderTopLeftRadius: Border.br_20,
-        borderTopRightRadius: Border.br_20,
-      },
-      statusBanner: {
-        backgroundColor: "transparent", // Xám nhạt
-        paddingVertical: Padding.padding_10,
-        borderRadius: Border.br_10,
-        alignItems: 'center',
-      },
-      statusText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_12,
-        color: colors.gray,
-      },
-      continueButton: {
-        backgroundColor: colors.vang, // Nền màu đen cố định theo yêu cầu
-        paddingVertical: Padding.padding_15,
-        borderRadius: 37, // Bo tròn mạnh
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      continueButtonText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.color, // Chữ trắng trên nền đen
-      },
-    });
+  backgroundImage: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+    alignItems: 'flex-end', // Căn phải nút X
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: Padding.padding_15,
+    paddingBottom: 40,
+  },
+  mainTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: 32,
+    color: colors.textBrand, // Màu chữ sáng trên nền tối
+    marginTop: Padding.padding_10,
+    marginBottom: Padding.padding_30,
+  },
+  benefitsContainer: {
+    marginTop: Padding.padding_30,
+  },
+  plansContainer: {
+    gap: Gap.gap_15,
+  },
+
+  // --- BOTTOM FIXED UI ---
+  bottomFixed: {
+    paddingHorizontal: Padding.padding_15,
+    paddingBottom: Padding.padding_30, // Đẩy lên một chút cho các dòng máy có thanh Home ảo
+    paddingTop: Padding.padding_15,
+    backgroundColor: "transparent", // Trong suốt để lộ nền
+    borderTopLeftRadius: Border.br_20,
+    borderTopRightRadius: Border.br_20,
+  },
+  statusBanner: {
+    backgroundColor: "transparent", // Xám nhạt
+    paddingVertical: Padding.padding_10,
+    borderRadius: Border.br_10,
+    alignItems: 'center',
+  },
+  statusText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_12,
+    color: colors.textSecondary,
+  },
+  continueButton: {
+    backgroundColor: colors.vang, // Nền màu đen cố định theo yêu cầu
+    paddingVertical: Padding.padding_15,
+    borderRadius: 37, // Bo tròn mạnh
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  continueButtonText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.textBrand, // Chữ trắng trên nền đen
+  },
+});

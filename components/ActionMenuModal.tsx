@@ -1,11 +1,11 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, Pressable } from 'react-native';
-import { 
-  ArrowsClockwiseIcon, 
-  WarningCircleIcon, 
+import {
+  ArrowsClockwiseIcon,
+  WarningCircleIcon,
   ExportIcon,
-  ArticleIcon, 
-  DownloadSimpleIcon, 
+  ArticleIcon,
+  DownloadSimpleIcon,
   ClockCounterClockwiseIcon,
   XIcon
 } from 'phosphor-react-native';
@@ -20,31 +20,31 @@ import { useTheme } from "@/contexts/ThemeContext";
 interface ActionMenuModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onViewSample?: () => void;    
-  onViewHistory?: () => void;    
-  onDownloadPDF?: () => void;   
-  onRetry?: () => void;          
-  onReport?: () => void;       
-  onShare?: () => void;       
+  onViewSample?: () => void;
+  onViewHistory?: () => void;
+  onDownloadPDF?: () => void;
+  onRetry?: () => void;
+  onReport?: () => void;
+  onShare?: () => void;
 }
 
-export default function ActionMenuModal({ 
-  isVisible, onClose, onViewSample, onViewHistory, onDownloadPDF, onRetry, onReport, onShare 
+export default function ActionMenuModal({
+  isVisible, onClose, onViewSample, onViewHistory, onDownloadPDF, onRetry, onReport, onShare
 }: ActionMenuModalProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-  
+
   return (
     <Modal
       visible={isVisible}
-      animationType="slide" 
+      animationType="slide"
       transparent={true}
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
         <Pressable style={styles.backgroundTouchable} onPress={onClose} />
-        
+
         <View style={styles.sheetContent}>
           <View style={styles.dragHandle} />
 
@@ -54,41 +54,41 @@ export default function ActionMenuModal({
           </View>
 
           <View style={styles.menuContainer}>
-              {/* NHÓM 1: HỌC TẬP */}
-              <ActionMenuItem 
-                  label="Xem bài mẫu" 
-                  icon={<ArticleIcon size={24} color={colors.text} weight="regular" />} 
-                  onPress={() => onViewSample?.()} // Bọc lại như thế này
-              />
-              <ActionMenuItem 
-                  label="Lịch sử luyện tập đề này" 
-                  icon={<ClockCounterClockwiseIcon size={24} color={colors.text} weight="regular" />} 
-                  onPress={() => onViewHistory?.()} 
-              />
-              <ActionMenuItem 
-                  label="Luyện tập lại" 
-                  icon={<ArrowsClockwiseIcon size={24} color={colors.text} weight="regular" />} 
-                  onPress={() => onRetry?.()} 
-              />
+            {/* NHÓM 1: HỌC TẬP */}
+            <ActionMenuItem
+              label="Xem bài mẫu"
+              icon={<ArticleIcon size={24} color={colors.textPrimary} weight="regular" />}
+              onPress={() => onViewSample?.()} // Bọc lại như thế này
+            />
+            <ActionMenuItem
+              label="Lịch sử luyện tập đề này"
+              icon={<ClockCounterClockwiseIcon size={24} color={colors.textPrimary} weight="regular" />}
+              onPress={() => onViewHistory?.()}
+            />
+            <ActionMenuItem
+              label="Luyện tập lại"
+              icon={<ArrowsClockwiseIcon size={24} color={colors.textPrimary} weight="regular" />}
+              onPress={() => onRetry?.()}
+            />
 
-              <View style={styles.divider} />
+            <View style={styles.divider} />
 
-              {/* NHÓM 2: TIỆN ÍCH */}
-              <ActionMenuItem 
-                  label="Tải xuống PDF" 
-                  icon={<DownloadSimpleIcon size={24} color={colors.text} weight="regular" />} 
-                  onPress={() => onDownloadPDF?.()} 
-              />
-              <ActionMenuItem 
-                  label="Chia sẻ" 
-                  icon={<ExportIcon size={24} color={colors.text} weight="regular" />} 
-                  onPress={() => onShare?.()} 
-              />
-              <ActionMenuItem 
-                  label="Báo cáo lỗi sai" 
-                  icon={<WarningCircleIcon size={24} color={colors.text} weight="regular" />} 
-                  onPress={() => onReport?.()} 
-              />
+            {/* NHÓM 2: TIỆN ÍCH */}
+            <ActionMenuItem
+              label="Tải xuống PDF"
+              icon={<DownloadSimpleIcon size={24} color={colors.textPrimary} weight="regular" />}
+              onPress={() => onDownloadPDF?.()}
+            />
+            <ActionMenuItem
+              label="Chia sẻ"
+              icon={<ExportIcon size={24} color={colors.textPrimary} weight="regular" />}
+              onPress={() => onShare?.()}
+            />
+            <ActionMenuItem
+              label="Báo cáo lỗi sai"
+              icon={<WarningCircleIcon size={24} color={colors.textPrimary} weight="regular" />}
+              onPress={() => onReport?.()}
+            />
 
           </View>
         </View>
@@ -98,31 +98,31 @@ export default function ActionMenuModal({
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      overlay: {
-        flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end', 
-      },
-      backgroundTouchable: {
-        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-      },
-      sheetContent: {
-        backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
-        paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
-        shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10,
-      },
-      dragHandle: {
-        width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', 
-        alignSelf: 'center', marginBottom: Gap.gap_15,
-      },
-      header: {
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20,
-      },
-      headerTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text,
-      },
-      menuContainer: {
-        gap: Gap.gap_10,
-      },
-      divider: {
-        height: 1, backgroundColor: '#E2E8F0', marginVertical: 4, 
-      },
-    });
+  overlay: {
+    flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end',
+  },
+  backgroundTouchable: {
+    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+  },
+  sheetContent: {
+    backgroundColor: colors.background, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
+    paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40,
+    shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 10,
+  },
+  dragHandle: {
+    width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1',
+    alignSelf: 'center', marginBottom: Gap.gap_15,
+  },
+  header: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20,
+  },
+  headerTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary,
+  },
+  menuContainer: {
+    gap: Gap.gap_10,
+  },
+  divider: {
+    height: 1, backgroundColor: '#E2E8F0', marginVertical: 4,
+  },
+});

@@ -16,21 +16,21 @@ export const UpgradeBanner = () => {
   const bannerStyles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={bannerStyles.wrapper}
       activeOpacity={0.8}
       // Điều hướng đến thư mục subscription
-      onPress={() => router.push('/subscription/' as any)} 
+      onPress={() => router.push('/subscription/' as any)}
     >
-      <LinearGradient 
-        colors={[colors.upgradeBannerGradientStart || '#1E293B', colors.upgradeBannerGradientEnd || '#0F172A']} // Tone màu tối để tạo độ tương phản sang trọng
-        start={{x:0, y:0}} 
-        end={{x:1, y:1}} 
+      <LinearGradient
+        colors={[colors.neutral900 || '#1E293B', colors.neutral950 || '#0F172A']} // Tone màu tối để tạo độ tương phản sang trọng
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={bannerStyles.gradient}
       >
         {/* Watermark Icon chìm ở góc phải */}
         <View style={bannerStyles.watermark}>
-          <CrownIcon size={100} color={colors.main} weight="fill" opacity={0.1} />
+          <CrownIcon size={100} color={colors.primary} weight="fill" opacity={0.1} />
         </View>
 
         <View style={bannerStyles.content}>
@@ -46,7 +46,7 @@ export const UpgradeBanner = () => {
 
         <View style={bannerStyles.actionRow}>
           <Text style={bannerStyles.sub}>{t('upgradeBanner.action', 'Nâng cấp ngay')}</Text>
-          <CaretRightIcon size={14} color={colors.upgradeBannerActionText || '#0F172A'} weight="bold" />
+          <CaretRightIcon size={14} color={colors.textPrimary || '#0F172A'} weight="bold" />
         </View>
       </LinearGradient>
     </TouchableOpacity>
@@ -54,9 +54,9 @@ export const UpgradeBanner = () => {
 };
 
 const createStyles = (colors: any) => StyleSheet.create({
-  wrapper: { 
-    marginHorizontal: Padding.padding_15 || 15, 
-    marginTop: 10, 
+  wrapper: {
+    marginHorizontal: Padding.padding_15 || 15,
+    marginTop: 10,
     marginBottom: 40,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
@@ -64,8 +64,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
-  gradient: { 
-    borderRadius: Border.br_20 || 20, 
+  gradient: {
+    borderRadius: Border.br_20 || 20,
     padding: 20,
     position: 'relative',
     overflow: 'hidden',
@@ -86,37 +86,37 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.upgradeBannerIconBg || 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.neutral800 || 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   textWrapper: {
     flex: 1,
   },
-  title: { 
-    fontFamily: FontFamily.lexendDecaSemiBold, 
-    fontSize: FontSize.fs_16 || 16, 
-    color: colors.main, 
-    marginBottom: 4 
+  title: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_16 || 16,
+    color: colors.primary,
+    marginBottom: 4
   },
   desc: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.upgradeBannerDesc || '#CBD5E1',
+    color: colors.textInverse || '#CBD5E1',
   },
-  actionRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: colors.main,
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    gap: 4 
+    gap: 4
   },
-  sub: { 
-    fontFamily: FontFamily.lexendDecaSemiBold, 
-    fontSize: FontSize.fs_12 || 12, 
-    color: colors.upgradeBannerActionText || '#0F172A' 
+  sub: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_12 || 12,
+    color: colors.textPrimary || '#0F172A'
   },
 });

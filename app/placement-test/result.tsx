@@ -14,8 +14,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 const { width } = Dimensions.get("window");
 
 export default function PlacementTestResult() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const params = useLocalSearchParams<{ sessionId?: string }>();
@@ -61,7 +61,7 @@ export default function PlacementTestResult() {
     return (
       <LinearGradient colors={["#ADFF66", "#8AFF81", "#FFFFFF"]} style={styles.container}>
         <SafeAreaView style={[styles.safeArea, styles.centered]}>
-          <ActivityIndicator color={colors.main2} size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
           <Text style={styles.loadingText}>Đang tải kết quả...</Text>
         </SafeAreaView>
       </LinearGradient>
@@ -122,99 +122,99 @@ export default function PlacementTestResult() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-        paddingHorizontal: 35
-      },
-      safeArea: {
-        flex: 1
-      },
-      centered: {
-        alignItems: "center",
-        justifyContent: "center"
-      },
-      content: {
-        flex: 1,
-        alignItems: "center",
-        paddingTop: 60
-      },
-      loadingText: {
-        marginTop: 12,
-        fontFamily: FontFamily.lexendDecaRegular,
-        color: colors.text
-      },
-      mascotContainer: {
-        marginBottom: 40
-      },
-      mascotImage: {
-        width: 180,
-        height: 180
-      },
-      rankSection: {
-        alignItems: "center",
-        marginBottom: 20
-      },
-      rankLabel: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 17,
-        fontWeight: "700",
-        color: colors.text || "#1E1E1E",
-        marginBottom: 10
-      },
-      rankValue: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 30,
-        fontWeight: "600",
-        color: colors.main2 || "#3C8137",
-        textAlign: "center"
-      },
-      scoreCapsule: {
-        backgroundColor: colors.mainLighter,
-        paddingVertical: 12,
-        width: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 10
-      },
-      scoreText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 14,
-        fontWeight: "700",
-        color: colors.text || "#1E1E1E"
-      },
-      percentText: {
-        marginTop: 4,
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 22,
-        color: colors.main2 || "#3C8137"
-      },
-      bottomCard: {
-        width,
-        backgroundColor: "#98F291",
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
-        paddingHorizontal: 30,
-        paddingTop: 60,
-        paddingBottom: 40,
-        alignItems: "center"
-      },
-      congratsText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: 14,
-        color: colors.text || "#1E1E1E",
-        textAlign: "center",
-        lineHeight: 24,
-        marginBottom: 40
-      },
-      actionButton: {
-        backgroundColor: colors.vang || "#F9F871",
-        width: "100%",
-        height: 60,
-        borderRadius: 30,
-        marginVertical: 0,
-        elevation: 3
-      },
-      actionButtonText: {
-        color: colors.text || "#1E1E1E"
-      }
-    });
+  container: {
+    flex: 1,
+    paddingHorizontal: 35
+  },
+  safeArea: {
+    flex: 1
+  },
+  centered: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 60
+  },
+  loadingText: {
+    marginTop: 12,
+    fontFamily: FontFamily.lexendDecaRegular,
+    color: colors.textPrimary
+  },
+  mascotContainer: {
+    marginBottom: 40
+  },
+  mascotImage: {
+    width: 180,
+    height: 180
+  },
+  rankSection: {
+    alignItems: "center",
+    marginBottom: 20
+  },
+  rankLabel: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.textPrimary || "#1E1E1E",
+    marginBottom: 10
+  },
+  rankValue: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 30,
+    fontWeight: "600",
+    color: colors.primary || "#3C8137",
+    textAlign: "center"
+  },
+  scoreCapsule: {
+    backgroundColor: colors.backgroundOverlay,
+    paddingVertical: 12,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10
+  },
+  scoreText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textPrimary || "#1E1E1E"
+  },
+  percentText: {
+    marginTop: 4,
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 22,
+    color: colors.primary || "#3C8137"
+  },
+  bottomCard: {
+    width,
+    backgroundColor: "#98F291",
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingHorizontal: 30,
+    paddingTop: 60,
+    paddingBottom: 40,
+    alignItems: "center"
+  },
+  congratsText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: 14,
+    color: colors.textPrimary || "#1E1E1E",
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 40
+  },
+  actionButton: {
+    backgroundColor: colors.vang || "#F9F871",
+    width: "100%",
+    height: 60,
+    borderRadius: 30,
+    marginVertical: 0,
+    elevation: 3
+  },
+  actionButtonText: {
+    color: colors.textPrimary || "#1E1E1E"
+  }
+});

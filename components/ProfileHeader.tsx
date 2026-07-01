@@ -56,20 +56,20 @@ const ProfileHeader = ({ username, email, avatarUrl, level, isPremium, hasNewNot
     <View style={styles.container}>
       {/* Background Gradient */}
       <View
-        
+
         style={styles.gradientBg}
       />
-      
+
       {/* Top Right Buttons */}
       <View style={styles.topRightContainer}>
         {/* Notification Button */}
         <Animated.View style={[styles.notificationWrapper, animatedWrapperStyle]}>
-          <TouchableOpacity 
-            style={styles.notificationBtn} 
+          <TouchableOpacity
+            style={styles.notificationBtn}
             onPress={() => router.push('/notifications' as any)}
             activeOpacity={0.7}
           >
-            <BellIcon size={24} color={colors.gray} weight="bold" />
+            <BellIcon size={24} color={colors.textSecondary} weight="bold" />
             <Animated.Text style={[styles.notificationText, animatedTextStyle]} numberOfLines={1}>
               mới!
             </Animated.Text>
@@ -90,7 +90,7 @@ const ProfileHeader = ({ username, email, avatarUrl, level, isPremium, hasNewNot
             end={{ x: 1, y: 1 }}
             style={styles.premiumAvatarContainer}
           >
-            <Image 
+            <Image
               source={
                 avatarUrl
                   ? { uri: avatarUrl }
@@ -102,7 +102,7 @@ const ProfileHeader = ({ username, email, avatarUrl, level, isPremium, hasNewNot
           </LinearGradient>
         ) : (
           <View style={styles.avatarContainer}>
-            <Image 
+            <Image
               source={
                 avatarUrl
                   ? { uri: avatarUrl }
@@ -114,7 +114,7 @@ const ProfileHeader = ({ username, email, avatarUrl, level, isPremium, hasNewNot
           </View>
         )}
         <Text style={styles.username}>{username || t('profile.header.guest', 'Khách')}</Text>
-        <StatusBadge text={`${t('profile.header.level', 'Trình độ học')} ${level || 'Sơ cấp 1'}`} bgColor={colors.vang || '#F9F871'} />
+        <StatusBadge text={`${t('profile.header.level', 'Trình độ học')} ${level || 'Sơ cấp 1'}`} bgColor={colors.bgLevel} />
       </View>
     </View>
   );
@@ -146,7 +146,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 8,
   },
   notificationWrapper: {
-    backgroundColor: colors.stroke,
+    backgroundColor: colors.borderDefault,
     borderRadius: 19,
     height: 38,
     overflow: 'hidden',
@@ -171,12 +171,12 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    backgroundColor: colors.bg || '#FFFFFF',
-    borderColor: colors.main,
+    backgroundColor: colors.background || '#FFFFFF',
+    borderColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Gap.gap_15,
-    borderBottomWidth:5,
+    borderBottomWidth: 5,
     borderWidth: 5,
     borderBottomColor: colors.borderAvatar,
   },
@@ -192,19 +192,19 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 51,
-    borderColor: colors.bg || '#FFFFFF',
+    borderColor: colors.background || '#FFFFFF',
     borderWidth: 2,
   },
   username: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16 || 16,
-    color: colors.text || '#1E1E1E',
+    color: colors.textPrimary || '#1E1E1E',
     marginBottom: 4,
   },
   email: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_14,
-    color: colors.gray,
+    color: colors.textSecondary,
     marginBottom: Gap.gap_10,
   },
 });

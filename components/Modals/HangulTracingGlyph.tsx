@@ -21,7 +21,7 @@ type AnimatedStrokeProps = {
 };
 
 const AnimatedStroke = ({ d, delay, strokeWidth, baseDelayMs }: AnimatedStrokeProps) => {
-    const { colors } = useTheme();
+  const { colors } = useTheme();
 
   const pathRef = React.useRef<Path>(null);
   const [pathLength, setPathLength] = React.useState(0);
@@ -89,7 +89,7 @@ const AnimatedStroke = ({ d, delay, strokeWidth, baseDelayMs }: AnimatedStrokePr
         strokeDasharray={pathLength}
         strokeLinecap="round"
         strokeLinejoin="round"
-        stroke={colors.colorBlack}
+        stroke={colors.borderDefault}
         strokeWidth={strokeWidth}
         fill="none"
       />
@@ -103,8 +103,8 @@ type HangulTracingGlyphProps = {
 };
 
 const HangulTracingGlyph = ({ glyph, baseDelayMs = 1000 }: HangulTracingGlyphProps) => {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const glyphData = HANGUL_STROKE_DATA[glyph];
 
@@ -148,23 +148,23 @@ const HangulTracingGlyph = ({ glyph, baseDelayMs = 1000 }: HangulTracingGlyphPro
 };
 
 const getStyles = (colors: any) => StyleSheet.create({
-      wrapper: {
-        width: 220,
-        height: 220,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      fallbackWrap: {
-        width: 220,
-        height: 220,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      fallbackText: {
-        fontSize: 156,
-        lineHeight: 170,
-        color: colors.colorBlack,
-      },
-    });
+  wrapper: {
+    width: 220,
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fallbackWrap: {
+    width: 220,
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fallbackText: {
+    fontSize: 156,
+    lineHeight: 170,
+    color: colors.borderDefault,
+  },
+});
 
 export default HangulTracingGlyph;

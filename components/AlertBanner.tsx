@@ -12,10 +12,10 @@ interface AlertBannerProps {
   onPress?: () => void;
 }
 
-const AlertBanner = ({ 
-  text, 
-  buttonTitle, 
-  onPress 
+const AlertBanner = ({
+  text,
+  buttonTitle,
+  onPress
 }: AlertBannerProps) => {
   const opacity = useSharedValue(1);
   const { t } = useTranslation();
@@ -46,7 +46,7 @@ const AlertBanner = ({
     <Animated.View style={[themeStyles.container, animatedStyle]}>
       <Text style={themeStyles.text}>{displayText}</Text>
       <View style={themeStyles.btnWrapper}>
-        <Button 
+        <Button
           variant="Black"
           title={displayButtonTitle}
           style={themeStyles.customBtn}
@@ -72,7 +72,7 @@ const styles = (colors: any) => StyleSheet.create({
     flex: 1,
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.text,
+    color: colors.textPrimary,
     lineHeight: 18,
     marginRight: 10,
   },

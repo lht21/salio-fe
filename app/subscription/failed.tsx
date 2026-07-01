@@ -16,14 +16,14 @@ import { useTheme } from "@/contexts/ThemeContext";
 const { width, height } = Dimensions.get('window');
 
 export default function PaymentFailedScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
 
   // Hàm xử lý khi nhấn nút X (Hủy bỏ hoàn toàn và về Home)
   const handleClose = () => {
-    router.replace('/(tabs)'); 
+    router.replace('/(tabs)');
   };
 
   // Hàm xử lý khi nhấn "Thử lại" (Quay lại trang chi tiết đơn hàng trước đó)
@@ -34,8 +34,8 @@ export default function PaymentFailedScreen() {
   return (
     <LinearGradient
       // Cập nhật dải gradient: Đỏ nhạt -> Trắng -> Xám mờ (thể hiện sự không thành công)
-      colors={['#FFE5E5', colors.bg, colors.stroke]} 
-      locations={[0, 0.4, 1]} 
+      colors={['#FFE5E5', colors.background, colors.borderDefault]}
+      locations={[0, 0.4, 1]}
       style={styles.container}
     >
       {/* --- BACKGROUND PATTERNS (Họa tiết chữ S mờ) --- */}
@@ -52,7 +52,7 @@ export default function PaymentFailedScreen() {
       </View>
 
       <SafeAreaView style={styles.safeArea}>
-        
+
         {/* --- HEADER --- */}
         <View style={styles.header}>
           {/* Nút X thoát hoàn toàn luồng thanh toán */}
@@ -67,7 +67,7 @@ export default function PaymentFailedScreen() {
           </View>
 
           <Text style={styles.title}>Thanh toán thất bại</Text>
-          
+
           <Text style={styles.message}>
             Rất tiếc, giao dịch của bạn không thể hoàn tất. Vui lòng kiểm tra lại số dư, phương thức thanh toán hoặc thử lại sau ít phút.
           </Text>
@@ -81,7 +81,7 @@ export default function PaymentFailedScreen() {
             variant="Orange" // Sử dụng màu Cam hoặc Outline tùy vào hệ thống Design System của bạn
             onPress={handleRetry}
           />
-          
+
           {/* Nút Hủy (Tùy chọn bổ sung để UX rõ ràng hơn) */}
           <Button
             title="Về trang chủ"
@@ -96,59 +96,59 @@ export default function PaymentFailedScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      container: {
-        flex: 1,
-      },
-      safeArea: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_15,
-      },
-      
-      // Họa tiết nền
-      bgPattern: {
-        position: 'absolute',
-        opacity: 0.04, // Mờ ảo hòa quyện vào nền
-      },
-      sText: {
-        fontFamily: FontFamily.lexendDecaSemiBold, 
-        color: colors.red, // Dùng tone đỏ mờ cho background thất bại
-      },
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_15,
+  },
 
-      // Header
-      header: {
-        alignItems: 'flex-end',
-        paddingTop: Padding.padding_15,
-        paddingBottom: Padding.padding_30,
-      },
+  // Họa tiết nền
+  bgPattern: {
+    position: 'absolute',
+    opacity: 0.04, // Mờ ảo hòa quyện vào nền
+  },
+  sText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    color: colors.red, // Dùng tone đỏ mờ cho background thất bại
+  },
 
-      // Nội dung chính
-      content: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_10,
-        marginBottom: height * 0.1, 
-      },
-      mainIconContainer: {
-        marginBottom: Gap.gap_20,
-        alignItems: 'flex-start', 
-      },
-      title: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_24,
-        color: colors.red, // Màu đỏ nổi bật thông báo lỗi
-        marginBottom: Gap.gap_15,
-        textAlign: 'left',
-      },
-      message: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: colors.text, 
-        textAlign: 'left',
-        lineHeight: 24, 
-      },
+  // Header
+  header: {
+    alignItems: 'flex-end',
+    paddingTop: Padding.padding_15,
+    paddingBottom: Padding.padding_30,
+  },
 
-      // Nút bấm
-      footer: {
-        paddingBottom: Padding.padding_30,
-        gap: Gap.gap_10, // Khoảng cách giữa 2 nút (Thử lại & Về trang chủ)
-      },
-    });
+  // Nội dung chính
+  content: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_10,
+    marginBottom: height * 0.1,
+  },
+  mainIconContainer: {
+    marginBottom: Gap.gap_20,
+    alignItems: 'flex-start',
+  },
+  title: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_24,
+    color: colors.red, // Màu đỏ nổi bật thông báo lỗi
+    marginBottom: Gap.gap_15,
+    textAlign: 'left',
+  },
+  message: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+    textAlign: 'left',
+    lineHeight: 24,
+  },
+
+  // Nút bấm
+  footer: {
+    paddingBottom: Padding.padding_30,
+    gap: Gap.gap_10, // Khoảng cách giữa 2 nút (Thử lại & Về trang chủ)
+  },
+});

@@ -32,14 +32,14 @@ export default function HistoryCard({ title, score, time, type, variant = 'card'
       const ratio = earned / total;
 
       if (ratio < 0.5) { // Dưới 50%
-        return { bg: colors.historyRedBg || '#FEF2F2', text: colors.historyRedText || '#EF4444', isExcellent: false }; // Đỏ
+        return { bg: colors.historyRedBg || '#FEF2F2', text: colors.textInverse || '#EF4444', isExcellent: false }; // Đỏ
       } else if (ratio < 0.75) { // Dưới 75%
-        return { bg: colors.historyOrangeBg || '#D97706', text: colors.historyOrangeText || '#FFFFFF', isExcellent: false }; // Vàng cam
+        return { bg: colors.historyOrangeBg || '#D97706', text: colors.textInverse || '#FFFFFF', isExcellent: false }; // Vàng cam
       } else if (ratio >= 0.9) { // Từ 90% trở lên (Ví dụ: 180/200)
-        return { bg: colors.historyYellowBg || '#FEF08A', text: colors.historyYellowText || '#B45309', isExcellent: true }; // Vàng sáng vinh danh
+        return { bg: colors.historyYellowBg || '#FEF08A', text: colors.textInverse || '#B45309', isExcellent: true }; // Vàng sáng vinh danh
       }
     }
-    return { bg: colors.main2, text: colors.bg || '#FFFFFF', isExcellent: false }; // Xanh lá (Mặc định)
+    return { bg: colors.primary, text: colors.background || '#FFFFFF', isExcellent: false }; // Xanh lá (Mặc định)
   };
 
   const statusColors = getScoreStatus(score);
@@ -69,22 +69,22 @@ export default function HistoryCard({ title, score, time, type, variant = 'card'
   }));
 
   return (
-    <TouchableOpacity 
-      activeOpacity={0.8} 
-      style={[styles.card, variant === 'list' && styles.cardList, variant === 'list' && isLast && styles.cardListLast, style, isSelected && styles.cardSelected]} 
-      onPress={onPress} 
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={[styles.card, variant === 'list' && styles.cardList, variant === 'list' && isLast && styles.cardListLast, style, isSelected && styles.cardSelected]}
+      onPress={onPress}
       onLongPress={onLongPress}
     >
       {isSelectionMode && (
         <View style={styles.checkboxContainer}>
-          {isSelected 
-            ? <CheckCircleIcon size={24} color={colors.main2} weight="fill" />
-            : <CircleIcon size={24} color={colors.gray} weight="light" />}
+          {isSelected
+            ? <CheckCircleIcon size={24} color={colors.primary} weight="fill" />
+            : <CircleIcon size={24} color={colors.textSecondary} weight="light" />}
         </View>
       )}
 
       <View style={styles.avatarContainer}>
-        <ExamIcon size={28} color={colors.main2 || '#22C55E'} weight="fill" />
+        <ExamIcon size={28} color={colors.primary || '#22C55E'} weight="fill" />
       </View>
 
       <View style={styles.contentContainer}>
@@ -96,7 +96,7 @@ export default function HistoryCard({ title, score, time, type, variant = 'card'
             </Animated.View>
           )}
         </View>
-        
+
         <View style={styles.infoRow}>
           <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
             {statusColors.isExcellent ? (
@@ -106,9 +106,9 @@ export default function HistoryCard({ title, score, time, type, variant = 'card'
             )}
             <Text style={[styles.scoreText, { color: statusColors.text }]}>{score}</Text>
           </View>
-          
+
           <View style={styles.timeWrap}>
-            <ClockIcon size={14} color={colors.gray || '#64748B'} weight="regular" />
+            <ClockIcon size={14} color={colors.textSecondary || '#64748B'} weight="regular" />
             <Text style={styles.timeText}>{time}</Text>
           </View>
         </View>
@@ -119,11 +119,11 @@ export default function HistoryCard({ title, score, time, type, variant = 'card'
 
 const createStyles = (colors: any) => StyleSheet.create({
   card: {
-    backgroundColor: colors.bg || '#FFFFFF',
+    backgroundColor: colors.background || '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: Stroke.stroke,
-    borderColor: colors.stroke || '#E2E8F0',
+    borderColor: colors.borderDefault || '#E2E8F0',
     borderRadius: Border.br_20,
     padding: Padding.padding_15 || 15,
     width: 240,
@@ -139,7 +139,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderBottomWidth: 0, // Bỏ đường kẻ cho item cuối cùng trong danh sách
   },
   cardSelected: {
-    borderColor: colors.main2,
+    borderColor: colors.primary,
     backgroundColor: colors.historySelectedBg || '#F0FDF4',
   },
   checkboxContainer: {
@@ -151,7 +151,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: Border.br_15 || 15,
-    backgroundColor: colors.bg2,
+    backgroundColor: colors.backgroundSubtle,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -159,13 +159,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  titleRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  cardTitle: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 || 14, color: colors.text },
+  cardTitle: { flex: 1, fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14 || 14, color: colors.textPrimary },
   starIcon: {
     marginLeft: 8,
   },
@@ -179,5 +179,5 @@ const createStyles = (colors: any) => StyleSheet.create({
   badge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   scoreText: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_12 || 12 },
   timeWrap: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12 || 12, color: colors.gray || '#64748B' },
+  timeText: { fontFamily: FontFamily.lexendDecaRegular, fontSize: FontSize.fs_12 || 12, color: colors.textSecondary || '#64748B' },
 });

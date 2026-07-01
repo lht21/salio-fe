@@ -8,8 +8,8 @@ import LessonService from '@/api/services/lesson.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ReadingResultScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
@@ -29,7 +29,7 @@ export default function ReadingResultScreen() {
       try {
         setLoading(true);
         const modulesRes = await LessonService.getModules(lessonId!);
-        const readingIds = modulesRes.data.reading.map((item: any) => 
+        const readingIds = modulesRes.data.reading.map((item: any) =>
           typeof item === 'string' ? item : item._id
         );
 
@@ -43,7 +43,7 @@ export default function ReadingResultScreen() {
         let totalTime = 0;
 
         // Khởi tạo bộ gom điểm theo 3 nhóm kỹ năng chính
-        let cats = { 
+        let cats = {
           vocabulary: { s: 0, m: 0 }, // Từ vựng
           choice: { s: 0, m: 0 },     // Trắc nghiệm (gồm cả Single Choice và True/False)
           deep: { s: 0, m: 0 }        // Hiểu sâu
@@ -51,11 +51,11 @@ export default function ReadingResultScreen() {
 
         results.forEach(res => {
           if (!res) return;
-          
+
           totalScore += (res.totalScore || 0);
           totalMaxScore += (res.maxScore || 0);
           totalTime += (res.timeSpent || 0);
-          
+
           const b = res.breakdown;
           if (!b) return;
 
@@ -116,7 +116,7 @@ export default function ReadingResultScreen() {
     loadResults();
   }, [lessonId]);
 
-  if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={colors.main} /></View>;
+  if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={colors.primary} /></View>;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -145,5 +145,5 @@ export default function ReadingResultScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
-    });
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+});

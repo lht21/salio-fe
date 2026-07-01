@@ -159,7 +159,7 @@ export default function VocabularyScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor={colors.main}
+            tintColor={colors.primary}
           />
         }
       >
@@ -187,12 +187,12 @@ export default function VocabularyScreen() {
             style={styles.statsBg}
           >
             <View style={styles.statsContainer}>
-              <StatCard label="Thành thạo" value={stats.mastered} valueColor={colors.main2} />
-              <StatCard label="Đang học" value={stats.learning} valueColor={colors.blue} />
+              <StatCard label="Thành thạo" value={stats.mastered} valueColor={colors.primary} />
+              <StatCard label="Đang học" value={stats.learning} valueColor={colors.accent1} />
               <StatCard label="Quên rồi" value={stats.forgotten} valueColor={colors.red} />
             </View>
             <TouchableOpacity style={styles.detailBtn} activeOpacity={0.7} onPress={() => {/* TODO: Navigate to detail */ }}>
-              <CaretDoubleRightIcon size={18} color={colors.text} weight="bold" />
+              <CaretDoubleRightIcon size={18} color={colors.textPrimary} weight="bold" />
             </TouchableOpacity>
           </LinearGradient>
         </View>
@@ -221,7 +221,7 @@ export default function VocabularyScreen() {
             />
             <ReviewModeCard
               label="Tập viết"
-              icon={<KeyboardIcon size={32} color={colors.text} />}
+              icon={<KeyboardIcon size={32} color={colors.textPrimary} />}
               onPress={() => handleType('all', totalAllCount)}
               sharedTransitionTag="type_icon"
             />
@@ -252,7 +252,7 @@ export default function VocabularyScreen() {
               key={set.id}
               title={set.title}
               totalWords={set.totalWords}
-              backgroundColor={colors.bgFlashCardSet}
+              backgroundColor={colors.surface}
               imageSource={set.imageSource}
               onPress={() => {
                 router.push({
@@ -271,7 +271,7 @@ export default function VocabularyScreen() {
 const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -286,7 +286,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   headerTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_24 || 24,
-    color: colors.text
+    color: colors.textPrimary
   },
   missionBanner: {
     backgroundColor: colors.historyYellowBg || '#FEF3C7',
@@ -299,7 +299,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   missionBannerText: {
     fontFamily: FontFamily.lexendDecaMedium,
     fontSize: 14,
-    color: colors.text,
+    color: colors.textPrimary,
     flex: 1
   },
   sectionContainer: {
@@ -309,7 +309,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   sectionTitle: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_16,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: Gap.gap_15 || 15,
   },
   reviewModesContainer: {

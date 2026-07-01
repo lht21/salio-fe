@@ -19,12 +19,12 @@ import { FontFamily, FontSize, Padding, Gap } from "../../../../constants/Global
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function AudioCheckScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { type, setId, attemptId, zenmode } = useLocalSearchParams();
-  
+
   const soundRef = useRef<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -49,13 +49,13 @@ export default function AudioCheckScreen() {
   // Hàm xử lý khi xác nhận nghe rõ -> Đi vào phòng thi
   const handleStartExam = async () => {
     if (soundRef.current) {
-      await soundRef.current.stopAsync().catch(() => {});
-      await soundRef.current.unloadAsync().catch(() => {});
+      await soundRef.current.stopAsync().catch(() => { });
+      await soundRef.current.unloadAsync().catch(() => { });
       soundRef.current = null;
       setIsPlaying(false);
       setProgress(0);
     }
-    
+
     const queryParam = zenmode === 'true' ? '?zenmode=true' : '';
     router.replace(`/practice/${type}/${setId}/${attemptId}/exam${queryParam}` as any);
   };
@@ -94,7 +94,7 @@ export default function AudioCheckScreen() {
               setProgress(newProgress);
             }
           });
-          
+
           // Tự động phát khi màn hình vừa tải xong âm thanh
           playTestSound();
         }
@@ -108,7 +108,7 @@ export default function AudioCheckScreen() {
     return () => {
       isMounted = false;
       if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current.unloadAsync().catch(() => { });
         soundRef.current = null;
       }
     };
@@ -154,7 +154,7 @@ export default function AudioCheckScreen() {
       {/* Header với nút Back */}
       <View style={styles.header}>
         <IconButton Icon={XIcon} onPress={() => router.back()} />
-          
+
       </View>
 
       {/* Body: Hiệu ứng âm thanh ở giữa */}
@@ -208,61 +208,61 @@ export default function AudioCheckScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg },
-      header: { alignItems: "flex-end", paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10 },
-      body: { flex: 1, justifyContent: "center", alignItems: "center" },
-      mascotContainer: { alignItems: "center", justifyContent: "center", width: 250, height: 250 },
-      mascotCircle: {
-        width: 160,
-        height: 160,
-        borderRadius: 80,
-        backgroundColor: "#FFFFFF",
-        alignItems: "center",
-        justifyContent: "center",
-        borderWidth: 4,
-        borderColor: colors.main || "#98F291",
-        zIndex: 2,
-        shadowColor: colors.main || "#98F291",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 15,
-        elevation: 8,
-      },
-      mascotImage: { width: 110, height: 110 },
-      ripple: {
-        position: "absolute",
-        width: 160,
-        height: 160,
-        borderRadius: 80,
-        backgroundColor: colors.main || "#98F291",
-        zIndex: 1,
-      },
-      footer: { paddingHorizontal: Padding.padding_15, paddingBottom: 40, gap: Gap.gap_15 },
-      textContainer: { alignItems: "center", marginBottom: Gap.gap_15 },
-      titleText: {
-        fontFamily: FontFamily.lexendDecaSemiBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text,
-        marginBottom: Gap.gap_8,
-      },
-      subtitleText: {
-        fontFamily: FontFamily.lexendDecaRegular,
-        fontSize: FontSize.fs_14,
-        color: colors.gray,
-        textAlign: "center",
-        paddingHorizontal: Padding.padding_20,
-        lineHeight: 22,
-      },
-      progressContainer: {
-        width: '50%',
-        height: 6,
-        backgroundColor: colors.stroke,
-        borderRadius: 3,
-        marginTop: 40,
-        overflow: 'hidden',
-      },
-      progressBar: {
-        height: '100%',
-        backgroundColor: colors.main,
-      },
-    });
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  header: { alignItems: "flex-end", paddingHorizontal: Padding.padding_15, paddingTop: Padding.padding_10 },
+  body: { flex: 1, justifyContent: "center", alignItems: "center" },
+  mascotContainer: { alignItems: "center", justifyContent: "center", width: 250, height: 250 },
+  mascotCircle: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 4,
+    borderColor: colors.primary || "#98F291",
+    zIndex: 2,
+    shadowColor: colors.primary || "#98F291",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  mascotImage: { width: 110, height: 110 },
+  ripple: {
+    position: "absolute",
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: colors.primary || "#98F291",
+    zIndex: 1,
+  },
+  footer: { paddingHorizontal: Padding.padding_15, paddingBottom: 40, gap: Gap.gap_15 },
+  textContainer: { alignItems: "center", marginBottom: Gap.gap_15 },
+  titleText: {
+    fontFamily: FontFamily.lexendDecaSemiBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary,
+    marginBottom: Gap.gap_8,
+  },
+  subtitleText: {
+    fontFamily: FontFamily.lexendDecaRegular,
+    fontSize: FontSize.fs_14,
+    color: colors.textSecondary,
+    textAlign: "center",
+    paddingHorizontal: Padding.padding_20,
+    lineHeight: 22,
+  },
+  progressContainer: {
+    width: '50%',
+    height: 6,
+    backgroundColor: colors.borderDefault,
+    borderRadius: 3,
+    marginTop: 40,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: colors.primary,
+  },
+});

@@ -54,55 +54,55 @@ const ChangeDisplayModeModal = forwardRef<BottomSheetModal, ChangeDisplayModeMod
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
       enablePanDownToClose={true}
-      backgroundStyle={{ 
-        backgroundColor: colors.bg,
+      backgroundStyle={{
+        backgroundColor: colors.background,
         borderTopLeftRadius: Border.br_30,
-        borderTopRightRadius: Border.br_30 
+        borderTopRightRadius: Border.br_30
       }}
       handleIndicatorStyle={{ backgroundColor: colors.dragHandleBg || '#CBD5E1' }}
     >
       <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('settings.display', 'Hiển thị')}</Text>
-            <IconButton Icon={XIcon} onPress={onClose} />
-          </View>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('settings.display', 'Hiển thị')}</Text>
+          <IconButton Icon={XIcon} onPress={onClose} />
+        </View>
 
-          <View style={styles.body}>
-            {DISPLAY_MODE_OPTIONS.map((option, index) => {
-              const isActive = option.value === mode;
-              const Icon = option.value === 'light' ? SunIcon : MoonIcon;
-              const iconColor = option.value === 'light' ? (colors.sunIconColor || '#8CED82') : (colors.moonIconColor || '#202124');
+        <View style={styles.body}>
+          {DISPLAY_MODE_OPTIONS.map((option, index) => {
+            const isActive = option.value === mode;
+            const Icon = option.value === 'light' ? SunIcon : MoonIcon;
+            const iconColor = option.value === 'light' ? (colors.primary || '#8CED82') : (colors.moonIconColor || '#202124');
 
-              return (
-                <Pressable
-                  key={option.value}
-                  style={[
-                    styles.optionCard,
-                    isActive && styles.optionCardActive,
-                    index === DISPLAY_MODE_OPTIONS.length - 1 && styles.optionCardLast,
-                  ]}
-                  onPress={() => onSelectMode(option.value)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t('settings.mode', 'Chế độ')} ${option.label}`}
-                >
-                  <View style={styles.optionInner}>
-                    <View style={styles.optionLeft}>
-                      <Icon size={42} color={iconColor} weight="fill" />
-                      <Text style={styles.optionLabel}>{option.label}</Text>
-                    </View>
-
-                    {isActive ? (
-                      <View style={styles.appliedBadge}>
-                        <Text style={styles.appliedBadgeText}>{t('settings.applied', 'Đang áp dụng')}</Text>
-                      </View>
-                    ) : null}
+            return (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.optionCard,
+                  isActive && styles.optionCardActive,
+                  index === DISPLAY_MODE_OPTIONS.length - 1 && styles.optionCardLast,
+                ]}
+                onPress={() => onSelectMode(option.value)}
+                accessibilityRole="button"
+                accessibilityLabel={`${t('settings.mode', 'Chế độ')} ${option.label}`}
+              >
+                <View style={styles.optionInner}>
+                  <View style={styles.optionLeft}>
+                    <Icon size={42} color={iconColor} weight="fill" />
+                    <Text style={styles.optionLabel}>{option.label}</Text>
                   </View>
 
-                  {isActive ? <View style={styles.activeAccent} /> : null}
-                </Pressable>
-              );
-            })}
-          </View>
+                  {isActive ? (
+                    <View style={styles.appliedBadge}>
+                      <Text style={styles.appliedBadgeText}>{t('settings.applied', 'Đang áp dụng')}</Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                {isActive ? <View style={styles.activeAccent} /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -111,7 +111,7 @@ const ChangeDisplayModeModal = forwardRef<BottomSheetModal, ChangeDisplayModeMod
 const createStyles = (colors: any) => StyleSheet.create({
   sheetContent: { paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20 },
-  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text },
+  headerTitle: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary },
   body: {
     minHeight: 320,
     paddingBottom: 4,
@@ -129,14 +129,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   optionCardActive: {
     minHeight: 112,
     borderWidth: 1,
-    borderColor: colors.displayOptionBorder || '#EDF0F5',
-    backgroundColor: colors.bg,
+    borderColor: colors.borderDefault || '#EDF0F5',
+    backgroundColor: colors.background,
     paddingBottom: 20,
-    shadowColor: colors.displayOptionShadow || '#0C5F35',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 4,
   },
   optionCardLast: {
     marginBottom: 0,
@@ -154,12 +149,12 @@ const createStyles = (colors: any) => StyleSheet.create({
   optionLabel: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_14,
-    color: colors.text,
+    color: colors.textPrimary,
   },
   appliedBadge: {
     minWidth: 108,
     borderRadius: 8,
-    backgroundColor: colors.appliedBadgeBg || '#C9D3E3',
+    backgroundColor: colors.primary || '#C9D3E3',
     paddingHorizontal: 12,
     paddingVertical: 4,
     alignItems: 'center',
@@ -168,7 +163,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   appliedBadgeText: {
     fontFamily: FontFamily.lexendDecaRegular,
     fontSize: 11,
-    color: colors.gray || '#64748B',
+    color: colors.textSecondary || '#64748B',
   },
   activeAccent: {
     position: 'absolute',
@@ -176,7 +171,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 6,
-    backgroundColor: colors.activeAccentBg || '#0B663B',
+    backgroundColor: colors.primary || '#0B663B',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },

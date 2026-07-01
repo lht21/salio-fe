@@ -49,7 +49,7 @@ const VocabularyCard: React.FC<Props> = ({ item, onToggleFavorite, rightAction, 
   };
 
   const getBadgeColor = (posKey: string) => {
-    if (posKey === 'noun') return { bg: colors.picVocabBg, text: colors.picVocabText };
+    if (posKey === 'noun') return { bg: colors.primaryLight, text: colors.picVocabText };
     if (posKey === 'verb') return { bg: colors.badgePurpleBg, text: colors.badgePurpleText };
     return { bg: colors.orangePastel, text: colors.cam };
   };
@@ -60,8 +60,8 @@ const VocabularyCard: React.FC<Props> = ({ item, onToggleFavorite, rightAction, 
     const currentPitch = voiceGender === 'male' ? 0.8 : 1.1;
 
     Speech.stop(); // Dừng âm thanh đang phát trước đó (nếu có) để tránh bị đè tiếng
-    Speech.speak(item.word, { 
-      language: 'ko-KR', 
+    Speech.speak(item.word, {
+      language: 'ko-KR',
       rate: 0.8,
       pitch: currentPitch,
       onStart: () => setIsSpeaking(true),
@@ -77,46 +77,46 @@ const VocabularyCard: React.FC<Props> = ({ item, onToggleFavorite, rightAction, 
 
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={onPress} disabled={!onPress}>
-    <MotiView
-      style={styles.card}
-      animate={{
-        backgroundColor: isSelected ? colors.historySelectedBg : colors.bg,
-        borderColor: isSelected ? colors.main2 : colors.stroke,
-      }}
-      transition={{ type: 'timing', duration: 200 }}
-    >
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.word}>{item.word}</Text>
-          <PosBadge text={displayPos} bgColor={badge.bg} textColor={badge.text} />
+      <MotiView
+        style={styles.card}
+        animate={{
+          backgroundColor: isSelected ? colors.historySelectedBg : colors.background,
+          borderColor: isSelected ? colors.primary : colors.borderDefault,
+        }}
+        transition={{ type: 'timing', duration: 200 }}
+      >
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.word}>{item.word}</Text>
+            <PosBadge text={displayPos} bgColor={badge.bg} textColor={badge.text} />
+          </View>
+          <Text style={styles.phonetic}>{item.phonetic}</Text>
+          <Text style={styles.meaning}>{item.meaning}</Text>
         </View>
-        <Text style={styles.phonetic}>{item.phonetic}</Text>
-        <Text style={styles.meaning}>{item.meaning}</Text>
-      </View>
 
-      <View style={styles.actions}>
-        <TouchableOpacity onPress={handleSpeak} activeOpacity={0.7}>
-          <SpeakerSimpleHighIcon 
-            size={30} 
-            color={isSpeaking ? colors.main2 : colors.text} 
-            weight={isSpeaking ? "fill" : "regular"} 
-          />
-        </TouchableOpacity>
-        {rightAction ?? (
-          <TouchableOpacity
-            onPress={onToggleFavorite}
-            style={styles.favoriteButton}
-            activeOpacity={0.85}
-          >
-            <BookmarkSimpleIcon
+        <View style={styles.actions}>
+          <TouchableOpacity onPress={handleSpeak} activeOpacity={0.7}>
+            <SpeakerSimpleHighIcon
               size={30}
-              color={item.isFavorite ? colors.main : colors.text}
-              weight={item.isFavorite ? 'fill' : 'regular'}
+              color={isSpeaking ? colors.primary : colors.textPrimary}
+              weight={isSpeaking ? "fill" : "regular"}
             />
           </TouchableOpacity>
-        )}
-      </View>
-    </MotiView>
+          {rightAction ?? (
+            <TouchableOpacity
+              onPress={onToggleFavorite}
+              style={styles.favoriteButton}
+              activeOpacity={0.85}
+            >
+              <BookmarkSimpleIcon
+                size={30}
+                color={item.isFavorite ? colors.primary : colors.textPrimary}
+                weight={item.isFavorite ? 'fill' : 'regular'}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </MotiView>
     </TouchableOpacity>
   );
 };
@@ -124,9 +124,9 @@ const VocabularyCard: React.FC<Props> = ({ item, onToggleFavorite, rightAction, 
 const createStyles = (colors: any) => StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.background,
     borderWidth: Stroke.stroke,
-    borderColor: colors.stroke,
+    borderColor: colors.borderDefault,
     borderRadius: Border.br_30,
     padding: Padding.padding_20 || 20,
     marginBottom: Gap.gap_15,
@@ -134,9 +134,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   content: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
-  word: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20 || 16, color: colors.text },
-  phonetic: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: colors.gray, marginBottom: 2 },
-  meaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.color },
+  word: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_20 || 16, color: colors.textPrimary },
+  phonetic: { fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_12, color: colors.textSecondary, marginBottom: 2 },
+  meaning: { fontFamily: FontFamily.lexendDecaMedium, fontSize: FontSize.fs_14, color: colors.textBrand },
   actions: { flexDirection: 'row', gap: Gap.gap_20 || 20 },
   favoriteButton: {
     padding: 0,

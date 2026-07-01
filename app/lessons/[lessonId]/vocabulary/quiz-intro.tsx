@@ -13,13 +13,13 @@ import VocabularyService from '../../../../api/services/vocabulary.service';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function QuizIntroScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { lessonId } = useLocalSearchParams();
 
-   const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({ remembered: 0, learning: 0, forgotten: 0, total: 0 });
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function QuizIntroScreen() {
         setIsLoading(false);
       }
     };
-    
+
     if (lessonId) fetchStats();
   }, [lessonId]);
 
@@ -59,7 +59,7 @@ export default function QuizIntroScreen() {
 
   const unmasteredCount = stats.learning + stats.forgotten;
   const canStartQuiz = unmasteredCount >= 4;
-  
+
   // Thông số cho biểu đồ tròn (Pie Chart)
   const radius = 60;
   const strokeWidth = 15;
@@ -70,30 +70,30 @@ export default function QuizIntroScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* 1. HEADER: Chỉ có nút X ở góc phải */}
       <View style={styles.header}>
         <IconButton Icon={XIcon} onPress={() => router.push(`/lessons/${lessonId}/vocabulary/intro` as any)} />
-          
+
       </View>
 
       {/* 2. NỘI DUNG CHÍNH */}
-       {isLoading ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.main} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Đang tổng hợp kết quả...</Text>
         </View>
       ) : (
         <View style={styles.content}>
-        
-        {/* Phần 1: Hình ảnh minh họa */}
-                  {/* Phần 1: Tiêu đề */}
+
+          {/* Phần 1: Hình ảnh minh họa */}
+          {/* Phần 1: Tiêu đề */}
           <View style={styles.titleRow}>
             <Text style={styles.roundText}>Thống kê</Text>
             <Text style={styles.titleText}>Flashcard</Text>
           </View>
 
-  {/* Phần 2: Biểu đồ tròn (Pie Chart) */}
+          {/* Phần 2: Biểu đồ tròn (Pie Chart) */}
           <View style={styles.chartContainer}>
             <Svg width={160} height={160} viewBox="0 0 160 160">
               {/* Vòng tròn nền (Phần chưa thành thạo) */}
@@ -101,7 +101,7 @@ export default function QuizIntroScreen() {
                 cx="80"
                 cy="80"
                 r={radius}
-                stroke={colors.stroke}
+                stroke={colors.borderDefault}
                 strokeWidth={strokeWidth}
                 fill="none"
               />
@@ -110,7 +110,7 @@ export default function QuizIntroScreen() {
                 cx="80"
                 cy="80"
                 r={radius}
-                stroke={colors.main}
+                stroke={colors.primary}
                 strokeWidth={strokeWidth}
                 fill="none"
                 strokeDasharray={circumference}
@@ -128,7 +128,7 @@ export default function QuizIntroScreen() {
           {/* Phần 3: Chi tiết số liệu */}
           <View style={styles.statsBox}>
             <View style={styles.statRow}>
-              <View style={[styles.dot, { backgroundColor: colors.main }]} />
+              <View style={[styles.dot, { backgroundColor: colors.primary }]} />
               <Text style={styles.statLabel}>Thành thạo:</Text>
               <Text style={styles.statValue}>{stats.remembered} từ</Text>
             </View>
@@ -152,37 +152,37 @@ export default function QuizIntroScreen() {
               </Text>
             </View>
           )}
-          
+
           {!canStartQuiz && stats.total > 0 && unmasteredCount === 0 && (
-            <View style={[styles.warningBox, { backgroundColor: '#F0FFF0', borderColor: colors.main }]}>
-              <Text style={[styles.warningText, { color: colors.main }]}>
+            <View style={[styles.warningBox, { backgroundColor: '#F0FFF0', borderColor: colors.primary }]}>
+              <Text style={[styles.warningText, { color: colors.primary }]}>
                 Tuyệt vời! Bạn đã thông thạo toàn bộ từ vựng trong bài này.
               </Text>
             </View>
           )}
-          
+
         </View>
       )}
 
       {/* 3. FOOTER: Nút Bắt đầu */}
       <View style={styles.footer}>
-           {canStartQuiz ? (
-          <Button 
-            title="Bắt đầu Trắc nghiệm" 
-            variant="Green" 
-            onPress={handleStart} 
+        {canStartQuiz ? (
+          <Button
+            title="Bắt đầu Trắc nghiệm"
+            variant="Green"
+            onPress={handleStart}
           />
         ) : (!canStartQuiz && stats.total > 0 && unmasteredCount === 0) ? (
-          <Button 
-            title="Tiếp tục sang Ngữ pháp" 
-            variant="Green" 
-            onPress={() => router.push(`/lessons/${lessonId}/grammar/intro` as any)} 
+          <Button
+            title="Tiếp tục sang Ngữ pháp"
+            variant="Green"
+            onPress={() => router.push(`/lessons/${lessonId}/grammar/intro` as any)}
           />
         ) : (
-          <Button 
-            title="Quay lại Bài học" 
-            variant="Outline" 
-            onPress={() => router.push(`/lessons/${lessonId}/vocabulary/intro` as any)} 
+          <Button
+            title="Quay lại Bài học"
+            variant="Outline"
+            onPress={() => router.push(`/lessons/${lessonId}/vocabulary/intro` as any)}
           />
         )}
       </View>
@@ -194,151 +194,151 @@ export default function QuizIntroScreen() {
 
 // --- STYLES ---
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: {
-        flex: 1,
-        backgroundColor: colors.bg,
-      },
-      
-      header: {
-        alignItems: 'flex-end',
-        paddingHorizontal: Padding.padding_15,
-        paddingTop: Padding.padding_10,
-      },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
 
-      content: {
-        flex: 1,
-        paddingHorizontal: Padding.padding_20,
-        justifyContent: 'center', // Căn giữa toàn bộ cụm nội dung theo trục dọc
-        alignItems: 'center',
-      },
+  header: {
+    alignItems: 'flex-end',
+    paddingHorizontal: Padding.padding_15,
+    paddingTop: Padding.padding_10,
+  },
 
-      illustration: {
-        width: 250,
-        height: 270,
-        borderRadius: 40,
-        marginBottom: 40,
-      },
+  content: {
+    flex: 1,
+    paddingHorizontal: Padding.padding_20,
+    justifyContent: 'center', // Căn giữa toàn bộ cụm nội dung theo trục dọc
+    alignItems: 'center',
+  },
 
-      loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      loadingText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_16,
-        color: colors.text,
-        marginTop: Gap.gap_10,
-      },
+  illustration: {
+    width: 250,
+    height: 270,
+    borderRadius: 40,
+    marginBottom: 40,
+  },
 
-      titleRow: {
-        alignItems: 'flex-start',
-        width: '100%',
-        marginBottom: 30,
-      },
-      
-      roundText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_20,
-        color: colors.text, // Xám đậm / Đen
-      },
-      
-      titleText: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_24,
-        color: colors.cam, // Màu cam từ thiết kế
-      },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_16,
+    color: colors.textPrimary,
+    marginTop: Gap.gap_10,
+  },
 
-      descriptionBox: {
-        width: '100%',
-        backgroundColor: '#F0FFF0', // Nền xanh mờ
-        paddingVertical: Padding.padding_20,
-        paddingHorizontal: Padding.padding_15,
-        borderRadius: Border.br_20,
-        borderWidth: 1.5,
-        borderColor: colors.main,
-        borderStyle: 'dashed',
-        alignItems: 'center',
-      },
-      descriptionText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-        textAlign: 'center',
-        lineHeight: 22,
-      },
+  titleRow: {
+    alignItems: 'flex-start',
+    width: '100%',
+    marginBottom: 30,
+  },
 
-      chartContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 30,
-        position: 'relative',
-      },
-      chartInner: {
-        position: 'absolute',
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      chartPercent: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: 28,
-        color: colors.main,
-      },
-      chartLabel: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: 12,
-        color: colors.gray,
-      },
+  roundText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_20,
+    color: colors.textPrimary, // Xám đậm / Đen
+  },
 
-      statsBox: {
-        width: '100%',
-        backgroundColor: '#F8FAFC',
-        padding: Padding.padding_20,
-        borderRadius: Border.br_20,
-        gap: 15,
-      },
-      statRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-      dot: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        marginRight: 10,
-      },
-      statLabel: {
-        flex: 1,
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-      },
-      statValue: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_14,
-        color: colors.text,
-      },
+  titleText: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_24,
+    color: colors.cam, // Màu cam từ thiết kế
+  },
 
-      warningBox: {
-        width: '100%',
-        marginTop: Gap.gap_20,
-        padding: 15,
-        backgroundColor: '#FEF2F2',
-        borderRadius: Border.br_15,
-        borderWidth: 1,
-        borderColor: '#FECACA',
-      },
-      warningText: {
-        fontFamily: FontFamily.lexendDecaMedium,
-        fontSize: FontSize.fs_14,
-        color: '#EF4444',
-        textAlign: 'center',
-        lineHeight: 22,
-      },
+  descriptionBox: {
+    width: '100%',
+    backgroundColor: '#F0FFF0', // Nền xanh mờ
+    paddingVertical: Padding.padding_20,
+    paddingHorizontal: Padding.padding_15,
+    borderRadius: Border.br_20,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+  },
+  descriptionText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
 
-      footer: {
-        paddingHorizontal: Padding.padding_15,
-        paddingBottom: Padding.padding_30,
-        paddingTop: Padding.padding_10,
-      },
-    });
+  chartContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+    position: 'relative',
+  },
+  chartInner: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chartPercent: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: 28,
+    color: colors.primary,
+  },
+  chartLabel: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+
+  statsBox: {
+    width: '100%',
+    backgroundColor: '#F8FAFC',
+    padding: Padding.padding_20,
+    borderRadius: Border.br_20,
+    gap: 15,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  statLabel: {
+    flex: 1,
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+  },
+  statValue: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_14,
+    color: colors.textPrimary,
+  },
+
+  warningBox: {
+    width: '100%',
+    marginTop: Gap.gap_20,
+    padding: 15,
+    backgroundColor: '#FEF2F2',
+    borderRadius: Border.br_15,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  warningText: {
+    fontFamily: FontFamily.lexendDecaMedium,
+    fontSize: FontSize.fs_14,
+    color: '#EF4444',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+
+  footer: {
+    paddingHorizontal: Padding.padding_15,
+    paddingBottom: Padding.padding_30,
+    paddingTop: Padding.padding_10,
+  },
+});

@@ -39,15 +39,15 @@ export default function CertificateScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <ScreenHeader 
-                title="Huy hiệu" 
-                onBackPress={() => router.back()} 
+            <ScreenHeader
+                title="Huy hiệu"
+                onBackPress={() => router.back()}
             />
 
             <View style={styles.badgesRow}>
                 {BADGES.map((badge, index) => (
-                    <MotiView 
-                        key={badge.id} 
+                    <MotiView
+                        key={badge.id}
                         style={styles.badgeItem}
                         from={{ opacity: 0, translateY: 30, scale: 0.8 }}
                         animate={{ opacity: 1, translateY: 0, scale: 1 }}
@@ -70,43 +70,43 @@ export default function CertificateScreen() {
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-        safeArea: {
-            flex: 1,
-            backgroundColor: colors.bg,
-        },
-        badgesRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: Padding.padding_15,
-            paddingTop: Padding.padding_15,
-            gap: 8,
-        },
-        badgeItem: {
-            flex: 1,
-            alignItems: 'center',
-        },
-        badgeImageWrap: {
-            width: 96,
-            height: 96,
-            borderRadius: 48,
-            borderWidth: 2,
-            borderColor: colors.stroke,
-            backgroundColor: '#F7F9FC',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-        },
-        badgeImage: {
-            width: 90,
-            height: 90,
-            borderRadius: 45,
-        },
-        badgeTitle: {
-            marginTop: Gap.gap_8,
-            textAlign: 'center',
-            fontFamily: FontFamily.lexendDecaSemiBold,
-            fontSize: FontSize.fs_12,
-            color: colors.green,
-            lineHeight: 18,
-        },
-    });
+    safeArea: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
+    badgesRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: Padding.padding_15,
+        paddingTop: Padding.padding_15,
+        gap: 8,
+    },
+    badgeItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    badgeImageWrap: {
+        width: 96,
+        height: 96,
+        borderRadius: 48,
+        borderWidth: 2,
+        borderColor: colors.borderDefault,
+        backgroundColor: '#F7F9FC',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+    },
+    badgeImage: {
+        width: 90,
+        height: 90,
+        borderRadius: 45,
+    },
+    badgeTitle: {
+        marginTop: Gap.gap_8,
+        textAlign: 'center',
+        fontFamily: FontFamily.lexendDecaSemiBold,
+        fontSize: FontSize.fs_12,
+        color: colors.primary,
+        lineHeight: 18,
+    },
+});

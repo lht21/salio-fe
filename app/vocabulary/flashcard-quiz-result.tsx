@@ -18,15 +18,15 @@ import apiClient from '../../api/client';
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function FlashcardQuizResultScreen() {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const router = useRouter();
   const { setId, correctCount, totalCount, history } = useLocalSearchParams();
-  
+
   const [words, setWords] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [selectedWord, setSelectedWord] = useState<any>(null);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -88,7 +88,7 @@ export default function FlashcardQuizResultScreen() {
 
     const playSound = async () => {
       try {
-        const audioUri = score < 50 
+        const audioUri = score < 50
           ? 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_c6ccf3232f.mp3?filename=negative_beeps-6008.mp3' // Âm thanh thất bại / buồn
           : 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=success-1-6297.mp3'; // Âm thanh chúc mừng
 
@@ -129,7 +129,7 @@ export default function FlashcardQuizResultScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
@@ -141,21 +141,21 @@ export default function FlashcardQuizResultScreen() {
         <IconButton Icon={XIcon} onPress={() => setShowExitModal(true)} />
       </View>
 
-      <ScrollView 
-        style={styles.scrollArea} 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        style={styles.scrollArea}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* 2. CELEBRATION */}
         <View style={styles.celebrationSection}>
-          <Image 
+          <Image
             source={
-              score < 50 
-                ? require('../../assets/images/horani/failure.png') 
+              score < 50
+                ? require('../../assets/images/horani/failure.png')
                 : require('../../assets/images/horani/result-levelup.png')
-            } 
-            style={styles.illustration} 
-            resizeMode="contain" 
+            }
+            style={styles.illustration}
+            resizeMode="contain"
           />
           <Text style={styles.titleText}>{score < 50 ? 'Cần cố gắng hơn!' : 'Hoàn thành!'}</Text>
         </View>
@@ -168,10 +168,10 @@ export default function FlashcardQuizResultScreen() {
 
         {/* MISSION D2 BANNER */}
         {missionD2 && (
-          <View style={[styles.scoreBanner, { backgroundColor: missionD2.isCompleted ? colors.greenLight : colors.bg2, marginTop: -10 }]}>
-            <Text style={[styles.scoreText, { color: missionD2.isCompleted ? colors.main2 : colors.text }]}>
-              {missionD2.isCompleted 
-                ? '🎉 Đã hoàn thành nhiệm vụ D2: Học 10 từ vựng!' 
+          <View style={[styles.scoreBanner, { backgroundColor: missionD2.isCompleted ? colors.primaryLight : colors.backgroundSubtle, marginTop: -10 }]}>
+            <Text style={[styles.scoreText, { color: missionD2.isCompleted ? colors.primary : colors.textPrimary }]}>
+              {missionD2.isCompleted
+                ? '🎉 Đã hoàn thành nhiệm vụ D2: Học 10 từ vựng!'
                 : `Nhiệm vụ D2: Học từ vựng (${missionD2.progress}/10)`}
             </Text>
           </View>
@@ -186,9 +186,9 @@ export default function FlashcardQuizResultScreen() {
                 <Text style={[styles.resultLabel, isCorrect ? styles.textCorrect : styles.textIncorrect]}>
                   {isCorrect ? 'Đúng' : 'Sai'}
                 </Text>
-                <VocabularyCard 
-                  item={{ ...item, pos: item.type }} 
-                  onToggleFavorite={() => handleBookmark(item)} 
+                <VocabularyCard
+                  item={{ ...item, pos: item.type }}
+                  onToggleFavorite={() => handleBookmark(item)}
                 />
               </View>
             );
@@ -198,27 +198,27 @@ export default function FlashcardQuizResultScreen() {
 
       {/* 5. ACTION BUTTONS */}
       <View style={styles.footer}>
-        <Button 
-          title="Về bộ từ vựng" 
-          variant="Outline" 
-          onPress={handleDone} 
+        <Button
+          title="Về bộ từ vựng"
+          variant="Outline"
+          onPress={handleDone}
         />
-        <Button 
-          title="Kiểm tra lại" 
-          variant="Green" 
-          onPress={handleRetry} 
+        <Button
+          title="Kiểm tra lại"
+          variant="Green"
+          onPress={handleRetry}
           style={{ marginTop: Gap.gap_10 }}
         />
       </View>
 
       {/* MODALS */}
-      <SaveToFolderModal 
-        isVisible={showSaveModal} 
+      <SaveToFolderModal
+        isVisible={showSaveModal}
         onClose={() => setShowSaveModal(false)}
         wordData={selectedWord}
       />
 
-      <ConfirmModal 
+      <ConfirmModal
         isVisible={showExitModal}
         title="Đang xem kết quả mà"
         subtitle="Bạn muốn trở về bộ từ vựng ngay bây giờ?"
@@ -242,34 +242,34 @@ export default function FlashcardQuizResultScreen() {
 
 // --- STYLES ---
 const getStyles = (colors: any) => StyleSheet.create({
-      safeArea: { flex: 1, backgroundColor: colors.bg },
-      header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
-      scrollArea: { flex: 1 },
-      scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
-      
-      celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
-      illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
-      titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.xanh },
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  header: { alignItems: 'flex-end', paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_10 },
+  scrollArea: { flex: 1 },
+  scrollContent: { paddingHorizontal: Padding.padding_20, paddingBottom: 40 },
 
-      scoreBanner: {
-        flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.greenLight,
-        padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20,
-      },
-      scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.main2 },
-      
-      listSection: { width: '100%' },
+  celebrationSection: { alignItems: 'center', marginBottom: Gap.gap_20 },
+  illustration: { width: 160, height: 160, marginBottom: Gap.gap_10 },
+  titleText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_24, color: colors.accent1 },
 
-      resultLabel: {
-        fontFamily: FontFamily.lexendDecaBold,
-        fontSize: FontSize.fs_14,
-        marginBottom: 8,
-        marginLeft: 4,
-      },
-      textCorrect: { color: colors.main2 },
-      textIncorrect: { color: colors.red },
+  scoreBanner: {
+    flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.primaryLight,
+    padding: Padding.padding_15, borderRadius: Border.br_15, marginBottom: Gap.gap_20,
+  },
+  scoreText: { fontFamily: FontFamily.lexendDecaBold, fontSize: FontSize.fs_16, color: colors.primary },
 
-      footer: {
-        paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
-        backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.stroke,
-      }
-    });
+  listSection: { width: '100%' },
+
+  resultLabel: {
+    fontFamily: FontFamily.lexendDecaBold,
+    fontSize: FontSize.fs_14,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  textCorrect: { color: colors.primary },
+  textIncorrect: { color: colors.red },
+
+  footer: {
+    paddingHorizontal: Padding.padding_20, paddingVertical: Padding.padding_20,
+    backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.borderDefault,
+  }
+});

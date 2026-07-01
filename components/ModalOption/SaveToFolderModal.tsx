@@ -15,10 +15,10 @@ interface SaveToFolderModalProps {
 }
 
 export default function SaveToFolderModal({ isVisible, onClose, wordData }: SaveToFolderModalProps) {
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-  
+
   // Dữ liệu mock các thư mục của người dùng
   const userFolders = ['Từ vựng giao tiếp', 'Từ vựng TOPIK 3'];
 
@@ -36,10 +36,10 @@ export default function SaveToFolderModal({ isVisible, onClose, wordData }: Save
     >
       <View style={styles.overlay}>
         <Pressable style={styles.backgroundTouchable} onPress={onClose} />
-        
+
         {/* KHỐI BOTTOM SHEET */}
         <View style={styles.sheetContent}>
-          
+
           <View style={styles.dragHandle} />
 
           <View style={styles.header}>
@@ -48,34 +48,34 @@ export default function SaveToFolderModal({ isVisible, onClose, wordData }: Save
           </View>
 
           <View style={styles.menuContainer}>
-            
+
             {/* Lựa chọn 1: Lưu vào Sổ tay từ vựng (Favorite) */}
-            <ActionMenuItem 
-              label="Sổ tay từ vựng" 
+            <ActionMenuItem
+              label="Sổ tay từ vựng"
               variant="favorite"
-              onPress={() => handleSaveFolder('Sổ tay từ vựng')} 
+              onPress={() => handleSaveFolder('Sổ tay từ vựng')}
             />
 
             {/* Lựa chọn 2: Danh sách Flashcard Sets */}
             {userFolders.map((folder, index) => (
-              <ActionMenuItem 
-                key={index} 
-                label={folder} 
+              <ActionMenuItem
+                key={index}
+                label={folder}
                 variant="flashcardSet"
-                onPress={() => handleSaveFolder(folder)} 
+                onPress={() => handleSaveFolder(folder)}
               />
             ))}
 
             <View style={styles.divider} />
 
             {/* Lựa chọn 3: Tạo thư mục mới */}
-            <ActionMenuItem 
-              label="Tạo bộ Flashcard mới" 
+            <ActionMenuItem
+              label="Tạo bộ Flashcard mới"
               variant="createSet"
               onPress={() => {
                 onClose();
                 Alert.alert("Tính năng đang phát triển");
-              }} 
+              }}
             />
 
           </View>
@@ -86,30 +86,30 @@ export default function SaveToFolderModal({ isVisible, onClose, wordData }: Save
 }
 
 const getStyles = (colors: any) => StyleSheet.create({
-      overlay: {
-        flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end', 
-      },
-      backgroundTouchable: {
-        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-      },
-      sheetContent: {
-        backgroundColor: colors.bg, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
-        paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40, 
-      },
-      dragHandle: {
-        width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1', 
-        alignSelf: 'center', marginBottom: Gap.gap_15,
-      },
-      header: {
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20,
-      },
-      headerTitle: {
-        fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.text,
-      },
-      menuContainer: {
-        gap: Gap.gap_10,
-      },
-      divider: {
-        height: 1, backgroundColor: '#E2E8F0', marginVertical: 4, 
-      },
-    });
+  overlay: {
+    flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end',
+  },
+  backgroundTouchable: {
+    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+  },
+  sheetContent: {
+    backgroundColor: colors.background, borderTopLeftRadius: Border.br_30, borderTopRightRadius: Border.br_30,
+    paddingHorizontal: Padding.padding_20, paddingTop: Padding.padding_15, paddingBottom: 40,
+  },
+  dragHandle: {
+    width: 40, height: 5, borderRadius: 3, backgroundColor: '#CBD5E1',
+    alignSelf: 'center', marginBottom: Gap.gap_15,
+  },
+  header: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Gap.gap_20,
+  },
+  headerTitle: {
+    fontFamily: FontFamily.lexendDecaSemiBold, fontSize: FontSize.fs_16, color: colors.textPrimary,
+  },
+  menuContainer: {
+    gap: Gap.gap_10,
+  },
+  divider: {
+    height: 1, backgroundColor: '#E2E8F0', marginVertical: 4,
+  },
+});

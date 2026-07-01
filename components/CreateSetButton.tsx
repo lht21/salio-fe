@@ -28,7 +28,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   createSetButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.main,
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 100, // Border radius full dạng viên thuốc
@@ -37,6 +37,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   createSetText: {
     fontFamily: FontFamily.lexendDecaSemiBold,
     fontSize: FontSize.fs_12 || 12,
-    color: colors.bg || '#1E1E1E',
+    color: colors.background || '#1E1E1E',
   },
 });
